@@ -1,0 +1,307 @@
+import type {
+  BillingBalanceResponse,
+  CreateWorkflowResponse,
+  ModelsResponse,
+  SkillRecord,
+  Memory,
+  ScheduledWorkflow,
+  WorkflowTemplate,
+  AgentHealthStatus,
+  TaskSummary,
+  WorkflowSummary,
+  WorkflowTraceStep,
+} from './types';
+
+export interface ApiConfig {
+  baseUrl: string;
+  apiKey: string;
+}
+
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+    public readonly meta?: {
+      type?: string;
+      code?: string;
+      param?: string;
+      retry_after?: number;
+    }
+  ) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
+async function request<T>(config: ApiConfig, path: string, init?: RequestInit): Promise<T> {
+  const url = `${config.baseUrl.replace(/\/$/, '')}${path}`;
+
+  const headers = new Headers(init?.headers);
+  if (!headers.has('Accept')) headers.set('Accept', 'application/json');
+  // Only set Content-Type for JSON bodies.
+  if (init?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  if (config.apiKey) headers.set('Authorization', `Bearer ${config.apiKey}`);
+
+  const response = await fetch(url, {
+    ...init,
+    headers,
+  });
+
+  if (!response.ok) {
+    let message = `HTTP ${response.status}`;
+    let meta: ApiError['meta'] | undefined;
+    try {
+      const body = (await response.json()) as {
+        error?: { type?: string; message?: string; code?: string; param?: string; retry_after?: number };
+      };
+      message = body.error?.message ?? message;
+      meta = body.error;
+    } catch {
+      // ignore parse failure
+    }
+    throw new ApiError(response.status, message, meta);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    return response.json() as Promise<T>;
+  }
+
+  return (await response.text()) as unknown as T;
+}
+
+export interface WorkflowDetails {
+  workflow: WorkflowSummary;
+  tasks: TaskSummary[];
+}
+
+export interface ContextFileUpload {
+  filename: string;
+  content_base64: string;
+  media_type: string;
+}
+
+export interface CreateWorkflowInput {
+  objective: string;
+  orchestrator_model?: string;
+  chat_id?: string;
+  model_overrides?: Record<string, string>;
+  tools?: string[];
+  max_credits?: number;
+  callback_url?: string;
+  human_approval?: boolean;
+  context_files?: ContextFileUpload[];
+  background?: boolean;
+}
+
+export async function createWorkflow(
+  config: ApiConfig,
+  input: CreateWorkflowInput
+): Promise<CreateWorkflowResponse> {
+  return request<CreateWorkflowResponse>(config, '/v1/workflows', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function listWorkflows(
+  config: ApiConfig,
+  params?: { status?: string; page?: number; limit?: number }
+): Promise<{ workflows: WorkflowSummary[]; total: number; page: number; limit: number }> {
+  const sp = new URLSearchParams();
+  if (params?.status) sp.set('status', params.status);
+  if (typeof params?.page === 'number') sp.set('page', String(params.page));
+  if (typeof params?.limit === 'number') sp.set('limit', String(params.limit));
+  const qs = sp.toString();
+  return request<{ workflows: WorkflowSummary[]; total: number; page: number; limit: number }>(
+    config,
+    `/v1/workflows${qs ? `?${qs}` : ''}`
+  );
+}
+
+export async function cancelWorkflow(config: ApiConfig, workflowId: string): Promise<void> {
+  await request(config, `/v1/workflows/${workflowId}`, { method: 'DELETE' });
+}
+
+export async function getWorkflow(config: ApiConfig, workflowId: string): Promise<WorkflowDetails> {
+  return request<WorkflowDetails>(config, `/v1/workflows/${workflowId}`);
+}
+
+export async function getWorkflowTrace(
+  config: ApiConfig,
+  workflowId: string
+): Promise<{ workflow_id: string; trace: WorkflowTraceStep[] }> {
+  return request<{ workflow_id: string; trace: WorkflowTraceStep[] }>(config, `/v1/workflows/${workflowId}/trace`);
+}
+
+export async function continueWorkflow(
+  config: ApiConfig,
+  workflowId: string,
+  objective: string
+): Promise<{ workflow_id: string; status: string }> {
+  return request<{ workflow_id: string; status: string }>(config, `/v1/workflows/${workflowId}/continue`, {
+    method: 'POST',
+    body: JSON.stringify({ objective }),
+  });
+}
+
+export async function retryWorkflow(
+  config: ApiConfig,
+  workflowId: string
+): Promise<{ workflow_id: string; status: string; reset_tasks: number }> {
+  return request<{ workflow_id: string; status: string; reset_tasks: number }>(
+    config,
+    `/v1/workflows/${workflowId}/retry`,
+    { method: 'POST' }
+  );
+}
+
+export async function getModels(config: ApiConfig): Promise<ModelsResponse> {
+  return request<ModelsResponse>(config, '/v1/models');
+}
+
+export async function getPresets(config: ApiConfig): Promise<{ presets: Record<string, unknown> }> {
+  return request<{ presets: Record<string, unknown> }>(config, '/v1/presets');
+}
+
+export async function listSkills(config: ApiConfig): Promise<{ skills: SkillRecord[] }> {
+  return request<{ skills: SkillRecord[] }>(config, '/v1/skills');
+}
+
+export async function getSkill(config: ApiConfig, id: string): Promise<{ skill: SkillRecord }> {
+  return request<{ skill: SkillRecord }>(config, `/v1/skills/${encodeURIComponent(id)}`);
+}
+
+export async function upsertSkill(
+  config: ApiConfig,
+  id: string,
+  input: { name?: string; description: string; prompt_addendum: string; tools?: string[] }
+): Promise<{ skill: SkillRecord }> {
+  return request<{ skill: SkillRecord }>(config, `/v1/skills/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function removeSkill(config: ApiConfig, id: string): Promise<{ deleted: boolean; id?: string }> {
+  return request<{ deleted: boolean; id?: string }>(config, `/v1/skills/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function getBillingBalance(config: ApiConfig): Promise<BillingBalanceResponse> {
+  return request<BillingBalanceResponse>(config, '/v1/billing/balance');
+}
+
+export async function getWorkspace(
+  config: ApiConfig,
+  chatId: string
+): Promise<{
+  workspace: Record<string, unknown>;
+  metadata: Record<string, unknown> | null;
+  files: string[];
+  created_files?: string[];
+}> {
+  return request<{
+    workspace: Record<string, unknown>;
+    metadata: Record<string, unknown> | null;
+    files: string[];
+    created_files?: string[];
+  }>(
+    config,
+    `/v1/sandbox/workspaces/${encodeURIComponent(chatId)}`
+  );
+}
+
+export async function listTemplates(
+  config: ApiConfig,
+  params?: { tag?: string; search?: string }
+): Promise<{ templates: WorkflowTemplate[] }> {
+  const sp = new URLSearchParams();
+  if (params?.tag) sp.set('tag', params.tag);
+  if (params?.search) sp.set('search', params.search);
+  const qs = sp.toString();
+  return request<{ templates: WorkflowTemplate[] }>(config, `/v1/templates${qs ? `?${qs}` : ''}`);
+}
+
+export async function useTemplate(
+  config: ApiConfig,
+  templateId: string,
+  objective: string
+): Promise<{ template_id: string; config: CreateWorkflowInput }> {
+  return request<{ template_id: string; config: CreateWorkflowInput }>(config, `/v1/templates/${templateId}/use`, {
+    method: 'POST',
+    body: JSON.stringify({ objective }),
+  });
+}
+
+export async function listSchedules(config: ApiConfig): Promise<{ schedules: ScheduledWorkflow[] }> {
+  return request<{ schedules: ScheduledWorkflow[] }>(config, '/v1/schedules');
+}
+
+export async function createSchedule(
+  config: ApiConfig,
+  input: { cron_expression: string; objective: string } & Record<string, unknown>
+): Promise<{ id: string; cron_expression: string; next_run_at: string; status: string }> {
+  return request<{ id: string; cron_expression: string; next_run_at: string; status: string }>(config, '/v1/schedules', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function updateSchedule(
+  config: ApiConfig,
+  id: string,
+  patch: { status?: 'active' | 'paused'; cron_expression?: string }
+): Promise<{ success: true } | { success: boolean }> {
+  return request(config, `/v1/schedules/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+}
+
+export async function deleteSchedule(config: ApiConfig, id: string): Promise<{ success: true } | { success: boolean }> {
+  return request(config, `/v1/schedules/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function listMemories(
+  config: ApiConfig,
+  params?: { category?: string; query?: string }
+): Promise<{ memories: Memory[] }> {
+  const sp = new URLSearchParams();
+  if (params?.category) sp.set('category', params.category);
+  if (params?.query) sp.set('query', params.query);
+  const qs = sp.toString();
+  return request<{ memories: Memory[] }>(config, `/v1/memory${qs ? `?${qs}` : ''}`);
+}
+
+export async function saveMemory(
+  config: ApiConfig,
+  input: { key: string; content: string; category?: string }
+): Promise<Memory> {
+  return request<Memory>(config, '/v1/memory', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function deleteMemory(config: ApiConfig, id: string): Promise<{ deleted: boolean } | { error: string }> {
+  return request(config, `/v1/memory/${encodeURIComponent(id)}`, { method: 'DELETE' });
+}
+
+export async function listTeams(config: ApiConfig): Promise<{ teams: Array<Record<string, unknown>> }> {
+  return request<{ teams: Array<Record<string, unknown>> }>(config, '/v1/teams');
+}
+
+export async function getAgentHealth(config: ApiConfig): Promise<{ agents: AgentHealthStatus[]; summary: Record<string, number>; timestamp: string }> {
+  return request<{ agents: AgentHealthStatus[]; summary: Record<string, number>; timestamp: string }>(config, '/v1/health/agents');
+}
+
+export async function getSystemHealth(config: ApiConfig): Promise<Record<string, unknown>> {
+  return request<Record<string, unknown>>(config, '/v1/health/system');
+}
+
+export async function checkHealth(config: ApiConfig): Promise<{ status: string }> {
+  return request<{ status: string }>(config, '/health');
+}
