@@ -28,25 +28,27 @@ function ParallelToolCalls({ entries }: { entries: ToolEntry[] }) {
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="flex flex-col" style={{ gap: 8 }}>
+    <div className="flex flex-col gap-2">
       <button
         type="button"
-        className="flex items-center"
+        className="flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
         onClick={() => setOpen((v) => !v)}
-        style={{ gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
       >
-        <span style={{ fontFamily: 'Inter', fontSize: 13, color: '#666666' }}>
+        <span className="font-sans text-sm text-muted">
           Running {entries.length} tool calls in parallel
         </span>
         <ChevronDown
           size={14}
-          color="#666666"
-          style={{ transform: open ? 'none' : 'rotate(-90deg)', transition: 'transform 0.2s ease' }}
+          className="text-muted transition-transform duration-slow"
+          style={{ transform: open ? 'none' : 'rotate(-90deg)' }}
         />
       </button>
 
-      <div style={{ overflow: 'hidden', maxHeight: open ? 1400 : 0, opacity: open ? 1 : 0, transition: 'max-height 0.2s ease, opacity 0.2s ease' }}>
-        <div className="flex flex-col" style={{ gap: 12, marginLeft: 22 }}>
+      <div
+        className="overflow-hidden transition-all duration-slow"
+        style={{ maxHeight: open ? 1400 : 0, opacity: open ? 1 : 0 }}
+      >
+        <div className="flex flex-col gap-3 ml-[22px]">
           {entries.map((entry, idx) => (
             <FeedItem key={`${entry.id}:${idx}`} entry={entry} inTimeline />
           ))}
@@ -107,8 +109,8 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
 
   const markerKindForRow = (row: RenderRow): 'none' | 'dot' | 'tool' | 'warning' => {
     if (row.kind === 'tool_parallel') return 'tool';
-    // Assistant messages get dots; user messages are intentionally markerless
     if (row.entry.kind === 'ai_message') return 'dot';
+    if (row.entry.kind === 'task_group') return 'tool';
     if (row.entry.kind === 'tool_call') return 'tool';
     if (row.entry.kind === 'bash_approval') return 'warning';
     return 'none';
@@ -181,20 +183,18 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
   }, [renderRows, hasTimeline]);
 
   return (
-    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto flex flex-col items-center" style={{ padding: '0 64px 80px 64px' }}>
-      <div ref={railContainerRef} className="flex flex-col w-full" style={{ maxWidth, paddingTop: 32, position: 'relative' }}>
+    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20">
+      <div ref={railContainerRef} className="flex flex-col w-full relative pt-8" style={{ maxWidth }}>
+        {/* Timeline rail */}
         {hasTimeline && (
           <div
+            className="absolute pointer-events-none transition-[top,bottom] duration-slow will-change-[top,bottom]"
             style={{
-              position: 'absolute',
               left: 7,
               top: railTopOffset,
               bottom: railBottomOffset,
               width: 1.5,
               background: `linear-gradient(180deg, rgba(176,176,176,${lineTopOpacity}) 0%, rgba(176,176,176,${lineMidOpacity}) 54%, rgba(176,176,176,${lineBottomOpacity}) 100%)`,
-              pointerEvents: 'none',
-              transition: 'top 220ms ease, bottom 220ms ease',
-              willChange: 'top, bottom',
             }}
           />
         )}
@@ -215,6 +215,8 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
           let MarkerIcon = Terminal;
           if (row.kind === 'tool_parallel') {
             MarkerIcon = GitBranch;
+          } else if (row.kind === 'entry' && row.entry.kind === 'task_group') {
+            MarkerIcon = GitBranch;
           } else if (row.kind === 'entry' && row.entry.kind === 'tool_call') {
             MarkerIcon = toolIconForName(row.entry.toolName);
           } else if (row.kind === 'entry' && row.entry.kind === 'bash_approval') {
@@ -222,7 +224,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
           }
 
           return (
-            <div key={row.key} style={{ marginTop: mt, paddingLeft: 24, position: 'relative' }}>
+            <div key={row.key} className="relative pl-6" style={{ marginTop: mt }}>
               {showMarker && (
                 <div
                   ref={(el) => {
@@ -232,33 +234,19 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
                 >
                   {markerKind === 'dot' ? (
                     <div
+                      className={[
+                        'absolute w-2 h-2 rounded-full',
+                        idx === lastUserDotIndex ? 'bg-ink' : 'bg-muted',
+                      ].join(' ')}
                       style={{
-                        position: 'absolute',
                         left: 3,
                         top: 10,
-                        width: 8,
-                        height: 8,
-                        borderRadius: 999,
-                        background: idx === lastUserDotIndex ? '#111111' : '#C5C5C5',
                         opacity: dotOpacity,
                       }}
                     />
                   ) : (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 6,
-                        width: 14,
-                        height: 14,
-                        borderRadius: 999,
-                        background: '#FAF8F4',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <MarkerIcon size={13} color={markerKind === 'warning' ? '#B26B00' : '#6A6A6A'} />
+                    <div className="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-surface-warm flex items-center justify-center">
+                      <MarkerIcon size={13} className={markerKind === 'warning' ? 'text-amber-700' : 'text-muted'} />
                     </div>
                   )}
                 </div>
@@ -271,37 +259,16 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
           );
         })}
 
+        {/* Thinking shimmer */}
         {!isTerminal && currentActivity && (
-          <div style={{ marginTop: 16, paddingLeft: 24, position: 'relative' }}>
-            <div className="min-w-0 flex items-center" style={{ gap: 8 }}>
-              <span
-                style={{
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: '#6F6F6F',
-                  background: 'linear-gradient(90deg, #6F6F6F 0%, #B1B1B1 50%, #6F6F6F 100%)',
-                  backgroundSize: '200% 100%',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  animation: 'shimmer 1.45s infinite ease-in-out',
-                }}
-              >
+          <div className="relative pl-6 mt-4">
+            <div className="min-w-0 flex items-center gap-2">
+              <span className="font-sans text-base font-medium text-muted shimmer-text">
                 Thinking
               </span>
             </div>
           </div>
         )}
-
-        <style>{`
-          @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            72% { background-position: -200% 0; }
-            100% { background-position: -200% 0; }
-          }
-        `}</style>
-
       </div>
     </div>
   );

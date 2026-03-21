@@ -31,6 +31,78 @@ const upsertTask = (tasks: LiveTask[], next: LiveTask): LiveTask[] => {
 const normalizeComparableText = (text?: string): string =>
   (typeof text === 'string' ? text : '').trim().replace(/\s+/g, ' ');
 
+const internalPlannerToolLabels = new Set([
+  'write_todo',
+  'edit_todo',
+  'list_todos',
+  'spawn_subagent',
+  'await_subagents',
+]);
+
+const isInternalPlannerTool = (toolName?: string): boolean => {
+  const normalized = String(toolName ?? '').trim().toLowerCase();
+  return internalPlannerToolLabels.has(normalized);
+};
+
+const isInternalCapabilityDump = (text?: string): boolean => {
+  if (typeof text !== 'string') return false;
+  const normalized = text.trim().toLowerCase();
+  if (!normalized) return false;
+
+  if (normalized.startsWith('i have access to the following tools')) return true;
+
+  let markerCount = 0;
+  const markers = [
+    'web_search:',
+    'fetch_url:',
+    'bash:',
+    'file_read:',
+    'file_write:',
+    'file_edit:',
+    'grep:',
+    'glob:',
+    'run_skill:',
+    'write_todo:',
+    'edit_todo:',
+    'list_todos:',
+  ];
+
+  for (const marker of markers) {
+    if (normalized.includes(marker)) markerCount += 1;
+    if (markerCount >= 4) return true;
+  }
+
+  return false;
+};
+
+const isInternalPlannerNoise = (text?: string): boolean => {
+  if (typeof text !== 'string') return false;
+  const normalized = text.trim().toLowerCase();
+  if (!normalized) return false;
+
+  if (normalized === 'running tasks in parallel') return true;
+  if (normalized === 'task list') return true;
+
+  return internalPlannerToolLabels.has(normalized);
+};
+
+const formatToolActivity = (toolName?: string): string => {
+  const name = String(toolName ?? '').trim();
+  if (!name) return 'Working…';
+  if (name === 'bash') return 'Running command…';
+  if (name === 'web_search') return 'Searching web…';
+  if (name === 'fetch_url') return 'Reading URL…';
+  if (name === 'file_read') return 'Reading file…';
+  if (name === 'file_write') return 'Writing file…';
+  if (name === 'file_edit') return 'Editing file…';
+  if (name === 'glob') return 'Finding files…';
+  if (name === 'grep') return 'Searching content…';
+  if (name === 'spawn_subagent') return 'Starting sub-agent…';
+  if (name === 'await_subagents') return 'Waiting for sub-agents…';
+  if (name === 'write_todo' || name === 'edit_todo' || name === 'list_todos') return 'Updating task list…';
+  return `${name.replace(/_/g, ' ')}…`;
+};
+
 const shouldAppendCompletionEntry = (feed: FeedEntry[], output?: string): boolean => {
   const normalizedOutput = normalizeComparableText(output);
   if (!normalizedOutput) return true;
@@ -82,19 +154,21 @@ export function useWorkflowStream(
 
   const connect = useCallback(() => {
     if (!isActive) return;
-    if (!config.baseUrl || !config.apiKey) return;
+    if (!config.baseUrl) return;
 
     connectionRef.current?.close();
     connectionRef.current = connectWorkflowStream(
-      config.baseUrl,
-      config.apiKey,
+      {
+        baseUrl: config.baseUrl,
+        getAuthToken: config.getAuthToken,
+      },
       workflowId,
       (event) => handleEventRef.current(event),
       (err) => {
         setState((prev) => ({ ...prev, currentActivity: `Stream error: ${err.message}` }));
       }
     );
-  }, [config.baseUrl, config.apiKey, workflowId, isActive]);
+  }, [config.baseUrl, config.getAuthToken, workflowId, isActive]);
 
   const buildFeedFromTrace = useCallback(
     (trace: WorkflowTraceStep[], prompt?: string): FeedEntry[] => {
@@ -108,12 +182,15 @@ export function useWorkflowStream(
           const message = step.message_content.trim();
           if (!message) continue;
           if (/^workflow created:/i.test(message)) continue;
+          if (isInternalCapabilityDump(message)) continue;
+          if (isInternalPlannerNoise(message)) continue;
           feed.push({ kind: 'ai_message', text: message });
           continue;
         }
 
         if (step.step_type === 'tool_call' || step.step_type === 'subagent_tool_call') {
           if (!step.tool_name) continue;
+          if (isInternalPlannerTool(step.tool_name)) continue;
           feed.push({
             kind: 'tool_call',
             id: step.step_id,
@@ -128,6 +205,7 @@ export function useWorkflowStream(
 
         if (step.step_type === 'tool_result' || step.step_type === 'subagent_tool_result') {
           if (!step.tool_name) continue;
+          if (isInternalPlannerTool(step.tool_name)) continue;
           let marked = false;
           for (let i = feed.length - 1; i >= 0; i--) {
             const entry = feed[i];
@@ -224,13 +302,7 @@ export function useWorkflowStream(
         const feed =
           liveTasks.length > 0 && !hasGroup
             ? (() => {
-                const promptIdx = feedFromTrace.findIndex((e) => e.kind === 'prompt');
-                const insertAt = promptIdx >= 0 ? promptIdx + 1 : 0;
-                return [
-                  ...feedFromTrace.slice(0, insertAt),
-                  { kind: 'task_group', taskId: 'tg:initial', tasks: [...liveTasks] } as FeedEntry,
-                  ...feedFromTrace.slice(insertAt),
-                ];
+                return [...feedFromTrace, { kind: 'task_group', taskId: 'tg:initial', tasks: [...liveTasks] } as FeedEntry];
               })()
             : feedFromTrace;
 
@@ -239,7 +311,9 @@ export function useWorkflowStream(
           if (!isTerminal) return feed;
           if (feed.some((e) => e.kind === 'completion')) return feed;
           if (details.workflow.status === 'completed') {
-            const output = details.workflow.output ?? undefined;
+            const output = isInternalCapabilityDump(details.workflow.output ?? undefined)
+              ? undefined
+              : details.workflow.output ?? undefined;
             if (!shouldAppendCompletionEntry(feed, output)) return feed;
             const completionEntry: FeedEntry = { kind: 'completion', output };
             return [...feed, completionEntry];
@@ -281,13 +355,36 @@ export function useWorkflowStream(
     setState((prev) => {
       const seq = () => seqRef.current++;
 
-      const updateGroups = (feed: FeedEntry[], liveTasks: LiveTask[]): FeedEntry[] =>
-        feed.map((e) => (e.kind === 'task_group' ? { ...e, tasks: liveTasks } : e));
+      const upsertActiveTaskGroup = (feed: FeedEntry[], liveTasks: LiveTask[]): FeedEntry[] => {
+        let lastTaskGroupIndex = -1;
+        let lastConversationIndex = -1;
+
+        for (let i = feed.length - 1; i >= 0; i -= 1) {
+          const entry = feed[i];
+          if (lastTaskGroupIndex < 0 && entry.kind === 'task_group') {
+            lastTaskGroupIndex = i;
+          }
+          if (lastConversationIndex < 0 && (entry.kind === 'prompt' || entry.kind === 'user_message')) {
+            lastConversationIndex = i;
+          }
+          if (lastTaskGroupIndex >= 0 && lastConversationIndex >= 0) break;
+        }
+
+        if (lastTaskGroupIndex < 0 || lastTaskGroupIndex < lastConversationIndex) {
+          return [...feed, { kind: 'task_group', taskId: `tg:${seq()}`, tasks: [...liveTasks] }];
+        }
+
+        return feed.map((entry, idx) =>
+          idx === lastTaskGroupIndex && entry.kind === 'task_group'
+            ? { ...entry, tasks: [...liveTasks] }
+            : entry
+        );
+      };
 
       switch (event.type) {
         case 'tasks_initialized': {
           const data = event.data as TasksInitializedData;
-          let liveTasks = [...prev.liveTasks];
+          let liveTasks: LiveTask[] = [];
           (data.tasks ?? []).forEach((task: WorkflowTask) => {
             liveTasks = upsertTask(liveTasks, {
               id: task.id,
@@ -298,10 +395,7 @@ export function useWorkflowStream(
             });
           });
 
-          // Replace or add task_group feed entry
-          const groupEntry: FeedEntry = { kind: 'task_group', taskId: `tg:${seq()}`, tasks: [...liveTasks] };
-          const feedWithoutGroup = prev.feed.filter((e) => e.kind !== 'task_group' || (e as { taskId: string }).taskId === 'initial');
-          const feed = [...feedWithoutGroup.filter((e) => e.kind !== 'task_group'), groupEntry];
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
 
           return { ...prev, liveTasks, feed, currentActivity: 'Planning complete, starting tasks…' };
         }
@@ -318,7 +412,7 @@ export function useWorkflowStream(
             status: 'pending',
             tool_calls: 0,
           });
-          const feed = updateGroups(prev.feed, liveTasks);
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
           return { ...prev, liveTasks, feed, isTerminal: false };
         }
 
@@ -335,7 +429,7 @@ export function useWorkflowStream(
                 status: 'pending',
                 tool_calls: 0,
               });
-          const feed = updateGroups(prev.feed, liveTasks);
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
           return { ...prev, liveTasks, feed, isTerminal: false };
         }
 
@@ -355,7 +449,7 @@ export function useWorkflowStream(
                       : 'Running…',
                 })
               : prev.liveTasks;
-            const feed = updateGroups(prev.feed, liveTasks);
+            const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
             return { ...prev, liveTasks, feed, isTerminal: false };
           }
 
@@ -368,9 +462,10 @@ export function useWorkflowStream(
             agent_type: agentType,
             status: 'running',
             current_activity: description,
+            model: data.model ?? existing?.model,
             tool_calls: existing?.tool_calls ?? 0,
           });
-          const feed = updateGroups(prev.feed, liveTasks);
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
           return { ...prev, liveTasks, feed, currentActivity: description, isTerminal: false };
         }
 
@@ -383,9 +478,11 @@ export function useWorkflowStream(
             description: existing?.description ?? 'Task',
             agent_type: existing?.agent_type ?? 'task',
             status: 'completed',
+            current_activity: existing?.current_activity,
+            model: existing?.model,
             tool_calls: existing?.tool_calls ?? 0,
           });
-          const feed = updateGroups(prev.feed, liveTasks);
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
           return { ...prev, liveTasks, feed, isTerminal: false };
         }
 
@@ -398,9 +495,11 @@ export function useWorkflowStream(
             description: existing?.description ?? 'Task',
             agent_type: existing?.agent_type ?? 'task',
             status: 'failed',
+            current_activity: existing?.current_activity,
+            model: existing?.model,
             tool_calls: existing?.tool_calls ?? 0,
           });
-          const feed = updateGroups(prev.feed, liveTasks);
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
           return { ...prev, liveTasks, feed, isTerminal: false };
         }
 
@@ -413,14 +512,19 @@ export function useWorkflowStream(
             description: existing?.description ?? 'Task',
             agent_type: existing?.agent_type ?? 'task',
             status: 'skipped',
+            current_activity: existing?.current_activity,
+            model: existing?.model,
             tool_calls: existing?.tool_calls ?? 0,
           });
-          const feed = updateGroups(prev.feed, liveTasks);
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
           return { ...prev, liveTasks, feed, isTerminal: false };
         }
 
         case 'tool_call': {
           const data = event.data as ToolEventData;
+          if (isInternalPlannerTool(data.tool_name)) {
+            return { ...prev, isTerminal: false };
+          }
           const taskId = 'orchestrator';
           const id = `tc:${taskId}:${seq()}`;
           const toolEntry: FeedEntry = {
@@ -437,6 +541,9 @@ export function useWorkflowStream(
 
         case 'tool_result': {
           const data = event.data as ToolEventData;
+          if (isInternalPlannerTool(data.tool_name)) {
+            return { ...prev, isTerminal: false };
+          }
           const taskId = 'orchestrator';
           let marked = false;
           const feed = [...prev.feed]
@@ -454,6 +561,9 @@ export function useWorkflowStream(
 
         case 'subagent_tool_call': {
           const data = event.data as ToolEventData;
+          if (isInternalPlannerTool(data.tool_name)) {
+            return { ...prev, isTerminal: false };
+          }
           const taskId = event.task_id ?? 'unknown';
           const id = `tc:${taskId}:${seq()}`;
           const toolEntry: FeedEntry = {
@@ -467,15 +577,24 @@ export function useWorkflowStream(
           };
           // Increment tool_calls on live task
           const liveTasks = prev.liveTasks.map((t) =>
-            t.id === taskId ? { ...t, tool_calls: t.tool_calls + 1 } : t
+            t.id === taskId
+              ? {
+                  ...t,
+                  tool_calls: t.tool_calls + 1,
+                  current_activity: formatToolActivity(data.tool_name),
+                }
+              : t
           );
-          const feed = updateGroups([...prev.feed, toolEntry], liveTasks);
+          const feed = upsertActiveTaskGroup([...prev.feed, toolEntry], liveTasks);
           return { ...prev, feed, liveTasks, currentActivity: data.tool_name ?? 'tool', isTerminal: false };
         }
 
         case 'subagent_tool_result': {
           const taskId = event.task_id ?? 'unknown';
           const data = event.data as ToolEventData;
+          if (isInternalPlannerTool(data.tool_name)) {
+            return { ...prev, isTerminal: false };
+          }
           // Mark the most recent running tool_call for this task as done
           let marked = false;
           const feed = [...prev.feed].reverse().map((e) => {
@@ -526,7 +645,7 @@ export function useWorkflowStream(
           const data = event.data as WorkflowCompletedData;
           // Remove any trailing planning entries
           const feed = prev.feed.filter((e) => e.kind !== 'planning');
-          const output = data.output;
+          const output = isInternalCapabilityDump(data.output) ? undefined : data.output;
           const completionEntry: FeedEntry = { kind: 'completion', output };
           const nextFeed: FeedEntry[] = shouldAppendCompletionEntry(feed, output)
             ? [...feed, completionEntry]
@@ -578,11 +697,16 @@ export function useWorkflowStream(
       setState((prev) => ({
         ...prev,
         feed: [...prev.feed, { kind: 'user_message', text: msg }],
+        liveTasks: [],
         isTerminal: false,
         currentActivity: 'Continuing…',
       }));
 
-      await continueWorkflow(config, workflowId, msg);
+      await continueWorkflow(
+        config,
+        workflowId,
+        msg
+      );
 
       // The SSE stream ends after completion/failure. Restart on continuation.
       connect();
