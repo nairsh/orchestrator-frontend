@@ -24,11 +24,11 @@ export function BashBlock({ toolName, input, status }: BashBlockProps) {
   const label = labelMap[toolName] ?? '$';
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden my-1.5 transition-all duration-150">
+    <div className="rounded-xl border border-border bg-surface overflow-hidden my-1.5 transition-all duration-150">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
       >
         <Terminal size={15} className="text-gray-500 flex-shrink-0" />
         <div className="flex-1 text-left min-w-0">

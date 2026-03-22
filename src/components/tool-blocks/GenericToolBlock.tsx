@@ -16,11 +16,11 @@ export function GenericToolBlock({ toolName, input, status }: GenericToolBlockPr
       : JSON.stringify(input).slice(0, 80);
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden my-1.5 transition-all duration-150">
+    <div className="rounded-xl border border-border bg-surface overflow-hidden my-1.5 transition-all duration-150">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
       >
         <Zap size={15} className="text-purple-500 flex-shrink-0" />
         <div className="flex-1 text-left min-w-0">
@@ -42,7 +42,7 @@ export function GenericToolBlock({ toolName, input, status }: GenericToolBlockPr
           expanded ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="px-3.5 pb-3 border-t border-gray-100">
+        <div className="px-3.5 pb-3 border-t border-border-subtle">
           <pre className="text-xs text-muted mt-2.5 whitespace-pre-wrap break-all font-mono max-h-40 overflow-auto leading-relaxed">
             {JSON.stringify(input, null, 2)}
           </pre>

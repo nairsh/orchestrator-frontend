@@ -97,7 +97,7 @@ export interface TaskSummary {
 }
 
 export interface TaskStartedData {
-  type?: 'heartbeat';
+  type?: 'heartbeat' | 'environment';
   description: string;
   display_description?: string;
   agent_type?: string;
@@ -243,6 +243,7 @@ export interface AgentHealthStatus {
 
 export type FeedEntry =
   | { kind: 'prompt'; text: string }
+  | { kind: 'system_status'; text: string }
   | { kind: 'task_group'; taskId: string; tasks: LiveTask[] }
   | { kind: 'tool_call'; id: string; toolName: string; input: unknown; output?: unknown; taskId: string; status: 'running' | 'done' | 'failed'; at?: string }
   | { kind: 'bash_approval'; id: string; taskId?: string; toolName: string; command: string; reason?: string; commandKey?: string; status: 'pending' | 'resolved' }
@@ -257,6 +258,8 @@ export interface LiveTask {
   agent_type: string;
   status: TaskStatus;
   current_activity?: string;
+  model?: string;
+  recent_tool_calls?: string[];
   tool_calls: number;
 }
 

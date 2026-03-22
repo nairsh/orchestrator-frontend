@@ -2,14 +2,12 @@ import { useState, useCallback } from 'react';
 
 export interface AppConfig {
   baseUrl: string;
-  apiKey: string;
 }
 
 const STORAGE_KEY = 'relay_config';
 
 const DEFAULT_CONFIG: AppConfig = {
   baseUrl: 'http://localhost:8080',
-  apiKey: '',
 };
 
 function loadConfig(): AppConfig {
@@ -19,7 +17,6 @@ function loadConfig(): AppConfig {
       const parsed = JSON.parse(raw) as Partial<AppConfig>;
       return {
         baseUrl: parsed.baseUrl ?? DEFAULT_CONFIG.baseUrl,
-        apiKey: parsed.apiKey ?? DEFAULT_CONFIG.apiKey,
       };
     }
   } catch {
@@ -40,7 +37,7 @@ export function useConfig() {
     }
   }, []);
 
-  const isConfigured = config.apiKey.trim().length > 0 && config.baseUrl.trim().length > 0;
+  const isConfigured = config.baseUrl.trim().length > 0;
 
   return { config, saveConfig, isConfigured };
 }

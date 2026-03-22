@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { AppConfig } from '../../hooks/useConfig';
 import { Sidebar } from '../layout/Sidebar';
 import { TaskList } from './TaskList';
@@ -10,6 +10,7 @@ import { ConnectorsPage } from '../connectors/ConnectorsPage';
 import { ChatModal } from '../chat/ChatModal';
 import { ResizableDivider } from '../ui/ResizableDivider';
 import { SkillsPage } from '../skills/SkillsPage';
+import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 interface TasksPageProps {
   config: AppConfig;
@@ -17,18 +18,45 @@ interface TasksPageProps {
   initialObjective?: string;
   initialTaskFullView?: boolean;
   selectedModel: string;
+  onSelectedModelChange?: (model: string) => void;
   onNavigateToLanding?: () => void;
   onOpenSettings?: () => void;
+  onSignOut?: () => Promise<void>;
+  isSignedIn?: boolean;
+  userLabel?: string | null;
+  userAvatarUrl?: string | null;
   sidebarCollapsed?: boolean;
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
   requestedNav?: 'tasks' | 'files' | 'connectors' | 'skills';
+  modelIconOverrides?: ModelIconOverrides;
 }
 
-const DEFAULT_TASK_LIST_WIDTH = 320;
 const MIN_TASK_LIST_WIDTH = 240;
 const MAX_TASK_LIST_WIDTH = 600;
 
-export function TasksPage({ config, initialWorkflowId, initialObjective, initialTaskFullView = false, selectedModel, onNavigateToLanding, onOpenSettings, sidebarCollapsed, onSidebarCollapsedChange, requestedNav }: TasksPageProps) {
+function getDefaultTaskListWidth(containerWidth: number): number {
+  const half = Math.floor((containerWidth - 12) / 2);
+  return Math.max(MIN_TASK_LIST_WIDTH, Math.min(MAX_TASK_LIST_WIDTH, half));
+}
+
+export function TasksPage({
+  config,
+  initialWorkflowId,
+  initialObjective,
+  initialTaskFullView = false,
+  selectedModel,
+  onSelectedModelChange,
+  onNavigateToLanding,
+  onOpenSettings,
+  onSignOut,
+  isSignedIn,
+  userLabel,
+  userAvatarUrl,
+  sidebarCollapsed,
+  onSidebarCollapsedChange,
+  requestedNav,
+  modelIconOverrides,
+}: TasksPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(initialWorkflowId ?? null);
   const [selectedObjective, setSelectedObjective] = useState<string>(initialObjective ?? '');
   const [activeNav, setActiveNav] = useState<'search' | 'tasks' | 'files' | 'connectors' | 'skills'>('tasks');
@@ -36,9 +64,29 @@ export function TasksPage({ config, initialWorkflowId, initialObjective, initial
   const [chatOpen, setChatOpen] = useState(false);
   const [taskFullView, setTaskFullView] = useState(Boolean(initialTaskFullView && initialWorkflowId));
   const [animateFromLanding, setAnimateFromLanding] = useState(Boolean(initialTaskFullView && initialWorkflowId));
-  const [taskListWidth, setTaskListWidth] = useState(DEFAULT_TASK_LIST_WIDTH);
+  const [taskListWidth, setTaskListWidth] = useState(MIN_TASK_LIST_WIDTH);
+  const [activeModel, setActiveModel] = useState(selectedModel);
+  const [splitWidthInitialized, setSplitWidthInitialized] = useState(false);
+  const splitViewRef = useRef<HTMLDivElement>(null);
 
   const { workflows, loading, refresh } = useWorkflows(config, true, statusFilter);
+
+  useEffect(() => {
+    setActiveModel(selectedModel);
+  }, [selectedModel]);
+
+  useEffect(() => {
+    if (activeNav !== 'tasks' || taskFullView || splitWidthInitialized) return;
+    const containerWidth = splitViewRef.current?.clientWidth;
+    if (!containerWidth || containerWidth <= 0) return;
+    setTaskListWidth(getDefaultTaskListWidth(containerWidth));
+    setSplitWidthInitialized(true);
+  }, [activeNav, splitWidthInitialized, taskFullView]);
+
+  const handleModelChange = (model: string) => {
+    setActiveModel(model);
+    onSelectedModelChange?.(model);
+  };
 
   const handleSelect = (id: string, objective: string) => {
     setSelectedId(id);
@@ -64,11 +112,15 @@ export function TasksPage({ config, initialWorkflowId, initialObjective, initial
   }, [requestedNav]);
 
   return (
-    <div className="flex h-full overflow-hidden app-ui" style={{ background: '#FAF8F4' }}>
+    <div className="flex h-full overflow-hidden app-ui bg-surface-warm">
       <Sidebar
         activeNav={activeNav}
         config={config}
         onOpenSettings={onOpenSettings}
+        onSignOut={onSignOut}
+        isSignedIn={isSignedIn}
+        userLabel={userLabel}
+        userAvatarUrl={userAvatarUrl}
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
         onNavChange={(id) => {
@@ -82,7 +134,7 @@ export function TasksPage({ config, initialWorkflowId, initialObjective, initial
 
       {activeNav === 'tasks' && (
         taskFullView && selectedId ? (
-          <TaskDetail
+            <TaskDetail
             key={selectedId}
             workflowId={selectedId}
             objective={selectedObjective}
@@ -90,25 +142,29 @@ export function TasksPage({ config, initialWorkflowId, initialObjective, initial
             onCollapse={() => setTaskFullView(false)}
             onOpenFullChat={() => setTaskFullView(false)}
             fullView
-            activeModel={selectedModel}
-            animateInputEntry={animateFromLanding}
-          />
+              activeModel={activeModel}
+              animateInputEntry={animateFromLanding}
+              modelIconOverrides={modelIconOverrides}
+            />
         ) : (
-          <>
+          <div ref={splitViewRef} className="flex flex-1 min-w-0">
             <div
               data-task-list
-              style={{ width: taskListWidth, minWidth: taskListWidth, flexShrink: 0 }}
+              className="flex-shrink-0"
+              style={{ width: taskListWidth, minWidth: taskListWidth }}
             >
             <TaskList
               workflows={workflows}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              config={config}
-                selectedModel={selectedModel}
+                selectedId={selectedId}
+                onSelect={handleSelect}
+                config={config}
+                selectedModel={activeModel}
+                onSelectModel={handleModelChange}
                 onRefresh={refresh}
                 loading={loading}
                 statusFilter={statusFilter}
                 onStatusFilterChange={setStatusFilter}
+                modelIconOverrides={modelIconOverrides}
               onOpenChat={() => {
                 setChatOpen(true);
                 setTaskFullView(false);
@@ -130,6 +186,7 @@ export function TasksPage({ config, initialWorkflowId, initialObjective, initial
                 config={config}
                 onClose={() => setChatOpen(false)}
                 fullscreen
+                modelIconOverrides={modelIconOverrides}
               />
             ) : selectedId ? (
               <TaskDetail
@@ -139,17 +196,15 @@ export function TasksPage({ config, initialWorkflowId, initialObjective, initial
                 config={config}
                 onCollapse={() => setSelectedId(null)}
                 onOpenFullChat={() => setTaskFullView(true)}
-                activeModel={selectedModel}
+                activeModel={activeModel}
+                modelIconOverrides={modelIconOverrides}
               />
             ) : (
-              <div
-                className="flex-1 flex items-center justify-center"
-                style={{ fontFamily: 'Inter', fontSize: 14, color: '#999999' }}
-              >
+              <div className="flex-1 flex items-center justify-center font-sans text-base text-placeholder">
                 Select a task to view details
               </div>
             )}
-          </>
+          </div>
         )
       )}
 

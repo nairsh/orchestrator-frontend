@@ -1,12 +1,14 @@
-import { Check, ChevronRight, Monitor } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
 import { cancelWorkflow } from '../../api/client';
 import { TaskContextMenu } from '../dropdowns/TaskContextMenu';
-import { toastApiError } from '../../lib/toast';
+import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
+import { parseApiTimestampMs } from '../../lib/time';
 
 interface TaskItemProps {
   workflow: WorkflowSummary;
+  nowTs: number;
   isSelected: boolean;
   onClick: () => void;
   config: ApiConfig;
@@ -17,12 +19,21 @@ interface TaskItemProps {
 }
 
 const STATUS_ICON_COLOR: Record<string, string> = {
-  pending: '#999999',
-  executing: '#F59E0B',
-  completed: '#666666',
-  failed: '#EF4444',
-  cancelled: '#9CA3AF',
-  paused: '#A855F7',
+  pending: 'bg-placeholder',
+  executing: 'bg-warning',
+  completed: 'bg-muted',
+  failed: 'bg-danger',
+  cancelled: 'bg-gray-400',
+  paused: 'bg-purple-500',
+};
+
+const STATUS_TEXT_COLOR: Record<string, string> = {
+  pending: 'text-placeholder',
+  executing: 'text-warning',
+  completed: 'text-muted',
+  failed: 'text-danger',
+  cancelled: 'text-gray-400',
+  paused: 'text-purple-500',
 };
 
 function getSubtitle(workflow: WorkflowSummary): string {
@@ -33,75 +44,100 @@ function getSubtitle(workflow: WorkflowSummary): string {
   return '';
 }
 
-export function TaskItem({ workflow, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
+function formatRelativeRunTime(timestamp: string | null | undefined, nowTs: number): string {
+  if (!timestamp) return '';
+  const runTs = parseApiTimestampMs(timestamp);
+  if (runTs === null) return '';
+
+  const diffMs = Math.max(0, nowTs - runTs);
+  const minuteMs = 60_000;
+  const hourMs = 60 * minuteMs;
+  const dayMs = 24 * hourMs;
+  const weekMs = 7 * dayMs;
+  const monthMs = 30 * dayMs;
+  const yearMs = 365 * dayMs;
+
+  if (diffMs < minuteMs) return 'just now';
+  if (diffMs < hourMs) {
+    const minutes = Math.floor(diffMs / minuteMs);
+    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  }
+  if (diffMs < dayMs) {
+    const hours = Math.floor(diffMs / hourMs);
+    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  }
+  if (diffMs < weekMs) {
+    const days = Math.floor(diffMs / dayMs);
+    return `${days} day${days === 1 ? '' : 's'} ago`;
+  }
+  if (diffMs < monthMs) {
+    const weeks = Math.floor(diffMs / weekMs);
+    return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+  }
+  if (diffMs < yearMs) {
+    const months = Math.floor(diffMs / monthMs);
+    return `${months} month${months === 1 ? '' : 's'} ago`;
+  }
+
+  const years = Math.floor(diffMs / yearMs);
+  return `${years} year${years === 1 ? '' : 's'} ago`;
+}
+
+export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
   const handleDelete = async () => {
     try {
-      await cancelWorkflow(config, workflow.id);
+      const result = await cancelWorkflow(config, workflow.id);
+
+      if (result.status === 'cancelled') {
+        toastInfo('Workflow cancelled', 'Backend delete mode is not active yet. Restart backend to fully delete workflows.');
+      } else {
+        toastSuccess('Workflow deleted');
+      }
+
       onDeleted();
     } catch (err) {
-      toastApiError(err, 'Failed to cancel workflow');
+      toastApiError(err, 'Failed to delete workflow');
     }
   };
 
-  const iconColor = STATUS_ICON_COLOR[workflow.status] ?? '#999999';
+  const dotColor = STATUS_ICON_COLOR[workflow.status] ?? 'bg-placeholder';
+  const checkColor = STATUS_TEXT_COLOR[workflow.status] ?? 'text-placeholder';
   const isComplete = workflow.status === 'completed' || workflow.status === 'cancelled';
   const subtitle = getSubtitle(workflow);
   const displayTitle = (title ?? workflow.objective).trim() || workflow.objective;
+  const runTimestamp = workflow.started_at ?? workflow.created_at;
+  const relativeRunTime = formatRelativeRunTime(runTimestamp, nowTs);
+  const runDateMs = parseApiTimestampMs(runTimestamp);
 
   return (
     <div
-      className="group relative flex items-center cursor-pointer"
+      className={[
+        'group relative flex items-center cursor-pointer rounded-md px-3 py-2.5 gap-2 transition-colors duration-fast justify-between',
+        isSelected ? 'bg-taskitem' : 'hover:bg-surface-hover',
+      ].join(' ')}
       onClick={onClick}
-      style={{
-        padding: '10px 12px',
-        borderRadius: 8,
-        background: isSelected ? '#EBEBEB' : 'transparent',
-        justifyContent: 'space-between',
-        gap: 8,
-        transition: 'background 0.15s',
-      }}
     >
       {/* Left side: icon + title + chevron + subtitle */}
-      <div className="flex items-center min-w-0" style={{ gap: 8, flex: 1, overflow: 'hidden' }}>
+      <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
         {/* Status icon */}
         {isComplete ? (
-          <Check size={14} color={iconColor} strokeWidth={2} style={{ flexShrink: 0 }} />
+          <Check size={14} className={`flex-shrink-0 ${checkColor}`} strokeWidth={2} />
         ) : workflow.status === 'executing' ? (
-          <div className="animate-pulse" style={{ width: 8, height: 8, borderRadius: 4, background: iconColor, flexShrink: 0 }} />
+          <div className={`w-2 h-2 rounded-full animate-pulse flex-shrink-0 ${dotColor}`} />
         ) : (
-          <div style={{ width: 8, height: 8, borderRadius: 4, background: iconColor, flexShrink: 0 }} />
+          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
         )}
 
         {/* Title */}
-        <span
-          className="truncate"
-          style={{
-            fontFamily: 'Inter',
-            fontSize: 13,
-            fontWeight: 500,
-            color: '#111111',
-            flexShrink: 1,
-            minWidth: 0,
-          }}
-        >
+        <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0">
           {displayTitle.slice(0, 55)}{displayTitle.length > 55 ? '...' : ''}
         </span>
 
         {/* Chevron + subtitle */}
         {subtitle && (
           <>
-            <ChevronRight size={12} color="#888888" style={{ flexShrink: 0 }} />
-            <span
-              className="truncate"
-              style={{
-                fontFamily: 'Inter',
-                fontSize: 13,
-                fontWeight: 400,
-                color: '#888888',
-                flexShrink: 1,
-                minWidth: 0,
-              }}
-            >
+            <ChevronRight size={12} className="flex-shrink-0 text-muted" />
+            <span className="truncate font-sans text-sm font-normal text-muted flex-shrink min-w-0">
               {subtitle}
             </span>
           </>
@@ -109,7 +145,12 @@ export function TaskItem({ workflow, isSelected, onClick, config, onDeleted, tit
       </div>
 
       {/* Right side: context menu */}
-      <div className="flex items-center" style={{ gap: 12, flexShrink: 0 }}>
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {relativeRunTime && (
+          <span className="font-sans text-xs text-muted whitespace-nowrap" title={runDateMs !== null ? new Date(runDateMs).toLocaleString() : ''}>
+            {relativeRunTime}
+          </span>
+        )}
         <TaskContextMenu onDelete={() => void handleDelete()} onPin={onPin} onRename={onRename} />
       </div>
     </div>

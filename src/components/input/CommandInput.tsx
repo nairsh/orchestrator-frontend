@@ -47,10 +47,8 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
 
   return (
     <div
-      className="flex-shrink-0 flex flex-col items-center"
+      className="flex-shrink-0 flex flex-col items-center gap-4 px-16 pb-6"
       style={{
-        padding: '0 64px 24px 64px',
-        gap: 16,
         transition: 'transform 170ms ease-out, opacity 170ms ease-out',
         transform: entered ? 'translateY(0)' : 'translateY(-22px)',
         opacity: entered ? 1 : 0.96,
@@ -58,18 +56,8 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
     >
       {/* Input card */}
       <div
-        style={{
-          width: '100%',
-          maxWidth,
-          borderRadius: 16,
-          background: '#FFFFFF',
-          border: '1px solid #E0E0E0',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-          padding: 12,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-        }}
+        className="w-full bg-surface border border-border rounded-xl shadow p-3 flex flex-col gap-4"
+        style={{ maxWidth }}
       >
         {/* Text */}
         <textarea
@@ -80,23 +68,12 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           placeholder="Type a command..."
           disabled={disabled}
           rows={1}
-          style={{
-            fontFamily: 'Inter',
-            fontSize: 15,
-            color: '#111111',
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            minHeight: 24,
-            maxHeight: 160,
-            width: '100%',
-          }}
-          className="placeholder-[#A0A0A0]"
+          className="w-full resize-none bg-transparent text-md font-sans text-primary placeholder:text-placeholder outline-none"
+          style={{ minHeight: 24, maxHeight: 160 }}
         />
 
         {/* Bottom row */}
-        <div className="flex items-center justify-between" style={{ paddingTop: 8 }}>
+        <div className="flex items-center justify-between pt-2">
           {/* Left: plus dropdown */}
           <PlusDropdown
             outlined
@@ -109,48 +86,29 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           />
 
           {/* Right: send */}
-          <div className="flex items-center" style={{ gap: 12 }}>
+          <div className="flex items-center gap-3">
             {modelLabel && (
-              <div
-                className="flex items-center"
-                style={{
-                  gap: 6,
-                  fontFamily: 'Inter',
-                  fontSize: 15,
-                  fontWeight: 500,
-                  color: '#777777',
-                  background: 'transparent',
-                  border: 'none',
-                  padding: '6px 10px',
-                  borderRadius: 8,
-                }}
-              >
-                <span style={{ fontFamily: 'Inter', fontSize: 15, fontWeight: 500, color: '#777777' }}>{modelLabel}</span>
+              <div className="flex items-center gap-1.5 font-sans text-md font-medium text-subtle px-2.5 py-1.5 rounded-md">
+                <span className="font-sans text-md font-medium text-subtle">{modelLabel}</span>
               </div>
             )}
             <button
               type="button"
               onClick={handleSubmit}
               disabled={!value.trim() || disabled}
-              className="flex items-center justify-center flex-shrink-0"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 18,
-                background: value.trim() ? '#222222' : '#9E9E9E',
-                border: 'none',
-                cursor: value.trim() ? 'pointer' : 'default',
-                transition: 'background 0.15s',
-              }}
+              className={[
+                'w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-150 cursor-pointer disabled:cursor-default',
+                value.trim() ? 'bg-ink' : 'bg-placeholder',
+              ].join(' ')}
             >
-              <ArrowUp size={16} color="#FFFFFF" />
+              <ArrowUp size={16} className="text-white" />
             </button>
           </div>
         </div>
       </div>
 
       {/* Drag handle pill */}
-      <div style={{ width: 48, height: 6, borderRadius: 3, background: '#999999' }} />
+      <div className="w-12 h-1.5 rounded-pill bg-muted" />
     </div>
   );
 }

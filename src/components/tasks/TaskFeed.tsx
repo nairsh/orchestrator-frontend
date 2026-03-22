@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, CircleAlert, FileText, GitBranch, Globe, ListChecks, ScanSearch, Terminal, Wrench } from 'lucide-react';
 import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
+import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 interface TaskFeedProps {
   feed: FeedEntry[];
   currentActivity?: string;
   isTerminal: boolean;
   maxWidth?: number;
+  modelIconOverrides?: ModelIconOverrides;
 }
 
 type ToolEntry = Extract<FeedEntry, { kind: 'tool_call' }>;
@@ -24,7 +26,7 @@ function toolIconForName(toolName: string) {
   return Wrench;
 }
 
-function ParallelToolCalls({ entries }: { entries: ToolEntry[] }) {
+function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry[]; modelIconOverrides?: ModelIconOverrides }) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -50,7 +52,7 @@ function ParallelToolCalls({ entries }: { entries: ToolEntry[] }) {
       >
         <div className="flex flex-col gap-3 ml-[22px]">
           {entries.map((entry, idx) => (
-            <FeedItem key={`${entry.id}:${idx}`} entry={entry} inTimeline />
+            <FeedItem key={`${entry.id}:${idx}`} entry={entry} inTimeline modelIconOverrides={modelIconOverrides} />
           ))}
         </div>
       </div>
@@ -58,7 +60,7 @@ function ParallelToolCalls({ entries }: { entries: ToolEntry[] }) {
   );
 }
 
-export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600, modelIconOverrides }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const railContainerRef = useRef<HTMLDivElement>(null);
   const firstMarkerRef = useRef<HTMLDivElement | null>(null);
@@ -110,6 +112,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
   const markerKindForRow = (row: RenderRow): 'none' | 'dot' | 'tool' | 'warning' => {
     if (row.kind === 'tool_parallel') return 'tool';
     if (row.entry.kind === 'ai_message') return 'dot';
+    if (row.entry.kind === 'system_status') return 'dot';
     if (row.entry.kind === 'task_group') return 'tool';
     if (row.entry.kind === 'tool_call') return 'tool';
     if (row.entry.kind === 'bash_approval') return 'warning';
@@ -253,7 +256,11 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600 }: 
               )}
 
               <div className="min-w-0 w-full">
-                {row.kind === 'tool_parallel' ? <ParallelToolCalls entries={row.entries} /> : <FeedItem entry={row.entry} inTimeline />}
+                {row.kind === 'tool_parallel' ? (
+                  <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
+                ) : (
+                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} />
+                )}
               </div>
             </div>
           );

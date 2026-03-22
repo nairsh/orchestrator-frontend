@@ -9,7 +9,6 @@ import {
   Plus,
   Search,
   Upload,
-  X,
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
@@ -18,6 +17,18 @@ import { ApiError, listSkills, removeSkill, upsertSkill } from '../../api/client
 import type { SkillRecord } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
+import {
+  Button,
+  IconButton,
+  Input,
+  Textarea,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  DropdownMenu,
+  DropdownMenuItem,
+} from '../ui';
 
 const SKILL_ID_REGEX = /^[a-z0-9-]{1,64}$/;
 
@@ -32,8 +43,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  const [actionsMenuOpen, setActionsMenuOpen] = useState(false);
   const [previewMode, setPreviewMode] = useState<'preview' | 'raw'>('preview');
   const [activeNode, setActiveNode] = useState<'skill' | 'skill-md' | 'templates' | 'license'>('skill');
   const [enabledBySkillId, setEnabledBySkillId] = useState<Record<string, boolean>>({});
@@ -47,7 +56,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const canUseApi = useMemo(() => Boolean(config.apiKey), [config.apiKey]);
+  const canUseApi = useMemo(() => Boolean(config.hasAuth), [config.hasAuth]);
   const selectedSkill = useMemo(
     () => (selectedId ? skills.find((skill) => skill.id === selectedId) ?? null : null),
     [skills, selectedId]
@@ -63,9 +72,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
         skill.prompt_addendum.toLowerCase().includes(q)
     );
   }, [skills, searchQuery]);
-
-  const createMenuRef = useRef<HTMLDivElement | null>(null);
-  const actionsMenuRef = useRef<HTMLDivElement | null>(null);
 
   const loadSkills = async (preferredSkillId?: string | null) => {
     if (!canUseApi) return;
@@ -98,24 +104,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
 
   useEffect(() => {
     void loadSkills();
-  }, [canUseApi, config.baseUrl, config.apiKey]);
-
-  useEffect(() => {
-    const onPointerDown = (event: MouseEvent) => {
-      const target = event.target as Node;
-
-      if (createMenuOpen && createMenuRef.current && !createMenuRef.current.contains(target)) {
-        setCreateMenuOpen(false);
-      }
-
-      if (actionsMenuOpen && actionsMenuRef.current && !actionsMenuRef.current.contains(target)) {
-        setActionsMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', onPointerDown);
-    return () => document.removeEventListener('mousedown', onPointerDown);
-  }, [actionsMenuOpen, createMenuOpen]);
+  }, [canUseApi, config.baseUrl, config.hasAuth]);
 
   useEffect(() => {
     if (!selectedSkill) return;
@@ -136,7 +125,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
     setDraftInstructions('');
     setDraftTools('');
     setEditorOpen(true);
-    setCreateMenuOpen(false);
   };
 
   const openEditEditor = () => {
@@ -147,7 +135,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
     setDraftInstructions(selectedSkill.prompt_addendum);
     setDraftTools(selectedSkill.tools.join(', '));
     setEditorOpen(true);
-    setActionsMenuOpen(false);
   };
 
   const parseTools = (): string[] =>
@@ -199,7 +186,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
     try {
       await removeSkill(config, selectedSkill.id);
       toastSuccess('Skill deleted', selectedSkill.id);
-      setActionsMenuOpen(false);
       await loadSkills();
     } catch (error) {
       toastApiError(error, 'Failed to delete skill');
@@ -214,152 +200,78 @@ export function SkillsPage({ config }: SkillsPageProps) {
     : '';
 
   return (
-    <div className="flex flex-1 h-full overflow-hidden app-ui" style={{ background: '#F4F3EF' }}>
+    <div className="flex flex-1 h-full overflow-hidden app-ui bg-sidebar">
       {!canUseApi ? (
-        <div className="flex-1 flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: 13, color: '#888888' }}>
-          Add an API key in settings to manage skills.
+        <div className="flex-1 flex items-center justify-center text-sm text-placeholder">
+          Sign in to manage skills.
         </div>
       ) : (
         <>
-          <div className="flex flex-col h-full" style={{ width: 332, borderRight: '1px solid #D6D4CE', background: '#F4F3EF' }}>
-            <div className="flex items-center justify-between" style={{ padding: '14px 14px 10px 14px', borderBottom: '1px solid #D6D4CE' }}>
-              <div style={{ fontSize: 20, fontWeight: 600, letterSpacing: -0.2, color: '#171717' }}>Skills</div>
-              <div className="flex items-center" style={{ gap: 6 }}>
-                <button
-                  type="button"
+          {/* ─── Sidebar ─── */}
+          <div className="flex flex-col h-full w-[332px] border-r border-border bg-sidebar">
+            {/* Sidebar header */}
+            <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2.5 border-b border-border">
+              <span className="text-xl font-semibold tracking-tight text-primary">Skills</span>
+              <div className="flex items-center gap-1.5">
+                <IconButton
                   onClick={() => void loadSkills(selectedId)}
                   disabled={unsupportedApi}
-                  style={{
-                    width: 32,
-                    height: 30,
-                    borderRadius: 10,
-                    border: '1px solid #D7D5CF',
-                    background: '#ECE9E2',
-                    color: '#222222',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    opacity: unsupportedApi ? 0.45 : 1,
-                    cursor: unsupportedApi ? 'not-allowed' : 'pointer',
-                  }}
+                  label="Refresh skills"
+                  className="border border-border bg-surface-hover"
                 >
                   <Search size={15} strokeWidth={1.8} />
-                </button>
+                </IconButton>
 
-                <div className="relative" ref={createMenuRef}>
-                  <button
-                    type="button"
-                    onClick={() => setCreateMenuOpen((v) => !v)}
-                    disabled={unsupportedApi}
-                    style={{
-                      width: 30,
-                      height: 30,
-                      borderRadius: 10,
-                      border: '1px solid #D7D5CF',
-                      background: '#ECE9E2',
-                      color: '#222222',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: unsupportedApi ? 0.45 : 1,
-                      cursor: unsupportedApi ? 'not-allowed' : 'pointer',
-                    }}
-                  >
-                    <Plus size={15} strokeWidth={1.8} />
-                  </button>
-
-                  {createMenuOpen && !unsupportedApi && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 44,
-                        right: 0,
-                        zIndex: 20,
-                        width: 260,
-                        borderRadius: 18,
-                        border: '1px solid #BDBAB3',
-                        background: '#F7F6F3',
-                        boxShadow: '0 10px 24px rgba(0,0,0,0.12)',
-                        padding: 8,
-                      }}
+                <DropdownMenu
+                  trigger={({ toggle }) => (
+                    <IconButton
+                      onClick={toggle}
+                      disabled={unsupportedApi}
+                      label="Create skill"
+                      className="border border-border bg-surface-hover"
                     >
-                      <button
-                        type="button"
-                        onClick={openCreateEditor}
-                        className="w-full flex items-center"
-                        style={{
-                          gap: 8,
-                          textAlign: 'left',
-                          borderRadius: 14,
-                          padding: '6px 9px',
-                          background: 'transparent',
-                          fontSize: 13,
-                          color: '#343434',
-                        }}
-                      >
-                        <FileText size={14} strokeWidth={1.8} />
-                        Write skill instructions
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setCreateMenuOpen(false);
-                          toastInfo('Upload a skill', 'Coming soon.');
-                        }}
-                        className="w-full flex items-center"
-                        style={{
-                          gap: 8,
-                          textAlign: 'left',
-                          borderRadius: 14,
-                          padding: '6px 9px',
-                          background: 'transparent',
-                          fontSize: 13,
-                          color: '#343434',
-                        }}
-                      >
-                        <Upload size={14} strokeWidth={1.8} />
-                        Upload a skill
-                      </button>
-                    </div>
+                      <Plus size={15} strokeWidth={1.8} />
+                    </IconButton>
                   )}
-                </div>
+                  width={260}
+                >
+                  <DropdownMenuItem onClick={openCreateEditor}>
+                    <FileText size={14} strokeWidth={1.8} />
+                    Write skill instructions
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => toastInfo('Upload a skill', 'Coming soon.')}
+                  >
+                    <Upload size={14} strokeWidth={1.8} />
+                    Upload a skill
+                  </DropdownMenuItem>
+                </DropdownMenu>
               </div>
             </div>
 
-            <div style={{ padding: 12, borderBottom: '1px solid #DDDAD3' }}>
-              <input
+            {/* Search */}
+            <div className="p-3 border-b border-border">
+              <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 placeholder="Search skills"
-                className="w-full px-3 py-2 rounded-lg border border-[#D4D0C9] text-[14px] outline-none"
-                style={{ background: '#FAF9F6' }}
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto" style={{ padding: '8px 8px 14px 8px' }}>
+            {/* Skill list */}
+            <div className="flex-1 overflow-y-auto p-2 pb-3.5">
               {unsupportedApi && (
-                <div
-                  style={{
-                    margin: '0 6px 10px 6px',
-                    borderRadius: 10,
-                    border: '1px solid #D7C7AF',
-                    background: '#FFF8EE',
-                    color: '#6D4C1D',
-                    fontSize: 11,
-                    lineHeight: 1.4,
-                    padding: '8px 8px',
-                  }}
-                >
+                <div className="mx-1.5 mb-2.5 rounded-lg border border-warning/40 bg-yellow-50 text-yellow-800 text-2xs leading-snug p-2">
                   Skills endpoint is missing (`/v1/skills` returns 404). Restart/update the API server.
                 </div>
               )}
 
-              <div className="flex items-center" style={{ gap: 6, padding: '0 8px 6px 8px', color: '#6E6A64', fontSize: 12 }}>
+              <div className="flex items-center gap-1.5 px-2 pb-1.5 text-muted text-xs">
                 <ChevronDown size={17} />
-                <span style={{ fontSize: 14 }}>Examples</span>
+                <span className="text-sm">Examples</span>
               </div>
 
-              <div className="flex flex-col" style={{ gap: 2 }}>
+              <div className="flex flex-col gap-0.5">
                 {filteredSkills.map((skill) => {
                   const selected = selectedId === skill.id;
                   return (
@@ -370,53 +282,32 @@ export function SkillsPage({ config }: SkillsPageProps) {
                           setSelectedId(skill.id);
                           setActiveNode('skill');
                         }}
-                        className="w-full flex items-center"
-                        style={{
-                          textAlign: 'left',
-                          borderRadius: 12,
-                          padding: '8px 10px',
-                          background: selected ? '#EAE8E2' : 'transparent',
-                          color: selected ? '#252525' : '#4A4A4A',
-                          gap: 8,
-                        }}
+                        className={[
+                          'w-full flex items-center gap-2 text-left rounded-lg px-2.5 py-2 transition-colors duration-fast cursor-pointer',
+                          selected ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover/50',
+                        ].join(' ')}
                       >
-                        <div
-                          style={{
-                            width: 26,
-                            height: 26,
-                            borderRadius: 8,
-                            border: '1px solid #D5D3CC',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#F7F6F3',
-                          }}
-                        >
+                        <div className="w-[26px] h-[26px] rounded-md border border-border flex items-center justify-center bg-surface-secondary shrink-0">
                           <FileText size={14} />
                         </div>
-                         <div style={{ fontSize: 14, fontWeight: selected ? 600 : 500, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span className={`text-sm flex-1 truncate ${selected ? 'font-semibold' : 'font-medium'}`}>
                           {skill.id}
-                        </div>
+                        </span>
                         {selected ? <ChevronDown size={17} /> : <ChevronRight size={17} />}
                       </button>
 
                       {selected && (
-                        <div className="flex flex-col" style={{ paddingLeft: 40, paddingTop: 2, gap: 2 }}>
+                        <div className="flex flex-col pl-10 pt-0.5 gap-0.5">
                           <button
                             type="button"
                             onClick={() => {
                               setActiveNode('skill-md');
                               setPreviewMode('preview');
                             }}
-                            className="flex items-center"
-                            style={{
-                              gap: 6,
-                              color: activeNode === 'skill-md' ? '#2F2F2F' : '#6C6861',
-                              fontSize: 12,
-                              padding: '5px 7px',
-                              borderRadius: 8,
-                              background: activeNode === 'skill-md' ? '#ECE9E2' : 'transparent',
-                            }}
+                            className={[
+                              'flex items-center gap-1.5 text-xs px-1.5 py-1 rounded-md transition-colors duration-fast cursor-pointer',
+                              activeNode === 'skill-md' ? 'text-primary bg-surface-hover' : 'text-muted hover:text-primary',
+                            ].join(' ')}
                           >
                             <FileText size={14} />
                             SKILL.md
@@ -427,8 +318,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                               setActiveNode('templates');
                               toastInfo('Templates', 'Template file browsing is coming soon.');
                             }}
-                            className="flex items-center"
-                            style={{ gap: 6, color: '#8A867F', fontSize: 12, padding: '4px 7px', borderRadius: 8 }}
+                            className="flex items-center gap-1.5 text-xs text-placeholder px-1.5 py-1 rounded-md hover:text-muted cursor-pointer"
                           >
                             <Folder size={14} />
                             templates
@@ -439,13 +329,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                               setActiveNode('license');
                               toastInfo('LICENSE.txt', 'License file browsing is coming soon.');
                             }}
-                            className="text-left"
-                            style={{
-                              color: '#8A867F',
-                              fontSize: 12,
-                              padding: '4px 7px',
-                              borderRadius: 8,
-                            }}
+                            className="text-left text-xs text-placeholder px-1.5 py-1 rounded-md hover:text-muted cursor-pointer"
                           >
                             LICENSE.txt
                           </button>
@@ -456,18 +340,21 @@ export function SkillsPage({ config }: SkillsPageProps) {
                 })}
 
                 {filteredSkills.length === 0 && (
-                  <div style={{ padding: '10px 9px', color: '#7A7771', fontSize: 12 }}>No matching skills.</div>
+                  <div className="px-2.5 py-2.5 text-muted text-xs">No matching skills.</div>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col h-full" style={{ background: '#F7F6F2' }}>
+          {/* ─── Detail panel ─── */}
+          <div className="flex-1 flex flex-col h-full bg-surface-secondary">
             {selectedSkill ? (
               <>
-                <div className="flex items-center justify-between" style={{ padding: '14px 16px 8px 16px', borderBottom: '1px solid #D6D4CE' }}>
-                  <div style={{ fontSize: 24, fontWeight: 700, color: '#191919', letterSpacing: -0.25 }}>{selectedSkill.id}</div>
-                  <div className="flex items-center" style={{ gap: 8 }}>
+                {/* Detail header */}
+                <div className="flex items-center justify-between px-4 pt-3.5 pb-2 border-b border-border">
+                  <h1 className="text-xl font-bold text-primary tracking-tight">{selectedSkill.id}</h1>
+                  <div className="flex items-center gap-2">
+                    {/* Toggle */}
                     <button
                       type="button"
                       onClick={() => {
@@ -477,191 +364,102 @@ export function SkillsPage({ config }: SkillsPageProps) {
                           [selectedSkill.id]: !(prev[selectedSkill.id] ?? true),
                         }));
                       }}
-                      style={{
-                        width: 34,
-                        height: 20,
-                        borderRadius: 999,
-                        border: '1px solid #CBC8C1',
-                        background: selectedEnabled ? '#F0EEE8' : '#E5E2DA',
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '0 2px',
-                      }}
+                      className={[
+                        'w-[34px] h-5 rounded-pill border flex items-center px-0.5 transition-colors duration-150 cursor-pointer',
+                        selectedEnabled ? 'border-border bg-surface-hover' : 'border-border bg-surface-tertiary',
+                      ].join(' ')}
                     >
                       <div
-                        style={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: 22,
-                          background: '#FFFFFF',
-                          boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                          transform: selectedEnabled ? 'translateX(18px)' : 'translateX(0px)',
-                          transition: 'transform 150ms ease',
-                        }}
+                        className="w-3 h-3 rounded-full bg-white shadow-xs transition-transform duration-150"
+                        style={{ transform: selectedEnabled ? 'translateX(18px)' : 'translateX(0px)' }}
                       />
                     </button>
 
-                    <div className="relative" ref={actionsMenuRef}>
-                      <button
-                        type="button"
-                        onClick={() => setActionsMenuOpen((v) => !v)}
-                        style={{
-                          width: 26,
-                          height: 26,
-                          borderRadius: 8,
-                          border: '1px solid #D4D1CA',
-                          background: '#F1EFEA',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#2B2B2B',
-                        }}
-                      >
-                        <MoreHorizontal size={13} />
-                      </button>
-
-                      {actionsMenuOpen && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: 40,
-                            right: 0,
-                            zIndex: 20,
-                            minWidth: 180,
-                            borderRadius: 18,
-                            border: '1px solid #BDBAB3',
-                            background: '#F7F6F3',
-                            boxShadow: '0 10px 24px rgba(0,0,0,0.12)',
-                            padding: 8,
-                          }}
+                    {/* Actions dropdown */}
+                    <DropdownMenu
+                      trigger={({ toggle }) => (
+                        <IconButton
+                          size="sm"
+                          onClick={toggle}
+                          label="Skill actions"
+                          className="border border-border bg-surface-hover"
                         >
-                          <button
-                            type="button"
-                            onClick={openEditEditor}
-                            className="w-full flex items-center"
-                            style={{
-                              gap: 8,
-                              textAlign: 'left',
-                              borderRadius: 14,
-                              padding: '6px 9px',
-                              background: 'transparent',
-                              fontSize: 13,
-                              color: '#343434',
-                            }}
-                          >
-                            Edit instructions
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void deleteSelectedSkill()}
-                            disabled={deleting}
-                            className="w-full flex items-center"
-                            style={{
-                              gap: 8,
-                              textAlign: 'left',
-                              borderRadius: 14,
-                              padding: '6px 9px',
-                              background: 'transparent',
-                              fontSize: 13,
-                              color: '#B42318',
-                            }}
-                          >
-                            {deleting ? 'Deleting...' : 'Delete skill'}
-                          </button>
-                        </div>
+                          <MoreHorizontal size={13} />
+                        </IconButton>
                       )}
-                    </div>
+                      width={180}
+                    >
+                      <DropdownMenuItem onClick={openEditEditor}>Edit instructions</DropdownMenuItem>
+                      <DropdownMenuItem
+                        destructive
+                        onClick={() => void deleteSelectedSkill()}
+                      >
+                        {deleting ? 'Deleting...' : 'Delete skill'}
+                      </DropdownMenuItem>
+                    </DropdownMenu>
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto" style={{ padding: '12px 16px 18px 16px' }}>
-                  <div className="grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 8 }}>
+                {/* Detail body */}
+                <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4.5">
+                  <div className="grid grid-cols-2 gap-3.5 mb-2">
                     <div>
-                      <div style={{ fontSize: 13, color: '#6D6962', marginBottom: 2 }}>Added by</div>
-                      <div style={{ fontSize: 17, color: '#161616', fontWeight: 500 }}>Global</div>
+                      <div className="text-sm text-muted mb-0.5">Added by</div>
+                      <div className="text-md text-primary font-medium">Global</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, color: '#6D6962', marginBottom: 2 }}>Invoked by</div>
-                      <div style={{ fontSize: 17, color: '#161616', fontWeight: 500 }}>User or Agent</div>
+                      <div className="text-sm text-muted mb-0.5">Invoked by</div>
+                      <div className="text-md text-primary font-medium">User or Agent</div>
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: 16 }}>
-                    <div className="flex items-center" style={{ gap: 6, fontSize: 13, color: '#6D6962', marginBottom: 4 }}>
+                  <div className="mb-4">
+                    <div className="flex items-center gap-1.5 text-sm text-muted mb-1">
                       Description <Info size={14} />
                     </div>
-                    <div style={{ fontSize: 16, lineHeight: 1.42, color: '#202020' }}>{selectedSkill.description}</div>
+                    <p className="text-base leading-relaxed text-primary">{selectedSkill.description}</p>
                   </div>
 
-                  <div style={{ height: 1, background: '#D9D6CF', marginBottom: 20 }} />
+                  <div className="h-px bg-border mb-5" />
 
-                    <div
-                      style={{
-                        borderRadius: 18,
-                        border: '1px solid #D2D0C8',
-                        background: '#FAF9F6',
-                        padding: 14,
-                      }}
-                    >
-                    <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 12, color: '#6D6962' }}>Instruction file</div>
-                      <div className="flex items-center" style={{ gap: 8 }}>
-                        <button
-                          type="button"
+                  {/* Instruction file card */}
+                  <div className="rounded-2xl border border-border bg-surface-warm p-3.5">
+                    <div className="flex items-center justify-between mb-3.5">
+                      <span className="text-xs text-muted">Instruction file</span>
+                      <div className="flex items-center gap-2">
+                        <IconButton
+                          size="sm"
                           onClick={() => setPreviewMode('preview')}
-                          style={{
-                            width: 26,
-                            height: 26,
-                            borderRadius: 10,
-                            border: previewMode === 'preview' ? '1px solid #C7C4BC' : '1px solid transparent',
-                            background: previewMode === 'preview' ? '#EFEDE7' : 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#3A3A3A',
-                          }}
+                          label="Preview"
+                          className={
+                            previewMode === 'preview'
+                              ? 'border border-border bg-surface-hover'
+                              : 'border border-transparent'
+                          }
                         >
                           <Eye size={13} />
-                        </button>
-                        <button
-                          type="button"
+                        </IconButton>
+                        <IconButton
+                          size="sm"
                           onClick={() => setPreviewMode('raw')}
-                          style={{
-                            width: 26,
-                            height: 26,
-                            borderRadius: 10,
-                            border: previewMode === 'raw' ? '1px solid #C7C4BC' : '1px solid transparent',
-                            background: previewMode === 'raw' ? '#EFEDE7' : 'transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#3A3A3A',
-                          }}
+                          label="Raw"
+                          className={
+                            previewMode === 'raw'
+                              ? 'border border-border bg-surface-hover'
+                              : 'border border-transparent'
+                          }
                         >
                           <Code2 size={13} />
-                        </button>
+                        </IconButton>
                       </div>
                     </div>
 
-                    <div style={{ height: 1, background: '#D9D6CF', marginBottom: 14 }} />
+                    <div className="h-px bg-border mb-3.5" />
 
                     {previewMode === 'preview' ? (
                       <Markdown content={selectedSkill.prompt_addendum || '_No instructions yet._'} />
                     ) : (
-                      <pre
-                        style={{
-                          margin: 0,
-                          whiteSpace: 'pre-wrap',
-                          fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace',
-                          fontSize: 12,
-                          lineHeight: 1.45,
-                          color: '#252525',
-                          background: '#F3F2EE',
-                          border: '1px solid #D8D5CE',
-                          borderRadius: 12,
-                          padding: 12,
-                        }}
-                      >
+                      <pre className="m-0 whitespace-pre-wrap font-mono text-xs leading-snug text-primary bg-surface-tertiary border border-border rounded-lg p-3">
                         {detailDocument}
                       </pre>
                     )}
@@ -669,7 +467,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center" style={{ color: '#78756E', fontSize: 13 }}>
+              <div className="flex-1 flex items-center justify-center text-sm text-muted">
                 {loading ? 'Loading skills...' : 'No skills found. Create one from the + menu.'}
               </div>
             )}
@@ -677,152 +475,58 @@ export function SkillsPage({ config }: SkillsPageProps) {
         </>
       )}
 
+      {/* ─── Editor modal ─── */}
       {editorOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 100,
-            background: 'rgba(25, 24, 22, 0.46)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 24,
-          }}
-        >
-          <div
-            style={{
-              width: 'min(800px, 100%)',
-              maxHeight: '92vh',
-              overflowY: 'auto',
-              borderRadius: 24,
-              border: '1px solid #D5D3CC',
-              background: '#FAF9F6',
-              boxShadow: '0 24px 60px rgba(0,0,0,0.24)',
-            }}
-          >
-            <div className="flex items-center justify-between" style={{ padding: '20px 22px 10px 22px' }}>
-              <div style={{ fontSize: 30, lineHeight: 1.1, fontWeight: 700, color: '#151515' }}>Write skill instructions</div>
-              <button
-                type="button"
-                onClick={() => setEditorOpen(false)}
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 10,
-                  border: '1px solid #D6D3CC',
-                  background: '#F1EFEA',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#64615A',
-                }}
-              >
-                <X size={16} />
-              </button>
+        <Modal onClose={() => setEditorOpen(false)} maxWidth="max-w-3xl">
+          <ModalHeader title="Write skill instructions" onClose={() => setEditorOpen(false)} />
+          <ModalBody className="flex flex-col gap-3.5">
+            <Input
+              label="Skill name"
+              value={draftId}
+              disabled={editorMode === 'edit'}
+              onChange={(event) => setDraftId(event.target.value)}
+              placeholder="weekly-status-report"
+            />
+
+            <div>
+              <label className="block text-xs font-medium text-primary mb-1.5">Description</label>
+              <Textarea
+                value={draftDescription}
+                onChange={(event) => setDraftDescription(event.target.value)}
+                maxHeight={120}
+                placeholder="Generate weekly status reports from recent work..."
+                className="px-3 py-2 rounded-lg border border-border-light bg-surface"
+              />
             </div>
 
-            <div style={{ padding: '8px 22px 22px 22px' }}>
-              <div className="flex flex-col" style={{ gap: 14 }}>
-                <div>
-                  <label style={{ display: 'block', marginBottom: 7, fontSize: 13, fontWeight: 600, color: '#333333' }}>
-                    Skill name
-                  </label>
-                  <input
-                    type="text"
-                    value={draftId}
-                    disabled={editorMode === 'edit'}
-                    onChange={(event) => setDraftId(event.target.value)}
-                    placeholder="weekly-status-report"
-                    className="w-full px-4 py-2.5 rounded-2xl border text-[14px] outline-none"
-                    style={{
-                      borderColor: '#CFCDC6',
-                      background: editorMode === 'edit' ? '#ECE9E2' : '#FDFCF9',
-                      color: '#2F2F2F',
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: 7, fontSize: 13, fontWeight: 600, color: '#333333' }}>
-                    Description
-                  </label>
-                  <textarea
-                    value={draftDescription}
-                    onChange={(event) => setDraftDescription(event.target.value)}
-                    rows={3}
-                    placeholder="Generate weekly status reports from recent work..."
-                    className="w-full px-4 py-2.5 rounded-2xl border text-[14px] outline-none"
-                    style={{ borderColor: '#CFCDC6', background: '#FDFCF9', color: '#2F2F2F', resize: 'vertical' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: 7, fontSize: 13, fontWeight: 600, color: '#333333' }}>
-                    Instructions
-                  </label>
-                  <textarea
-                    value={draftInstructions}
-                    onChange={(event) => setDraftInstructions(event.target.value)}
-                    rows={11}
-                    placeholder="Summarize my recent work in three sections: wins, blockers, and next steps..."
-                    className="w-full px-4 py-3 rounded-2xl border text-[14px] outline-none"
-                    style={{ borderColor: '#CFCDC6', background: '#FDFCF9', color: '#2F2F2F', resize: 'vertical' }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', marginBottom: 7, fontSize: 12, fontWeight: 500, color: '#5A5751' }}>
-                    Tools (comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={draftTools}
-                    onChange={(event) => setDraftTools(event.target.value)}
-                    placeholder="bash, file_read, grep"
-                    className="w-full px-4 py-2.5 rounded-2xl border text-[13px] outline-none"
-                    style={{ borderColor: '#CFCDC6', background: '#FDFCF9', color: '#2F2F2F' }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-end" style={{ gap: 10, marginTop: 6 }}>
-                  <button
-                    type="button"
-                    onClick={() => setEditorOpen(false)}
-                    style={{
-                      borderRadius: 16,
-                      border: '1px solid #C9C7C0',
-                      background: '#F6F5F2',
-                      color: '#2B2B2B',
-                      fontSize: 13,
-                      fontWeight: 500,
-                      padding: '6px 14px',
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void saveSkill()}
-                    disabled={saving}
-                    style={{
-                      borderRadius: 16,
-                      border: '1px solid #9B9891',
-                      background: '#8F8D86',
-                      color: '#FFFFFF',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      padding: '6px 14px',
-                      opacity: saving ? 0.75 : 1,
-                    }}
-                  >
-                    {saving ? 'Saving...' : editorMode === 'create' ? 'Create' : 'Save'}
-                  </button>
-                </div>
-              </div>
+            <div>
+              <label className="block text-xs font-medium text-primary mb-1.5">Instructions</label>
+              <Textarea
+                value={draftInstructions}
+                onChange={(event) => setDraftInstructions(event.target.value)}
+                maxHeight={300}
+                placeholder="Summarize my recent work in three sections: wins, blockers, and next steps..."
+                className="px-3 py-2 rounded-lg border border-border-light bg-surface"
+              />
             </div>
-          </div>
-        </div>
+
+            <Input
+              label="Tools (comma separated)"
+              value={draftTools}
+              onChange={(event) => setDraftTools(event.target.value)}
+              placeholder="bash, file_read, grep"
+            />
+          </ModalBody>
+          <ModalFooter>
+            <div />
+            <div className="flex items-center gap-2.5">
+              <Button variant="secondary" onClick={() => setEditorOpen(false)}>Cancel</Button>
+              <Button onClick={() => void saveSkill()} disabled={saving}>
+                {saving ? 'Saving...' : editorMode === 'create' ? 'Create' : 'Save'}
+              </Button>
+            </div>
+          </ModalFooter>
+        </Modal>
       )}
     </div>
   );

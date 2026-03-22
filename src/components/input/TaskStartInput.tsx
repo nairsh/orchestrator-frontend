@@ -33,23 +33,23 @@ export function TaskStartInput({ onSubmit, disabled }: TaskStartInputProps) {
 
   return (
     <div className="px-4 py-3">
-      <div className="flex items-end gap-2 bg-white rounded-xl border border-gray-200 shadow-sm px-3 py-2">
+      <div className="flex items-end gap-2 bg-surface rounded-xl border border-border shadow-sm px-3 py-2">
         <textarea
           ref={textareaRef}
           value={value}
           onChange={handleInput}
           onKeyDown={handleKeyDown}
-          placeholder="Start a task…"
+          placeholder="Start a task..."
           disabled={disabled}
           rows={1}
-          className="flex-1 resize-none bg-transparent text-sm text-primary placeholder:text-muted outline-none leading-relaxed"
+          className="flex-1 resize-none bg-transparent text-sm font-sans text-primary placeholder:text-placeholder outline-none leading-relaxed"
           style={{ minHeight: 24, maxHeight: 120 }}
         />
         <button
           type="button"
           onClick={handleSubmit}
           disabled={!value.trim() || disabled}
-          className="w-7 h-7 rounded-full bg-primary flex items-center justify-center transition-opacity disabled:opacity-30 flex-shrink-0"
+          className="w-7 h-7 rounded-full bg-ink flex items-center justify-center transition-opacity disabled:opacity-30 flex-shrink-0 cursor-pointer disabled:cursor-default"
         >
           <ArrowUp size={14} className="text-white" />
         </button>

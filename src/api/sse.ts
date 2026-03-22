@@ -8,9 +8,13 @@ export interface SseConnection {
   close: () => void;
 }
 
+export interface SseConfig {
+  baseUrl: string;
+  getAuthToken?: () => Promise<string | null>;
+}
+
 export function connectWorkflowStream(
-  baseUrl: string,
-  apiKey: string,
+  config: SseConfig,
   workflowId: string,
   onEvent: SseEventHandler,
   onError: SseErrorHandler,
@@ -20,15 +24,20 @@ export function connectWorkflowStream(
 
   signal?.addEventListener('abort', () => abortController.abort());
 
-  const url = `${baseUrl.replace(/\/$/, '')}/v1/workflows/${workflowId}/stream`;
+  const url = `${config.baseUrl.replace(/\/$/, '')}/v1/workflows/${workflowId}/stream`;
 
   (async () => {
     try {
+      const token = await resolveAuthToken(config);
+      const headers: Record<string, string> = {
+        Accept: 'text/event-stream',
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          Accept: 'text/event-stream',
-        },
+        headers,
         signal: abortController.signal,
       });
 
@@ -75,8 +84,7 @@ export function connectWorkflowStream(
 export type StreamChunkHandler = (chunk: StreamChunk) => void;
 
 export function streamAgentResponse(
-  baseUrl: string,
-  apiKey: string,
+  config: SseConfig,
   body: Record<string, unknown>,
   onChunk: StreamChunkHandler,
   onError: SseErrorHandler,
@@ -85,17 +93,22 @@ export function streamAgentResponse(
   const abortController = new AbortController();
   signal?.addEventListener('abort', () => abortController.abort());
 
-  const url = `${baseUrl.replace(/\/$/, '')}/v1/responses`;
+  const url = `${config.baseUrl.replace(/\/$/, '')}/v1/responses`;
 
   (async () => {
     try {
+      const token = await resolveAuthToken(config);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+      };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-          Accept: 'text/event-stream',
-        },
+        headers,
         body: JSON.stringify({ ...body, stream: true }),
         signal: abortController.signal,
       });
@@ -137,4 +150,12 @@ export function streamAgentResponse(
   return {
     close: () => abortController.abort(),
   };
+}
+
+async function resolveAuthToken(config: SseConfig): Promise<string | null> {
+  const clerkToken = config.getAuthToken ? await config.getAuthToken() : null;
+  if (clerkToken && clerkToken.trim().length > 0) {
+    return clerkToken.trim();
+  }
+  return null;
 }

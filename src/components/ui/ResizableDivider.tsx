@@ -100,14 +100,13 @@ export function ResizableDivider({
       onMouseLeave={() => setIsHovering(false)}
       aria-hidden="true"
     >
-      <div style={{ width: 1, height: '100%', background: '#dfdfdf' }} />
+      <div className="w-px h-full bg-border" />
       <div
-        className="absolute"
+        className="absolute bg-muted"
         style={{
           width: 4,
           height: 48,
           borderRadius: 999,
-          background: '#bdbdbd',
           opacity: pillOpacity,
           transition: 'opacity 120ms ease',
         }}

@@ -14,7 +14,8 @@ import type {
 
 export interface ApiConfig {
   baseUrl: string;
-  apiKey: string;
+  getAuthToken?: () => Promise<string | null>;
+  hasAuth?: boolean;
 }
 
 export class ApiError extends Error {
@@ -33,6 +34,20 @@ export class ApiError extends Error {
   }
 }
 
+function normalizeApiErrorMessage(message: string): string {
+  const lowered = message.toLowerCase();
+  if (
+    lowered.includes('invalid api key') ||
+    lowered.includes('invalid or missing api key') ||
+    lowered.includes('invalid or expired clerk token') ||
+    lowered.includes('invalid auth token') ||
+    lowered.includes('missing authentication token')
+  ) {
+    return 'Sign in with Clerk to continue.';
+  }
+  return message;
+}
+
 async function request<T>(config: ApiConfig, path: string, init?: RequestInit): Promise<T> {
   const url = `${config.baseUrl.replace(/\/$/, '')}${path}`;
 
@@ -40,7 +55,8 @@ async function request<T>(config: ApiConfig, path: string, init?: RequestInit): 
   if (!headers.has('Accept')) headers.set('Accept', 'application/json');
   // Only set Content-Type for JSON bodies.
   if (init?.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
-  if (config.apiKey) headers.set('Authorization', `Bearer ${config.apiKey}`);
+  const token = await resolveAuthToken(config);
+  if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const response = await fetch(url, {
     ...init,
@@ -59,7 +75,7 @@ async function request<T>(config: ApiConfig, path: string, init?: RequestInit): 
     } catch {
       // ignore parse failure
     }
-    throw new ApiError(response.status, message, meta);
+    throw new ApiError(response.status, normalizeApiErrorMessage(message), meta);
   }
 
   if (response.status === 204) {
@@ -72,6 +88,14 @@ async function request<T>(config: ApiConfig, path: string, init?: RequestInit): 
   }
 
   return (await response.text()) as unknown as T;
+}
+
+async function resolveAuthToken(config: ApiConfig): Promise<string | null> {
+  const clerkToken = config.getAuthToken ? await config.getAuthToken() : null;
+  if (clerkToken && clerkToken.trim().length > 0) {
+    return clerkToken.trim();
+  }
+  return null;
 }
 
 export interface WorkflowDetails {
@@ -123,8 +147,13 @@ export async function listWorkflows(
   );
 }
 
-export async function cancelWorkflow(config: ApiConfig, workflowId: string): Promise<void> {
-  await request(config, `/v1/workflows/${workflowId}`, { method: 'DELETE' });
+export async function cancelWorkflow(
+  config: ApiConfig,
+  workflowId: string
+): Promise<{ status?: string; workflow_id?: string }> {
+  return request<{ status?: string; workflow_id?: string }>(config, `/v1/workflows/${workflowId}`, {
+    method: 'DELETE',
+  });
 }
 
 export async function getWorkflow(config: ApiConfig, workflowId: string): Promise<WorkflowDetails> {

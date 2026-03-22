@@ -5,7 +5,12 @@ import {
   Check,
   ChevronDown,
   ScanSearch,
+  Search,
   Terminal,
+  Bot,
+  Pencil,
+  Eye,
+  EyeOff,
   Globe,
   FileText,
   Zap,
@@ -16,6 +21,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Markdown } from '../markdown/Markdown';
+import { ModelIcon, resolveModelIconKey, type ModelIconOverrides } from '../../lib/modelIcons';
 
 function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
@@ -48,11 +54,7 @@ function extractTodoDisplay(toolName: string, input: unknown, output: unknown, f
       const id = String(rec.id ?? rec.todo_id ?? '').trim();
       const description = String(rec.description ?? rec.title ?? 'Untitled task').trim();
       if (!id && !description) continue;
-      result.push({
-        id: id || 'task',
-        description,
-        status: normalizeStatus(rec.status),
-      });
+      result.push({ id: id || 'task', description, status: normalizeStatus(rec.status) });
     }
     return result;
   }
@@ -94,77 +96,275 @@ function extractTodoDisplay(toolName: string, input: unknown, output: unknown, f
   return result;
 }
 
+type SearchResultDisplay = {
+  title: string;
+  url: string;
+  resolvedUrl: string;
+  domain: string;
+};
+
+type FetchedSourceDisplay = {
+  title: string;
+  url: string;
+  domain: string;
+};
+
+function normalizeSearchResultUrl(rawUrl: string): string {
+  const input = rawUrl.trim();
+  if (!input) return input;
+
+  try {
+    const parsed = new URL(input);
+    const host = parsed.hostname.replace(/^www\./, '').toLowerCase();
+    if (host.includes('duckduckgo.com') && parsed.pathname.startsWith('/l/')) {
+      const redirected = parsed.searchParams.get('uddg') ?? parsed.searchParams.get('u');
+      if (redirected) {
+        try {
+          return decodeURIComponent(redirected);
+        } catch {
+          return redirected;
+        }
+      }
+    }
+    return input;
+  } catch {
+    return input;
+  }
+}
+
+function extractSearchResults(output: unknown): SearchResultDisplay[] {
+  const parseFrom = (value: unknown): SearchResultDisplay[] => {
+    const rec = asRecord(value);
+    const raw = Array.isArray(rec.results) ? rec.results : [];
+    const items: SearchResultDisplay[] = [];
+
+    for (const item of raw) {
+      const row = asRecord(item);
+      const url = String(row.url ?? '').trim();
+      if (!url) continue;
+      const resolvedUrl = normalizeSearchResultUrl(url);
+      const title = String(row.title ?? url).trim() || url;
+      let domain = resolvedUrl;
+      try {
+        domain = new URL(resolvedUrl).hostname.replace(/^www\./, '');
+      } catch {
+        // Keep raw url as fallback
+      }
+      items.push({ title, url, resolvedUrl, domain });
+    }
+
+    return items;
+  };
+
+  if (typeof output === 'string') {
+    try {
+      return parseFrom(JSON.parse(output));
+    } catch {
+      return [];
+    }
+  }
+
+  return parseFrom(output);
+}
+
+function extractFetchedSource(input: unknown, output: unknown): FetchedSourceDisplay | null {
+  const fromOutput = () => {
+    const parse = (value: unknown): FetchedSourceDisplay | null => {
+      const rec = asRecord(value);
+      const rawUrl = String(rec.url ?? '').trim();
+      if (!rawUrl) return null;
+      const resolvedUrl = normalizeSearchResultUrl(rawUrl);
+      const title = String(rec.title ?? resolvedUrl).trim() || resolvedUrl;
+      let domain = resolvedUrl;
+      try {
+        domain = new URL(resolvedUrl).hostname.replace(/^www\./, '');
+      } catch {
+        // keep fallback
+      }
+      return { title, url: resolvedUrl, domain };
+    };
+
+    if (typeof output === 'string') {
+      try {
+        return parse(JSON.parse(output));
+      } catch {
+        return null;
+      }
+    }
+    return parse(output);
+  };
+
+  const out = fromOutput();
+  if (out) return out;
+
+  const inp = asRecord(input);
+  const rawUrl = String(inp.url ?? '').trim();
+  if (!rawUrl) return null;
+  const resolvedUrl = normalizeSearchResultUrl(rawUrl);
+  let domain = resolvedUrl;
+  try {
+    domain = new URL(resolvedUrl).hostname.replace(/^www\./, '');
+  } catch {
+    // keep fallback
+  }
+  return { title: resolvedUrl, url: resolvedUrl, domain };
+}
+
 function PromptBlock({ text }: { text: string }) {
   return <UserBubble text={text} />;
 }
 
-function TaskGroupBlock({ tasks }: { tasks: Array<{ id: string; description: string; status: string }> }) {
+function SystemStatus({ text }: { text: string }) {
+  return <span className="font-sans text-sm text-muted">{text}</span>;
+}
+
+function compactModelLabel(model?: string): string | null {
+  if (!model) return null;
+  const leaf = model.split('/').pop() ?? model;
+  const normalized = leaf.replace(/[-_]+/g, ' ').trim();
+  if (!normalized) return null;
+  if (/codex/i.test(normalized)) return 'Codex';
+  if (/gpt/i.test(normalized)) return 'GPT';
+  if (/claude/i.test(normalized)) return 'Claude';
+  if (/gemini/i.test(normalized)) return 'Gemini';
+  return normalized.length > 18 ? `${normalized.slice(0, 18)}…` : normalized;
+}
+
+function taskActivityLabel(task: { status: string; current_activity?: string }): string {
+  const status = normalizeStatus(task.status);
+  if (status === 'completed') return 'Task completed';
+  if (status === 'failed') return 'Task failed';
+  if (status === 'skipped') return 'Task skipped';
+  return task.current_activity?.trim() || 'Working…';
+}
+
+function agentDisplayName(agentType?: string): string {
+  const t = String(agentType ?? '').trim().toLowerCase();
+  if (t === 'research') return 'Research Agent';
+  if (t === 'analyze') return 'Analyze Agent';
+  if (t === 'write') return 'Write Agent';
+  if (t === 'code') return 'Code Agent';
+  if (t === 'file') return 'File Agent';
+  if (t === 'task') return 'Task Agent';
+  return 'Sub Agent';
+}
+
+function iconForRecentToolCall(toolCall: string) {
+  const normalized = toolCall.trim().toLowerCase().replace(/\s+/g, '_');
+  if (normalized.includes('bash')) return Terminal;
+  if (normalized.includes('web_search')) return Search;
+  if (normalized.includes('fetch_url')) return Globe;
+  if (normalized.includes('file_read') || normalized.includes('file_write') || normalized.includes('file_edit')) {
+    return FileText;
+  }
+  if (normalized.includes('glob') || normalized.includes('grep')) return ScanSearch;
+  return Zap;
+}
+
+function TaskGroupBlock({
+  tasks,
+  modelIconOverrides,
+}: {
+  tasks: Array<{
+    id: string;
+    description: string;
+    agent_type?: string;
+    status: string;
+    current_activity?: string;
+    model?: string;
+    recent_tool_calls?: string[];
+  }>;
+  modelIconOverrides?: ModelIconOverrides;
+}) {
   const [open, setOpen] = useState(true);
+  const taskCount = tasks.length;
+  const headerLabel = taskCount <= 1 ? 'Running task' : 'Running tasks in parallel';
+  const isParallel = taskCount > 1;
 
   return (
-    <div className="flex flex-col" style={{ gap: 8 }}>
+    <div className="flex flex-col gap-2">
       <button
         type="button"
-        className="flex items-center"
-        style={{ gap: 8, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        className="flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
         onClick={() => setOpen((v) => !v)}
       >
-        <Repeat2 size={15} color="#666666" />
-        <span style={{ fontFamily: 'Inter', fontSize: 13, color: '#666666' }}>Running tasks in parallel</span>
+        <Repeat2 size={15} className="text-muted" />
+        <span className="font-sans text-sm text-muted">{headerLabel}</span>
         <ChevronDown
           size={14}
-          color="#666666"
-          style={{ transform: open ? 'none' : 'rotate(-90deg)', transition: 'transform 0.2s ease' }}
+          className="text-muted transition-transform duration-slow"
+          style={{ transform: open ? 'none' : 'rotate(-90deg)' }}
         />
       </button>
 
-      <div style={{ overflow: 'hidden', maxHeight: open ? 520 : 0, opacity: open ? 1 : 0, transition: 'max-height 0.2s ease, opacity 0.2s ease' }}>
         <div
-          className="flex flex-col"
-          style={{
-            marginLeft: 10,
-            marginTop: 2,
-            position: 'relative',
-            paddingLeft: 22,
-            gap: 8,
-          }}
+          className="overflow-hidden transition-all duration-slow"
+          style={{ maxHeight: open ? 1200 : 0, opacity: open ? 1 : 0 }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 10,
-              width: 1.5,
-              background: '#DADADA',
-            }}
-          />
+        <div
+          className={`flex flex-col gap-3 mt-0.5 relative ${isParallel ? 'ml-2.5 pl-[22px]' : ''}`}
+        >
+          {isParallel && <div className="absolute left-0 top-0 bottom-2.5 w-[1.5px] bg-border" />}
           {tasks.map((task) => {
             const status = normalizeStatus(task.status);
+            const modelBadge = compactModelLabel(task.model);
+            const agentName = agentDisplayName(task.agent_type);
+            const recentToolCalls = Array.isArray(task.recent_tool_calls)
+              ? task.recent_tool_calls.slice(-3)
+              : [];
+            const modelProvider = task.model?.includes('/') ? task.model.split('/')[0] : undefined;
+            const iconKey = task.model
+              ? resolveModelIconKey(task.model, modelProvider, modelIconOverrides)
+              : undefined;
             return (
-              <div key={task.id} className="flex items-center" style={{ gap: 10, minHeight: 34, position: 'relative' }}>
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: -22,
-                    top: 2,
-                    width: 16,
-                    height: 14,
-                    borderLeft: '1.5px solid #DADADA',
-                    borderBottom: '1.5px solid #DADADA',
-                    borderBottomLeftRadius: 10,
-                  }}
-                />
-                {status === 'completed' || status === 'skipped' ? (
-                  <Check size={15} color="#6E6E6E" style={{ flexShrink: 0 }} />
-                ) : status === 'running' ? (
-                  <Loader2 size={15} color="#6E6E6E" className="animate-spin" style={{ flexShrink: 0 }} />
-                ) : (
-                  <ScanSearch size={15} color="#8A8A8A" style={{ flexShrink: 0 }} />
+              <div key={task.id} className="relative">
+                {isParallel && (
+                  <div className="absolute -left-[22px] top-0.5 w-4 h-3.5 border-l-[1.5px] border-b-[1.5px] border-border rounded-bl-[10px]" />
                 )}
-                <span style={{ fontFamily: 'Inter', fontSize: 14, color: '#666666', lineHeight: 1.35 }}>
-                  {task.description}
-                </span>
+
+                <div className="rounded-xl border border-border-light bg-surface overflow-hidden">
+                  <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-light/70 bg-surface-tertiary">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Bot size={18} className="text-muted flex-shrink-0" />
+                      <span className="font-sans text-base font-medium text-primary truncate">
+                        {agentName} - {task.description}
+                      </span>
+                      {modelBadge && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 font-sans text-2xs text-secondary bg-surface-warm flex-shrink-0">
+                          {iconKey ? <ModelIcon iconKey={iconKey} size={12} /> : null}
+                          <span>{modelBadge}</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {status === 'completed' || status === 'skipped' ? (
+                      <Check size={15} className="flex-shrink-0 text-muted" />
+                    ) : status === 'running' ? (
+                      <Loader2 size={15} className="flex-shrink-0 text-muted animate-spin" />
+                    ) : (
+                      <CircleAlert size={15} className="flex-shrink-0 text-warning" />
+                    )}
+                  </div>
+
+                  <div className="px-4 py-3 flex items-center gap-2.5">
+                    <Pencil size={16} className="text-placeholder flex-shrink-0" />
+                    <span className="font-sans text-sm text-secondary truncate">{taskActivityLabel(task)}</span>
+                  </div>
+
+                  {recentToolCalls.length > 0 && (
+                    <div className="px-4 pb-3 -mt-1 flex flex-col gap-1.5">
+                      {[...recentToolCalls].reverse().map((toolCall, idx) => {
+                        const Icon = iconForRecentToolCall(toolCall);
+                        return (
+                          <div key={`${task.id}:${toolCall}:${idx}`} className="flex items-center gap-2 min-w-0">
+                            <Icon size={13} className="text-placeholder flex-shrink-0" />
+                            <span className="font-mono text-2xs text-placeholder truncate">{toolCall}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -178,33 +378,25 @@ function TodoList({ items }: { items: TodoDisplay[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div style={{ border: '1px solid #EAEAEA', borderRadius: 10, padding: '10px 12px', background: '#FCFCFC' }}>
-      <div style={{ fontFamily: 'Inter', fontSize: 12, color: '#7A7A7A', marginBottom: 8 }}>Task list</div>
-      <div className="flex flex-col" style={{ gap: 8 }}>
+    <div className="border border-border-light rounded-lg p-3 bg-surface">
+      <div className="font-sans text-xs text-subtle mb-2">Task list</div>
+      <div className="flex flex-col gap-2">
         {items.map((item) => {
           const isDone = item.status === 'completed' || item.status === 'skipped';
           return (
-            <div key={`${item.id}:${item.description}`} className="flex items-start" style={{ gap: 8 }}>
+            <div key={`${item.id}:${item.description}`} className="flex items-start gap-2">
               {item.status === 'failed' ? (
-                <CircleAlert size={16} color="#EF4444" style={{ marginTop: 1, flexShrink: 0 }} />
+                <CircleAlert size={16} className="mt-px flex-shrink-0 text-danger" />
               ) : isDone ? (
-                <SquareCheck size={16} color="#6B7280" style={{ marginTop: 1, flexShrink: 0 }} />
+                <SquareCheck size={16} className="mt-px flex-shrink-0 text-gray-500" />
               ) : (
-                <Square size={16} color="#9CA3AF" style={{ marginTop: 1, flexShrink: 0 }} />
+                <Square size={16} className="mt-px flex-shrink-0 text-gray-400" />
               )}
               <div className="min-w-0">
-                <div
-                  style={{
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    color: isDone ? '#8A8A8A' : '#5A5A5A',
-                    lineHeight: 1.35,
-                    textDecoration: isDone ? 'line-through' : 'none',
-                  }}
-                >
+                <div className={`font-sans text-sm leading-snug ${isDone ? 'text-placeholder line-through' : 'text-secondary'}`}>
                   {item.description}
                 </div>
-                <div style={{ fontFamily: 'Inter', fontSize: 11, color: '#A0A0A0', marginTop: 2 }}>{item.id}</div>
+                <div className="font-sans text-2xs text-placeholder mt-0.5">{item.id}</div>
               </div>
             </div>
           );
@@ -235,9 +427,12 @@ function ToolCallBlock({
   const isFile = ['file_read', 'file_write', 'file_edit'].includes(toolName);
   const isSearch = ['glob', 'grep'].includes(toolName);
   const isBash = toolName === 'bash';
+  const isWebSearch = toolName === 'web_search';
+  const isFetchUrl = toolName === 'fetch_url';
   const isTodo = ['write_todo', 'edit_todo', 'list_todos', 'spawn_subagent', 'await_subagents'].includes(toolName);
 
-  const [open, setOpen] = useState(isTodo);
+  const [open, setOpen] = useState(isTodo || isBash || isWebSearch || isFetchUrl);
+  const [showBashOutput, setShowBashOutput] = useState(false);
 
   const filePath = String(out.path ?? inp.filePath ?? inp.path ?? inp.file_path ?? inp.filename ?? '').trim();
   const fileName = filePath ? filePath.split('/').pop() ?? filePath : 'file';
@@ -263,29 +458,26 @@ function ToolCallBlock({
     if (toolName === 'file_edit') return `Edited ${fileName}`;
 
     if (isBrowser) {
-      if (toolName === 'web_search') return `Searched web${query ? `: ${query}` : ''}`;
-      if (toolName === 'fetch_url') return `Fetched ${url || 'URL'}`;
+      if (toolName === 'web_search') return 'Searching';
+      if (toolName === 'fetch_url') return 'Fetched';
       return String(query || url || toolName).slice(0, 110);
     }
 
-    if (toolName === 'glob') {
-      return `Find files matching ${pattern || '*'}`;
-    }
-
+    if (toolName === 'glob') return `Find files matching ${pattern || '*'}`;
     if (toolName === 'grep') {
       const where = include ? ` in ${include}` : '';
       return `Search${where}${pattern ? `: ${pattern}` : ''}`;
     }
 
-    if (isBash) {
-      return (command || 'bash command').slice(0, 110);
-    }
+    if (isBash) return 'Running command';
 
     return toolName;
   }, [command, fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;
   const todos = extractTodoDisplay(toolName, input, output, status);
+  const searchResults = useMemo(() => (isWebSearch ? extractSearchResults(output) : []), [isWebSearch, output]);
+  const fetchedSource = useMemo(() => (isFetchUrl ? extractFetchedSource(input, output) : null), [isFetchUrl, input, output]);
 
   const hasOutput = !isTodo && !isFile && output !== undefined;
   const expandable = hasOutput || todos.length > 0;
@@ -309,48 +501,160 @@ function ToolCallBlock({
   }, [hasOutput, isBash, out, output]);
 
   return (
-    <div className="flex flex-col" style={{ gap: 6 }}>
+    <div className="flex flex-col gap-1.5">
       <button
         type="button"
-        className="flex items-center"
-        style={{
-          gap: 8,
-          background: 'none',
-          border: 'none',
-          cursor: expandable ? 'pointer' : 'default',
-          padding: 0,
-          textAlign: 'left',
-          width: '100%',
-        }}
-        onClick={() => {
-          if (expandable) setOpen((v) => !v);
-        }}
+        className={`flex items-center gap-2 bg-transparent border-none p-0 text-left w-full ${expandable ? 'cursor-pointer' : 'cursor-default'}`}
+        onClick={() => { if (expandable) setOpen((v) => !v); }}
       >
-        {showLeadingIcon && <Icon size={16} color={isRunning ? '#111111' : '#666666'} style={{ flexShrink: 0 }} />}
-        <span style={{ fontFamily: 'Inter', fontSize: 14, fontWeight: isRunning ? 500 : 400, color: isRunning ? '#111111' : '#666666' }}>
+        {showLeadingIcon && <Icon size={16} className={`flex-shrink-0 ${isRunning ? 'text-primary' : 'text-muted'}`} />}
+        <span className={`font-sans text-base ${isRunning ? 'font-medium text-primary' : 'font-normal text-muted'}`}>
           {title}
         </span>
-        {isRunning && <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#3B82F6', flexShrink: 0 }} />}
+        {isRunning && <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-info flex-shrink-0" />}
         {expandable && (
           <ChevronDown
             size={15}
-            color="#8A8A8A"
-            style={{ marginLeft: 'auto', transform: open ? 'none' : 'rotate(-90deg)', transition: 'transform 0.2s ease', flexShrink: 0 }}
+            className="ml-auto flex-shrink-0 text-placeholder transition-transform duration-slow"
+            style={{ transform: open ? 'none' : 'rotate(-90deg)' }}
           />
         )}
       </button>
 
-      <div style={{ overflow: 'hidden', maxHeight: open ? 760 : 0, opacity: open ? 1 : 0, transition: 'max-height 0.2s ease, opacity 0.16s ease' }}>
-        <div className="flex flex-col" style={{ gap: 10, marginLeft: 24 }}>
+      <div
+        className="overflow-hidden transition-all duration-slow"
+        style={{ maxHeight: open ? 900 : 0, opacity: open ? 1 : 0 }}
+      >
+        <div className="flex flex-col gap-2.5 ml-6">
           <TodoList items={todos} />
 
-          {hasOutput && (
-            <div>
-              <div style={{ fontFamily: 'Inter', fontSize: 12, color: '#8B8B8B', marginBottom: 6 }}>Result</div>
-              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12, color: '#5D5D5D' }}>
-                {renderedOutput}
-              </pre>
+          {isBash ? (
+            <div className="flex flex-col gap-2">
+              <div className="rounded-lg border border-border-light bg-surface overflow-hidden">
+                <div className="px-3 py-1.5 border-b border-border-light flex items-center gap-2">
+                  <span
+                    className={`inline-block w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-emerald-500'}`}
+                  />
+                  <span className="font-sans text-xs text-placeholder">command</span>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      if (!hasOutput) return;
+                      setShowBashOutput((value) => !value);
+                    }}
+                    disabled={!hasOutput}
+                    className={`ml-auto flex items-center justify-center rounded border-none bg-transparent p-0.5 ${
+                      hasOutput ? 'cursor-pointer text-placeholder hover:text-secondary' : 'cursor-default text-placeholder/50'
+                    }`}
+                    aria-label={showBashOutput ? 'Hide command output' : 'Show command output'}
+                    title={showBashOutput ? 'Hide output' : 'Show output'}
+                  >
+                    {showBashOutput ? <EyeOff size={12} /> : <Eye size={12} />}
+                  </button>
+                </div>
+                <pre className="m-0 px-3 py-2 whitespace-pre-wrap font-mono text-xs text-secondary">{command || 'bash command'}</pre>
+              </div>
+
+              <div
+                className="overflow-hidden transition-all duration-slow"
+                aria-hidden={!showBashOutput || !hasOutput}
+                style={{ maxHeight: showBashOutput && hasOutput ? 420 : 0, opacity: showBashOutput && hasOutput ? 1 : 0 }}
+              >
+                {hasOutput && renderedOutput && renderedOutput !== 'Command finished' && (
+                  <div className="rounded-lg border border-border-light bg-surface overflow-hidden">
+                    <div className="px-3 py-1.5 border-b border-border-light flex items-center gap-2">
+                      <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                      <span className="font-sans text-xs text-placeholder">output</span>
+                    </div>
+                    <pre className="m-0 px-3 py-2 whitespace-pre-wrap font-mono text-xs text-secondary">{renderedOutput}</pre>
+                  </div>
+                )}
+              </div>
             </div>
+          ) : isWebSearch ? (
+            <div className="flex flex-col gap-2">
+              {query && (
+                <div className="inline-flex items-center gap-1.5 self-start rounded-sm bg-surface-warm border border-border-light px-2 py-0.5 fade-in-soft">
+                  <Search size={13} className="text-placeholder flex-shrink-0" />
+                  <span className="font-mono text-xs tracking-wide uppercase text-placeholder truncate max-w-[420px]">
+                    {query}
+                  </span>
+                </div>
+              )}
+
+              <div className="font-sans text-sm text-secondary">Reading sources · {searchResults.length}</div>
+
+              <div className="rounded-lg border border-border-light bg-surface overflow-hidden px-2 py-1.5 flex flex-col gap-0.5 fade-in-soft">
+                {searchResults.length === 0 && (
+                  <div className="px-1.5 py-1.5 font-sans text-xs text-placeholder">
+                    {isRunning ? 'Searching sources…' : 'No sources returned'}
+                  </div>
+                )}
+
+                {searchResults.map((result, idx) => (
+                  <a
+                    key={`${result.resolvedUrl}:${idx}`}
+                    href={result.resolvedUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-sm px-2 py-1 hover:bg-surface-warm transition-colors duration-fast no-underline fade-in-up-soft"
+                    style={{ animationDelay: `${Math.min(idx * 28, 220)}ms` }}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <img
+                        src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(result.resolvedUrl)}`}
+                        alt=""
+                        className="w-4 h-4 rounded-full flex-shrink-0"
+                        loading="lazy"
+                      />
+                      <span className="font-sans text-xs text-primary truncate">{result.title}</span>
+                      <span className="font-mono text-2xs text-placeholder truncate">{result.domain}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : isFetchUrl ? (
+            <div className="flex flex-col gap-2">
+              <div className="rounded-lg border border-border-light bg-surface overflow-hidden px-0 py-0 fade-in-soft">
+                {!fetchedSource && (
+                  <div className="px-1.5 py-1.5 font-sans text-xs text-placeholder">
+                    {isRunning ? 'Fetching URL…' : 'No fetched URL details'}
+                  </div>
+                )}
+
+                {fetchedSource && (
+                  <a
+                    href={fetchedSource.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="block px-4 py-1 hover:bg-surface-warm transition-colors duration-fast no-underline"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 h-5">
+                      <img
+                        src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(fetchedSource.url)}`}
+                        alt=""
+                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        loading="lazy"
+                      />
+                      <span className="font-sans text-xs text-primary truncate leading-[1]">{fetchedSource.title}</span>
+                      <span className="font-mono text-2xs text-placeholder truncate leading-[1]">{fetchedSource.domain}</span>
+                    </div>
+                  </a>
+                )}
+              </div>
+            </div>
+          ) : (
+            hasOutput && (
+              <div>
+                <div className="font-sans text-xs text-placeholder mb-1.5">Result</div>
+                <pre className="m-0 whitespace-pre-wrap font-mono text-xs text-secondary">
+                  {renderedOutput}
+                </pre>
+              </div>
+            )
           )}
         </div>
       </div>
@@ -360,28 +664,9 @@ function ToolCallBlock({
 
 function UserBubble({ text }: { text: string }) {
   return (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-      <div
-        style={{
-          display: 'inline-flex',
-          borderRadius: 18,
-          background: '#EFEFEF',
-          padding: '10px 14px',
-          maxWidth: '72%',
-          minHeight: 38,
-          alignItems: 'center',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'Inter',
-            fontSize: 15,
-            lineHeight: 1.4,
-            color: '#1A1A1A',
-            whiteSpace: 'pre-wrap',
-            overflowWrap: 'anywhere',
-          }}
-        >
+    <div className="w-full flex justify-end">
+      <div className="inline-flex rounded-2xl bg-userbubble px-3.5 py-2.5 max-w-[72%] min-h-[38px] items-center">
+        <span className="font-sans text-md leading-relaxed text-primary whitespace-pre-wrap break-all">
           {text}
         </span>
       </div>
@@ -410,23 +695,33 @@ function BashApprovalBlock({
   showIcon?: boolean;
 }) {
   return (
-    <div style={{ borderRadius: 10, border: '1px solid #F0D7A7', background: '#FFF9EC', padding: 12 }}>
-      <div className="flex items-center" style={{ gap: 8, marginBottom: 8 }}>
-        {showIcon && <CircleAlert size={15} color="#B26B00" />}
-        <span style={{ fontFamily: 'Inter', fontSize: 13, color: '#8A4B00' }}>Approval needed for {toolName}</span>
+    <div className="rounded-lg border border-warning/30 bg-warning/15 p-3">
+      <div className="flex items-center gap-2 mb-2">
+        {showIcon && <CircleAlert size={15} className="text-warning" />}
+        <span className="font-sans text-sm text-warning">Approval needed for {toolName}</span>
       </div>
-      <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'ui-monospace, Menlo, monospace', fontSize: 12, color: '#6F4D1F' }}>{command}</pre>
-      {reason && <div style={{ marginTop: 8, fontFamily: 'Inter', fontSize: 12, color: '#8A6A3E' }}>{reason}</div>}
+      <pre className="m-0 whitespace-pre-wrap font-mono text-xs text-warning">{command}</pre>
+      {reason && <div className="mt-2 font-sans text-xs text-warning">{reason}</div>}
     </div>
   );
 }
 
-export function FeedItem({ entry, inTimeline = false }: { entry: FeedEntry; inTimeline?: boolean }) {
+export function FeedItem({
+  entry,
+  inTimeline = false,
+  modelIconOverrides,
+}: {
+  entry: FeedEntry;
+  inTimeline?: boolean;
+  modelIconOverrides?: ModelIconOverrides;
+}) {
   switch (entry.kind) {
     case 'prompt':
       return <PromptBlock text={entry.text} />;
+    case 'system_status':
+      return <SystemStatus text={entry.text} />;
     case 'task_group':
-      return <TaskGroupBlock tasks={entry.tasks} />;
+      return <TaskGroupBlock tasks={entry.tasks} modelIconOverrides={modelIconOverrides} />;
     case 'tool_call':
       return <ToolCallBlock toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} showLeadingIcon={!inTimeline} />;
     case 'bash_approval':

@@ -25,11 +25,11 @@ export function FileBlock({ toolName, input, status }: FileBlockProps) {
   const action = actionMap[toolName] ?? 'Accessing';
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden my-1.5 transition-all duration-150">
+    <div className="rounded-xl border border-border bg-surface overflow-hidden my-1.5 transition-all duration-150">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-gray-50 transition-colors duration-150 cursor-pointer"
+        className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
       >
         <FileText size={15} className="text-amber-500 flex-shrink-0" />
         <div className="flex-1 text-left min-w-0">
@@ -51,7 +51,7 @@ export function FileBlock({ toolName, input, status }: FileBlockProps) {
           expanded ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="px-3.5 pb-3 border-t border-gray-100">
+        <div className="px-3.5 pb-3 border-t border-border-subtle">
           <pre className="text-xs text-muted mt-2.5 whitespace-pre-wrap break-all font-mono max-h-40 overflow-auto leading-relaxed">
             {typeof inp.content === 'string'
               ? inp.content.slice(0, 500) + (inp.content.length > 500 ? '…' : '')

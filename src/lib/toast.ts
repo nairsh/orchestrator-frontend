@@ -38,6 +38,21 @@ export function toastError(title: string, description?: string) {
 }
 
 export function toastApiError(err: unknown, title = 'Request failed') {
-  const message = err instanceof Error ? err.message : String(err);
-  toastError(title, message);
+  const raw = err instanceof Error ? err.message : String(err);
+  const normalized = normalizeAuthError(raw);
+  toastError(title, normalized);
+}
+
+function normalizeAuthError(message: string): string {
+  const lowered = message.toLowerCase();
+  if (
+    lowered.includes('invalid api key') ||
+    lowered.includes('invalid or missing api key') ||
+    lowered.includes('invalid or expired clerk token') ||
+    lowered.includes('invalid auth token') ||
+    lowered.includes('missing authentication token')
+  ) {
+    return 'Sign in with Clerk to continue.';
+  }
+  return message;
 }

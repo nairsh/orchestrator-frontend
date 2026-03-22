@@ -25,8 +25,8 @@ export function TaskGroupBlock({ tasks }: TaskGroupBlockProps) {
   const doneCount = tasks.filter((t) => t.status === 'completed' || t.status === 'skipped').length;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-promptbg overflow-hidden my-1.5">
-      <div className="px-3.5 py-2.5 border-b border-gray-200">
+    <div className="rounded-xl border border-border bg-surface-secondary overflow-hidden my-1.5">
+      <div className="px-3.5 py-2.5 border-b border-border">
         <div className="text-xs font-semibold text-primary">Running tasks in parallel</div>
         <div className="text-xs text-muted mt-0.5">
           {doneCount}/{tasks.length} complete

@@ -1,27 +1,51 @@
 import { useMemo, useState, useRef } from 'react';
-import {
-  ArrowUp,
-} from 'lucide-react';
+import { ArrowUp, FileText, X } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
 import { PlusDropdown } from '../dropdowns/PlusDropdown';
 import { Sidebar } from '../layout/Sidebar';
+import { IconButton } from '../ui/IconButton';
+import { Textarea } from '../ui/Input';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
 import { toastError, toastWarning } from '../../lib/toast';
+import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 interface LandingPageProps {
   config: AppConfig;
   onSubmit: (objective: string, model: string, contextFiles: ContextFileUpload[]) => void;
   onOpenSettings: () => void;
+  onSignOut?: () => Promise<void>;
   onOpenTasks: (nav?: 'tasks' | 'files' | 'connectors' | 'skills') => void;
+  isSignedIn?: boolean;
+  userLabel?: string | null;
+  userAvatarUrl?: string | null;
   sidebarCollapsed?: boolean;
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
+  modelIconOverrides?: ModelIconOverrides;
 }
 
-export function LandingPage({ config, onSubmit, onOpenSettings, onOpenTasks, sidebarCollapsed, onSidebarCollapsedChange }: LandingPageProps) {
+function formatAttachmentSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function LandingPage({
+  config,
+  onSubmit,
+  onOpenSettings,
+  onSignOut,
+  onOpenTasks,
+  isSignedIn,
+  userLabel,
+  userAvatarUrl,
+  sidebarCollapsed,
+  onSidebarCollapsedChange,
+  modelIconOverrides,
+}: LandingPageProps) {
   const [value, setValue] = useState('');
-  const [selectedModel, setSelectedModel] = useState('auto');
+  const [selectedModel, setSelectedModel] = useState('');
   const [attachments, setAttachments] = useState<Array<ContextFileUpload & { id: string; size: number }>>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const apiConfig: ApiConfig = config;
@@ -61,6 +85,10 @@ export function LandingPage({ config, onSubmit, onOpenSettings, onOpenTasks, sid
   const handleSubmit = () => {
     const text = value.trim();
     if (!text) return;
+    if (!selectedModel.trim()) {
+      toastWarning('Model not ready', 'Please wait for models to load before sending.');
+      return;
+    }
     onSubmit(text, selectedModel, contextFiles);
     setValue('');
     setAttachments([]);
@@ -73,19 +101,15 @@ export function LandingPage({ config, onSubmit, onOpenSettings, onOpenTasks, sid
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
-    const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
-  };
-
-  // Initial landing view: centered input
   return (
-    <div className="flex h-full app-ui" style={{ background: '#faf8f4' }}>
+    <div className="flex h-full app-ui bg-surface-warm">
       <Sidebar
         config={config}
         onOpenSettings={onOpenSettings}
+        onSignOut={onSignOut}
+        isSignedIn={isSignedIn}
+        userLabel={userLabel}
+        userAvatarUrl={userAvatarUrl}
         onNavChange={(id) => {
           if (id === 'tasks') onOpenTasks('tasks');
           if (id === 'connectors') onOpenTasks('connectors');
@@ -97,90 +121,64 @@ export function LandingPage({ config, onSubmit, onOpenSettings, onOpenTasks, sid
       />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center" style={{ paddingTop: 280, paddingLeft: 40 }}>
+      <div className="flex-1 flex flex-col items-center pt-[280px] pl-10">
         {/* Logo */}
         <div className="flex items-baseline gap-0.5 mb-10">
-          <span style={{ fontFamily: 'Inter', fontSize: 36, fontWeight: 500, color: '#222222', letterSpacing: -1 }}>relay</span>
-          <span style={{ fontFamily: 'Inter', fontSize: 36, fontWeight: 300, color: '#555555', letterSpacing: -1 }}>pro</span>
+          <span className="font-sans text-[36px] font-medium text-primary tracking-tight">relay</span>
+          <span className="font-sans text-[36px] font-light text-secondary tracking-tight">pro</span>
         </div>
 
         {/* Search box */}
-        <div style={{ width: 640, maxWidth: 'calc(100vw - 120px)' }}>
-          <div
-            className="flex flex-col"
-            style={{
-              background: '#FDFBFA',
-              borderRadius: 20,
-              border: '1px solid #D0D0D0',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              padding: '20px 18px 14px 18px',
-              gap: 14,
-            }}
-          >
-            {/* Input area */}
-            <textarea
-              ref={textareaRef}
-              value={value}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask anything..."
-              rows={1}
-              autoFocus
-              style={{
-                fontFamily: 'Inter',
-                fontSize: 15,
-                color: '#111111',
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                resize: 'none',
-                minHeight: 36,
-                maxHeight: 200,
-                lineHeight: '1.5',
-              }}
-              className="placeholder-[#A0A0A0] w-full"
-            />
-
+        <div className="w-[640px] max-w-[calc(100vw-120px)]">
+          <div className="flex flex-col bg-surface rounded-[20px] border border-border shadow p-5 pb-3.5 gap-3.5">
+            {/* Attachments */}
             {attachments.length > 0 && (
-              <div className="flex flex-wrap" style={{ gap: 8 }}>
+              <div className="flex flex-wrap gap-2.5">
                 {attachments.map((a) => (
                   <div
                     key={a.id}
-                    className="flex items-center"
-                    style={{
-                      gap: 8,
-                      borderRadius: 999,
-                      padding: '6px 10px',
-                      background: '#F5F5F5',
-                      border: '1px solid #E6E6E6',
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      color: '#444444',
-                    }}
+                    className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 bg-surface-tertiary border border-border-light font-sans max-w-[320px]"
                   >
-                    <span style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {a.filename}
-                    </span>
-                    <button
-                      type="button"
+                    <div className="flex items-center justify-center overflow-hidden flex-shrink-0 w-9 h-9 rounded-sm bg-surface border border-border-light">
+                      {a.media_type.startsWith('image/') ? (
+                        <img
+                          src={`data:${a.media_type};base64,${a.content_base64}`}
+                          alt={a.filename}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FileText size={18} className="text-muted" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-md leading-5 text-secondary truncate">{a.filename}</div>
+                      <div className="text-sm leading-[18px] text-muted">{formatAttachmentSize(a.size)}</div>
+                    </div>
+                    <IconButton
+                      size="sm"
+                      label={`Remove ${a.filename}`}
                       onClick={() => setAttachments((prev) => prev.filter((x) => x.id !== a.id))}
-                      style={{
-                        border: 'none',
-                        background: 'transparent',
-                        padding: 0,
-                        color: '#666666',
-                      }}
-                      aria-label={`Remove ${a.filename}`}
                     >
-                      x
-                    </button>
+                      <X size={16} />
+                    </IconButton>
                   </div>
                 ))}
               </div>
             )}
 
+            {/* Input area */}
+            <Textarea
+              ref={textareaRef}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything..."
+              maxHeight={200}
+              autoFocus
+            />
+
             {/* Tools row */}
-            <div className="flex items-center" style={{ paddingTop: 4 }}>
+            <div className="flex items-center pt-1">
               {/* Left: Plus button */}
               <PlusDropdown
                 openUpward
@@ -189,28 +187,21 @@ export function LandingPage({ config, onSubmit, onOpenSettings, onOpenTasks, sid
               />
 
               {/* Spacer */}
-              <div style={{ flex: 1 }} />
+              <div className="flex-1" />
 
-              {/* Right section: Model + Computer + Mic + Send */}
-              <div className="flex items-center" style={{ gap: 16 }}>
-                <ModelDropdown config={apiConfig} selected={selectedModel} onSelect={setSelectedModel} />
+              {/* Right section: Model + Send */}
+              <div className="flex items-center gap-4">
+                <ModelDropdown
+                  config={apiConfig}
+                  selected={selectedModel}
+                  onSelect={setSelectedModel}
+                  modelIconOverrides={modelIconOverrides}
+                />
 
                 {/* Send button */}
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  className="flex items-center justify-center flex-shrink-0"
-                  style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: 18,
-                    background: '#222222',
-                    cursor: 'pointer',
-                    border: 'none',
-                  }}
-                >
-                  <ArrowUp size={16} color="#FFFFFF" />
-                </button>
+                <IconButton size="lg" filled onClick={handleSubmit} label="Send">
+                  <ArrowUp size={16} />
+                </IconButton>
               </div>
             </div>
           </div>

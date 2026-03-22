@@ -12,7 +12,8 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const fetch_ = useCallback(async () => {
-    if (!enabled || !config.apiKey) return;
+    const hasAuth = Boolean(config.hasAuth);
+    if (!enabled || !hasAuth) return;
     try {
       const result = await listWorkflows(config, { status });
       setWorkflows(result.workflows);

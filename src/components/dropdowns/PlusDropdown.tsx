@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Plus, Paperclip, Plug, ChevronRight } from 'lucide-react';
+import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface PlusDropdownProps {
   /** When true, renders as a circle with border (landing page style). Default: false (dark filled, task input style). */
@@ -18,13 +19,7 @@ export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const useOutlinedStyle = outlined ?? openUpward;
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
+  useClickOutside(ref, () => setOpen(false));
 
   useEffect(() => {
     if (!open) return;
@@ -76,30 +71,24 @@ export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOp
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        style={{
-          width: useOutlinedStyle ? 32 : 36,
-          height: useOutlinedStyle ? 32 : 36,
-          borderRadius: useOutlinedStyle ? 16 : 18,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: open && useOutlinedStyle ? '#F5F5F5' : useOutlinedStyle ? 'transparent' : '#111111',
-          border: useOutlinedStyle ? '1px solid #D0D0D0' : 'none',
-          cursor: 'pointer',
-          transition: 'background 0.1s ease',
-          flexShrink: 0,
-        }}
+        className={[
+          'flex items-center justify-center flex-shrink-0 transition-colors duration-fast cursor-pointer',
+          useOutlinedStyle
+            ? `w-8 h-8 rounded-full border border-border ${open ? 'bg-surface-tertiary' : 'bg-transparent'}`
+            : 'w-9 h-9 rounded-full bg-ink',
+        ].join(' ')}
       >
-        <Plus size={useOutlinedStyle ? 16 : 14} color={useOutlinedStyle ? '#444444' : '#FFFFFF'} />
+        <Plus size={useOutlinedStyle ? 16 : 14} className={useOutlinedStyle ? 'text-secondary' : 'text-primary'} />
       </button>
 
       <div
         ref={menuRef}
-        className={`absolute left-0 w-56 bg-white border border-gray-200 rounded-xl shadow-lg py-1 z-50 ${
-          menuDirection === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'
-        }`}
+        className={[
+          'absolute left-0 w-56 bg-surface border border-border rounded-lg shadow-dropdown py-1 z-50',
+          menuDirection === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
+        ].join(' ')}
         style={{
-          transition: 'opacity 0.1s ease, transform 0.1s ease',
+          transition: 'opacity 100ms ease, transform 100ms ease',
           opacity: open ? 1 : 0,
           transform: open ? 'translateY(0)' : menuDirection === 'up' ? 'translateY(4px)' : 'translateY(-4px)',
           pointerEvents: open ? 'auto' : 'none',
@@ -109,8 +98,7 @@ export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOp
         <button
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors duration-100 cursor-pointer"
-          style={{ fontFamily: 'Inter' }}
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-fast cursor-pointer font-sans"
           onClick={() => {
             if (!onUploadFiles) {
               setOpen(false);
@@ -125,8 +113,7 @@ export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOp
         <button
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-gray-50 transition-colors duration-100 cursor-pointer"
-          style={{ fontFamily: 'Inter' }}
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-fast cursor-pointer font-sans"
           onClick={() => {
             setOpen(false);
             onOpenConnectors?.();

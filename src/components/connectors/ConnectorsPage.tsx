@@ -15,12 +15,31 @@ import {
 } from '../../api/client';
 import type { Memory, ScheduledWorkflow, WorkflowTemplate } from '../../api/types';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
+import { Button, Card, Input, Textarea } from '../ui';
 
 type Tab = 'templates' | 'schedules' | 'memory' | 'teams';
 
 interface ConnectorsPageProps {
   config: ApiConfig;
   onWorkflowStarted?: (workflowId: string, objective: string) => void;
+}
+
+/* ─── Pill tab button ─── */
+function TabPill({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        'rounded-pill px-2.5 py-1.5 border text-xs font-medium font-sans transition-colors duration-150 cursor-pointer',
+        active
+          ? 'bg-ink text-primary border-ink'
+          : 'bg-surface text-primary border-border hover:bg-surface-hover',
+      ].join(' ')}
+    >
+      {label}
+    </button>
+  );
 }
 
 export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProps) {
@@ -48,7 +67,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
   const [teamsStatus, setTeamsStatus] = useState<'idle' | 'loading' | 'disabled' | 'ready'>('idle');
   const [teams, setTeams] = useState<Array<Record<string, unknown>>>([]);
 
-  const canUseApi = useMemo(() => !!config.apiKey, [config.apiKey]);
+  const canUseApi = useMemo(() => Boolean(config.hasAuth), [config.hasAuth]);
 
   const refreshTemplates = async () => {
     if (!canUseApi) return;
@@ -114,109 +133,70 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
     if (tab === 'schedules') void refreshSchedules();
     if (tab === 'memory') void refreshMemories();
     if (tab === 'teams') void refreshTeams();
-  }, [tab, canUseApi, config.baseUrl, config.apiKey]);
+  }, [tab, canUseApi, config.baseUrl, config.hasAuth]);
 
+  /* ─── Header ─── */
   const header = (
-    <div className="flex items-center justify-between" style={{ padding: '16px 20px', borderBottom: '1px solid #EBEBEB', background: '#FAF8F4' }}>
-      <div className="flex items-center" style={{ gap: 10 }}>
-        <span style={{ fontFamily: 'Inter', fontSize: 16, fontWeight: 500, color: '#111111' }}>Connectors</span>
-        <div className="flex items-center" style={{ gap: 6 }}>
+    <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-surface-warm">
+      <div className="flex items-center gap-2.5">
+        <span className="font-sans text-base font-medium text-primary">Connectors</span>
+        <div className="flex items-center gap-1.5">
           {([
             { id: 'templates', label: 'Templates' },
             { id: 'schedules', label: 'Schedules' },
             { id: 'memory', label: 'Memory' },
             { id: 'teams', label: 'Teams' },
           ] as Array<{ id: Tab; label: string }>).map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              style={{
-                borderRadius: 999,
-                padding: '6px 10px',
-                border: '1px solid #E0E0E0',
-                background: tab === t.id ? '#111111' : '#FFFFFF',
-                color: tab === t.id ? '#FFFFFF' : '#111111',
-                fontFamily: 'Inter',
-                fontSize: 12,
-                fontWeight: 500,
-              }}
-            >
-              {t.label}
-            </button>
+            <TabPill key={t.id} active={tab === t.id} label={t.label} onClick={() => setTab(t.id)} />
           ))}
         </div>
       </div>
-      <div style={{ fontFamily: 'Inter', fontSize: 12, color: '#666666' }}>{canUseApi ? 'Connected' : 'Not connected'}</div>
+      <div className="font-sans text-xs text-muted">{canUseApi ? 'Connected' : 'Not connected'}</div>
     </div>
   );
 
   return (
-    <div className="flex flex-col flex-1 h-full overflow-hidden" style={{ background: '#FAF8F4' }}>
+    <div className="flex flex-col flex-1 h-full overflow-hidden bg-surface-warm">
       {header}
 
       {!canUseApi ? (
-        <div className="flex-1 flex items-center justify-center" style={{ fontFamily: 'Inter', fontSize: 14, color: '#888888' }}>
-          Add an API key in settings to use connectors.
+        <div className="flex-1 flex items-center justify-center font-sans text-sm text-placeholder">
+          Sign in to use connectors.
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto" style={{ padding: 20, background: '#faf8f4' }}>
+        <div className="flex-1 overflow-y-auto p-5">
+          {/* ─── Templates tab ─── */}
           {tab === 'templates' && (
-            <div className="flex flex-col" style={{ gap: 14 }}>
-              <div className="flex items-end" style={{ gap: 10 }}>
-                <div style={{ flex: 1 }}>
-                  <label className="block text-xs font-medium text-primary mb-1.5">Objective</label>
-                  <input
-                    type="text"
+            <div className="flex flex-col gap-3.5">
+              <div className="flex items-end gap-2.5">
+                <div className="flex-1">
+                  <Input
+                    label="Objective"
                     value={templateObjective}
                     onChange={(e) => setTemplateObjective(e.target.value)}
                     placeholder="What should this template do?"
-                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary outline-none focus:border-gray-400 transition-colors duration-150 bg-white"
                   />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void refreshTemplates()}
-                  style={{
-                    borderRadius: 10,
-                    padding: '8px 12px',
-                    border: '1px solid #E0E0E0',
-                    background: '#FFFFFF',
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: '#111111',
-                  }}
-                >
+                <Button variant="secondary" onClick={() => void refreshTemplates()}>
                   {templatesLoading ? 'Loading...' : 'Refresh'}
-                </button>
+                </Button>
               </div>
 
               {templates.length === 0 ? (
-                <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#888888' }}>No templates yet.</div>
+                <p className="text-sm text-placeholder">No templates yet.</p>
               ) : (
-                <div className="flex flex-col" style={{ gap: 10 }}>
+                <div className="flex flex-col gap-2.5">
                   {templates.map((tpl) => (
-                    <div
-                      key={tpl.id}
-                      style={{
-                        borderRadius: 14,
-                        border: '1px solid #E6E6E6',
-                        background: '#FFFFFF',
-                        padding: 14,
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <div className="flex items-start justify-between" style={{ gap: 10 }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontFamily: 'Inter', fontSize: 14, fontWeight: 600, color: '#111111' }}>{tpl.name}</div>
-                          <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#666666', marginTop: 4 }}>{tpl.description}</div>
-                          <div style={{ fontFamily: 'Inter', fontSize: 12, color: '#888888', marginTop: 8 }}>
-                            Uses: {tpl.usage_count} • {tpl.is_public ? 'Public' : 'Private'}
+                    <Card key={tpl.id} padding="md">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-primary">{tpl.name}</div>
+                          <div className="text-sm text-muted mt-1">{tpl.description}</div>
+                          <div className="text-xs text-placeholder mt-2">
+                            Uses: {tpl.usage_count} &bull; {tpl.is_public ? 'Public' : 'Private'}
                           </div>
                         </div>
-                        <button
-                          type="button"
+                        <Button
                           onClick={async () => {
                             const obj = templateObjective.trim();
                             if (!obj) {
@@ -232,57 +212,36 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
                               toastApiError(err, 'Failed to start workflow');
                             }
                           }}
-                          style={{
-                            borderRadius: 10,
-                            padding: '8px 12px',
-                            border: 'none',
-                            background: '#111111',
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: 500,
-                            color: '#FFFFFF',
-                            whiteSpace: 'nowrap',
-                          }}
                         >
                           Use
-                        </button>
+                        </Button>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               )}
             </div>
           )}
 
+          {/* ─── Schedules tab ─── */}
           {tab === 'schedules' && (
-            <div className="flex flex-col" style={{ gap: 14 }}>
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: '1px solid #E6E6E6',
-                  background: '#FFFFFF',
-                  padding: 14,
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                }}
-              >
-                <div style={{ fontFamily: 'Inter', fontSize: 13, fontWeight: 600, color: '#111111', marginBottom: 10 }}>Create schedule</div>
-                <div className="flex" style={{ gap: 10 }}>
-                  <input
-                    type="text"
+            <div className="flex flex-col gap-3.5">
+              <Card padding="md">
+                <div className="text-sm font-semibold text-primary mb-2.5">Create schedule</div>
+                <div className="flex gap-2.5">
+                  <Input
+                    className="flex-1"
                     value={scheduleCron}
                     onChange={(e) => setScheduleCron(e.target.value)}
                     placeholder="cron_expression"
-                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary outline-none focus:border-gray-400 transition-colors duration-150 bg-white"
                   />
-                  <input
-                    type="text"
+                  <Input
+                    className="flex-[2]"
                     value={scheduleObjective}
                     onChange={(e) => setScheduleObjective(e.target.value)}
                     placeholder="objective"
-                    className="flex-[2] px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary outline-none focus:border-gray-400 transition-colors duration-150 bg-white"
                   />
-                  <button
-                    type="button"
+                  <Button
                     onClick={async () => {
                       const cron = scheduleCron.trim();
                       const obj = scheduleObjective.trim();
@@ -299,68 +258,35 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
                         toastApiError(err, 'Failed to create schedule');
                       }
                     }}
-                    style={{
-                      borderRadius: 10,
-                      padding: '8px 12px',
-                      border: 'none',
-                      background: '#111111',
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: '#FFFFFF',
-                      whiteSpace: 'nowrap',
-                    }}
                   >
                     Create
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
 
               <div className="flex items-center justify-between">
-                <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#666666' }}>{schedules.length} schedules</div>
-                <button
-                  type="button"
-                  onClick={() => void refreshSchedules()}
-                  style={{
-                    borderRadius: 10,
-                    padding: '8px 12px',
-                    border: '1px solid #E0E0E0',
-                    background: '#FFFFFF',
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: '#111111',
-                  }}
-                >
+                <span className="text-sm text-muted">{schedules.length} schedules</span>
+                <Button variant="secondary" onClick={() => void refreshSchedules()}>
                   {schedulesLoading ? 'Loading...' : 'Refresh'}
-                </button>
+                </Button>
               </div>
 
               {schedules.length === 0 ? (
-                <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#888888' }}>No schedules yet.</div>
+                <p className="text-sm text-placeholder">No schedules yet.</p>
               ) : (
-                <div className="flex flex-col" style={{ gap: 10 }}>
+                <div className="flex flex-col gap-2.5">
                   {schedules.map((s) => (
-                    <div
-                      key={s.id}
-                      style={{
-                        borderRadius: 14,
-                        border: '1px solid #E6E6E6',
-                        background: '#FFFFFF',
-                        padding: 14,
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <div className="flex items-start justify-between" style={{ gap: 10 }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontFamily: 'Inter', fontSize: 13, fontWeight: 600, color: '#111111' }}>{s.cron_expression}</div>
-                          <div style={{ fontFamily: 'Inter', fontSize: 12, color: '#666666', marginTop: 6 }}>
-                            Next: {s.next_run_at ?? '—'} • Status: {s.status}
+                    <Card key={s.id} padding="md">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-primary">{s.cron_expression}</div>
+                          <div className="text-xs text-muted mt-1.5">
+                            Next: {s.next_run_at ?? '—'} &bull; Status: {s.status}
                           </div>
                         </div>
-                        <div className="flex items-center" style={{ gap: 8 }}>
-                          <button
-                            type="button"
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="secondary"
                             onClick={async () => {
                               try {
                                 await updateSchedule(config, s.id, { status: s.status === 'paused' ? 'active' : 'paused' });
@@ -370,21 +296,11 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
                                 toastApiError(err, 'Failed to update schedule');
                               }
                             }}
-                            style={{
-                              borderRadius: 10,
-                              padding: '8px 12px',
-                              border: '1px solid #E0E0E0',
-                              background: '#FFFFFF',
-                              fontFamily: 'Inter',
-                              fontSize: 13,
-                              fontWeight: 500,
-                              color: '#111111',
-                            }}
                           >
                             {s.status === 'paused' ? 'Resume' : 'Pause'}
-                          </button>
-                          <button
-                            type="button"
+                          </Button>
+                          <Button
+                            variant="danger"
                             onClick={async () => {
                               try {
                                 await deleteSchedule(config, s.id);
@@ -394,83 +310,49 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
                                 toastApiError(err, 'Failed to delete schedule');
                               }
                             }}
-                            style={{
-                              borderRadius: 10,
-                              padding: '8px 12px',
-                              border: 'none',
-                              background: '#EF4444',
-                              fontFamily: 'Inter',
-                              fontSize: 13,
-                              fontWeight: 500,
-                              color: '#FFFFFF',
-                            }}
                           >
                             Delete
-                          </button>
+                          </Button>
                         </div>
                       </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               )}
             </div>
           )}
 
+          {/* ─── Memory tab ─── */}
           {tab === 'memory' && (
-            <div className="flex flex-col" style={{ gap: 14 }}>
-              <div
-                style={{
-                  borderRadius: 14,
-                  border: '1px solid #E6E6E6',
-                  background: '#FFFFFF',
-                  padding: 14,
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                }}
-              >
-                <div style={{ fontFamily: 'Inter', fontSize: 13, fontWeight: 600, color: '#111111', marginBottom: 10 }}>Save memory</div>
-                <div className="flex" style={{ gap: 10, marginBottom: 10 }}>
-                  <input
-                    type="text"
+            <div className="flex flex-col gap-3.5">
+              <Card padding="md">
+                <div className="text-sm font-semibold text-primary mb-2.5">Save memory</div>
+                <div className="flex gap-2.5 mb-2.5">
+                  <Input
+                    className="flex-1"
                     value={memoryKey}
                     onChange={(e) => setMemoryKey(e.target.value)}
                     placeholder="key"
-                    className="flex-1 px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary outline-none focus:border-gray-400 transition-colors duration-150 bg-white"
                   />
-                  <input
-                    type="text"
+                  <Input
+                    className="w-40"
                     value={memoryCategory}
                     onChange={(e) => setMemoryCategory(e.target.value)}
                     placeholder="category"
-                    className="w-40 px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary outline-none focus:border-gray-400 transition-colors duration-150 bg-white"
                   />
                 </div>
-                <textarea
+                <Textarea
                   value={memoryContent}
                   onChange={(e) => setMemoryContent(e.target.value)}
                   placeholder="content"
-                  rows={4}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm text-primary outline-none focus:border-gray-400 transition-colors duration-150 bg-white"
-                  style={{ fontFamily: 'Inter' }}
+                  maxHeight={200}
+                  className="px-3 py-2 rounded-lg border border-border-light bg-surface"
                 />
-                <div className="flex items-center justify-between" style={{ marginTop: 10 }}>
-                  <button
-                    type="button"
-                    onClick={() => void refreshMemories()}
-                    style={{
-                      borderRadius: 10,
-                      padding: '8px 12px',
-                      border: '1px solid #E0E0E0',
-                      background: '#FFFFFF',
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: '#111111',
-                    }}
-                  >
+                <div className="flex items-center justify-between mt-2.5">
+                  <Button variant="secondary" onClick={() => void refreshMemories()}>
                     {memoriesLoading ? 'Loading...' : 'Refresh'}
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
                     onClick={async () => {
                       const key = memoryKey.trim();
                       const content = memoryContent.trim();
@@ -488,44 +370,25 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
                         toastApiError(err, 'Failed to save memory');
                       }
                     }}
-                    style={{
-                      borderRadius: 10,
-                      padding: '8px 12px',
-                      border: 'none',
-                      background: '#111111',
-                      fontFamily: 'Inter',
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: '#FFFFFF',
-                    }}
                   >
                     Save
-                  </button>
+                  </Button>
                 </div>
-              </div>
+              </Card>
 
               {memories.length === 0 ? (
-                <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#888888' }}>No memories saved yet.</div>
+                <p className="text-sm text-placeholder">No memories saved yet.</p>
               ) : (
-                <div className="flex flex-col" style={{ gap: 10 }}>
+                <div className="flex flex-col gap-2.5">
                   {memories.map((m) => (
-                    <div
-                      key={m.id}
-                      style={{
-                        borderRadius: 14,
-                        border: '1px solid #E6E6E6',
-                        background: '#FFFFFF',
-                        padding: 14,
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                      }}
-                    >
-                      <div className="flex items-start justify-between" style={{ gap: 10 }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontFamily: 'Inter', fontSize: 13, fontWeight: 600, color: '#111111' }}>{m.key}</div>
-                          <div style={{ fontFamily: 'Inter', fontSize: 12, color: '#888888', marginTop: 4 }}>{m.category}</div>
+                    <Card key={m.id} padding="md">
+                      <div className="flex items-start justify-between gap-2.5">
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-primary">{m.key}</div>
+                          <div className="text-xs text-placeholder mt-1">{m.category}</div>
                         </div>
-                        <button
-                          type="button"
+                        <Button
+                          variant="danger"
                           onClick={async () => {
                             try {
                               await deleteMemory(config, m.id);
@@ -535,112 +398,58 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
                               toastApiError(err, 'Failed to delete memory');
                             }
                           }}
-                          style={{
-                            borderRadius: 10,
-                            padding: '8px 12px',
-                            border: 'none',
-                            background: '#EF4444',
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: 500,
-                            color: '#FFFFFF',
-                            whiteSpace: 'nowrap',
-                          }}
                         >
                           Delete
-                        </button>
+                        </Button>
                       </div>
-                      <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#666666', marginTop: 10, whiteSpace: 'pre-wrap' }}>
-                        {m.content}
-                      </div>
-                    </div>
+                      <div className="text-sm text-muted mt-2.5 whitespace-pre-wrap">{m.content}</div>
+                    </Card>
                   ))}
                 </div>
               )}
             </div>
           )}
 
+          {/* ─── Teams tab ─── */}
           {tab === 'teams' && (
-            <div className="flex flex-col" style={{ gap: 14 }}>
+            <div className="flex flex-col gap-3.5">
               {teamsStatus === 'disabled' ? (
-                <div
-                  style={{
-                    borderRadius: 14,
-                    border: '1px solid #E6E6E6',
-                    background: '#FFFFFF',
-                    padding: 14,
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    color: '#666666',
-                  }}
-                >
-                  Teams is disabled on this server. Enable it with <code>TEAMS_BETA_ENABLED=1</code>.
-                </div>
+                <Card padding="md">
+                  <span className="text-sm text-muted">
+                    Teams is disabled on this server. Enable it with <code className="text-xs bg-surface-tertiary px-1.5 py-0.5 rounded">TEAMS_BETA_ENABLED=1</code>.
+                  </span>
+                </Card>
               ) : (
                 <>
                   <div className="flex items-center justify-between">
-                    <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#666666' }}>{teams.length} teams</div>
-                    <button
-                      type="button"
-                      onClick={() => void refreshTeams()}
-                      style={{
-                        borderRadius: 10,
-                        padding: '8px 12px',
-                        border: '1px solid #E0E0E0',
-                        background: '#FFFFFF',
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        fontWeight: 500,
-                        color: '#111111',
-                      }}
-                    >
+                    <span className="text-sm text-muted">{teams.length} teams</span>
+                    <Button variant="secondary" onClick={() => void refreshTeams()}>
                       {teamsStatus === 'loading' ? 'Loading...' : 'Refresh'}
-                    </button>
+                    </Button>
                   </div>
 
                   {teams.length === 0 ? (
-                    <div style={{ fontFamily: 'Inter', fontSize: 13, color: '#888888' }}>No teams yet.</div>
+                    <p className="text-sm text-placeholder">No teams yet.</p>
                   ) : (
-                    <div className="flex flex-col" style={{ gap: 10 }}>
+                    <div className="flex flex-col gap-2.5">
                       {teams.map((t) => (
-                        <div
-                          key={String(t.id ?? Math.random())}
-                          style={{
-                            borderRadius: 14,
-                            border: '1px solid #E6E6E6',
-                            background: '#FFFFFF',
-                            padding: 14,
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            color: '#111111',
-                          }}
-                        >
-                          {String(t.name ?? t.id)}
-                        </div>
+                        <Card key={String(t.id ?? Math.random())} padding="md">
+                          <span className="text-sm text-primary">{String(t.name ?? t.id)}</span>
+                        </Card>
                       ))}
                     </div>
                   )}
                 </>
               )}
 
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full"
                 onClick={() => toastInfo('Teams', 'Full team management UI is coming soon.')}
-                style={{
-                  borderRadius: 10,
-                  padding: '10px 12px',
-                  border: '1px solid #E0E0E0',
-                  background: '#FFFFFF',
-                  fontFamily: 'Inter',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: '#111111',
-                }}
               >
                 Manage team members and contexts
-              </button>
+              </Button>
             </div>
           )}
         </div>

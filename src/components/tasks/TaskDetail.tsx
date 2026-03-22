@@ -3,7 +3,9 @@ import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
 import { TaskFeed } from './TaskFeed';
 import { CommandInput } from '../input/CommandInput';
+import { IconButton } from '../ui/IconButton';
 import { toastApiError } from '../../lib/toast';
+import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 interface TaskDetailProps {
   workflowId: string;
@@ -14,11 +16,22 @@ interface TaskDetailProps {
   fullView?: boolean;
   activeModel?: string;
   animateInputEntry?: boolean;
+  modelIconOverrides?: ModelIconOverrides;
 }
 
-export function TaskDetail({ workflowId, objective, config, onCollapse, onOpenFullChat, fullView = false, activeModel = 'auto', animateInputEntry = false }: TaskDetailProps) {
+export function TaskDetail({
+  workflowId,
+  objective,
+  config,
+  onCollapse,
+  onOpenFullChat,
+  fullView = false,
+  activeModel = '',
+  animateInputEntry = false,
+  modelIconOverrides,
+}: TaskDetailProps) {
   const { feed, isTerminal, currentActivity, sendMessage } = useWorkflowStream(config, workflowId, true, objective);
-  const modelLabel = activeModel === 'auto' ? 'Auto' : activeModel;
+  const modelLabel = activeModel || 'Unknown model';
   const contentMaxWidth = fullView ? 760 : 600;
 
   const handleCommand = async (text: string) => {
@@ -30,49 +43,40 @@ export function TaskDetail({ workflowId, objective, config, onCollapse, onOpenFu
   };
 
   return (
-    <div className="flex flex-col h-full flex-1 min-w-0" style={{ background: '#FAF8F4' }}>
+    <div className="flex flex-col h-full flex-1 min-w-0 bg-surface-warm">
       {/* Header */}
-      <div
-        className="flex items-center justify-between flex-shrink-0"
-        style={{
-          height: 48,
-          padding: '0 48px',
-          borderBottom: '1px solid #EBEBEB',
-        }}
-      >
-        <div className="flex items-center min-w-0" style={{ gap: 16, flex: 1, overflow: 'hidden' }}>
-          <button
-            type="button"
+      <div className="flex items-center justify-between flex-shrink-0 h-12 px-12 border-b border-border-light">
+        <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
+          <IconButton
+            size="md"
+            label={fullView ? 'Exit full view' : 'Collapse'}
             onClick={onOpenFullChat ?? onCollapse}
-            style={{ flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
-            <ArrowLeftToLine size={20} color="#666666" strokeWidth={1.75} />
-          </button>
-          <span style={{
-            fontFamily: 'Inter',
-            fontSize: 13,
-            fontWeight: 500,
-            color: '#111111',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
+            <ArrowLeftToLine size={20} strokeWidth={1.75} />
+          </IconButton>
+          <span className="font-sans text-sm font-medium text-primary truncate">
             {objective}
           </span>
         </div>
 
-        <div className="flex items-center" style={{ gap: 12, flexShrink: 0 }}>
+        <div className="flex items-center gap-3 flex-shrink-0">
           {!isTerminal && (
-            <div className="flex items-center" style={{ gap: 6 }}>
-              <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#3B82F6' }} />
-              <span style={{ fontFamily: 'Inter', fontSize: 12, color: '#888888' }}>{currentActivity}</span>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-info" />
+              <span className="font-sans text-xs text-muted">{currentActivity}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* Feed */}
-      <TaskFeed feed={feed} currentActivity={isTerminal ? undefined : currentActivity} isTerminal={isTerminal} maxWidth={contentMaxWidth} />
+      <TaskFeed
+        feed={feed}
+        currentActivity={isTerminal ? undefined : currentActivity}
+        isTerminal={isTerminal}
+        maxWidth={contentMaxWidth}
+        modelIconOverrides={modelIconOverrides}
+      />
 
       {/* Input */}
       <CommandInput

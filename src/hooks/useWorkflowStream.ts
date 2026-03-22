@@ -103,6 +103,56 @@ const formatToolActivity = (toolName?: string): string => {
   return `${name.replace(/_/g, ' ')}…`;
 };
 
+const formatToolCallLabel = (toolName?: string): string => {
+  const name = String(toolName ?? '').trim();
+  if (!name) return 'tool';
+  return name.replace(/_/g, ' ');
+};
+
+const isEnvironmentSetupTool = (toolName?: string): boolean => {
+  const normalized = String(toolName ?? '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  return (
+    normalized.includes('openterminal') ||
+    normalized === 'startenvironment' ||
+    normalized.includes('environmentsetup')
+  );
+};
+
+const appendRecentToolCalls = (existing: string[] | undefined, toolName?: string): string[] => {
+  const label = formatToolCallLabel(toolName);
+  const prev = Array.isArray(existing) ? existing : [];
+  return [...prev, label].slice(-3);
+};
+
+const resolveTaskModel = (data: TaskStartedData, existingModel?: string): string | undefined => {
+  const dataRecord = data as unknown as Record<string, unknown>;
+  const candidates = [data.model, dataRecord.model_name];
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim().length > 0) {
+      return candidate.trim();
+    }
+  }
+
+  return existingModel;
+};
+
+const deriveTaskModelByIdFromTrace = (trace: WorkflowTraceStep[]): Record<string, string> => {
+  const modelByTaskId: Record<string, string> = {};
+
+  for (const step of trace) {
+    const taskId = typeof step.subagent_id === 'string' ? step.subagent_id.trim() : '';
+    if (!taskId || taskId === 'orchestrator') continue;
+
+    const modelName = typeof step.model_name === 'string' ? step.model_name.trim() : '';
+    if (!modelName) continue;
+
+    modelByTaskId[taskId] = modelName;
+  }
+
+  return modelByTaskId;
+};
+
 const shouldAppendCompletionEntry = (feed: FeedEntry[], output?: string): boolean => {
   const normalizedOutput = normalizeComparableText(output);
   if (!normalizedOutput) return true;
@@ -150,6 +200,7 @@ export function useWorkflowStream(
 
   const connectionRef = useRef<{ close: () => void } | null>(null);
   const seqRef = useRef(0);
+  const pendingEnvironmentSetupRef = useRef(false);
   const handleEventRef = useRef<(event: WorkflowEvent) => void>(() => undefined);
 
   const connect = useCallback(() => {
@@ -171,12 +222,29 @@ export function useWorkflowStream(
   }, [config.baseUrl, config.getAuthToken, workflowId, isActive]);
 
   const buildFeedFromTrace = useCallback(
-    (trace: WorkflowTraceStep[], prompt?: string): FeedEntry[] => {
+    (trace: WorkflowTraceStep[], prompt?: string, hydratedTasks: LiveTask[] = []): FeedEntry[] => {
       const feed: FeedEntry[] = [];
       if (prompt) feed.push({ kind: 'prompt', text: prompt });
 
+      let taskGroupInserted = false;
+      const ensureTraceTaskGroup = (seed: string) => {
+        if (taskGroupInserted || hydratedTasks.length === 0) return;
+        feed.push({ kind: 'task_group', taskId: `tg:trace:${seed}`, tasks: [...hydratedTasks] });
+        taskGroupInserted = true;
+      };
+
       for (const step of trace) {
         const taskId = step.subagent_id ?? 'orchestrator';
+
+        if (
+          step.step_type === 'subagent_spawn' ||
+          step.step_type === 'subagent_message' ||
+          step.step_type === 'subagent_tool_call' ||
+          step.step_type === 'subagent_tool_result' ||
+          (step.step_type === 'tool_call' && isInternalPlannerTool(step.tool_name ?? undefined))
+        ) {
+          ensureTraceTaskGroup(step.step_id);
+        }
 
         if (step.step_type === 'orchestrator_message' && step.message_content) {
           const message = step.message_content.trim();
@@ -188,8 +256,19 @@ export function useWorkflowStream(
           continue;
         }
 
-        if (step.step_type === 'tool_call' || step.step_type === 'subagent_tool_call') {
+        if (step.step_type === 'subagent_tool_call' || step.step_type === 'subagent_tool_result') {
+          continue;
+        }
+
+        if (step.step_type === 'tool_call') {
           if (!step.tool_name) continue;
+          if (isEnvironmentSetupTool(step.tool_name)) {
+            const last = feed[feed.length - 1];
+            if (!(last?.kind === 'system_status' && last.text === 'Starting environment…')) {
+              feed.push({ kind: 'system_status', text: 'Starting environment…' });
+            }
+            continue;
+          }
           if (isInternalPlannerTool(step.tool_name)) continue;
           feed.push({
             kind: 'tool_call',
@@ -203,8 +282,15 @@ export function useWorkflowStream(
           continue;
         }
 
-        if (step.step_type === 'tool_result' || step.step_type === 'subagent_tool_result') {
+        if (step.step_type === 'tool_result') {
           if (!step.tool_name) continue;
+          if (isEnvironmentSetupTool(step.tool_name)) {
+            const last = feed[feed.length - 1];
+            if (!(last?.kind === 'system_status' && last.text === 'Environment started')) {
+              feed.push({ kind: 'system_status', text: 'Environment started' });
+            }
+            continue;
+          }
           if (isInternalPlannerTool(step.tool_name)) continue;
           let marked = false;
           for (let i = feed.length - 1; i >= 0; i--) {
@@ -233,6 +319,10 @@ export function useWorkflowStream(
             });
           }
         }
+      }
+
+      if (!taskGroupInserted && hydratedTasks.length > 0) {
+        feed.push({ kind: 'task_group', taskId: 'tg:trace:fallback', tasks: [...hydratedTasks] });
       }
 
       // Mark any still-running historical tool calls as done to avoid a stuck UI.
@@ -295,16 +385,14 @@ export function useWorkflowStream(
 
         // Build feed from persisted trace
         const trace = Array.isArray(traceRes.trace) ? (traceRes.trace as WorkflowTraceStep[]) : [];
-        const feedFromTrace = buildFeedFromTrace(trace, prompt);
+        const traceModelsByTaskId = deriveTaskModelByIdFromTrace(trace);
 
-        // Ensure a task_group entry exists when there are tasks
-        const hasGroup = feedFromTrace.some((e) => e.kind === 'task_group');
-        const feed =
-          liveTasks.length > 0 && !hasGroup
-            ? (() => {
-                return [...feedFromTrace, { kind: 'task_group', taskId: 'tg:initial', tasks: [...liveTasks] } as FeedEntry];
-              })()
-            : feedFromTrace;
+        liveTasks = liveTasks.map((task) => ({
+          ...task,
+          model: traceModelsByTaskId[task.id] ?? task.model,
+        }));
+
+        const feed = buildFeedFromTrace(trace, prompt, liveTasks);
 
         // If already terminal and no completion entry exists, add one.
         const withCompletion: FeedEntry[] = (() => {
@@ -355,6 +443,21 @@ export function useWorkflowStream(
     setState((prev) => {
       const seq = () => seqRef.current++;
 
+      const appendEnvironmentReadyIfPending = (feed: FeedEntry[]): FeedEntry[] => {
+        if (!pendingEnvironmentSetupRef.current) return feed;
+        pendingEnvironmentSetupRef.current = false;
+
+        const last = feed[feed.length - 1];
+        if (
+          last?.kind === 'system_status' &&
+          (last.text === 'Environment started' || last.text === 'Environment ready')
+        ) {
+          return feed;
+        }
+
+        return [...feed, { kind: 'system_status', text: 'Environment started' }];
+      };
+
       const upsertActiveTaskGroup = (feed: FeedEntry[], liveTasks: LiveTask[]): FeedEntry[] => {
         let lastTaskGroupIndex = -1;
         let lastConversationIndex = -1;
@@ -371,7 +474,18 @@ export function useWorkflowStream(
         }
 
         if (lastTaskGroupIndex < 0 || lastTaskGroupIndex < lastConversationIndex) {
-          return [...feed, { kind: 'task_group', taskId: `tg:${seq()}`, tasks: [...liveTasks] }];
+          const nextTaskGroup: FeedEntry = { kind: 'task_group', taskId: `tg:${seq()}`, tasks: [...liveTasks] };
+          const terminalEntryIndex = feed.findIndex(
+            (entry) =>
+              entry.kind === 'completion' ||
+              (entry.kind === 'ai_message' && /^workflow failed:/i.test(entry.text.trim()))
+          );
+
+          if (terminalEntryIndex >= 0) {
+            return [...feed.slice(0, terminalEntryIndex), nextTaskGroup, ...feed.slice(terminalEntryIndex)];
+          }
+
+          return [...feed, nextTaskGroup];
         }
 
         return feed.map((entry, idx) =>
@@ -386,12 +500,16 @@ export function useWorkflowStream(
           const data = event.data as TasksInitializedData;
           let liveTasks: LiveTask[] = [];
           (data.tasks ?? []).forEach((task: WorkflowTask) => {
+            const existing = prev.liveTasks.find((t) => t.id === task.id);
             liveTasks = upsertTask(liveTasks, {
               id: task.id,
               description: task.description,
               agent_type: task.agent_type,
-              status: 'pending',
-              tool_calls: 0,
+              status: normalizeTaskStatus(task.status),
+              current_activity: existing?.current_activity,
+              model: existing?.model,
+              recent_tool_calls: existing?.recent_tool_calls,
+              tool_calls: existing?.tool_calls ?? 0,
             });
           });
 
@@ -438,6 +556,12 @@ export function useWorkflowStream(
           const taskId = event.task_id;
           if (!taskId) return prev;
 
+          const appendStatusDot = (feed: FeedEntry[], text: string): FeedEntry[] => {
+            const last = feed[feed.length - 1];
+            if (last?.kind === 'system_status' && last.text === text) return feed;
+            return [...feed, { kind: 'system_status', text } as FeedEntry];
+          };
+
           if (data.type === 'heartbeat') {
             const existing = prev.liveTasks.find((t) => t.id === taskId);
             const liveTasks = existing
@@ -453,6 +577,46 @@ export function useWorkflowStream(
             return { ...prev, liveTasks, feed, isTerminal: false };
           }
 
+          if (data.type === 'environment') {
+            const existing = prev.liveTasks.find((t) => t.id === taskId);
+            const activity = data.display_description ?? data.description ?? 'Environment update';
+            const isReadyState = /\b(ready|started)\b/i.test(activity);
+            const statusText = isReadyState ? 'Environment started' : 'Starting environment…';
+
+            if (isReadyState) {
+              pendingEnvironmentSetupRef.current = false;
+            } else {
+              pendingEnvironmentSetupRef.current = true;
+            }
+
+            const liveTasks = upsertTask(prev.liveTasks, {
+              id: taskId,
+              description: existing?.description ?? 'Task',
+              agent_type: existing?.agent_type ?? data.agent_type ?? data.task_type ?? 'task',
+              status:
+                existing?.status === 'completed' ||
+                existing?.status === 'failed' ||
+                existing?.status === 'skipped' ||
+                existing?.status === 'cancelled'
+                  ? existing.status
+                  : 'running',
+              current_activity: activity,
+              model: resolveTaskModel(data, existing?.model),
+              recent_tool_calls: existing?.recent_tool_calls,
+              tool_calls: existing?.tool_calls ?? 0,
+            });
+
+            const withStatus = appendStatusDot(prev.feed, statusText);
+            const feed = upsertActiveTaskGroup(withStatus, liveTasks);
+            return {
+              ...prev,
+              liveTasks,
+              feed,
+              currentActivity: activity,
+              isTerminal: false,
+            };
+          }
+
           const description = data.display_description ?? data.description;
           const agentType = data.agent_type ?? data.task_type ?? 'task';
           const existing = prev.liveTasks.find((t) => t.id === taskId);
@@ -462,11 +626,17 @@ export function useWorkflowStream(
             agent_type: agentType,
             status: 'running',
             current_activity: description,
-            model: data.model ?? existing?.model,
+            model: resolveTaskModel(data, existing?.model),
             tool_calls: existing?.tool_calls ?? 0,
           });
           const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
-          return { ...prev, liveTasks, feed, currentActivity: description, isTerminal: false };
+          return {
+            ...prev,
+            liveTasks,
+            feed: appendEnvironmentReadyIfPending(feed),
+            currentActivity: description,
+            isTerminal: false,
+          };
         }
 
         case 'task_completed': {
@@ -522,6 +692,19 @@ export function useWorkflowStream(
 
         case 'tool_call': {
           const data = event.data as ToolEventData;
+          if (isEnvironmentSetupTool(data.tool_name)) {
+            const last = prev.feed[prev.feed.length - 1];
+            const nextFeed: FeedEntry[] =
+              last?.kind === 'system_status' && last.text === 'Starting environment…'
+                ? prev.feed
+                : [...prev.feed, { kind: 'system_status', text: 'Starting environment…' } as FeedEntry];
+            return {
+              ...prev,
+              feed: nextFeed,
+              currentActivity: 'Starting environment…',
+              isTerminal: false,
+            };
+          }
           if (isInternalPlannerTool(data.tool_name)) {
             return { ...prev, isTerminal: false };
           }
@@ -536,11 +719,33 @@ export function useWorkflowStream(
             status: 'running',
             at: event.timestamp,
           };
-          return { ...prev, feed: [...prev.feed, toolEntry], currentActivity: data.tool_name ?? 'tool', isTerminal: false };
+          const withEnvironmentReady = isEnvironmentSetupTool(data.tool_name)
+            ? prev.feed
+            : appendEnvironmentReadyIfPending(prev.feed);
+          return {
+            ...prev,
+            feed: [...withEnvironmentReady, toolEntry],
+            currentActivity: data.tool_name ?? 'tool',
+            isTerminal: false,
+          };
         }
 
         case 'tool_result': {
           const data = event.data as ToolEventData;
+          if (isEnvironmentSetupTool(data.tool_name)) {
+            pendingEnvironmentSetupRef.current = false;
+            const last = prev.feed[prev.feed.length - 1];
+            const nextFeed: FeedEntry[] =
+              last?.kind === 'system_status' && last.text === 'Environment started'
+                ? prev.feed
+                : [...prev.feed, { kind: 'system_status', text: 'Environment started' } as FeedEntry];
+            return {
+              ...prev,
+              feed: nextFeed,
+              currentActivity: 'Environment started',
+              isTerminal: false,
+            };
+          }
           if (isInternalPlannerTool(data.tool_name)) {
             return { ...prev, isTerminal: false };
           }
@@ -556,59 +761,49 @@ export function useWorkflowStream(
               return e;
             })
             .reverse();
-          return { ...prev, feed, isTerminal: false };
+          const withEnvironmentReady = isEnvironmentSetupTool(data.tool_name)
+            ? appendEnvironmentReadyIfPending(feed)
+            : feed;
+          return { ...prev, feed: withEnvironmentReady, isTerminal: false };
         }
 
         case 'subagent_tool_call': {
           const data = event.data as ToolEventData;
-          if (isInternalPlannerTool(data.tool_name)) {
-            return { ...prev, isTerminal: false };
-          }
           const taskId = event.task_id ?? 'unknown';
-          const id = `tc:${taskId}:${seq()}`;
-          const toolEntry: FeedEntry = {
-            kind: 'tool_call',
-            id,
-            toolName: data.tool_name ?? 'tool',
-            input: data.tool_input,
-            taskId,
-            status: 'running',
-            at: event.timestamp,
-          };
-          // Increment tool_calls on live task
+
           const liveTasks = prev.liveTasks.map((t) =>
             t.id === taskId
               ? {
                   ...t,
                   tool_calls: t.tool_calls + 1,
                   current_activity: formatToolActivity(data.tool_name),
+                  recent_tool_calls: appendRecentToolCalls(t.recent_tool_calls, data.tool_name),
                 }
               : t
           );
-          const feed = upsertActiveTaskGroup([...prev.feed, toolEntry], liveTasks);
-          return { ...prev, feed, liveTasks, currentActivity: data.tool_name ?? 'tool', isTerminal: false };
+
+          const feed = upsertActiveTaskGroup(prev.feed, liveTasks);
+          return {
+            ...prev,
+            feed: appendEnvironmentReadyIfPending(feed),
+            liveTasks,
+            currentActivity: formatToolActivity(data.tool_name),
+            isTerminal: false,
+          };
         }
 
         case 'subagent_tool_result': {
-          const taskId = event.task_id ?? 'unknown';
-          const data = event.data as ToolEventData;
-          if (isInternalPlannerTool(data.tool_name)) {
-            return { ...prev, isTerminal: false };
-          }
-          // Mark the most recent running tool_call for this task as done
-          let marked = false;
-          const feed = [...prev.feed].reverse().map((e) => {
-            if (!marked && e.kind === 'tool_call' && e.taskId === taskId && e.status === 'running') {
-              marked = true;
-              return { ...e, status: 'done' as const, output: data.tool_output };
-            }
-            return e;
-          }).reverse();
-          return { ...prev, feed, isTerminal: false };
+          const feed = upsertActiveTaskGroup(prev.feed, prev.liveTasks);
+          return { ...prev, feed: appendEnvironmentReadyIfPending(feed), isTerminal: false };
         }
 
         case 'orchestrator_thinking': {
-          return { ...prev, currentActivity: 'Thinking…', isTerminal: false };
+          return {
+            ...prev,
+            feed: appendEnvironmentReadyIfPending(prev.feed),
+            currentActivity: 'Thinking…',
+            isTerminal: false,
+          };
         }
 
         case 'bash_approval_requested': {
@@ -643,6 +838,7 @@ export function useWorkflowStream(
 
         case 'workflow_completed': {
           const data = event.data as WorkflowCompletedData;
+          pendingEnvironmentSetupRef.current = false;
           // Remove any trailing planning entries
           const feed = prev.feed.filter((e) => e.kind !== 'planning');
           const output = isInternalCapabilityDump(data.output) ? undefined : data.output;
@@ -660,6 +856,7 @@ export function useWorkflowStream(
 
         case 'workflow_failed': {
           const data = event.data as WorkflowFailedData;
+          pendingEnvironmentSetupRef.current = false;
           const feed = prev.feed.filter((e) => e.kind !== 'planning');
           const errorText =
             typeof data.error === 'string' && data.error.trim().length > 0
@@ -694,19 +891,26 @@ export function useWorkflowStream(
       const msg = text.trim();
       if (!msg) return;
 
+      pendingEnvironmentSetupRef.current = true;
+
       setState((prev) => ({
         ...prev,
-        feed: [...prev.feed, { kind: 'user_message', text: msg }],
+        feed: [...prev.feed, { kind: 'user_message', text: msg }, { kind: 'system_status', text: 'Starting environment…' }],
         liveTasks: [],
         isTerminal: false,
-        currentActivity: 'Continuing…',
+        currentActivity: 'Starting environment…',
       }));
 
-      await continueWorkflow(
-        config,
-        workflowId,
-        msg
-      );
+      try {
+        await continueWorkflow(
+          config,
+          workflowId,
+          msg
+        );
+      } catch (error) {
+        pendingEnvironmentSetupRef.current = false;
+        throw error;
+      }
 
       // The SSE stream ends after completion/failure. Restart on continuation.
       connect();

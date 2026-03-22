@@ -1,5 +1,49 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --relay-sidebar: #181818;
+  --relay-surface: #161616;
+  --relay-surface-secondary: #1b1b1b;
+  --relay-surface-tertiary: #202020;
+  --relay-surface-warm: #111111;
+  --relay-surface-hover: #242424;
+  --relay-border: #303030;
+  --relay-border-light: #3a3a3a;
+  --relay-border-subtle: #262626;
+  --relay-primary: #ececec;
+  --relay-secondary: #bbbbbb;
+  --relay-muted: #959595;
+  --relay-placeholder: #727272;
+  --relay-subtle: #8e8e8e;
+  --relay-ink: #0a0a0a;
+  --relay-accent-rgb: 0 128 64;
+  --relay-info-rgb: 59 130 246;
+  --relay-warning-rgb: 245 158 11;
+  --relay-danger-rgb: 239 68 68;
+}
+
+:root[data-theme='light'] {
+  --relay-sidebar: #f2f0eb;
+  --relay-surface: #ffffff;
+  --relay-surface-secondary: #f7f7f8;
+  --relay-surface-tertiary: #f5f5f5;
+  --relay-surface-warm: #faf8f4;
+  --relay-surface-hover: #f5f5f5;
+  --relay-border: #e0e0e0;
+  --relay-border-light: #e5e7eb;
+  --relay-border-subtle: #f0f0f0;
+  --relay-primary: #111111;
+  --relay-secondary: #444444;
+  --relay-muted: #666666;
+  --relay-placeholder: #a0a0a0;
+  --relay-subtle: #777777;
+  --relay-ink: #111111;
+}
+
 @font-face {
   font-family: "Styrene A Web";
   src: url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.eot");
@@ -10,10 +54,17 @@
   url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.svg#Styrene A Web")format("svg");
 }
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@font-face {
+  font-family: "Styrene B Thin Trial";
+  src: url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.eot");
+  src: url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.eot?#iefix")format("embedded-opentype"),
+  url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.woff2")format("woff2"),
+  url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.woff")format("woff"),
+  url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.ttf")format("truetype"),
+  url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.svg#Styrene B Thin Trial")format("svg");
+}
 
+/* ─── Base layer ─── */
 @layer base {
   * {
     box-sizing: border-box;
@@ -26,9 +77,7 @@
   }
 
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #ffffff;
-    color: #111111;
+    @apply font-sans text-primary bg-surface;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -48,14 +97,16 @@
     cursor: default;
   }
 
+  /* Scrollbar */
   ::-webkit-scrollbar {
     width: 4px;
     height: 4px;
   }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #d0d0d0; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb { @apply bg-border rounded-sm; }
 }
 
+/* ─── Component layer ─── */
 @layer components {
   .hide-scrollbar {
     -ms-overflow-style: none;
@@ -71,10 +122,10 @@
     @apply transition-all duration-150 rounded-lg px-2.5 py-1.5 text-sm cursor-pointer;
   }
   .nav-item:hover {
-    @apply bg-white/70;
+    @apply bg-surface-hover;
   }
   .nav-item.active {
-    @apply bg-white shadow-sm;
+    @apply bg-surface shadow-xs;
   }
 
   /* Input focus: border change, no ring */
@@ -93,22 +144,107 @@
   }
 }
 
+@layer utilities {
+  .bg-sidebar { background-color: var(--relay-sidebar) !important; }
+  .bg-surface { background-color: var(--relay-surface) !important; }
+  .bg-surface-secondary { background-color: var(--relay-surface-secondary) !important; }
+  .bg-surface-tertiary { background-color: var(--relay-surface-tertiary) !important; }
+  .bg-surface-warm { background-color: var(--relay-surface-warm) !important; }
+  .bg-surface-hover { background-color: var(--relay-surface-hover) !important; }
+  .bg-placeholder { background-color: var(--relay-placeholder) !important; }
+  .bg-primary { background-color: var(--relay-primary) !important; }
+  .bg-ink { background-color: var(--relay-ink) !important; }
+  .bg-accent { background-color: rgb(var(--relay-accent-rgb)) !important; }
+  .bg-info { background-color: rgb(var(--relay-info-rgb)) !important; }
+  .bg-warning { background-color: rgb(var(--relay-warning-rgb)) !important; }
+  .bg-danger { background-color: rgb(var(--relay-danger-rgb)) !important; }
+  .bg-accent\/15 { background-color: rgb(var(--relay-accent-rgb) / 0.15) !important; }
+  .bg-info\/15 { background-color: rgb(var(--relay-info-rgb) / 0.15) !important; }
+  .bg-warning\/15 { background-color: rgb(var(--relay-warning-rgb) / 0.15) !important; }
+  .bg-danger\/15 { background-color: rgb(var(--relay-danger-rgb) / 0.15) !important; }
+  .text-primary { color: var(--relay-primary) !important; }
+  .text-secondary { color: var(--relay-secondary) !important; }
+  .text-muted { color: var(--relay-muted) !important; }
+  .text-placeholder { color: var(--relay-placeholder) !important; }
+  .text-subtle { color: var(--relay-subtle) !important; }
+  .text-accent { color: rgb(var(--relay-accent-rgb)) !important; }
+  .text-info { color: rgb(var(--relay-info-rgb)) !important; }
+  .text-warning { color: rgb(var(--relay-warning-rgb)) !important; }
+  .text-danger { color: rgb(var(--relay-danger-rgb)) !important; }
+  .border-sidebar { border-color: var(--relay-sidebar) !important; }
+  .border-border { border-color: var(--relay-border) !important; }
+  .border-border-light { border-color: var(--relay-border-light) !important; }
+  .border-border-subtle { border-color: var(--relay-border-subtle) !important; }
+  .border-accent\/30 { border-color: rgb(var(--relay-accent-rgb) / 0.3) !important; }
+  .border-warning\/30 { border-color: rgb(var(--relay-warning-rgb) / 0.3) !important; }
+  .border-danger\/30 { border-color: rgb(var(--relay-danger-rgb) / 0.3) !important; }
+  .hover\:bg-surface-hover:hover { background-color: var(--relay-surface-hover) !important; }
+  .hover\:bg-surface-secondary:hover { background-color: var(--relay-surface-secondary) !important; }
+  .hover\:bg-danger\/15:hover { background-color: rgb(var(--relay-danger-rgb) / 0.15) !important; }
+  .hover\:bg-danger\/80:hover { background-color: rgb(var(--relay-danger-rgb) / 0.8) !important; }
+}
+
+/* ─── Shimmer animation (thinking indicator) ─── */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  72% { background-position: -200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #6F6F6F 0%, #B1B1B1 50%, #6F6F6F 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 1.45s infinite ease-in-out;
+}
+
+@keyframes fadeInSoft {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUpSoft {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-soft {
+  animation: fadeInSoft 180ms ease-out both;
+}
+
+.fade-in-up-soft {
+  animation: fadeInUpSoft 220ms ease-out both;
+}
+
+/* ─── Font stacks ─── */
+
 /* App UI Font - Styrene A Web for sidebar and tasks page */
 .app-ui {
-  font-family: "Styrene A Web", Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  @apply font-display;
 }
 
 /* Chat Font - Inter for AI chat messages */
 .chat-ui {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  @apply font-sans;
 }
 
-/* Markdown rendering (react-markdown) */
+/* ─── Markdown rendering (react-markdown) ─── */
 .md {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+  @apply font-sans text-primary;
   font-size: 15px;
   line-height: 1.6;
-  color: #111111;
 }
 
 .md p {
@@ -139,39 +275,32 @@
 }
 
 .md a {
-  color: #2563EB;
+  @apply text-info;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .md pre {
+  @apply bg-surface-secondary border border-border-light rounded-lg;
   margin: 12px 0;
-  padding: 12px 12px;
-  border-radius: 12px;
-  border: 1px solid #E6E6E6;
-  background: #F7F7F8;
+  padding: 12px;
   overflow: auto;
 }
 
 .md code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  @apply font-mono;
   font-size: 12.5px;
 }
 
 .md :not(pre) > code {
-  background: #F3F4F6;
-  border: 1px solid #E5E7EB;
-  border-radius: 8px;
+  @apply bg-surface-tertiary border border-border-light rounded-md;
   padding: 1px 6px;
 }
 
 .md blockquote {
+  @apply bg-surface-secondary border-l-[3px] border-border-light rounded-lg text-secondary;
   margin: 12px 0;
   padding: 10px 12px;
-  border-left: 3px solid #E5E7EB;
-  background: #FAFAFA;
-  border-radius: 10px;
-  color: #444444;
 }
 
 .md .md-table-wrap {
@@ -189,13 +318,13 @@
 
 .md th,
 .md td {
+  @apply border border-border-light;
   padding: 8px 10px;
-  border: 1px solid #E5E7EB;
   text-align: left;
   vertical-align: top;
 }
 
 .md thead th {
-  background: #F9FAFB;
+  @apply bg-surface-secondary;
   font-weight: 600;
 }
