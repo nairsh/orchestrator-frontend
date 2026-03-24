@@ -180,9 +180,12 @@ export interface WorkflowStreamState {
   liveTasks: LiveTask[];
   isTerminal: boolean;
   currentActivity: string;
+  isStale: boolean;
   error?: string;
   sendMessage: (text: string) => Promise<void>;
 }
+
+const STALE_THRESHOLD_MS = 30_000;
 
 export function useWorkflowStream(
   config: ApiConfig,
@@ -195,6 +198,7 @@ export function useWorkflowStream(
     liveTasks: [],
     isTerminal: false,
     currentActivity: 'Initializing…',
+    isStale: false,
     sendMessage: async () => undefined,
   }));
 
@@ -202,6 +206,30 @@ export function useWorkflowStream(
   const seqRef = useRef(0);
   const pendingEnvironmentSetupRef = useRef(false);
   const handleEventRef = useRef<(event: WorkflowEvent) => void>(() => undefined);
+  const lastEventTimeRef = useRef(Date.now());
+  const staleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Staleness detector: if no SSE events arrive for 30s while not terminal,
+  // mark the stream as stale so the UI can show a warning.
+  useEffect(() => {
+    if (state.isTerminal || !isActive) {
+      if (staleTimerRef.current) clearInterval(staleTimerRef.current);
+      return;
+    }
+    lastEventTimeRef.current = Date.now();
+    staleTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - lastEventTimeRef.current;
+      if (elapsed >= STALE_THRESHOLD_MS) {
+        setState((prev) => {
+          if (prev.isTerminal || prev.isStale) return prev;
+          return { ...prev, isStale: true };
+        });
+      }
+    }, 5_000);
+    return () => {
+      if (staleTimerRef.current) clearInterval(staleTimerRef.current);
+    };
+  }, [state.isTerminal, isActive]);
 
   const connect = useCallback(() => {
     if (!isActive) return;
@@ -440,7 +468,10 @@ export function useWorkflowStream(
   }, [config, workflowId, isActive, objective, buildFeedFromTrace, connect]);
 
   const handleEvent = useCallback((event: WorkflowEvent) => {
+    lastEventTimeRef.current = Date.now();
     setState((prev) => {
+      // Reset stale flag on any incoming event
+      if (prev.isStale) prev = { ...prev, isStale: false };
       const seq = () => seqRef.current++;
 
       const appendEnvironmentReadyIfPending = (feed: FeedEntry[]): FeedEntry[] => {

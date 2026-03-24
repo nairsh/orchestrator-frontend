@@ -8,6 +8,7 @@ interface TaskFeedProps {
   feed: FeedEntry[];
   currentActivity?: string;
   isTerminal: boolean;
+  isStale?: boolean;
   maxWidth?: number;
   modelIconOverrides?: ModelIconOverrides;
 }
@@ -60,7 +61,7 @@ function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry
   );
 }
 
-export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600, modelIconOverrides }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, modelIconOverrides }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const railContainerRef = useRef<HTMLDivElement>(null);
   const firstMarkerRef = useRef<HTMLDivElement | null>(null);
@@ -187,7 +188,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600, mo
 
   return (
     <div ref={scrollContainerRef} className="flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20">
-      <div ref={railContainerRef} className="flex flex-col w-full relative pt-8" style={{ maxWidth }}>
+      <div ref={railContainerRef} className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: hasTimeline ? 0 : 32 }}>
         {/* Timeline rail */}
         {hasTimeline && (
           <div
@@ -269,10 +270,18 @@ export function TaskFeed({ feed, currentActivity, isTerminal, maxWidth = 600, mo
         {/* Thinking shimmer */}
         {!isTerminal && currentActivity && (
           <div className="relative pl-6 mt-4">
-            <div className="min-w-0 flex items-center gap-2">
+            <div className="min-w-0 flex flex-col gap-1.5">
               <span className="font-sans text-base font-medium text-muted shimmer-text">
                 Thinking
               </span>
+              {isStale && (
+                <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 mt-1 dark:border-amber-800 dark:bg-amber-950/30">
+                  <CircleAlert size={14} className="text-amber-600 mt-0.5 shrink-0 dark:text-amber-400" />
+                  <span className="font-sans text-sm text-amber-800 dark:text-amber-300">
+                    No updates received for 30 seconds. The model may be slow or unreachable. Check your connection or try a different model.
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -30,7 +30,7 @@ export function TaskDetail({
   animateInputEntry = false,
   modelIconOverrides,
 }: TaskDetailProps) {
-  const { feed, isTerminal, currentActivity, sendMessage } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, currentActivity, isStale, sendMessage } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel || 'Unknown model';
   const contentMaxWidth = fullView ? 760 : 600;
 
@@ -74,6 +74,7 @@ export function TaskDetail({
         feed={feed}
         currentActivity={isTerminal ? undefined : currentActivity}
         isTerminal={isTerminal}
+        isStale={isStale}
         maxWidth={contentMaxWidth}
         modelIconOverrides={modelIconOverrides}
       />
