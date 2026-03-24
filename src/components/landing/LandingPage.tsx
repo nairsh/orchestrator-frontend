@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { ArrowUp, FileText, X, Sparkles } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
@@ -60,6 +60,13 @@ export function LandingPage({
   const handleSampleClick = useCallback((prompt: string) => {
     setValue(prompt);
     textareaRef.current?.focus();
+  }, []);
+
+  // Listen for Cmd+K focus event
+  useEffect(() => {
+    const handler = () => textareaRef.current?.focus();
+    window.addEventListener('relay:focus-input', handler);
+    return () => window.removeEventListener('relay:focus-input', handler);
   }, []);
 
   const contextFiles = useMemo(() => attachments.map(({ id: _id, size: _size, ...rest }) => rest), [attachments]);

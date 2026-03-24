@@ -42,6 +42,13 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   const renameInputRef = useRef<HTMLInputElement>(null);
   const startInputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Listen for Cmd+K focus event
+  useEffect(() => {
+    const handler = () => startInputRef.current?.focus();
+    window.addEventListener('relay:focus-input', handler);
+    return () => window.removeEventListener('relay:focus-input', handler);
+  }, []);
+
   useEffect(() => {
     const interval = window.setInterval(() => setNowTs(Date.now()), 60_000);
     return () => window.clearInterval(interval);

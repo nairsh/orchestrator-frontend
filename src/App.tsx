@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useConfig } from './hooks/useConfig';
 import { LandingPage } from './components/landing/LandingPage';
@@ -61,6 +61,18 @@ export default function App({
     hasAuth: effectiveAuth,
   };
   const isConfigured = config.baseUrl.trim().length > 0;
+
+  // Cmd+K / Ctrl+K: Dispatch custom event to focus the active input
+  useEffect(() => {
+    const handleCmdK = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent('relay:focus-input'));
+      }
+    };
+    document.addEventListener('keydown', handleCmdK);
+    return () => document.removeEventListener('keydown', handleCmdK);
+  }, []);
 
   useEffect(() => {
     if (!isConfigured) return;
