@@ -1,5 +1,5 @@
-import { useMemo, useState, useRef } from 'react';
-import { ArrowUp, FileText, X } from 'lucide-react';
+import { useMemo, useState, useRef, useCallback } from 'react';
+import { ArrowUp, FileText, X, Sparkles } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
@@ -49,6 +49,18 @@ export function LandingPage({
   const [attachments, setAttachments] = useState<Array<ContextFileUpload & { id: string; size: number }>>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const apiConfig: ApiConfig = config;
+
+  const SAMPLE_PROMPTS = useMemo(() => [
+    'Analyze my codebase and summarize the architecture',
+    'Write unit tests for the files I upload',
+    'Research the latest trends in AI agents',
+    'Create a detailed project plan from my requirements',
+  ], []);
+
+  const handleSampleClick = useCallback((prompt: string) => {
+    setValue(prompt);
+    textareaRef.current?.focus();
+  }, []);
 
   const contextFiles = useMemo(() => attachments.map(({ id: _id, size: _size, ...rest }) => rest), [attachments]);
 
@@ -206,6 +218,23 @@ export function LandingPage({
             </div>
           </div>
         </div>
+
+        {/* Sample prompts */}
+        {value === '' && attachments.length === 0 && (
+          <div className="flex flex-wrap justify-center gap-2 mt-4 w-[640px] max-w-[calc(100vw-120px)]">
+            {SAMPLE_PROMPTS.map((prompt) => (
+              <button
+                key={prompt}
+                type="button"
+                onClick={() => handleSampleClick(prompt)}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3 py-1.5 font-sans text-sm text-secondary hover:bg-surface-tertiary hover:border-border transition-colors cursor-pointer"
+              >
+                <Sparkles size={13} className="text-placeholder flex-shrink-0" />
+                {prompt}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

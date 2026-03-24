@@ -199,8 +199,16 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
         {/* Task list */}
         <div className="flex flex-col gap-2">
           {sortedWorkflows.length === 0 && !loading && (
-            <div className="text-center pt-12 font-sans text-base text-placeholder">
-              No tasks yet. Start one above.
+            <div className="text-center pt-12 flex flex-col items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-surface-tertiary flex items-center justify-center">
+                <span className="text-lg">✨</span>
+              </div>
+              <div className="font-sans text-base text-placeholder">
+                No tasks yet
+              </div>
+              <div className="font-sans text-sm text-placeholder/70">
+                Start a workflow using the input above
+              </div>
             </div>
           )}
           {sortedWorkflows.map((wf) => (

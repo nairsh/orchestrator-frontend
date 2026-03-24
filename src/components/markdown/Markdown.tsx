@@ -1,5 +1,25 @@
+import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Check, Copy } from 'lucide-react';
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="absolute top-2 right-2 flex items-center justify-center rounded-md border border-border-light bg-surface p-1.5 text-placeholder hover:text-secondary hover:bg-surface-tertiary transition-colors cursor-pointer"
+      aria-label="Copy to clipboard"
+    >
+      {copied ? <Check size={14} /> : <Copy size={14} />}
+    </button>
+  );
+}
 
 interface MarkdownProps {
   content: string;
@@ -35,11 +55,14 @@ export function Markdown({ content, className }: MarkdownProps) {
               );
             }
             return (
-              <pre>
-                <code className={className} {...props}>
-                  {text}
-                </code>
-              </pre>
+              <div className="relative group">
+                <pre>
+                  <code className={className} {...props}>
+                    {text}
+                  </code>
+                </pre>
+                <CopyButton text={text} />
+              </div>
             );
           },
           table: ({ children, ...props }) => (

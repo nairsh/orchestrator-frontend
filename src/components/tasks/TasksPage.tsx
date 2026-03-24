@@ -200,8 +200,9 @@ export function TasksPage({
                 modelIconOverrides={modelIconOverrides}
               />
             ) : (
-              <div className="flex-1 flex items-center justify-center font-sans text-base text-placeholder">
-                Select a task to view details
+              <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                <div className="font-sans text-base text-placeholder">Select a task to view details</div>
+                <div className="font-sans text-sm text-placeholder/70">Choose from the list or start a new workflow</div>
               </div>
             )}
           </div>
