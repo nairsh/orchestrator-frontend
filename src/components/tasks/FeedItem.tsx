@@ -273,6 +273,7 @@ function TaskGroupBlock({
     current_activity?: string;
     model?: string;
     recent_tool_calls?: string[];
+    tool_calls?: number;
   }>;
   modelIconOverrides?: ModelIconOverrides;
 }) {
@@ -349,6 +350,12 @@ function TaskGroupBlock({
                   <div className="px-4 py-3 flex items-center gap-2.5">
                     <Pencil size={16} className="text-placeholder flex-shrink-0" />
                     <span className="font-sans text-sm text-secondary truncate">{taskActivityLabel(task)}</span>
+                    {(task.tool_calls ?? 0) > 0 && (
+                      <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 rounded-full bg-surface-warm border border-border-light px-2 py-0.5 font-mono text-2xs text-placeholder">
+                        <Zap size={10} />
+                        {task.tool_calls} {task.tool_calls === 1 ? 'tool' : 'tools'}
+                      </span>
+                    )}
                   </div>
 
                   {recentToolCalls.length > 0 && (
@@ -388,9 +395,9 @@ function TodoList({ items }: { items: TodoDisplay[] }) {
               {item.status === 'failed' ? (
                 <CircleAlert size={16} className="mt-px flex-shrink-0 text-danger" />
               ) : isDone ? (
-                <SquareCheck size={16} className="mt-px flex-shrink-0 text-gray-500" />
+                <SquareCheck size={16} className="mt-px flex-shrink-0 text-muted" />
               ) : (
-                <Square size={16} className="mt-px flex-shrink-0 text-gray-400" />
+                <Square size={16} className="mt-px flex-shrink-0 text-placeholder" />
               )}
               <div className="min-w-0">
                 <div className={`font-sans text-sm leading-snug ${isDone ? 'text-placeholder line-through' : 'text-secondary'}`}>

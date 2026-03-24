@@ -186,6 +186,7 @@ export interface WorkflowStreamState {
 }
 
 const STALE_THRESHOLD_MS = 30_000;
+const MAX_RECONNECT_ATTEMPTS = 3;
 
 export function useWorkflowStream(
   config: ApiConfig,
@@ -208,6 +209,8 @@ export function useWorkflowStream(
   const handleEventRef = useRef<(event: WorkflowEvent) => void>(() => undefined);
   const lastEventTimeRef = useRef(Date.now());
   const staleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const reconnectAttemptsRef = useRef(0);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Staleness detector: if no SSE events arrive for 30s while not terminal,
   // mark the stream as stale so the UI can show a warning.
@@ -242,9 +245,25 @@ export function useWorkflowStream(
         getAuthToken: config.getAuthToken,
       },
       workflowId,
-      (event) => handleEventRef.current(event),
+      (event) => {
+        reconnectAttemptsRef.current = 0;
+        handleEventRef.current(event);
+      },
       (err) => {
-        setState((prev) => ({ ...prev, currentActivity: `Stream error: ${err.message}` }));
+        const attempts = reconnectAttemptsRef.current;
+        if (attempts < MAX_RECONNECT_ATTEMPTS) {
+          reconnectAttemptsRef.current = attempts + 1;
+          const backoffMs = Math.min(1000 * Math.pow(2, attempts), 10_000);
+          setState((prev) => {
+            if (prev.isTerminal) return prev;
+            return { ...prev, currentActivity: `Reconnecting (attempt ${attempts + 1}/${MAX_RECONNECT_ATTEMPTS})…` };
+          });
+          reconnectTimerRef.current = setTimeout(() => {
+            connect();
+          }, backoffMs);
+        } else {
+          setState((prev) => ({ ...prev, currentActivity: `Stream error: ${err.message}` }));
+        }
       }
     );
   }, [config.baseUrl, config.getAuthToken, workflowId, isActive]);
@@ -914,6 +933,7 @@ export function useWorkflowStream(
     return () => {
       connectionRef.current?.close();
       connectionRef.current = null;
+      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
     };
   }, []);
 
