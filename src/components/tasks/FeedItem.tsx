@@ -682,6 +682,20 @@ function UserBubble({ text }: { text: string }) {
 }
 
 function AiMessage({ text }: { text: string }) {
+  const isError = /^workflow failed:/i.test(text.trim());
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 flex items-start gap-3">
+        <CircleAlert size={18} className="text-danger flex-shrink-0 mt-0.5" />
+        <div className="min-w-0">
+          <div className="font-sans text-sm font-medium text-danger">Workflow Failed</div>
+          <div className="font-sans text-sm text-secondary mt-1">
+            {text.replace(/^workflow failed:\s*/i, '')}
+          </div>
+        </div>
+      </div>
+    );
+  }
   return <Markdown content={text} />;
 }
 
