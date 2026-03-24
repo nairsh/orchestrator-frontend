@@ -23,7 +23,7 @@ const STATUS_ICON_COLOR: Record<string, string> = {
   executing: 'bg-warning',
   completed: 'bg-muted',
   failed: 'bg-danger',
-  cancelled: 'bg-gray-400',
+  cancelled: 'bg-placeholder',
   paused: 'bg-purple-500',
 };
 
@@ -32,7 +32,7 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
   executing: 'text-warning',
   completed: 'text-muted',
   failed: 'text-danger',
-  cancelled: 'text-gray-400',
+  cancelled: 'text-placeholder',
   paused: 'text-purple-500',
 };
 
@@ -113,7 +113,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
     <div
       className={[
         'group relative flex items-center cursor-pointer rounded-md px-3 py-2.5 gap-2 transition-colors duration-fast justify-between',
-        isSelected ? 'bg-taskitem' : 'hover:bg-surface-hover',
+        isSelected ? 'bg-surface-secondary' : 'hover:bg-surface-hover',
       ].join(' ')}
       onClick={onClick}
     >

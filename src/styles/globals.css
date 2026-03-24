@@ -237,6 +237,17 @@
   animation: fadeInUpSoft 220ms ease-out both;
 }
 
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text {
+    animation: none;
+  }
+  .fade-in-soft,
+  .fade-in-up-soft {
+    animation: none;
+  }
+}
+
 [data-sileo-viewport] {
   --sileo-width: 360px;
 }

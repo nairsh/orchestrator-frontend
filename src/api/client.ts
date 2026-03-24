@@ -1,6 +1,12 @@
 import type {
+  ConnectorProviderInfo,
+  ConnectorRecord,
   BillingBalanceResponse,
   CreateWorkflowResponse,
+  KnowledgeChunk,
+  KnowledgeDocument,
+  KnowledgeSearchMatch,
+  ModelPreferences,
   ModelsResponse,
   SkillRecord,
   Memory,
@@ -114,6 +120,7 @@ export interface CreateWorkflowInput {
   orchestrator_model?: string;
   chat_id?: string;
   model_overrides?: Record<string, string>;
+  working_directory?: string;
   tools?: string[];
   max_credits?: number;
   callback_url?: string;
@@ -193,6 +200,26 @@ export async function getModels(config: ApiConfig): Promise<ModelsResponse> {
   return request<ModelsResponse>(config, '/v1/models');
 }
 
+export async function getModelPreferences(config: ApiConfig): Promise<ModelPreferences> {
+  return request<ModelPreferences>(config, '/v1/models/preferences');
+}
+
+export async function saveModelPreferences(
+  config: ApiConfig,
+  input: Partial<Pick<ModelPreferences, 'default_orchestrator_model' | 'orchestrator_models' | 'agent_models' | 'subagent_models'>>
+): Promise<ModelPreferences> {
+  return request<ModelPreferences>(config, '/v1/models/preferences', {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function resetModelPreferences(config: ApiConfig): Promise<ModelPreferences> {
+  return request<ModelPreferences>(config, '/v1/models/preferences', {
+    method: 'DELETE',
+  });
+}
+
 export async function getPresets(config: ApiConfig): Promise<{ presets: Record<string, unknown> }> {
   return request<{ presets: Record<string, unknown> }>(config, '/v1/presets');
 }
@@ -219,6 +246,16 @@ export async function upsertSkill(
 export async function removeSkill(config: ApiConfig, id: string): Promise<{ deleted: boolean; id?: string }> {
   return request<{ deleted: boolean; id?: string }>(config, `/v1/skills/${encodeURIComponent(id)}`, {
     method: 'DELETE',
+  });
+}
+
+export async function importSkill(
+  config: ApiConfig,
+  input: { skill_id: string; markdown: string }
+): Promise<{ skill: SkillRecord }> {
+  return request<{ skill: SkillRecord }>(config, '/v1/skills/import', {
+    method: 'POST',
+    body: JSON.stringify(input),
   });
 }
 
@@ -272,11 +309,30 @@ export async function listSchedules(config: ApiConfig): Promise<{ schedules: Sch
   return request<{ schedules: ScheduledWorkflow[] }>(config, '/v1/schedules');
 }
 
+export interface CreateScheduleInput {
+  objective: string;
+  schedule_type?: 'cron' | 'interval';
+  cron_expression?: string;
+  interval_value?: number;
+  interval_unit?: 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
+  timezone?: string;
+  overlap_policy?: 'skip' | 'queue';
+  start_at?: string;
+  end_at?: string;
+  chat_id?: string;
+  orchestrator_model?: string;
+  model_overrides?: Record<string, string>;
+  working_directory?: string;
+  human_approval?: boolean;
+  max_credits?: number;
+  tools?: string[];
+}
+
 export async function createSchedule(
   config: ApiConfig,
-  input: { cron_expression: string; objective: string } & Record<string, unknown>
-): Promise<{ id: string; cron_expression: string; next_run_at: string; status: string }> {
-  return request<{ id: string; cron_expression: string; next_run_at: string; status: string }>(config, '/v1/schedules', {
+  input: CreateScheduleInput
+): Promise<{ id: string; cron_expression: string | null; next_run_at: string; status: string }> {
+  return request<{ id: string; cron_expression: string | null; next_run_at: string; status: string }>(config, '/v1/schedules', {
     method: 'POST',
     body: JSON.stringify(input),
   });
@@ -285,7 +341,16 @@ export async function createSchedule(
 export async function updateSchedule(
   config: ApiConfig,
   id: string,
-  patch: { status?: 'active' | 'paused'; cron_expression?: string }
+  patch: {
+    status?: 'active' | 'paused';
+    cron_expression?: string;
+    interval_value?: number;
+    interval_unit?: 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
+    timezone?: string;
+    overlap_policy?: 'skip' | 'queue';
+    start_at?: string | null;
+    end_at?: string | null;
+  }
 ): Promise<{ success: true } | { success: boolean }> {
   return request(config, `/v1/schedules/${encodeURIComponent(id)}`, {
     method: 'PATCH',
@@ -321,6 +386,80 @@ export async function deleteMemory(config: ApiConfig, id: string): Promise<{ del
 
 export async function listTeams(config: ApiConfig): Promise<{ teams: Array<Record<string, unknown>> }> {
   return request<{ teams: Array<Record<string, unknown>> }>(config, '/v1/teams');
+}
+
+export async function listKnowledgeDocuments(config: ApiConfig): Promise<{ documents: KnowledgeDocument[] }> {
+  return request<{ documents: KnowledgeDocument[] }>(config, '/v1/knowledge/documents');
+}
+
+export async function uploadKnowledgeDocument(
+  config: ApiConfig,
+  input: { filename: string; media_type: string; content_base64: string }
+): Promise<{ document: KnowledgeDocument }> {
+  return request<{ document: KnowledgeDocument }>(config, '/v1/knowledge/documents', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getKnowledgeDocument(
+  config: ApiConfig,
+  documentId: string
+): Promise<{ document: KnowledgeDocument; chunks: KnowledgeChunk[]; content: string }> {
+  return request<{ document: KnowledgeDocument; chunks: KnowledgeChunk[]; content: string }>(
+    config,
+    `/v1/knowledge/documents/${encodeURIComponent(documentId)}`
+  );
+}
+
+export async function deleteKnowledgeDocument(
+  config: ApiConfig,
+  documentId: string
+): Promise<{ deleted: boolean; id: string }> {
+  return request<{ deleted: boolean; id: string }>(config, `/v1/knowledge/documents/${encodeURIComponent(documentId)}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function searchKnowledge(
+  config: ApiConfig,
+  input: { query: string; limit?: number }
+): Promise<{ matches: KnowledgeSearchMatch[] }> {
+  return request<{ matches: KnowledgeSearchMatch[] }>(config, '/v1/knowledge/search', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function listConnectorProviders(config: ApiConfig): Promise<{ providers: ConnectorProviderInfo[] }> {
+  return request<{ providers: ConnectorProviderInfo[] }>(config, '/v1/connectors/providers');
+}
+
+export async function listConnectors(config: ApiConfig): Promise<{ connectors: ConnectorRecord[] }> {
+  return request<{ connectors: ConnectorRecord[] }>(config, '/v1/connectors');
+}
+
+export async function startConnectorOAuth(
+  config: ApiConfig,
+  provider: ConnectorProviderInfo['provider'],
+  input: { redirect_uri?: string; frontend_origin?: string; scopes?: string[] } = {}
+): Promise<{ state: string; authorize_url: string; expires_at: string; redirect_uri: string }> {
+  return request(config, `/v1/connectors/${provider}/start`, {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function validateConnector(config: ApiConfig, connectorId: string): Promise<{ connector: ConnectorRecord }> {
+  return request<{ connector: ConnectorRecord }>(config, `/v1/connectors/${encodeURIComponent(connectorId)}/validate`, {
+    method: 'POST',
+  });
+}
+
+export async function disconnectConnector(config: ApiConfig, connectorId: string): Promise<{ disconnected: boolean; id: string }> {
+  return request<{ disconnected: boolean; id: string }>(config, `/v1/connectors/${encodeURIComponent(connectorId)}`, {
+    method: 'DELETE',
+  });
 }
 
 export async function getAgentHealth(config: ApiConfig): Promise<{ agents: AgentHealthStatus[]; summary: Record<string, number>; timestamp: string }> {

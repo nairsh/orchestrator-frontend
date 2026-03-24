@@ -1,34 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Code2,
-  Eye,
-  FileText,
-  Folder,
-  Info,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Upload,
-  ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { AlertCircle, Code2, Eye, FileUp, FileText, Loader2, MoreHorizontal, Plus, Search, Sparkles, Upload } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
-import { ApiError, listSkills, removeSkill, upsertSkill } from '../../api/client';
+import { ApiError, importSkill, listSkills, removeSkill, upsertSkill } from '../../api/client';
 import type { SkillRecord } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
-import {
-  Button,
-  IconButton,
-  Input,
-  Textarea,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  DropdownMenu,
-  DropdownMenuItem,
-} from '../ui';
+import { Button, DropdownMenu, DropdownMenuItem, IconButton, Input, Modal, ModalBody, ModalFooter, ModalHeader, Textarea } from '../ui';
 
 const SKILL_ID_REGEX = /^[a-z0-9-]{1,64}$/;
 
@@ -36,42 +13,43 @@ interface SkillsPageProps {
   config: ApiConfig;
 }
 
+type EditorMode = 'create' | 'edit' | 'import';
+
 export function SkillsPage({ config }: SkillsPageProps) {
   const [skills, setSkills] = useState<SkillRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [unsupportedApi, setUnsupportedApi] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-
   const [previewMode, setPreviewMode] = useState<'preview' | 'raw'>('preview');
-  const [activeNode, setActiveNode] = useState<'skill' | 'skill-md' | 'templates' | 'license'>('skill');
-  const [enabledBySkillId, setEnabledBySkillId] = useState<Record<string, boolean>>({});
 
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editorMode, setEditorMode] = useState<'create' | 'edit'>('create');
+  const [editorMode, setEditorMode] = useState<EditorMode>('create');
   const [draftId, setDraftId] = useState('');
   const [draftDescription, setDraftDescription] = useState('');
   const [draftInstructions, setDraftInstructions] = useState('');
   const [draftTools, setDraftTools] = useState('');
+  const [importMarkdown, setImportMarkdown] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   const canUseApi = useMemo(() => Boolean(config.hasAuth), [config.hasAuth]);
-  const selectedSkill = useMemo(
-    () => (selectedId ? skills.find((skill) => skill.id === selectedId) ?? null : null),
-    [skills, selectedId]
-  );
+  const selectedSkill = useMemo(() => (selectedId ? skills.find((skill) => skill.id === selectedId) ?? null : null), [skills, selectedId]);
 
   const filteredSkills = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return skills;
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return skills;
     return skills.filter(
       (skill) =>
-        skill.id.toLowerCase().includes(q) ||
-        skill.description.toLowerCase().includes(q) ||
-        skill.prompt_addendum.toLowerCase().includes(q)
+        skill.id.toLowerCase().includes(query) ||
+        skill.description.toLowerCase().includes(query) ||
+        skill.prompt_addendum.toLowerCase().includes(query)
     );
   }, [skills, searchQuery]);
+
+  const detailDocument = selectedSkill
+    ? `---\nname: ${selectedSkill.id}\ndescription: ${selectedSkill.description}\n${selectedSkill.tools.length > 0 ? `tools:\n${selectedSkill.tools.map((tool) => `  - ${tool}`).join('\n')}\n` : ''}---\n\n${selectedSkill.prompt_addendum}`
+    : '';
 
   const loadSkills = async (preferredSkillId?: string | null) => {
     if (!canUseApi) return;
@@ -82,7 +60,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
       const nextSkills = response.skills ?? [];
       setUnsupportedApi(false);
       setSkills(nextSkills);
-
       const targetId = preferredSkillId ?? selectedId;
       if (targetId && nextSkills.some((skill) => skill.id === targetId)) {
         setSelectedId(targetId);
@@ -106,24 +83,13 @@ export function SkillsPage({ config }: SkillsPageProps) {
     void loadSkills();
   }, [canUseApi, config.baseUrl, config.hasAuth]);
 
-  useEffect(() => {
-    if (!selectedSkill) return;
-    setEnabledBySkillId((prev) => {
-      if (selectedSkill.id in prev) return prev;
-      return { ...prev, [selectedSkill.id]: true };
-    });
-  }, [selectedSkill]);
-
-  useEffect(() => {
-    setActiveNode('skill-md');
-  }, [selectedId]);
-
   const openCreateEditor = () => {
     setEditorMode('create');
     setDraftId('');
     setDraftDescription('');
     setDraftInstructions('');
     setDraftTools('');
+    setImportMarkdown('');
     setEditorOpen(true);
   };
 
@@ -134,6 +100,17 @@ export function SkillsPage({ config }: SkillsPageProps) {
     setDraftDescription(selectedSkill.description);
     setDraftInstructions(selectedSkill.prompt_addendum);
     setDraftTools(selectedSkill.tools.join(', '));
+    setImportMarkdown('');
+    setEditorOpen(true);
+  };
+
+  const openImportEditor = () => {
+    setEditorMode('import');
+    setDraftId('');
+    setDraftDescription('');
+    setDraftInstructions('');
+    setDraftTools('');
+    setImportMarkdown(`---\nname: weekly-digest\ndescription: Build a weekly digest from recent activity\ntools:\n  - web_search\n  - file_read\n---\n\nWrite a concise update with wins, blockers, and next steps.`);
     setEditorOpen(true);
   };
 
@@ -143,17 +120,25 @@ export function SkillsPage({ config }: SkillsPageProps) {
       .map((entry) => entry.trim())
       .filter(Boolean);
 
+  const validateId = (value: string): boolean => {
+    if (!value) {
+      toastWarning('Missing skill id', 'Skill id is required.');
+      return false;
+    }
+    if (!SKILL_ID_REGEX.test(value)) {
+      toastWarning('Invalid skill id', 'Use lowercase letters, numbers, and dashes only (max 64 characters).');
+      return false;
+    }
+    return true;
+  };
+
   const saveSkill = async () => {
     const id = draftId.trim();
     const description = draftDescription.trim();
 
-    if (!id || !description) {
-      toastWarning('Missing fields', 'Skill name and description are required.');
-      return;
-    }
-
-    if (!SKILL_ID_REGEX.test(id)) {
-      toastWarning('Invalid skill name', 'Use lowercase letters, numbers, and dashes only (max 64 characters).');
+    if (!validateId(id)) return;
+    if (!description) {
+      toastWarning('Missing description', 'Skill description is required.');
       return;
     }
 
@@ -165,7 +150,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
         prompt_addendum: draftInstructions,
         tools: parseTools(),
       });
-
       toastSuccess(editorMode === 'create' ? 'Skill created' : 'Skill updated', response.skill.id);
       setEditorOpen(false);
       await loadSkills(response.skill.id);
@@ -176,9 +160,29 @@ export function SkillsPage({ config }: SkillsPageProps) {
     }
   };
 
+  const importSkillMarkdown = async () => {
+    const id = draftId.trim();
+    if (!validateId(id)) return;
+    if (!importMarkdown.trim()) {
+      toastWarning('Missing markdown', 'Paste the skill markdown to import it.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const response = await importSkill(config, { skill_id: id, markdown: importMarkdown });
+      toastSuccess('Skill imported', response.skill.id);
+      setEditorOpen(false);
+      await loadSkills(response.skill.id);
+    } catch (error) {
+      toastApiError(error, 'Failed to import skill');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const deleteSelectedSkill = async () => {
     if (!selectedSkill) return;
-
     const ok = window.confirm(`Delete skill '${selectedSkill.id}'?`);
     if (!ok) return;
 
@@ -194,335 +198,215 @@ export function SkillsPage({ config }: SkillsPageProps) {
     }
   };
 
-  const selectedEnabled = selectedSkill ? (enabledBySkillId[selectedSkill.id] ?? true) : true;
-  const detailDocument = selectedSkill
-    ? `---\nname: ${selectedSkill.id}\ndescription: ${selectedSkill.description}\n---\n\n${selectedSkill.prompt_addendum}`
-    : '';
-
   return (
-    <div className="flex flex-1 h-full overflow-hidden app-ui bg-sidebar">
+    <div className="flex h-full flex-1 overflow-hidden app-ui bg-surface-warm">
       {!canUseApi ? (
-        <div className="flex-1 flex items-center justify-center text-sm text-placeholder">
-          Sign in to manage skills.
-        </div>
+        <div className="flex flex-1 items-center justify-center text-sm text-placeholder">Sign in to manage skills.</div>
       ) : (
         <>
-          {/* ─── Sidebar ─── */}
-          <div className="flex flex-col h-full w-[332px] border-r border-border bg-sidebar">
-            {/* Sidebar header */}
-            <div className="flex items-center justify-between px-3.5 pt-3.5 pb-2.5 border-b border-border">
-              <span className="text-xl font-semibold tracking-tight text-primary">Skills</span>
-              <div className="flex items-center gap-1.5">
-                <IconButton
-                  onClick={() => void loadSkills(selectedId)}
-                  disabled={unsupportedApi}
-                  label="Refresh skills"
-                  className="border border-border bg-surface-hover"
-                >
-                  <Search size={15} strokeWidth={1.8} />
-                </IconButton>
+          <div className="flex h-full w-[360px] flex-col border-r border-border-light bg-surface-secondary">
+            <div className="border-b border-border-light px-4 py-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted">
+                    <Sparkles size={12} />
+                    Prompt assets
+                  </div>
+                  <div className="mt-2 text-xl font-semibold text-primary">Skills</div>
+                </div>
 
                 <DropdownMenu
                   trigger={({ toggle }) => (
-                    <IconButton
-                      onClick={toggle}
-                      disabled={unsupportedApi}
-                      label="Create skill"
-                      className="border border-border bg-surface-hover"
-                    >
-                      <Plus size={15} strokeWidth={1.8} />
+                    <IconButton onClick={toggle} label="Skill actions" className="border border-border bg-surface">
+                      <Plus size={16} />
                     </IconButton>
                   )}
-                  width={260}
+                  width={220}
                 >
                   <DropdownMenuItem onClick={openCreateEditor}>
-                    <FileText size={14} strokeWidth={1.8} />
-                    Write skill instructions
+                    <FileText size={14} />
+                    Write skill
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => toastInfo('Upload a skill', 'Coming soon.')}
-                  >
-                    <Upload size={14} strokeWidth={1.8} />
-                    Upload a skill
+                  <DropdownMenuItem onClick={openImportEditor}>
+                    <Upload size={14} />
+                    Import markdown
                   </DropdownMenuItem>
                 </DropdownMenu>
               </div>
+
+              <div className="mt-4">
+                <Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search skills" />
+              </div>
             </div>
 
-            {/* Search */}
-            <div className="p-3 border-b border-border">
-              <Input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search skills"
-              />
-            </div>
-
-            {/* Skill list */}
-            <div className="flex-1 overflow-y-auto p-2 pb-3.5">
+            <div className="flex-1 overflow-y-auto p-3">
               {unsupportedApi && (
-                <div className="mx-1.5 mb-2.5 rounded-lg border border-warning/40 bg-yellow-50 text-yellow-800 text-2xs leading-snug p-2">
-                  Skills endpoint is missing (`/v1/skills` returns 404). Restart/update the API server.
+                <div className="mb-3 rounded-2xl border border-warning/40 bg-warning/15 px-3 py-3 text-xs text-warning">
+                  Skills endpoint is missing (`/v1/skills` returned 404). Update the API server.
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 px-2 pb-1.5 text-muted text-xs">
-                <ChevronDown size={17} />
-                <span className="text-sm">Examples</span>
-              </div>
-
-              <div className="flex flex-col gap-0.5">
-                {filteredSkills.map((skill) => {
-                  const selected = selectedId === skill.id;
-                  return (
-                    <div key={skill.id}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedId(skill.id);
-                          setActiveNode('skill');
-                        }}
-                        className={[
-                          'w-full flex items-center gap-2 text-left rounded-lg px-2.5 py-2 transition-colors duration-fast cursor-pointer',
-                          selected ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover/50',
-                        ].join(' ')}
-                      >
-                        <div className="w-[26px] h-[26px] rounded-md border border-border flex items-center justify-center bg-surface-secondary shrink-0">
-                          <FileText size={14} />
+              {filteredSkills.length === 0 ? (
+                <div className="rounded-2xl border border-border-light bg-surface px-4 py-4 text-sm text-muted">
+                  {loading ? 'Loading skills...' : 'No skills found yet.'}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {filteredSkills.map((skill) => (
+                    <button
+                      key={skill.id}
+                      type="button"
+                      onClick={() => setSelectedId(skill.id)}
+                      className={[
+                        'rounded-2xl border px-4 py-3 text-left transition-colors duration-150',
+                        selectedId === skill.id ? 'border-border bg-surface text-primary shadow-sm' : 'border-border-light bg-surface-secondary text-secondary hover:bg-surface',
+                      ].join(' ')}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border-light bg-surface">
+                          <FileText size={15} />
                         </div>
-                        <span className={`text-sm flex-1 truncate ${selected ? 'font-semibold' : 'font-medium'}`}>
-                          {skill.id}
-                        </span>
-                        {selected ? <ChevronDown size={17} /> : <ChevronRight size={17} />}
-                      </button>
-
-                      {selected && (
-                        <div className="flex flex-col pl-10 pt-0.5 gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveNode('skill-md');
-                              setPreviewMode('preview');
-                            }}
-                            className={[
-                              'flex items-center gap-1.5 text-xs px-1.5 py-1 rounded-md transition-colors duration-fast cursor-pointer',
-                              activeNode === 'skill-md' ? 'text-primary bg-surface-hover' : 'text-muted hover:text-primary',
-                            ].join(' ')}
-                          >
-                            <FileText size={14} />
-                            SKILL.md
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveNode('templates');
-                              toastInfo('Templates', 'Template file browsing is coming soon.');
-                            }}
-                            className="flex items-center gap-1.5 text-xs text-placeholder px-1.5 py-1 rounded-md hover:text-muted cursor-pointer"
-                          >
-                            <Folder size={14} />
-                            templates
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveNode('license');
-                              toastInfo('LICENSE.txt', 'License file browsing is coming soon.');
-                            }}
-                            className="text-left text-xs text-placeholder px-1.5 py-1 rounded-md hover:text-muted cursor-pointer"
-                          >
-                            LICENSE.txt
-                          </button>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-medium text-primary">{skill.id}</div>
+                          <div className="mt-1 line-clamp-2 text-xs leading-5 text-muted">{skill.description}</div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-
-                {filteredSkills.length === 0 && (
-                  <div className="px-2.5 py-2.5 text-muted text-xs">No matching skills.</div>
-                )}
-              </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* ─── Detail panel ─── */}
-          <div className="flex-1 flex flex-col h-full bg-surface-secondary">
+          <div className="flex min-w-0 flex-1 flex-col bg-surface">
             {selectedSkill ? (
               <>
-                {/* Detail header */}
-                <div className="flex items-center justify-between px-4 pt-3.5 pb-2 border-b border-border">
-                  <h1 className="text-xl font-bold text-primary tracking-tight">{selectedSkill.id}</h1>
-                  <div className="flex items-center gap-2">
-                    {/* Toggle */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!selectedSkill) return;
-                        setEnabledBySkillId((prev) => ({
-                          ...prev,
-                          [selectedSkill.id]: !(prev[selectedSkill.id] ?? true),
-                        }));
-                      }}
-                      className={[
-                        'w-[34px] h-5 rounded-pill border flex items-center px-0.5 transition-colors duration-150 cursor-pointer',
-                        selectedEnabled ? 'border-border bg-surface-hover' : 'border-border bg-surface-tertiary',
-                      ].join(' ')}
-                    >
-                      <div
-                        className="w-3 h-3 rounded-full bg-white shadow-xs transition-transform duration-150"
-                        style={{ transform: selectedEnabled ? 'translateX(18px)' : 'translateX(0px)' }}
-                      />
-                    </button>
+                <div className="border-b border-border-light px-5 py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-[11px] uppercase tracking-[0.18em] text-muted">Skill detail</div>
+                      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-primary">{selectedSkill.id}</h1>
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">{selectedSkill.description}</p>
+                    </div>
 
-                    {/* Actions dropdown */}
-                    <DropdownMenu
-                      trigger={({ toggle }) => (
-                        <IconButton
-                          size="sm"
-                          onClick={toggle}
-                          label="Skill actions"
-                          className="border border-border bg-surface-hover"
-                        >
-                          <MoreHorizontal size={13} />
-                        </IconButton>
-                      )}
-                      width={180}
-                    >
-                      <DropdownMenuItem onClick={openEditEditor}>Edit instructions</DropdownMenuItem>
-                      <DropdownMenuItem
-                        destructive
-                        onClick={() => void deleteSelectedSkill()}
+                    <div className="flex items-center gap-2">
+                      <Button variant={previewMode === 'preview' ? 'secondary' : 'ghost'} onClick={() => setPreviewMode('preview')}>
+                        <Eye size={14} />
+                        Preview
+                      </Button>
+                      <Button variant={previewMode === 'raw' ? 'secondary' : 'ghost'} onClick={() => setPreviewMode('raw')}>
+                        <Code2 size={14} />
+                        Raw
+                      </Button>
+                      <DropdownMenu
+                        trigger={({ toggle }) => (
+                          <IconButton onClick={toggle} label="More" className="border border-border-light bg-surface-secondary">
+                            <MoreHorizontal size={14} />
+                          </IconButton>
+                        )}
+                        width={180}
                       >
-                        {deleting ? 'Deleting...' : 'Delete skill'}
-                      </DropdownMenuItem>
-                    </DropdownMenu>
+                        <DropdownMenuItem onClick={openEditEditor}>Edit skill</DropdownMenuItem>
+                        <DropdownMenuItem destructive onClick={() => void deleteSelectedSkill()}>
+                          {deleting ? 'Deleting...' : 'Delete skill'}
+                        </DropdownMenuItem>
+                      </DropdownMenu>
+                    </div>
                   </div>
+
+                  {selectedSkill.tools.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {selectedSkill.tools.map((tool) => (
+                        <span key={tool} className="rounded-full border border-border bg-surface-secondary px-2 py-1 text-xs text-secondary">
+                          {tool}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Detail body */}
-                <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4.5">
-                  <div className="grid grid-cols-2 gap-3.5 mb-2">
-                    <div>
-                      <div className="text-sm text-muted mb-0.5">Added by</div>
-                      <div className="text-md text-primary font-medium">Global</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted mb-0.5">Invoked by</div>
-                      <div className="text-md text-primary font-medium">User or Agent</div>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="flex items-center gap-1.5 text-sm text-muted mb-1">
-                      Description <Info size={14} />
-                    </div>
-                    <p className="text-base leading-relaxed text-primary">{selectedSkill.description}</p>
-                  </div>
-
-                  <div className="h-px bg-border mb-5" />
-
-                  {/* Instruction file card */}
-                  <div className="rounded-2xl border border-border bg-surface-warm p-3.5">
-                    <div className="flex items-center justify-between mb-3.5">
-                      <span className="text-xs text-muted">Instruction file</span>
-                      <div className="flex items-center gap-2">
-                        <IconButton
-                          size="sm"
-                          onClick={() => setPreviewMode('preview')}
-                          label="Preview"
-                          className={
-                            previewMode === 'preview'
-                              ? 'border border-border bg-surface-hover'
-                              : 'border border-transparent'
-                          }
-                        >
-                          <Eye size={13} />
-                        </IconButton>
-                        <IconButton
-                          size="sm"
-                          onClick={() => setPreviewMode('raw')}
-                          label="Raw"
-                          className={
-                            previewMode === 'raw'
-                              ? 'border border-border bg-surface-hover'
-                              : 'border border-transparent'
-                          }
-                        >
-                          <Code2 size={13} />
-                        </IconButton>
-                      </div>
-                    </div>
-
-                    <div className="h-px bg-border mb-3.5" />
-
-                    {previewMode === 'preview' ? (
+                <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
+                  {previewMode === 'preview' ? (
+                    <div className="rounded-[28px] border border-border-light bg-surface-secondary p-5">
                       <Markdown content={selectedSkill.prompt_addendum || '_No instructions yet._'} />
-                    ) : (
-                      <pre className="m-0 whitespace-pre-wrap font-mono text-xs leading-snug text-primary bg-surface-tertiary border border-border rounded-lg p-3">
-                        {detailDocument}
-                      </pre>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <pre className="m-0 whitespace-pre-wrap rounded-[28px] border border-border-light bg-surface-secondary p-5 font-mono text-xs leading-6 text-primary">
+                      {detailDocument}
+                    </pre>
+                  )}
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center text-sm text-muted">
-                {loading ? 'Loading skills...' : 'No skills found. Create one from the + menu.'}
-              </div>
+              <div className="flex flex-1 items-center justify-center text-sm text-muted">Select a skill to inspect or create one from the plus menu.</div>
             )}
           </div>
         </>
       )}
 
-      {/* ─── Editor modal ─── */}
       {editorOpen && (
-        <Modal onClose={() => setEditorOpen(false)} maxWidth="max-w-3xl">
-          <ModalHeader title="Write skill instructions" onClose={() => setEditorOpen(false)} />
-          <ModalBody className="flex flex-col gap-3.5">
-            <Input
-              label="Skill name"
-              value={draftId}
-              disabled={editorMode === 'edit'}
-              onChange={(event) => setDraftId(event.target.value)}
-              placeholder="weekly-status-report"
-            />
+        <Modal onClose={() => setEditorOpen(false)} maxWidth="max-w-3xl" className="border border-border-light bg-surface">
+          <ModalHeader
+            title={editorMode === 'import' ? 'Import skill markdown' : editorMode === 'edit' ? 'Edit skill' : 'Create skill'}
+            onClose={() => setEditorOpen(false)}
+          />
+          <ModalBody className="flex flex-col gap-4">
+            <Input label="Skill id" value={draftId} disabled={editorMode === 'edit'} onChange={(event) => setDraftId(event.target.value)} placeholder="weekly-status-report" />
 
-            <div>
-              <label className="block text-xs font-medium text-primary mb-1.5">Description</label>
-              <Textarea
-                value={draftDescription}
-                onChange={(event) => setDraftDescription(event.target.value)}
-                maxHeight={120}
-                placeholder="Generate weekly status reports from recent work..."
-                className="px-3 py-2 rounded-lg border border-border-light bg-surface"
-              />
-            </div>
+            {editorMode === 'import' ? (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-primary">Markdown</label>
+                <Textarea
+                  value={importMarkdown}
+                  onChange={(event) => setImportMarkdown(event.target.value)}
+                  maxHeight={360}
+                  placeholder="Paste full SKILL.md contents here"
+                  className="rounded-lg border border-border-light bg-surface px-3 py-2"
+                />
+                <div className="mt-2 flex items-start gap-2 rounded-2xl border border-border-light bg-surface-secondary px-3 py-3 text-xs text-muted">
+                  <FileUp size={14} className="mt-0.5 flex-shrink-0" />
+                  Include YAML frontmatter with at least `description`, and optionally `tools`.
+                </div>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-primary">Description</label>
+                  <Textarea
+                    value={draftDescription}
+                    onChange={(event) => setDraftDescription(event.target.value)}
+                    maxHeight={120}
+                    placeholder="Generate weekly status reports from recent work..."
+                    className="rounded-lg border border-border-light bg-surface px-3 py-2"
+                  />
+                </div>
 
-            <div>
-              <label className="block text-xs font-medium text-primary mb-1.5">Instructions</label>
-              <Textarea
-                value={draftInstructions}
-                onChange={(event) => setDraftInstructions(event.target.value)}
-                maxHeight={300}
-                placeholder="Summarize my recent work in three sections: wins, blockers, and next steps..."
-                className="px-3 py-2 rounded-lg border border-border-light bg-surface"
-              />
-            </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-primary">Instructions</label>
+                  <Textarea
+                    value={draftInstructions}
+                    onChange={(event) => setDraftInstructions(event.target.value)}
+                    maxHeight={300}
+                    placeholder="Summarize recent work in three sections: wins, blockers, and next steps..."
+                    className="rounded-lg border border-border-light bg-surface px-3 py-2"
+                  />
+                </div>
 
-            <Input
-              label="Tools (comma separated)"
-              value={draftTools}
-              onChange={(event) => setDraftTools(event.target.value)}
-              placeholder="bash, file_read, grep"
-            />
+                <Input label="Tools (comma separated)" value={draftTools} onChange={(event) => setDraftTools(event.target.value)} placeholder="bash, file_read, grep" />
+              </>
+            )}
           </ModalBody>
           <ModalFooter>
-            <div />
+            <div className="flex items-center gap-2 text-xs text-muted">
+              <AlertCircle size={13} />
+              Skills are stored in your user scope and merged with built-ins.
+            </div>
             <div className="flex items-center gap-2.5">
-              <Button variant="secondary" onClick={() => setEditorOpen(false)}>Cancel</Button>
-              <Button onClick={() => void saveSkill()} disabled={saving}>
-                {saving ? 'Saving...' : editorMode === 'create' ? 'Create' : 'Save'}
+              <Button variant="secondary" onClick={() => setEditorOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={() => void (editorMode === 'import' ? importSkillMarkdown() : saveSkill())} disabled={saving}>
+                {saving ? 'Saving...' : editorMode === 'import' ? 'Import' : editorMode === 'create' ? 'Create' : 'Save'}
               </Button>
             </div>
           </ModalFooter>

@@ -31,7 +31,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           'inline-flex items-center justify-center flex-shrink-0 transition-colors duration-150 cursor-pointer disabled:cursor-default disabled:opacity-30',
           sizeMap[size],
           filled
-            ? 'rounded-full !bg-black !text-white hover:!bg-black/90'
+            ? 'rounded-full bg-primary text-white hover:opacity-90'
             : 'rounded-lg text-muted hover:text-primary hover:bg-surface-hover',
           className,
         ].join(' ')}

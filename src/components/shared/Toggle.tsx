@@ -13,9 +13,9 @@ export function Toggle({ checked, onChange, label }: ToggleProps) {
       onClick={() => onChange(!checked)}
       className="flex items-center gap-2 text-sm font-sans text-primary cursor-pointer"
     >
-      <div
-        className={`relative w-8 h-[18px] rounded-pill transition-colors duration-slow ${
-          checked ? 'bg-accent' : 'bg-gray-300'
+        <div
+          className={`relative w-8 h-[18px] rounded-pill transition-colors duration-slow ${
+          checked ? 'bg-accent' : 'bg-border-light'
         }`}
       >
         <div

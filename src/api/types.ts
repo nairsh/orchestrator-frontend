@@ -50,7 +50,11 @@ export interface WorkflowTraceStep {
   subagent_id: string | null;
 }
 
-export type AgentType = 'research' | 'analyze' | 'write' | 'code' | 'file';
+export type AgentType = 'research' | 'analyze' | 'write' | 'code' | 'file' | 'deep_research';
+
+export type ConnectorProvider = 'github' | 'linear' | 'notion';
+
+export type ConnectorStatus = 'pending' | 'connected' | 'error' | 'disconnected';
 
 export type TaskStatus =
   | 'pending'
@@ -170,12 +174,59 @@ export interface ModelsResponse {
   subagent_models: Record<string, string>;
 }
 
+export interface ModelPreferences {
+  default_orchestrator_model: string;
+  orchestrator_models: string[];
+  agent_models: Partial<Record<AgentType, string>>;
+  subagent_models: Record<string, string>;
+  tools?: Record<string, string>;
+}
+
 export interface SkillRecord {
   id: string;
   name: string;
   description: string;
   prompt_addendum: string;
   tools: string[];
+}
+
+export interface KnowledgeDocument {
+  id: string;
+  user_id: string;
+  filename: string;
+  media_type: string;
+  source_type: 'upload';
+  status: 'processing' | 'ready' | 'failed';
+  extraction_mode: 'text' | 'ocr' | 'document';
+  byte_size: number;
+  chunk_count: number;
+  summary: string | null;
+  metadata: Record<string, unknown>;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface KnowledgeChunk {
+  id: string;
+  document_id: string;
+  user_id: string;
+  chunk_index: number;
+  content: string;
+  embedding_model: string;
+  embedding: number[];
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface KnowledgeSearchMatch {
+  document_id: string;
+  filename: string;
+  chunk_id: string;
+  chunk_index: number;
+  content: string;
+  score: number;
+  extraction_mode: 'text' | 'ocr' | 'document';
 }
 
 export interface BillingBalanceResponse {
@@ -217,15 +268,45 @@ export interface WorkflowTemplate {
   usage_count: number;
 }
 
+export interface ConnectorProviderInfo {
+  provider: ConnectorProvider;
+  scopes: string[];
+  configured: boolean;
+}
+
+export interface ConnectorRecord {
+  id: string;
+  user_id: string;
+  provider: ConnectorProvider;
+  status: ConnectorStatus;
+  display_name: string;
+  scopes: string[];
+  external_id: string | null;
+  metadata: Record<string, unknown>;
+  last_validated_at: string | null;
+  last_error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ScheduledWorkflow {
   id: string;
   user_id: string;
-  cron_expression: string;
+  cron_expression: string | null;
+  schedule_type: 'cron' | 'interval';
+  interval_value: number | null;
+  interval_unit: 'minutes' | 'hours' | 'days' | 'weeks' | 'months' | null;
+  timezone: string;
+  overlap_policy: 'skip' | 'queue';
+  start_at: string | null;
+  end_at: string | null;
   workflow_config: string;
   status: 'active' | 'paused' | 'deleted' | string;
   last_run_at: string | null;
   next_run_at: string | null;
   run_count: number;
+  active_workflow_id?: string | null;
+  last_run_status?: string | null;
   last_error: string | null;
   created_at: string;
   updated_at: string;

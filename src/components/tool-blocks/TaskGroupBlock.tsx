@@ -15,7 +15,7 @@ const statusClass = (status: string) => {
   if (status === 'completed' || status === 'skipped') return 'text-green-600';
   if (status === 'failed' || status === 'cancelled') return 'text-red-500';
   if (status === 'running') return 'text-blue-500 animate-pulse';
-  return 'text-gray-400';
+  return 'text-placeholder';
 };
 
 export function TaskGroupBlock({ tasks }: TaskGroupBlockProps) {

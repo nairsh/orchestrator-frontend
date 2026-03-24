@@ -207,7 +207,7 @@ export function ChatInput({
           filled
           size="md"
           label="Send"
-          className="w-7 h-7 bg-ink text-white hover:bg-black"
+          className="w-7 h-7 bg-primary text-white"
         >
           <ArrowUp size={14} className="text-white" />
         </IconButton>

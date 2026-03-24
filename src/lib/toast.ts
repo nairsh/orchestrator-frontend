@@ -9,6 +9,12 @@ export function toastInfo(title: string, description?: string) {
   sileo.info({
     title,
     duration: INFO_DURATION_MS,
+    fill: '#f6f1e7',
+    roundness: 22,
+    styles: {
+      title: 'relay-toast-title',
+      description: 'relay-toast-description',
+    },
     ...(description ? { description } : {}),
   });
 }
@@ -17,6 +23,12 @@ export function toastSuccess(title: string, description?: string) {
   sileo.success({
     title,
     duration: SUCCESS_DURATION_MS,
+    fill: '#edf7ef',
+    roundness: 22,
+    styles: {
+      title: 'relay-toast-title',
+      description: 'relay-toast-description',
+    },
     ...(description ? { description } : {}),
   });
 }
@@ -25,6 +37,12 @@ export function toastWarning(title: string, description?: string) {
   sileo.warning({
     title,
     duration: WARNING_DURATION_MS,
+    fill: '#fbf2df',
+    roundness: 22,
+    styles: {
+      title: 'relay-toast-title',
+      description: 'relay-toast-description',
+    },
     ...(description ? { description } : {}),
   });
 }
@@ -33,6 +51,12 @@ export function toastError(title: string, description?: string) {
   sileo.error({
     title,
     duration: ERROR_DURATION_MS,
+    fill: '#fbe9e7',
+    roundness: 22,
+    styles: {
+      title: 'relay-toast-title',
+      description: 'relay-toast-description',
+    },
     ...(description ? { description } : {}),
   });
 }
