@@ -1,4 +1,4 @@
-import { forwardRef, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
+import { forwardRef, useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 /* ─── Input ───
  * Shared text input with consistent styling.
@@ -10,14 +10,17 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, className = '', ...rest }, ref) => {
+  ({ label, className = '', id: providedId, ...rest }, ref) => {
+    const autoId = useId();
+    const id = providedId ?? autoId;
     return (
       <div>
         {label && (
-          <label className="block text-xs font-medium text-primary mb-1.5">{label}</label>
+          <label htmlFor={id} className="block text-xs font-medium text-primary mb-1.5">{label}</label>
         )}
         <input
           ref={ref}
+          id={id}
           className={[
             'w-full px-3 py-2 rounded-lg border border-border-light text-sm font-sans text-primary',
             'outline-none focus:border-muted transition-colors duration-150',

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+@import 'sileo/styles.css';
 
 @tailwind base;
 @tailwind components;
@@ -20,6 +21,7 @@
   --relay-placeholder: #727272;
   --relay-subtle: #8e8e8e;
   --relay-ink: #0a0a0a;
+  --relay-userbubble: #222222;
   --relay-accent-rgb: 0 128 64;
   --relay-info-rgb: 59 130 246;
   --relay-warning-rgb: 245 158 11;
@@ -41,7 +43,8 @@
   --relay-muted: #666666;
   --relay-placeholder: #a0a0a0;
   --relay-subtle: #777777;
-  --relay-ink: #111111;
+  --relay-ink: #2d2f34;
+  --relay-userbubble: #ffffff;
 }
 
 @font-face {
@@ -82,9 +85,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Remove default outlines — use border/bg changes instead */
+  /* Replace default outlines with focus-visible ring for keyboard users */
   *:focus {
     outline: none;
+  }
+  *:focus-visible {
+    outline: 2px solid var(--relay-border);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 
   /* All interactive elements get pointer cursor by default */
@@ -154,6 +162,7 @@
   .bg-placeholder { background-color: var(--relay-placeholder) !important; }
   .bg-primary { background-color: var(--relay-primary) !important; }
   .bg-ink { background-color: var(--relay-ink) !important; }
+  .bg-userbubble { background-color: var(--relay-userbubble) !important; }
   .bg-accent { background-color: rgb(var(--relay-accent-rgb)) !important; }
   .bg-info { background-color: rgb(var(--relay-info-rgb)) !important; }
   .bg-warning { background-color: rgb(var(--relay-warning-rgb)) !important; }
@@ -226,6 +235,27 @@
 
 .fade-in-up-soft {
   animation: fadeInUpSoft 220ms ease-out both;
+}
+
+[data-sileo-viewport] {
+  --sileo-width: 360px;
+}
+
+[data-sileo-toast] {
+  filter: drop-shadow(0 18px 34px rgba(12, 12, 12, 0.15));
+}
+
+[data-sileo-title].relay-toast-title {
+  font-family: 'Styrene A Web', Inter, sans-serif;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+[data-sileo-description].relay-toast-description {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(17, 17, 17, 0.74);
 }
 
 /* ─── Font stacks ─── */

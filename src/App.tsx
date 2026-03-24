@@ -6,6 +6,7 @@ import { TasksPage } from './components/tasks/TasksPage';
 import { createWorkflow, getModels } from './api/client';
 import type { ContextFileUpload } from './api/client';
 import { SettingsModal } from './components/SettingsModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Toaster } from 'sileo';
 import { toastApiError } from './lib/toast';
 import type { ApiConfig } from './api/client';
@@ -201,6 +202,7 @@ export default function App({
   }
 
   return (
+    <ErrorBoundary>
     <div className="h-screen flex flex-col">
       <Toaster
         position="top-right"
@@ -267,5 +269,6 @@ export default function App({
         />
       )}
     </div>
+    </ErrorBoundary>
   );
 }
