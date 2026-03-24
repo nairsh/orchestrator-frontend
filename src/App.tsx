@@ -50,12 +50,16 @@ export default function App({
   const [requestedTaskNav, setRequestedTaskNav] = useState<TaskNav>('tasks');
   const [openTaskInFullView, setOpenTaskInFullView] = useState(false);
 
+  // In local mode (no Clerk), treat as authenticated since the backend
+  // accepts unauthenticated requests when DISABLE_AUTH=true.
+  const effectiveAuth = clerkEnabled ? hasSessionAuth : true;
+
   const runtimeConfig: ApiConfig = {
     ...config,
     getAuthToken,
-    hasAuth: hasSessionAuth,
+    hasAuth: effectiveAuth,
   };
-  const isConfigured = config.baseUrl.trim().length > 0 && hasSessionAuth;
+  const isConfigured = config.baseUrl.trim().length > 0;
 
   useEffect(() => {
     if (!isConfigured) return;
@@ -157,7 +161,7 @@ export default function App({
         <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <div className="font-sans text-xl font-semibold text-primary">Sign in required</div>
           <p className="mt-2 font-sans text-sm text-secondary">
-            Sign in with Clerk to use Relay Pro. Configure your server URL in Settings if needed.
+            Sign in with Clerk to unlock authenticated API features. You can still inspect the app shell and configure the server URL in Settings.
           </p>
           <div className="mt-5 flex gap-2">
             <button
@@ -198,7 +202,19 @@ export default function App({
 
   return (
     <div className="h-screen flex flex-col">
-      <Toaster position="top-right" offset={{ top: 16, right: 16 }} />
+      <Toaster
+        position="top-right"
+        offset={{ top: 18, right: 18 }}
+        theme="light"
+        options={{
+          roundness: 22,
+          fill: '#f7f3ec',
+          styles: {
+            title: 'relay-toast-title',
+            description: 'relay-toast-description',
+          },
+        }}
+      />
       {screen === 'landing' ? (
         <LandingPage
           config={runtimeConfig}
@@ -206,7 +222,7 @@ export default function App({
           onOpenSettings={() => setShowSettings(true)}
           onOpenTasks={openTasks}
           onSignOut={onSignOut}
-          isSignedIn={hasSessionAuth}
+          isSignedIn={effectiveAuth}
           userLabel={userLabel}
           userAvatarUrl={userAvatarUrl}
           sidebarCollapsed={sidebarCollapsed}
@@ -223,7 +239,7 @@ export default function App({
           onNavigateToLanding={() => setScreen('landing')}
           onOpenSettings={() => setShowSettings(true)}
           onSignOut={onSignOut}
-          isSignedIn={hasSessionAuth}
+          isSignedIn={effectiveAuth}
           userLabel={userLabel}
           userAvatarUrl={userAvatarUrl}
           sidebarCollapsed={sidebarCollapsed}
@@ -238,8 +254,8 @@ export default function App({
         <SettingsModal
           initialBaseUrl={config.baseUrl}
           clerkEnabled={clerkEnabled}
-          requiresAuth={!hasSessionAuth}
-          isSignedIn={hasSessionAuth}
+          requiresAuth={!effectiveAuth}
+          isSignedIn={effectiveAuth}
           getAuthToken={getAuthToken}
           onSignIn={onSignIn}
           onSignOut={onSignOut}
