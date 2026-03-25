@@ -5,38 +5,38 @@ export default {
     extend: {
       /* ─── Color tokens ─── */
       colors: {
-        // Surfaces
-        sidebar: '#181818',
+        // Surfaces — reference CSS custom properties so themes switch correctly
+        sidebar: 'var(--relay-sidebar)',
         surface: {
-          DEFAULT: '#161616',
-          secondary: '#1B1B1B',
-          tertiary: '#202020',
-          warm: '#111111',
-          hover: '#242424',
+          DEFAULT: 'var(--relay-surface)',
+          secondary: 'var(--relay-surface-secondary)',
+          tertiary: 'var(--relay-surface-tertiary)',
+          warm: 'var(--relay-surface-warm)',
+          hover: 'var(--relay-surface-hover)',
         },
         // Borders
         border: {
-          DEFAULT: '#303030',
-          light: '#3A3A3A',
-          subtle: '#262626',
+          DEFAULT: 'var(--relay-border)',
+          light: 'var(--relay-border-light)',
+          subtle: 'var(--relay-border-subtle)',
         },
         // Text
-        primary: '#ECECEC',
-        secondary: '#BBBBBB',
-        muted: '#959595',
-        placeholder: '#727272',
-        subtle: '#8E8E8E',
+        primary: 'var(--relay-primary)',
+        secondary: 'var(--relay-secondary)',
+        muted: 'var(--relay-muted)',
+        placeholder: 'var(--relay-placeholder)',
+        subtle: 'var(--relay-subtle)',
         // Accent / semantic
-        ink: '#0A0A0A',
+        ink: 'var(--relay-ink)',
         accent: '#008040',
         info: '#3B82F6',
         warning: '#F59E0B',
         danger: '#EF4444',
         // Legacy aliases (kept for backward compat)
-        tasklist: '#1B1B1B',
-        taskitem: '#242424',
-        promptbg: '#1D1D1D',
-        userbubble: '#222222',
+        tasklist: 'var(--relay-surface-secondary)',
+        taskitem: 'var(--relay-surface-hover)',
+        promptbg: 'var(--relay-surface-secondary)',
+        userbubble: 'var(--relay-userbubble)',
       },
       /* ─── Typography ─── */
       fontFamily: {

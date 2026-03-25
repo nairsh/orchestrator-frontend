@@ -8,9 +8,12 @@
 :root {
   --relay-sidebar: #181818;
   --relay-surface: #161616;
+  --relay-surface-rgb: 22 22 22;
   --relay-surface-secondary: #1b1b1b;
+  --relay-surface-secondary-rgb: 27 27 27;
   --relay-surface-tertiary: #202020;
   --relay-surface-warm: #111111;
+  --relay-surface-warm-rgb: 17 17 17;
   --relay-surface-hover: #242424;
   --relay-border: #303030;
   --relay-border-light: #3a3a3a;
@@ -31,9 +34,12 @@
 :root[data-theme='light'] {
   --relay-sidebar: #f2f0eb;
   --relay-surface: #ffffff;
+  --relay-surface-rgb: 255 255 255;
   --relay-surface-secondary: #f7f7f8;
+  --relay-surface-secondary-rgb: 247 247 248;
   --relay-surface-tertiary: #f5f5f5;
   --relay-surface-warm: #faf8f4;
+  --relay-surface-warm-rgb: 250 248 244;
   --relay-surface-hover: #f5f5f5;
   --relay-border: #e0e0e0;
   --relay-border-light: #e5e7eb;
@@ -155,9 +161,13 @@
 @layer utilities {
   .bg-sidebar { background-color: var(--relay-sidebar) !important; }
   .bg-surface { background-color: var(--relay-surface) !important; }
+  .bg-surface\/95 { background-color: rgb(var(--relay-surface-rgb) / 0.95) !important; }
   .bg-surface-secondary { background-color: var(--relay-surface-secondary) !important; }
+  .bg-surface-secondary\/80 { background-color: rgb(var(--relay-surface-secondary-rgb) / 0.8) !important; }
+  .bg-surface-secondary\/60 { background-color: rgb(var(--relay-surface-secondary-rgb) / 0.6) !important; }
   .bg-surface-tertiary { background-color: var(--relay-surface-tertiary) !important; }
   .bg-surface-warm { background-color: var(--relay-surface-warm) !important; }
+  .bg-surface-warm\/90 { background-color: rgb(var(--relay-surface-warm-rgb) / 0.9) !important; }
   .bg-surface-hover { background-color: var(--relay-surface-hover) !important; }
   .bg-placeholder { background-color: var(--relay-placeholder) !important; }
   .bg-primary { background-color: var(--relay-primary) !important; }
@@ -171,6 +181,7 @@
   .bg-info\/15 { background-color: rgb(var(--relay-info-rgb) / 0.15) !important; }
   .bg-warning\/15 { background-color: rgb(var(--relay-warning-rgb) / 0.15) !important; }
   .bg-danger\/15 { background-color: rgb(var(--relay-danger-rgb) / 0.15) !important; }
+  .bg-danger\/10 { background-color: rgb(var(--relay-danger-rgb) / 0.1) !important; }
   .text-primary { color: var(--relay-primary) !important; }
   .text-secondary { color: var(--relay-secondary) !important; }
   .text-muted { color: var(--relay-muted) !important; }
@@ -237,6 +248,43 @@
   animation: fadeInUpSoft 220ms ease-out both;
 }
 
+/* ─── Skeleton loading shimmer ─── */
+@keyframes skeleton-shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.5; }
+}
+
+.skeleton-shimmer {
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ─── Scale in animation ─── */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 150ms ease-out both;
+}
+
+/* ─── Progress bar pulse ─── */
+@keyframes progressPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.progress-pulse {
+  animation: progressPulse 2s ease-in-out infinite;
+}
+
 /* Respect reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
   .shimmer-text {
@@ -246,6 +294,34 @@
   .fade-in-up-soft {
     animation: none;
   }
+  .skeleton-shimmer {
+    animation: none;
+    opacity: 0.6;
+  }
+  .animate-scale-in {
+    animation: none;
+  }
+  .progress-pulse {
+    animation: none;
+  }
+}
+
+/* ─── Responsive layout ─── */
+@media (max-width: 768px) {
+  .sidebar-desktop-only {
+    display: none;
+  }
+  .mobile-stack {
+    flex-direction: column;
+  }
+}
+
+/* ─── Line clamp ─── */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 [data-sileo-viewport] {

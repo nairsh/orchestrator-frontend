@@ -186,7 +186,7 @@ export function Sidebar({
                 />
               ) : (
                 <div className="flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full bg-ink">
-                  <span className="text-primary text-xs font-sans font-medium">{avatarLetter}</span>
+                  <span className="text-white text-xs font-sans font-medium">{avatarLetter}</span>
                 </div>
               )}
               <span className="font-sans text-sm font-medium text-primary truncate text-left">{displayName}</span>
