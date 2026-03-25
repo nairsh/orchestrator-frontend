@@ -7,6 +7,16 @@ import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES } from '../../lib/files';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
 import { Button, Input } from '../ui';
 
+function relativeTime(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
+
 async function resolveAuthToken(config: ApiConfig): Promise<string | null> {
   const sessionToken = config.getAuthToken ? await config.getAuthToken() : null;
   if (sessionToken && sessionToken.trim().length > 0) return sessionToken.trim();
@@ -40,6 +50,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<PreviewState>({ kind: 'empty' });
   const [filter, setFilter] = useState('');
+  const [workflowSearch, setWorkflowSearch] = useState('');
 
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
   const [documentsLoading, setDocumentsLoading] = useState(false);
@@ -58,6 +69,12 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
     if (!q) return files;
     return files.filter((p) => p.toLowerCase().includes(q));
   }, [files, filter]);
+
+  const filteredWorkflows = useMemo(() => {
+    const q = workflowSearch.trim().toLowerCase();
+    const matched = q ? workflows.filter((w) => w.objective.toLowerCase().includes(q) || w.id.includes(q)) : workflows;
+    return matched.slice(0, workflowSearch ? 100 : 20);
+  }, [workflows, workflowSearch]);
 
   const selectedDocument = useMemo(
     () => (selectedDocumentId ? documents.find((document) => document.id === selectedDocumentId) ?? null : null),
@@ -243,32 +260,54 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   return (
     <div className="flex h-full flex-1 overflow-hidden bg-surface-warm">
       <div className="flex h-full w-[340px] flex-shrink-0 flex-col border-r border-border bg-surface-secondary">
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <span className="text-base font-medium text-primary">Workflow Files</span>
-          {loading && <Loader2 size={14} className="animate-spin text-muted" />}
+        <div className="flex items-center justify-between border-b border-border px-5 py-3">
+          <span className="text-sm font-medium text-primary">Workflow Files</span>
+          {loading && <Loader2 size={13} className="animate-spin text-muted" />}
         </div>
 
-        <div className="flex-1 overflow-y-auto bg-surface-warm p-4">
-          <div className="mb-2.5 text-xs text-muted">Select a workflow workspace</div>
-          <div className="flex flex-col gap-1.5">
-            {workflows.map((workflow) => (
-              <button
-                key={workflow.id}
-                type="button"
-                onClick={() => {
-                  setSelectedWorkflowId(workflow.id);
-                  onSelectWorkflow?.(workflow.id, workflow.objective);
-                }}
-                className={[
-                  'w-full rounded-xl border border-border-light px-3 py-2.5 text-left transition-colors duration-150',
-                  workflow.id === selectedWorkflowId ? 'bg-surface shadow-sm' : 'bg-transparent hover:bg-surface-hover',
-                ].join(' ')}
-              >
-                <div className="text-sm font-medium text-primary">{workflow.objective.slice(0, 60)}{workflow.objective.length > 60 ? '...' : ''}</div>
-                <div className="mt-1 text-xs text-muted">{workflow.id}</div>
-              </button>
-            ))}
-          </div>
+        <div className="border-b border-border-subtle px-3 py-2">
+          <input
+            value={workflowSearch}
+            onChange={(e) => setWorkflowSearch(e.target.value)}
+            placeholder="Filter workflows…"
+            className="w-full rounded-md bg-transparent px-2 py-1 text-sm text-primary placeholder:text-placeholder outline-none"
+          />
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-2">
+          {filteredWorkflows.length === 0 ? (
+            <div className="px-3 py-2 text-sm text-muted">No workflows found.</div>
+          ) : (
+            <div className="flex flex-col gap-px">
+              {filteredWorkflows.map((workflow) => (
+                <button
+                  key={workflow.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedWorkflowId(workflow.id);
+                    onSelectWorkflow?.(workflow.id, workflow.objective);
+                  }}
+                  className={[
+                    'w-full rounded-md px-3 py-1.5 text-left transition-colors duration-150',
+                    workflow.id === selectedWorkflowId ? 'bg-surface-hover' : 'bg-transparent hover:bg-surface-hover',
+                  ].join(' ')}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <span className="truncate text-sm text-primary">{workflow.objective || 'Untitled'}</span>
+                      <span className="flex-shrink-0 font-mono text-[10px] text-placeholder">{workflow.id.slice(-6)}</span>
+                    </div>
+                    <span className="flex-shrink-0 text-[11px] text-muted">{relativeTime(workflow.created_at)}</span>
+                  </div>
+                </button>
+              ))}
+              {workflows.length > filteredWorkflows.length && (
+                <div className="px-3 py-1.5 text-[11px] text-muted">
+                  Showing {filteredWorkflows.length} of {workflows.length} — use filter to narrow
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
