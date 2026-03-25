@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { ArrowUp, FileText, X, Sparkles } from 'lucide-react';
+import { ArrowUp, FileText, X } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
@@ -10,6 +10,7 @@ import { Textarea } from '../ui/Input';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
 import { toastError, toastWarning } from '../../lib/toast';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
+import { TemplatesGallery } from '../TemplatesGallery';
 
 interface LandingPageProps {
   config: AppConfig;
@@ -236,10 +237,22 @@ export function LandingPage({
                 onClick={() => handleSampleClick(prompt)}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3 py-1.5 font-sans text-sm text-secondary hover:bg-surface-tertiary hover:border-border transition-colors cursor-pointer"
               >
-                <Sparkles size={13} className="text-placeholder flex-shrink-0" />
                 {prompt}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Templates Gallery */}
+        {value === '' && attachments.length === 0 && (
+          <div className="mt-8 w-[640px] max-w-[calc(100vw-120px)]">
+            <TemplatesGallery
+              config={config as unknown as ApiConfig}
+              onSelectTemplate={(text) => {
+                setValue(text);
+                textareaRef.current?.focus();
+              }}
+            />
           </div>
         )}
       </div>
