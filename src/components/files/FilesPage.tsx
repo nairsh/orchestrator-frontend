@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { FileSearch, ImageIcon, Loader2, ScanSearch, Search, Trash2, UploadCloud } from 'lucide-react';
+import { Highlighter } from '@lobehub/ui';
 import type { ApiConfig } from '../../api/client';
 import { deleteKnowledgeDocument, getKnowledgeDocument, getWorkspace, listKnowledgeDocuments, searchKnowledge, uploadKnowledgeDocument } from '../../api/client';
 import type { KnowledgeDocument, KnowledgeSearchMatch, WorkflowSummary } from '../../api/types';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES } from '../../lib/files';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
 import { Button, Input } from '../ui';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -257,163 +259,201 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
     }
   };
 
+  const [fileTab, setFileTab] = useState<'all' | 'workflows' | 'knowledge'>('all');
+  const FILE_TABS = [
+    { id: 'all' as const, label: 'All' },
+    { id: 'workflows' as const, label: 'Workflow files' },
+    { id: 'knowledge' as const, label: 'Knowledge library' },
+  ];
+
   return (
     <div className="flex h-full flex-1 overflow-hidden bg-surface-warm">
-      <div className="flex h-full w-[340px] flex-shrink-0 flex-col border-r border-border bg-surface-secondary">
-        <div className="flex items-center justify-between border-b border-border px-5 py-3">
-          <span className="text-sm font-medium text-primary">Workflow Files</span>
-          {loading && <Loader2 size={13} className="animate-spin text-muted" />}
-        </div>
-
-        <div className="border-b border-border-subtle px-3 py-2">
-          <input
-            value={workflowSearch}
-            onChange={(e) => setWorkflowSearch(e.target.value)}
-            placeholder="Filter workflows…"
-            className="w-full rounded-md bg-transparent px-2 py-1 text-sm text-primary placeholder:text-placeholder outline-none"
-          />
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-2">
-          {filteredWorkflows.length === 0 ? (
-            <div className="px-3 py-2 text-sm text-muted">No workflows found.</div>
-          ) : (
-            <div className="flex flex-col gap-px">
-              {filteredWorkflows.map((workflow) => (
-                <button
-                  key={workflow.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedWorkflowId(workflow.id);
-                    onSelectWorkflow?.(workflow.id, workflow.objective);
-                  }}
-                  className={[
-                    'w-full rounded-md px-3 py-1.5 text-left transition-colors duration-150',
-                    workflow.id === selectedWorkflowId ? 'bg-surface-hover' : 'bg-transparent hover:bg-surface-hover',
-                  ].join(' ')}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex min-w-0 items-center gap-1.5">
-                      <span className="truncate text-sm text-primary">{workflow.objective || 'Untitled'}</span>
-                      <span className="flex-shrink-0 font-mono text-[10px] text-placeholder">{workflow.id.slice(-6)}</span>
-                    </div>
-                    <span className="flex-shrink-0 text-[11px] text-muted">{relativeTime(workflow.created_at)}</span>
-                  </div>
-                </button>
-              ))}
-              {workflows.length > filteredWorkflows.length && (
-                <div className="px-3 py-1.5 text-[11px] text-muted">
-                  Showing {filteredWorkflows.length} of {workflows.length} — use filter to narrow
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex h-full w-[360px] flex-shrink-0 flex-col border-r border-border-light bg-surface">
-        <div className="flex items-center justify-between border-b border-border-light px-5 py-4">
-          <span className="text-base font-medium text-primary">Created files</span>
-          <span className="text-xs text-muted">{sessionId ? 'Active' : 'Inactive'}</span>
-        </div>
-
-        <div className="border-b border-border-subtle p-4">
-          <Input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Filter created files..." />
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-4">
-          {filteredFiles.length === 0 ? (
-            <div className="text-sm text-muted">{files.length === 0 ? 'No files created through workflows yet.' : 'No matches.'}</div>
-          ) : (
-            <div className="flex flex-col gap-1.5">
-              {filteredFiles.map((path) => (
-                <button
-                  key={path}
-                  type="button"
-                  onClick={() => void openFile(path)}
-                  className={[
-                    'truncate rounded-xl border border-border-subtle px-3 py-2 text-left text-sm text-primary transition-colors duration-150',
-                    preview.kind !== 'empty' && 'path' in preview && preview.path === path ? 'bg-surface-hover' : 'bg-transparent hover:bg-surface-hover',
-                  ].join(' ')}
-                >
-                  {path}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col border-r border-border-light bg-surface">
-        <div className="flex items-center justify-between border-b border-border-light px-5 py-4">
-          <span className="text-base font-medium text-primary">Preview</span>
-          <span className="text-xs text-muted">{preview.kind !== 'empty' && 'path' in preview ? preview.path : ''}</span>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-5">
-          {preview.kind === 'empty' && <div className="text-sm text-muted">Select a file to preview.</div>}
-          {preview.kind === 'loading' && (
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <Loader2 size={16} className="animate-spin" />
-              Loading preview…
-            </div>
-          )}
-          {preview.kind === 'error' && <div className="text-sm text-danger">{preview.message}</div>}
-          {preview.kind === 'image' && <img src={preview.url} alt={preview.path} className="max-w-full rounded-lg border border-border-light" />}
-          {preview.kind === 'text' && <pre className="m-0 whitespace-pre-wrap font-mono text-xs leading-normal text-primary">{preview.text}</pre>}
-        </div>
-      </div>
-
-      <div className="flex h-full w-[420px] flex-shrink-0 flex-col bg-surface-secondary">
-        <div className="border-b border-border-light px-5 py-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <div className="text-base font-medium text-primary">Knowledge Library</div>
-              <div className="mt-1 text-xs text-muted">Upload text, PDF, and image files for embedding + OCR-backed retrieval.</div>
-            </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-primary hover:bg-surface-hover">
+      <div className="flex-1 overflow-y-auto px-8 py-6">
+        {/* Header */}
+        <div className="mb-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold text-primary">Files</h1>
+            <p className="mt-1 text-sm text-secondary">Browse workflow outputs and manage your knowledge library.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors">
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
               Upload
               <input type="file" multiple className="hidden" onChange={(event) => void handleUploadDocuments(event.target.files)} />
             </label>
           </div>
-
-          <div className="mt-4 flex gap-2">
-            <Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search your knowledge base" className="flex-1" />
-            <Button variant="secondary" onClick={() => void handleSearch()}>
-              {searching ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-              Search
-            </Button>
-          </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1fr)]">
-          <div className="min-h-0 border-b border-border-light p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <div className="text-xs uppercase tracking-[0.16em] text-muted">Documents</div>
-              <Button variant="ghost" onClick={() => void refreshKnowledgeDocuments()}>
-                {documentsLoading ? <Loader2 size={14} className="animate-spin" /> : 'Refresh'}
-              </Button>
+        {/* Search bar */}
+        <div className="mb-5 flex items-center gap-3">
+          <div className="relative flex-1 max-w-md">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+            <Input
+              value={fileTab === 'knowledge' ? searchQuery : filter}
+              onChange={(e) => fileTab === 'knowledge' ? setSearchQuery(e.target.value) : setFilter(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && fileTab === 'knowledge') void handleSearch(); }}
+              placeholder={fileTab === 'knowledge' ? 'Search knowledge base...' : 'Filter files...'}
+              className="pl-9"
+            />
+          </div>
+          {fileTab === 'knowledge' && (
+            <Button variant="secondary" size="sm" onClick={() => void handleSearch()} disabled={searching}>
+              {searching ? <Loader2 size={14} className="animate-spin" /> : 'Search'}
+            </Button>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div className="mb-6">
+          <SegmentedControl
+            value={fileTab}
+            options={FILE_TABS.map((t) => ({ label: t.label, value: t.id }))}
+            onChange={(val) => setFileTab(val)}
+          />
+        </div>
+
+        {/* Content */}
+        {(fileTab === 'all' || fileTab === 'workflows') && (
+          <div className="mb-8">
+            {fileTab === 'all' && <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Workflow files</h2>}
+
+            {/* Workflow selector */}
+            <div className="mb-4">
+              <div className="flex items-center gap-3">
+                <select
+                  value={selectedWorkflowId ?? ''}
+                  onChange={(e) => {
+                    setSelectedWorkflowId(e.target.value || null);
+                    const wf = workflows.find((w) => w.id === e.target.value);
+                    if (wf) onSelectWorkflow?.(wf.id, wf.objective);
+                  }}
+                  className="rounded-xl border border-border-light bg-surface px-3 py-2 text-sm text-primary outline-none max-w-sm"
+                >
+                  {filteredWorkflows.map((wf) => (
+                    <option key={wf.id} value={wf.id}>
+                      {wf.objective || 'Untitled'} ({wf.id.slice(-6)})
+                    </option>
+                  ))}
+                </select>
+                {loading && <Loader2 size={14} className="animate-spin text-muted" />}
+                <span className="text-xs text-muted">{sessionId ? 'Session active' : 'Session inactive'}</span>
+              </div>
             </div>
 
-            <div className="flex h-full flex-col gap-2 overflow-y-auto">
-              {documents.length === 0 ? (
-                <div className="rounded-2xl border border-border-light bg-surface px-4 py-4 text-sm text-muted">No documents ingested yet.</div>
-              ) : (
-                documents.map((document) => (
-                  <button
-                    key={document.id}
-                    type="button"
-                    onClick={() => setSelectedDocumentId(document.id)}
-                    className={[
-                      'rounded-2xl border px-4 py-3 text-left transition-colors duration-150',
-                      selectedDocumentId === document.id ? 'border-border bg-surface text-primary shadow-sm' : 'border-border-light bg-surface-secondary text-secondary hover:bg-surface',
-                    ].join(' ')}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium text-primary">{document.filename}</div>
-                        <div className="mt-1 text-xs text-muted">{document.extraction_mode} • {document.chunk_count} chunks • {formatBytes(document.byte_size)}</div>
+            {/* File cards */}
+            {filteredFiles.length === 0 ? (
+              <div className="rounded-xl border border-border-light bg-surface p-8 text-center text-sm text-muted">
+                {files.length === 0 ? 'No files created through workflows yet.' : 'No files match your filter.'}
+              </div>
+            ) : (
+              <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredFiles.map((path) => {
+                  const fileName = path.split('/').pop() ?? path;
+                  const ext = fileName.includes('.') ? fileName.split('.').pop()?.toUpperCase() ?? '' : '';
+                  const isImage = ['PNG', 'JPG', 'JPEG', 'GIF', 'SVG', 'WEBP'].includes(ext);
+                  const isActive = preview.kind !== 'empty' && 'path' in preview && preview.path === path;
+                  return (
+                    <button
+                      key={path}
+                      type="button"
+                      onClick={() => void openFile(path)}
+                      className={[
+                        'group rounded-xl border bg-surface p-4 text-left transition-all duration-150 hover:shadow-sm',
+                        isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
+                      ].join(' ')}
+                    >
+                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-secondary">
+                        {isImage ? <ImageIcon size={18} className="text-muted" /> : <FileSearch size={18} className="text-muted" />}
+                      </div>
+                      <div className="truncate text-sm font-medium text-primary">{fileName}</div>
+                      {ext && <div className="mt-0.5 text-xs text-muted">{ext} file</div>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Preview panel (inline) */}
+            {preview.kind !== 'empty' && (
+              <div className="mt-6 rounded-xl border border-border-light bg-surface">
+                <div className="flex items-center justify-between border-b border-border-light px-5 py-3">
+                  <span className="text-sm font-medium text-primary">
+                    {'path' in preview ? preview.path : 'Preview'}
+                  </span>
+                  <button type="button" onClick={() => setPreview({ kind: 'empty' })} className="text-xs text-muted hover:text-primary">Close</button>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto p-5">
+                  {preview.kind === 'loading' && (
+                    <div className="flex items-center gap-2 text-sm text-muted">
+                      <Loader2 size={16} className="animate-spin" />
+                      Loading preview…
+                    </div>
+                  )}
+                  {preview.kind === 'error' && <div className="text-sm text-danger">{preview.message}</div>}
+                  {preview.kind === 'image' && <img src={preview.url} alt={preview.path} className="max-w-full rounded-lg border border-border-light" />}
+                  {preview.kind === 'text' && <Highlighter language="text" variant="borderless" copyable showLanguage={false} wrap>{preview.text}</Highlighter>}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {(fileTab === 'all' || fileTab === 'knowledge') && (
+          <div>
+            {fileTab === 'all' && <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Knowledge library</h2>}
+
+            {/* Search matches */}
+            {searchMatches.length > 0 && (
+              <div className="mb-6">
+                <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted">Search results</h3>
+                <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
+                  {searchMatches.map((match) => (
+                    <button
+                      key={match.chunk_id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDocumentId(match.document_id);
+                        setSearchMatches([]);
+                      }}
+                      className="rounded-xl border border-border-light bg-surface p-4 text-left hover:border-border hover:shadow-sm transition-all"
+                    >
+                      <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                        {match.extraction_mode === 'ocr' ? <ScanSearch size={14} /> : match.extraction_mode === 'document' ? <ImageIcon size={14} /> : <FileSearch size={14} />}
+                        {match.filename}
+                      </div>
+                      <div className="mt-1 text-xs text-muted">Similarity {(match.score * 100).toFixed(1)}%</div>
+                      <div className="mt-2 line-clamp-3 whitespace-pre-wrap text-xs leading-5 text-secondary">{match.content}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Document cards */}
+            {documents.length === 0 ? (
+              <div className="rounded-xl border border-border-light bg-surface p-8 text-center text-sm text-muted">
+                No documents ingested yet. Upload text, PDF, or image files to build your knowledge library.
+              </div>
+            ) : (
+              <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {documents.map((document) => {
+                  const ext = document.filename.includes('.') ? document.filename.split('.').pop()?.toUpperCase() ?? '' : '';
+                  const isActive = selectedDocumentId === document.id;
+                  return (
+                    <div
+                      key={document.id}
+                      className={[
+                        'group relative rounded-xl border bg-surface p-4 transition-all duration-150 cursor-pointer hover:shadow-sm',
+                        isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
+                      ].join(' ')}
+                      onClick={() => setSelectedDocumentId(document.id)}
+                    >
+                      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-secondary">
+                        {document.extraction_mode === 'ocr' ? <ScanSearch size={18} className="text-muted" /> : <FileSearch size={18} className="text-muted" />}
+                      </div>
+                      <div className="truncate text-sm font-medium text-primary">{document.filename}</div>
+                      <div className="mt-0.5 text-xs text-muted">
+                        {ext && `${ext} • `}{document.chunk_count} chunks • {formatBytes(document.byte_size)}
                       </div>
                       <button
                         type="button"
@@ -427,63 +467,41 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                             toastApiError(err, 'Failed to delete document');
                           }
                         }}
-                        className="rounded-lg p-1 text-muted hover:bg-surface hover:text-danger"
+                        className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all"
+                        aria-label="Delete document"
                       >
                         <Trash2 size={14} />
                       </button>
                     </div>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-
-          <div className="min-h-0 p-4">
-            <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted">
-              <FileSearch size={13} />
-              {searchMatches.length > 0 ? 'Search matches' : 'Document viewer'}
-            </div>
-
-            {searchMatches.length > 0 ? (
-              <div className="flex h-full flex-col gap-2 overflow-y-auto">
-                {searchMatches.map((match) => (
-                  <button
-                    key={match.chunk_id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDocumentId(match.document_id);
-                      setSearchMatches([]);
-                    }}
-                    className="rounded-2xl border border-border-light bg-surface px-4 py-3 text-left hover:bg-surface-hover"
-                  >
-                    <div className="flex items-center gap-2 text-sm font-medium text-primary">
-                      {match.extraction_mode === 'ocr' ? <ScanSearch size={14} /> : match.extraction_mode === 'document' ? <ImageIcon size={14} /> : <FileSearch size={14} />}
-                      {match.filename}
-                    </div>
-                    <div className="mt-1 text-xs text-muted">Similarity {(match.score * 100).toFixed(1)}%</div>
-                    <div className="mt-2 line-clamp-4 whitespace-pre-wrap text-xs leading-5 text-secondary">{match.content}</div>
-                  </button>
-                ))}
+                  );
+                })}
               </div>
-            ) : selectedDocument ? (
-              <div className="flex h-full flex-col rounded-[24px] border border-border-light bg-surface">
-                <div className="border-b border-border-light px-4 py-3">
-                  <div className="text-sm font-medium text-primary">{selectedDocument.filename}</div>
-                  <div className="mt-1 text-xs text-muted">{selectedDocument.extraction_mode} • {selectedDocument.status}</div>
+            )}
+
+            {/* Document viewer (inline) */}
+            {selectedDocument && (
+              <div className="mt-6 rounded-xl border border-border-light bg-surface">
+                <div className="flex items-center justify-between border-b border-border-light px-5 py-3">
+                  <div>
+                    <div className="text-sm font-medium text-primary">{selectedDocument.filename}</div>
+                    <div className="text-xs text-muted">{selectedDocument.extraction_mode} • {selectedDocument.status}</div>
+                  </div>
+                  <button type="button" onClick={() => setSelectedDocumentId(null)} className="text-xs text-muted hover:text-primary">Close</button>
                 </div>
-                <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <div className="max-h-[400px] overflow-y-auto p-5">
                   {documentLoading ? (
-                    <div className="text-sm text-muted">Loading document...</div>
+                    <div className="flex items-center gap-2 text-sm text-muted">
+                      <Loader2 size={16} className="animate-spin" />
+                      Loading document…
+                    </div>
                   ) : (
-                    <pre className="m-0 whitespace-pre-wrap font-sans text-sm leading-6 text-primary">{documentContent}</pre>
+                    <Highlighter language="text" variant="borderless" copyable showLanguage={false} wrap>{documentContent}</Highlighter>
                   )}
                 </div>
               </div>
-            ) : (
-              <div className="rounded-2xl border border-border-light bg-surface px-4 py-4 text-sm text-muted">Upload a document or select one to inspect extracted content.</div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -6,13 +6,17 @@ import { TasksPage } from './components/tasks/TasksPage';
 import { createWorkflow, getModels } from './api/client';
 import type { ContextFileUpload } from './api/client';
 import { SettingsModal } from './components/SettingsModal';
+import { SettingsPage } from './components/SettingsPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Toaster } from 'sileo';
 import { toastApiError } from './lib/toast';
 import type { ApiConfig } from './api/client';
 import type { ModelIconOverrides } from './lib/modelIcons';
+import { CommandPalette } from './components/CommandPalette';
+import { OnboardingModal, hasCompletedOnboarding } from './components/OnboardingModal';
+import { KeyboardShortcutsOverlay, useKeyboardShortcuts } from './components/KeyboardShortcuts';
 
-type Screen = 'landing' | 'tasks';
+type Screen = 'landing' | 'tasks' | 'settings';
 type TaskNav = 'tasks' | 'files' | 'connectors' | 'skills';
 
 interface AppProps {
@@ -50,6 +54,9 @@ export default function App({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [requestedTaskNav, setRequestedTaskNav] = useState<TaskNav>('tasks');
   const [openTaskInFullView, setOpenTaskInFullView] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => !hasCompletedOnboarding());
+  const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false);
 
   // In local mode (no Clerk), treat as authenticated since the backend
   // accepts unauthenticated requests when DISABLE_AUTH=true.
@@ -62,17 +69,35 @@ export default function App({
   };
   const isConfigured = config.baseUrl.trim().length > 0;
 
-  // Cmd+K / Ctrl+K: Dispatch custom event to focus the active input
+  // Cmd+K / Ctrl+K: Open command palette
   useEffect(() => {
     const handleCmdK = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        window.dispatchEvent(new CustomEvent('relay:focus-input'));
+        setShowCommandPalette(true);
       }
     };
     document.addEventListener('keydown', handleCmdK);
     return () => document.removeEventListener('keydown', handleCmdK);
   }, []);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts([
+    {
+      key: 'n',
+      action: () => {
+        setScreen('landing');
+        window.dispatchEvent(new CustomEvent('relay:focus-input'));
+      },
+      description: 'New workflow',
+    },
+    {
+      key: '?',
+      shift: true,
+      action: () => setShowShortcutsOverlay(true),
+      description: 'Show keyboard shortcuts',
+    },
+  ]);
 
   useEffect(() => {
     if (!isConfigured) return;
@@ -233,7 +258,7 @@ export default function App({
         <LandingPage
           config={runtimeConfig}
           onSubmit={(objective, model, contextFiles) => void handleLandingSubmit(objective, model, contextFiles)}
-          onOpenSettings={() => setShowSettings(true)}
+          onOpenSettings={() => setScreen('settings')}
           onOpenTasks={openTasks}
           onSignOut={onSignOut}
           isSignedIn={effectiveAuth}
@@ -243,6 +268,26 @@ export default function App({
           onSidebarCollapsedChange={setSidebarCollapsed}
           modelIconOverrides={modelIconOverrides}
         />
+      ) : screen === 'settings' ? (
+        <SettingsPage
+          initialBaseUrl={config.baseUrl}
+          clerkEnabled={clerkEnabled}
+          requiresAuth={!effectiveAuth}
+          isSignedIn={effectiveAuth}
+          getAuthToken={getAuthToken}
+          onSignIn={onSignIn}
+          onSignOut={onSignOut}
+          userLabel={userLabel}
+          userAvatarUrl={userAvatarUrl}
+          initialModelIconOverrides={modelIconOverrides}
+          onSaveModelIconOverrides={onSaveModelIconOverrides}
+          onSave={(baseUrl) => void handleSaveSettings(baseUrl)}
+          onBack={() => setScreen('tasks')}
+          sidebarCollapsed={sidebarCollapsed}
+          onSidebarCollapsedChange={setSidebarCollapsed}
+          onNavigateToLanding={() => setScreen('landing')}
+          onOpenTasks={(nav) => openTasks(nav as TaskNav)}
+        />
       ) : (
         <TasksPage
           config={runtimeConfig}
@@ -251,7 +296,7 @@ export default function App({
           selectedModel={selectedModel}
           onSelectedModelChange={setSelectedModel}
           onNavigateToLanding={() => setScreen('landing')}
-          onOpenSettings={() => setShowSettings(true)}
+          onOpenSettings={() => setScreen('settings')}
           onSignOut={onSignOut}
           isSignedIn={effectiveAuth}
           userLabel={userLabel}
@@ -279,6 +324,46 @@ export default function App({
           onSave={(baseUrl) => void handleSaveSettings(baseUrl)}
           onClose={() => setShowSettings(false)}
         />
+      )}
+
+      {/* Command Palette */}
+      {showCommandPalette && (
+        <CommandPalette
+          open={showCommandPalette}
+          onClose={() => setShowCommandPalette(false)}
+          workflows={[]}
+          onNavigate={(target) => {
+            setShowCommandPalette(false);
+            if (target === 'landing') setScreen('landing');
+            else openTasks(target as TaskNav);
+          }}
+          onSelectWorkflow={(id, objective) => {
+            setShowCommandPalette(false);
+            setActiveWorkflow({ id, objective });
+            setRequestedTaskNav('tasks');
+            setOpenTaskInFullView(true);
+            setScreen('tasks');
+          }}
+          onOpenSettings={() => {
+            setShowCommandPalette(false);
+            setScreen('settings');
+          }}
+          onNewWorkflow={() => {
+            setShowCommandPalette(false);
+            setScreen('landing');
+            window.dispatchEvent(new CustomEvent('relay:focus-input'));
+          }}
+        />
+      )}
+
+      {/* Keyboard Shortcuts Overlay */}
+      {showShortcutsOverlay && (
+        <KeyboardShortcutsOverlay open={showShortcutsOverlay} onClose={() => setShowShortcutsOverlay(false)} />
+      )}
+
+      {/* Onboarding Modal */}
+      {showOnboarding && (
+        <OnboardingModal onClose={() => setShowOnboarding(false)} />
       )}
     </div>
     </ErrorBoundary>

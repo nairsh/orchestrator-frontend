@@ -322,6 +322,42 @@ export interface AgentHealthStatus {
   avg_latency_ms: number;
 }
 
+export interface BillingUsageEntry {
+  model: string;
+  request_count: number;
+  credits_used: number;
+  input_tokens: number;
+  output_tokens: number;
+}
+
+export interface BillingTransaction {
+  id: string;
+  type: 'debit' | 'credit' | 'topup';
+  amount: number;
+  balance_after: number;
+  description: string;
+  workflow_id: string | null;
+  model: string | null;
+  created_at: string;
+}
+
+export interface ApprovalRequest {
+  task_id: string;
+  tool_name: string;
+  tool_input: unknown;
+  reason?: string;
+  requested_at: string;
+}
+
+export interface WorkflowProgress {
+  workflow_id: string;
+  total_tasks: number;
+  completed_tasks: number;
+  running_tasks: number;
+  failed_tasks: number;
+  percentage: number;
+}
+
 export type FeedEntry =
   | { kind: 'prompt'; text: string }
   | { kind: 'system_status'; text: string }

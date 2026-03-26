@@ -1,10 +1,32 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Zap, Brain, DollarSign } from 'lucide-react';
 import { getModels } from '../../api/client';
 import { DropdownMenu, DropdownMenuItem } from '../ui/DropdownMenu';
 import type { ApiConfig } from '../../api/client';
 import type { ModelsResponse, ModelInfo } from '../../api/types';
 import { ModelIcon, type ModelIconOverrides, resolveModelIconKey } from '../../lib/modelIcons';
+
+const inferProvider = (modelId: string): string => {
+  const id = modelId.toLowerCase();
+  if (id.includes('gpt') || id.includes('openai') || id.includes('o1') || id.includes('o3') || id.includes('o4')) return 'OpenAI';
+  if (id.includes('claude') || id.includes('anthropic')) return 'Anthropic';
+  if (id.includes('gemini') || id.includes('google')) return 'Google';
+  if (id.includes('llama') || id.includes('meta')) return 'Meta';
+  if (id.includes('mistral')) return 'Mistral';
+  if (id.includes('deepseek')) return 'DeepSeek';
+  if (id.includes('qwen')) return 'Alibaba';
+  return 'Other';
+};
+
+const inferCapabilities = (modelId: string): string[] => {
+  const id = modelId.toLowerCase();
+  const caps: string[] = [];
+  if (id.includes('mini') || id.includes('flash') || id.includes('haiku')) caps.push('Fast');
+  if (id.includes('pro') || id.includes('opus') || id.includes('4o') || id.includes('sonnet')) caps.push('Smart');
+  if (id.includes('mini') || id.includes('flash') || id.includes('haiku') || id.includes('nano')) caps.push('Cheap');
+  if (caps.length === 0) caps.push('Smart');
+  return caps;
+};
 
 interface ModelDropdownProps {
   config: ApiConfig;
@@ -12,6 +34,9 @@ interface ModelDropdownProps {
   onSelect: (modelId: string) => void;
   variant?: 'orchestrator' | 'all';
   modelIconOverrides?: ModelIconOverrides;
+  size?: 'default' | 'large' | 'small';
+  align?: 'left' | 'right';
+  direction?: 'up' | 'down';
 }
 
 export function ModelDropdown({
@@ -20,6 +45,9 @@ export function ModelDropdown({
   onSelect,
   variant = 'orchestrator',
   modelIconOverrides = {},
+  size = 'default',
+  align = 'right',
+  direction = 'down',
 }: ModelDropdownProps) {
   const [data, setData] = useState<ModelsResponse | null>(null);
 
@@ -65,53 +93,84 @@ export function ModelDropdown({
     }
   }, [defaultModelId, onSelect, options, selected]);
 
+  const groupedOptions = useMemo(() => {
+    const groups = new Map<string, typeof options>();
+    for (const opt of options) {
+      const provider = modelById.get(opt.id)?.provider ?? inferProvider(opt.id);
+      if (!groups.has(provider)) groups.set(provider, []);
+      groups.get(provider)!.push(opt);
+    }
+    return groups;
+  }, [options, modelById]);
+
   const selectedOption = options.find((o) => o.id === selected) ?? options[0];
   const triggerLabel = selectedOption?.label ?? selected;
+  const selectedIconKey = resolveModelIconKey(
+    selectedOption?.id ?? selected,
+    modelById.get(selectedOption?.id ?? selected)?.provider,
+    modelIconOverrides
+  );
+  const isLarge = size === 'large';
+  const isSmall = size === 'small';
 
   return (
     <DropdownMenu
-      width={224}
+      width={280}
+      align={align}
+      direction={direction}
       trigger={({ open, toggle }) => (
         <button
           type="button"
           onClick={toggle}
           aria-expanded={open}
-          className={`flex items-center gap-1.5 font-sans text-md font-medium text-subtle rounded-md px-2.5 py-1.5 transition-colors duration-fast cursor-pointer ${
-            open ? 'bg-surface-tertiary' : 'bg-transparent'
+          aria-label="Select model"
+          className={`flex items-center font-sans font-medium text-primary rounded-full transition-colors duration-fast cursor-pointer ${
+            isLarge ? 'gap-2.5 text-lg px-4 py-2.5' : isSmall ? 'h-8 gap-1.5 text-sm px-3' : 'h-8 gap-2 text-sm px-3'
           }`}
+          style={{ backgroundColor: open ? '#EAE7E4' : '#F5F3F1' }}
         >
-          <span className="font-sans text-md font-medium text-subtle">{triggerLabel}</span>
+          <ModelIcon iconKey={selectedIconKey} size={isLarge ? 18 : 14} />
+          <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : 'text-sm max-w-[200px]'}`}>{triggerLabel}</span>
           <ChevronDown
-            size={16}
+            size={isLarge ? 18 : 14}
             className="text-subtle transition-transform duration-150"
             style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
           />
         </button>
       )}
     >
-      {options.map((opt) => (
-        <DropdownMenuItem
-          key={opt.id}
-          active={opt.id === selected}
-          onClick={() => onSelect(opt.id)}
-        >
-          <span className="flex-shrink-0">
-            <ModelIcon
-              iconKey={resolveModelIconKey(
-                opt.id,
-                modelById.get(opt.id)?.provider,
-                modelIconOverrides
-              )}
-              size={16}
-            />
-          </span>
-          <div className="flex-1 min-w-0 flex flex-col">
-            <span className="text-sm text-primary font-medium">{opt.label}</span>
-            {opt.description && (
-              <span className="text-xs text-muted">{opt.description}</span>
-            )}
+      {Array.from(groupedOptions.entries()).map(([provider, providerOpts]) => (
+        <div key={provider}>
+          <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted font-semibold">
+            {provider}
           </div>
-        </DropdownMenuItem>
+          {providerOpts.map((opt) => {
+            return (
+              <DropdownMenuItem
+                key={opt.id}
+                active={opt.id === selected}
+                onClick={() => onSelect(opt.id)}
+              >
+                <span className="flex-shrink-0">
+                  <ModelIcon
+                    iconKey={resolveModelIconKey(
+                      opt.id,
+                      modelById.get(opt.id)?.provider,
+                      modelIconOverrides
+                    )}
+                    size={16}
+                  />
+                </span>
+                <div className="flex-1 min-w-0 flex flex-col">
+                  <span className="text-sm text-primary font-medium">{opt.label}</span>
+                  {opt.description && (
+                    <span className="text-xs text-muted">{opt.description}</span>
+                  )}
+                </div>
+              </DropdownMenuItem>
+            );
+          })}
+        </div>
       ))}
     </DropdownMenu>
   );

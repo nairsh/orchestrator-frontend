@@ -7,6 +7,10 @@
 
 :root {
   --relay-sidebar: #181818;
+  --relay-sidebar-separator: #2a2a2a;
+  --relay-sidebar-accent: #a68b6b;
+  --relay-avatar-bg: #9a7b5b;
+  --relay-status-paused: #9b59b6;
   --relay-surface: #161616;
   --relay-surface-rgb: 22 22 22;
   --relay-surface-secondary: #1b1b1b;
@@ -29,10 +33,19 @@
   --relay-info-rgb: 59 130 246;
   --relay-warning-rgb: 245 158 11;
   --relay-danger-rgb: 239 68 68;
+  --relay-success-rgb: 34 197 94;
+  --relay-success-muted-rgb: 22 163 74;
+  --relay-warning-surface: #fefce8;
+  --relay-warning-surface-dark: #422006;
+  --relay-warning-border: #fbbf24;
 }
 
 :root[data-theme='light'] {
-  --relay-sidebar: #f2f0eb;
+  --relay-sidebar: #f6f5f2;
+  --relay-sidebar-separator: #e8e6e1;
+  --relay-sidebar-accent: #8b6b4a;
+  --relay-avatar-bg: #8b6b4a;
+  --relay-status-paused: #7b39a0;
   --relay-surface: #ffffff;
   --relay-surface-rgb: 255 255 255;
   --relay-surface-secondary: #f7f7f8;
@@ -51,16 +64,31 @@
   --relay-subtle: #777777;
   --relay-ink: #2d2f34;
   --relay-userbubble: #ffffff;
+  --relay-warning-surface: #fefce8;
+  --relay-warning-surface-dark: #fef9c3;
+  --relay-warning-border: #f59e0b;
 }
 
 @font-face {
   font-family: "Styrene A Web";
+  font-weight: 400;
   src: url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.eot");
   src: url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.eot?#iefix")format("embedded-opentype"),
   url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.woff2")format("woff2"),
   url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.woff")format("woff"),
   url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.ttf")format("truetype"),
   url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.svg#Styrene A Web")format("svg");
+}
+
+@font-face {
+  font-family: "Styrene A Web";
+  font-weight: 500;
+  src: url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.eot");
+  src: url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.eot?#iefix")format("embedded-opentype"),
+  url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.woff2")format("woff2"),
+  url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.woff")format("woff"),
+  url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.ttf")format("truetype"),
+  url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.svg#Styrene A Web Medium")format("svg");
 }
 
 @font-face {
@@ -118,6 +146,22 @@
   }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { @apply bg-border rounded-sm; }
+
+  /* Override @lobehub/ui's global yellow text selection */
+  ::selection {
+    color: var(--relay-primary) !important;
+    background: rgb(var(--relay-info-rgb) / 0.22) !important;
+    -webkit-text-fill-color: var(--relay-primary) !important;
+  }
+  *::selection {
+    color: var(--relay-primary) !important;
+    background: rgb(var(--relay-info-rgb) / 0.22) !important;
+    -webkit-text-fill-color: var(--relay-primary) !important;
+  }
+  *::-moz-selection {
+    color: var(--relay-primary) !important;
+    background: rgb(var(--relay-info-rgb) / 0.22) !important;
+  }
 }
 
 /* ─── Component layer ─── */
@@ -160,6 +204,11 @@
 
 @layer utilities {
   .bg-sidebar { background-color: var(--relay-sidebar) !important; }
+  .bg-sidebar-sep { background-color: var(--relay-sidebar-separator) !important; }
+  .bg-avatar { background-color: var(--relay-avatar-bg) !important; }
+  .text-sidebar-accent { color: var(--relay-sidebar-accent) !important; }
+  .text-status-paused { color: var(--relay-status-paused) !important; }
+  .bg-status-paused { background-color: var(--relay-status-paused) !important; }
   .bg-surface { background-color: var(--relay-surface) !important; }
   .bg-surface\/95 { background-color: rgb(var(--relay-surface-rgb) / 0.95) !important; }
   .bg-surface-secondary { background-color: var(--relay-surface-secondary) !important; }
@@ -198,10 +247,27 @@
   .border-accent\/30 { border-color: rgb(var(--relay-accent-rgb) / 0.3) !important; }
   .border-warning\/30 { border-color: rgb(var(--relay-warning-rgb) / 0.3) !important; }
   .border-danger\/30 { border-color: rgb(var(--relay-danger-rgb) / 0.3) !important; }
+  .border-info\/20 { border-color: rgb(var(--relay-info-rgb) / 0.2) !important; }
+  .border-accent\/20 { border-color: rgb(var(--relay-accent-rgb) / 0.2) !important; }
+
+  /* Semantic status colors */
+  .text-success { color: rgb(var(--relay-success-rgb)) !important; }
+  .text-success-muted { color: rgb(var(--relay-success-muted-rgb)) !important; }
+  .bg-success { background-color: rgb(var(--relay-success-rgb)) !important; }
+  .bg-success-muted { background-color: rgb(var(--relay-success-muted-rgb)) !important; }
+  .bg-success\/15 { background-color: rgb(var(--relay-success-rgb) / 0.15) !important; }
+  .bg-warning\/10 { background-color: rgb(var(--relay-warning-rgb) / 0.1) !important; }
+  .bg-info\/10 { background-color: rgb(var(--relay-info-rgb) / 0.1) !important; }
+  .bg-warning-surface { background-color: var(--relay-warning-surface) !important; }
+  .border-warning { border-color: var(--relay-warning-border) !important; }
+
   .hover\:bg-surface-hover:hover { background-color: var(--relay-surface-hover) !important; }
   .hover\:bg-surface-secondary:hover { background-color: var(--relay-surface-secondary) !important; }
   .hover\:bg-danger\/15:hover { background-color: rgb(var(--relay-danger-rgb) / 0.15) !important; }
   .hover\:bg-danger\/80:hover { background-color: rgb(var(--relay-danger-rgb) / 0.8) !important; }
+  .hover\:bg-info\/10:hover { background-color: rgb(var(--relay-info-rgb) / 0.1) !important; }
+  .hover\:bg-accent\/10:hover { background-color: rgb(var(--relay-accent-rgb) / 0.1) !important; }
+  .hover\:bg-accent\/25:hover { background-color: rgb(var(--relay-accent-rgb) / 0.25) !important; }
 }
 
 /* ─── Shimmer animation (thinking indicator) ─── */
@@ -350,6 +416,21 @@
 /* App UI Font - Styrene A Web for sidebar and tasks page */
 .app-ui {
   @apply font-display;
+  font-family: 'Styrene A Web', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.app-ui button,
+.app-ui input,
+.app-ui textarea,
+.app-ui select {
+  font-family: inherit;
+}
+
+/* Content body text - Inter for descriptions, cards, form content */
+.font-sans p,
+.font-sans .text-sm,
+.font-sans .text-xs {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* Chat Font - Inter for AI chat messages */

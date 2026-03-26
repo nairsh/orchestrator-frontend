@@ -2,6 +2,8 @@ import type {
   ConnectorProviderInfo,
   ConnectorRecord,
   BillingBalanceResponse,
+  BillingUsageEntry,
+  BillingTransaction,
   CreateWorkflowResponse,
   KnowledgeChunk,
   KnowledgeDocument,
@@ -13,6 +15,8 @@ import type {
   ScheduledWorkflow,
   WorkflowTemplate,
   AgentHealthStatus,
+  ApprovalRequest,
+  WorkflowProgress,
   TaskSummary,
   WorkflowSummary,
   WorkflowTraceStep,
@@ -472,4 +476,106 @@ export async function getSystemHealth(config: ApiConfig): Promise<Record<string,
 
 export async function checkHealth(config: ApiConfig): Promise<{ status: string }> {
   return request<{ status: string }>(config, '/health');
+}
+
+// ─── Workflow Controls ───
+
+export async function pauseWorkflow(
+  config: ApiConfig,
+  workflowId: string
+): Promise<{ workflow_id: string; status: string }> {
+  return request<{ workflow_id: string; status: string }>(config, `/v1/workflows/${workflowId}/pause`, {
+    method: 'POST',
+  });
+}
+
+export async function approveWorkflowTask(
+  config: ApiConfig,
+  workflowId: string,
+  taskId: string,
+  approved: boolean
+): Promise<{ workflow_id: string; task_id: string; action: string }> {
+  return request<{ workflow_id: string; task_id: string; action: string }>(
+    config,
+    `/v1/workflows/${workflowId}/approve`,
+    { method: 'POST', body: JSON.stringify({ task_id: taskId, approved }) }
+  );
+}
+
+export async function getPendingApprovals(
+  config: ApiConfig,
+  workflowId: string
+): Promise<{ approvals: ApprovalRequest[] }> {
+  return request<{ approvals: ApprovalRequest[] }>(config, `/v1/workflows/${workflowId}/approve/pending`);
+}
+
+export async function getWorkflowProgress(
+  config: ApiConfig,
+  workflowId: string
+): Promise<WorkflowProgress> {
+  return request<WorkflowProgress>(config, `/v1/workflows/${workflowId}/progress`);
+}
+
+// ─── Billing ───
+
+export async function getBillingUsage(
+  config: ApiConfig,
+  params?: { period?: string; group_by?: string }
+): Promise<{ usage: BillingUsageEntry[]; period: string }> {
+  const sp = new URLSearchParams();
+  if (params?.period) sp.set('period', params.period);
+  if (params?.group_by) sp.set('group_by', params.group_by);
+  const qs = sp.toString();
+  return request<{ usage: BillingUsageEntry[]; period: string }>(config, `/v1/billing/usage${qs ? `?${qs}` : ''}`);
+}
+
+export async function getBillingTransactions(
+  config: ApiConfig,
+  params?: { page?: number; limit?: number }
+): Promise<{ transactions: BillingTransaction[]; total: number }> {
+  const sp = new URLSearchParams();
+  if (typeof params?.page === 'number') sp.set('page', String(params.page));
+  if (typeof params?.limit === 'number') sp.set('limit', String(params.limit));
+  const qs = sp.toString();
+  return request<{ transactions: BillingTransaction[]; total: number }>(config, `/v1/billing/transactions${qs ? `?${qs}` : ''}`);
+}
+
+export async function topUpCredits(
+  config: ApiConfig,
+  amount: number
+): Promise<{ credits_balance: number }> {
+  return request<{ credits_balance: number }>(config, '/v1/billing/top-up', {
+    method: 'POST',
+    body: JSON.stringify({ amount }),
+  });
+}
+
+// ─── Schedule Trigger ───
+
+export async function triggerSchedule(
+  config: ApiConfig,
+  id: string
+): Promise<{ workflow_id: string; status: string }> {
+  return request<{ workflow_id: string; status: string }>(config, `/v1/schedules/${encodeURIComponent(id)}/trigger`, {
+    method: 'POST',
+  });
+}
+
+// ─── Templates CRUD ───
+
+export async function createTemplate(
+  config: ApiConfig,
+  input: { name: string; description: string; config: Record<string, unknown>; tags?: string[]; is_public?: boolean }
+): Promise<{ template: WorkflowTemplate }> {
+  return request<{ template: WorkflowTemplate }>(config, '/v1/templates', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export async function deleteTemplate(
+  config: ApiConfig,
+  id: string
+): Promise<{ deleted: boolean }> {
+  return request<{ deleted: boolean }>(config, `/v1/templates/${encodeURIComponent(id)}`, { method: 'DELETE' });
 }

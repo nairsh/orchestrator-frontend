@@ -63,7 +63,7 @@ export function OnboardingModal({ onClose, onStartWorkflow, onOpenSettings }: On
       <div className="w-full max-w-md bg-surface rounded-2xl shadow-2xl border border-border overflow-hidden">
         {/* Close button */}
         <div className="flex justify-end px-4 pt-4">
-          <button type="button" onClick={handleSkip} className="text-muted hover:text-primary transition-colors cursor-pointer">
+          <button type="button" onClick={handleSkip} className="text-muted hover:text-primary transition-colors cursor-pointer" aria-label="Close onboarding">
             <X size={18} />
           </button>
         </div>

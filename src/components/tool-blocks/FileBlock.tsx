@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { FileText, ChevronDown } from 'lucide-react';
+import { Highlighter, CopyButton } from '@lobehub/ui';
+import { Tooltip } from '@lobehub/ui';
 
 interface FileBlockProps {
   toolName: string;
@@ -7,15 +9,24 @@ interface FileBlockProps {
   status: 'running' | 'done' | 'failed';
 }
 
+function guessLanguage(filename: string): string {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? '';
+  const map: Record<string, string> = {
+    ts: 'typescript', tsx: 'tsx', js: 'javascript', jsx: 'jsx',
+    py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
+    json: 'json', yaml: 'yaml', yml: 'yaml', md: 'markdown',
+    css: 'css', scss: 'scss', html: 'html', sql: 'sql',
+    sh: 'bash', bash: 'bash', zsh: 'bash',
+  };
+  return map[ext] ?? 'text';
+}
+
 export function FileBlock({ toolName, input, status }: FileBlockProps) {
   const [expanded, setExpanded] = useState(false);
 
   const inp = typeof input === 'object' && input !== null ? (input as Record<string, unknown>) : {};
-  const filename =
-    (inp.path ?? inp.file_path ?? inp.filename ?? inp.target ?? '')
-      ?.toString()
-      .split('/')
-      .pop() ?? 'file';
+  const fullPath = (inp.path ?? inp.file_path ?? inp.filename ?? inp.target ?? '')?.toString() ?? '';
+  const filename = fullPath.split('/').pop() ?? 'file';
 
   const actionMap: Record<string, string> = {
     file_write: 'Writing',
@@ -24,6 +35,11 @@ export function FileBlock({ toolName, input, status }: FileBlockProps) {
   };
   const action = actionMap[toolName] ?? 'Accessing';
 
+  const content = typeof inp.content === 'string' ? inp.content : JSON.stringify(input, null, 2);
+  const truncatedContent = content.slice(0, 1000) + (content.length > 1000 ? '\n… (truncated)' : '');
+  const language = guessLanguage(filename);
+  const statusTooltip = status === 'running' ? 'Running' : status === 'done' ? 'Completed' : 'Failed';
+
   return (
     <div className="rounded-xl border border-border bg-surface overflow-hidden my-1.5 transition-all duration-150">
       <button
@@ -31,15 +47,19 @@ export function FileBlock({ toolName, input, status }: FileBlockProps) {
         onClick={() => setExpanded((v) => !v)}
         className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
       >
-        <FileText size={15} className="text-amber-500 flex-shrink-0" />
+        <FileText size={15} className="text-warning flex-shrink-0" />
         <div className="flex-1 text-left min-w-0">
           <div className="text-xs text-muted font-medium">{action} file</div>
           <div className="text-primary truncate mt-0.5 font-mono text-xs">{filename}</div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {status === 'running' && <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />}
-          {status === 'done' && <div className="w-1.5 h-1.5 rounded-full bg-green-500" />}
-          {status === 'failed' && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+          <Tooltip title={statusTooltip}>
+            <div>
+              {status === 'running' && <div className="w-1.5 h-1.5 rounded-full bg-warning animate-pulse" />}
+              {status === 'done' && <div className="w-1.5 h-1.5 rounded-full bg-success" />}
+              {status === 'failed' && <div className="w-1.5 h-1.5 rounded-full bg-danger" />}
+            </div>
+          </Tooltip>
           <ChevronDown
             size={14}
             className={`text-muted transition-transform duration-200 ${expanded ? 'rotate-0' : '-rotate-90'}`}
@@ -48,15 +68,18 @@ export function FileBlock({ toolName, input, status }: FileBlockProps) {
       </button>
       <div
         className={`overflow-hidden transition-all duration-200 ease-in-out ${
-          expanded ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
+          expanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="px-3.5 pb-3 border-t border-border-subtle">
-          <pre className="text-xs text-muted mt-2.5 whitespace-pre-wrap break-all font-mono max-h-40 overflow-auto leading-relaxed">
-            {typeof inp.content === 'string'
-              ? inp.content.slice(0, 500) + (inp.content.length > 500 ? '…' : '')
-              : JSON.stringify(input, null, 2)}
-          </pre>
+        <div className="border-t border-border-subtle">
+          <Highlighter
+            language={language}
+            showLanguage
+            copyable
+            variant="filled"
+          >
+            {truncatedContent}
+          </Highlighter>
         </div>
       </div>
     </div>

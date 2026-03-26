@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { AppConfig } from '../../hooks/useConfig';
 import { Sidebar } from '../layout/Sidebar';
 import { TaskList } from './TaskList';
 import { TaskDetail } from './TaskDetail';
 import { useWorkflows } from '../../hooks/useWorkflows';
+import { useWorkflowMeta } from '../../hooks/useWorkflowMeta';
 import type { WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { FilesPage } from '../files/FilesPage';
 import { ConnectorsPage } from '../connectors/ConnectorsPage';
@@ -59,7 +60,7 @@ export function TasksPage({
 }: TasksPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(initialWorkflowId ?? null);
   const [selectedObjective, setSelectedObjective] = useState<string>(initialObjective ?? '');
-  const [activeNav, setActiveNav] = useState<'search' | 'tasks' | 'files' | 'connectors' | 'skills'>('tasks');
+  const [activeNav, setActiveNav] = useState<'search' | 'computer' | 'new' | 'tasks' | 'files' | 'connectors' | 'skills'>('tasks');
   const [statusFilter, setStatusFilter] = useState<WorkflowStatusFilter>(undefined);
   const [chatOpen, setChatOpen] = useState(false);
   const [taskFullView, setTaskFullView] = useState(Boolean(initialTaskFullView && initialWorkflowId));
@@ -70,6 +71,15 @@ export function TasksPage({
   const splitViewRef = useRef<HTMLDivElement>(null);
 
   const { workflows, loading, refresh } = useWorkflows(config, true, statusFilter);
+  const { meta } = useWorkflowMeta();
+
+  const pinnedIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const [id, m] of Object.entries(meta)) {
+      if (m?.pinned) ids.add(id);
+    }
+    return ids;
+  }, [meta]);
 
   useEffect(() => {
     setActiveModel(selectedModel);
@@ -123,8 +133,14 @@ export function TasksPage({
         userAvatarUrl={userAvatarUrl}
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
+        workflows={workflows}
+        pinnedIds={pinnedIds}
+        onSelectWorkflow={(id, objective) => {
+          handleSelect(id, objective);
+          setActiveNav('tasks');
+        }}
         onNavChange={(id) => {
-          if (id === 'search') {
+          if (id === 'search' || id === 'computer' || id === 'new') {
             onNavigateToLanding?.();
           } else {
             setActiveNav(id);
@@ -200,9 +216,14 @@ export function TasksPage({
                 modelIconOverrides={modelIconOverrides}
               />
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center gap-2">
-                <div className="font-sans text-base text-placeholder">Select a task to view details</div>
-                <div className="font-sans text-sm text-placeholder/70">Choose from the list or start a new workflow</div>
+              <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-surface-tertiary flex items-center justify-center">
+                  <span className="text-xl">⚡</span>
+                </div>
+                <div className="font-sans text-base text-placeholder text-center">Select a task to view details</div>
+                <div className="font-sans text-sm text-placeholder/70 text-center max-w-[200px]">
+                  Choose from the list or start a new workflow above
+                </div>
               </div>
             )}
           </div>

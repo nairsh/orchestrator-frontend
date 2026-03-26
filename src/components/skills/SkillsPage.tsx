@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, Code2, Eye, FileUp, FileText, Loader2, MoreHorizontal, Plus, Search, Sparkles, Upload } from 'lucide-react';
+import { AlertCircle, Code2, Eye, FileUp, FileText, Loader2, MoreHorizontal, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
+import { Tag, Alert } from '@lobehub/ui';
 import type { ApiConfig } from '../../api/client';
 import { ApiError, importSkill, listSkills, removeSkill, upsertSkill } from '../../api/client';
 import type { SkillRecord } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
 import { Button, DropdownMenu, DropdownMenuItem, IconButton, Input, Modal, ModalBody, ModalFooter, ModalHeader, Textarea } from '../ui';
+import { RelayEmpty } from '../shared/RelayEmpty';
+import { SegmentedControl } from '../ui/SegmentedControl';
 
 const SKILL_ID_REGEX = /^[a-z0-9-]{1,64}$/;
 
@@ -22,6 +25,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [previewMode, setPreviewMode] = useState<'preview' | 'raw'>('preview');
+  const [skillFilter, setSkillFilter] = useState<'all' | 'mine' | 'examples'>('all');
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<EditorMode>('create');
@@ -199,149 +203,156 @@ export function SkillsPage({ config }: SkillsPageProps) {
   };
 
   return (
-    <div className="flex h-full flex-1 overflow-hidden app-ui bg-surface-warm">
+    <div className="flex flex-col h-full flex-1 overflow-hidden bg-surface-warm font-sans">
       {!canUseApi ? (
-        <div className="flex flex-1 items-center justify-center text-sm text-placeholder">Sign in to manage skills.</div>
+        <div className="flex flex-1 items-center justify-center">
+          <RelayEmpty
+            title="Sign in required"
+            description="Sign in to manage skills."
+          />
+        </div>
       ) : (
-        <>
-          <div className="flex h-full w-[360px] flex-col border-r border-border-light bg-surface-secondary">
-            <div className="border-b border-border-light px-4 py-4">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted">
-                    <Sparkles size={12} />
-                    Prompt assets
-                  </div>
-                  <div className="mt-2 text-xl font-semibold text-primary">Skills</div>
-                </div>
-
-                <DropdownMenu
-                  trigger={({ toggle }) => (
-                    <IconButton onClick={toggle} label="Skill actions" className="border border-border bg-surface">
-                      <Plus size={16} />
-                    </IconButton>
-                  )}
-                  width={220}
-                >
-                  <DropdownMenuItem onClick={openCreateEditor}>
-                    <FileText size={14} />
-                    Write skill
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={openImportEditor}>
-                    <Upload size={14} />
-                    Import markdown
-                  </DropdownMenuItem>
-                </DropdownMenu>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between flex-shrink-0 px-8 pt-8 pb-2">
+            <h1 className="text-xl font-semibold text-primary font-display">Skills</h1>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search skills"
+                  className="pl-9 pr-3 py-2 rounded-lg border border-border-light bg-surface text-sm text-primary placeholder:text-placeholder outline-none w-[200px]"
+                />
               </div>
-
-              <div className="mt-4">
-                <Input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search skills" />
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3">
-              {unsupportedApi && (
-                <div className="mb-3 rounded-2xl border border-warning/40 bg-warning/15 px-3 py-3 text-xs text-warning">
-                  Skills endpoint is missing (`/v1/skills` returned 404). Update the API server.
-                </div>
-              )}
-
-              {filteredSkills.length === 0 ? (
-                <div className="rounded-2xl border border-border-light bg-surface px-4 py-4 text-sm text-muted">
-                  {loading ? 'Loading skills...' : 'No skills found yet.'}
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {filteredSkills.map((skill) => (
-                    <button
-                      key={skill.id}
-                      type="button"
-                      onClick={() => setSelectedId(skill.id)}
-                      className={[
-                        'rounded-2xl border px-4 py-3 text-left transition-colors duration-150',
-                        selectedId === skill.id ? 'border-border bg-surface text-primary shadow-sm' : 'border-border-light bg-surface-secondary text-secondary hover:bg-surface',
-                      ].join(' ')}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-border-light bg-surface">
-                          <FileText size={15} />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="truncate text-sm font-medium text-primary">{skill.id}</div>
-                          <div className="mt-1 line-clamp-2 text-xs leading-5 text-muted">{skill.description}</div>
-                        </div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <Button onClick={openCreateEditor}>
+                <Plus size={14} />
+                Create skill
+              </Button>
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-1 flex-col bg-surface">
-            {selectedSkill ? (
-              <>
-                <div className="border-b border-border-light px-5 py-4">
+          {/* Description */}
+          <div className="px-8 pb-4">
+            <p className="text-sm text-secondary leading-relaxed">
+              Extend what your computer can do with reusable capabilities and actions.
+              Skills are applied automatically when needed.{' '}
+              <button type="button" className="text-info hover:underline cursor-pointer bg-transparent border-none p-0 font-sans text-sm">Learn more</button>
+            </p>
+          </div>
+
+          {/* Filter tabs */}
+          <div className="flex items-center gap-2 px-8 pb-6">
+            <SegmentedControl
+              value={skillFilter}
+              options={[
+                { label: 'All', value: 'all' },
+                { label: 'My skills', value: 'mine' },
+                { label: 'Example skills', value: 'examples' },
+              ]}
+              onChange={(val) => setSkillFilter(val as 'all' | 'mine' | 'examples')}
+            />
+          </div>
+
+          {/* Skills grid */}
+          <div className="flex-1 overflow-y-auto px-8 pb-8">
+            {unsupportedApi && (
+              <Alert className="mb-4" type="warning" title="Skills endpoint is missing (`/v1/skills` returned 404). Update the API server." variant="outlined" />
+            )}
+
+            {filteredSkills.length === 0 ? (
+              <RelayEmpty
+                icon={<Sparkles size={26} className="text-muted" />}
+                title={loading ? 'Loading skills…' : 'No skills found'}
+                description={loading ? 'Fetching your skills from the server.' : 'Create your first skill to extend what your computer can do.'}
+                action={!loading ? <Button onClick={openCreateEditor}><Plus size={14} /> Create skill</Button> : undefined}
+              />
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                {filteredSkills.map((skill) => (
+                  <button
+                    key={skill.id}
+                    type="button"
+                    onClick={() => setSelectedId(skill.id)}
+                    className={[
+                      'rounded-xl border px-5 py-4 text-left transition-colors duration-150 flex items-start justify-between gap-3',
+                      selectedId === skill.id
+                        ? 'border-border bg-surface shadow-sm'
+                        : 'border-border-light bg-surface hover:border-border hover:shadow-xs',
+                    ].join(' ')}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="text-sm font-semibold text-primary">{skill.id}</div>
+                      <div className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted">{skill.description}</div>
+                    </div>
+                    <DropdownMenu
+                      trigger={({ toggle }) => (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggle(); }}
+                          className="flex items-center justify-center w-7 h-7 rounded-md text-muted hover:text-primary hover:bg-surface-hover transition-colors flex-shrink-0 cursor-pointer"
+                        >
+                          <MoreHorizontal size={16} />
+                        </button>
+                      )}
+                      width={180}
+                    >
+                      <DropdownMenuItem onClick={() => {
+                        setSelectedId(skill.id);
+                        openEditEditor();
+                      }}>Edit skill</DropdownMenuItem>
+                      <DropdownMenuItem destructive onClick={() => {
+                        setSelectedId(skill.id);
+                        void deleteSelectedSkill();
+                      }}>
+                        {deleting ? 'Deleting...' : 'Delete skill'}
+                      </DropdownMenuItem>
+                    </DropdownMenu>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Skill detail panel (shown when a skill is selected) */}
+          {selectedSkill && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" role="button" tabIndex={0} aria-label="Close skill details" onClick={() => setSelectedId(null)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedId(null); }}>
+              <div className="bg-surface rounded-2xl border border-border shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="px-6 py-5 border-b border-border-light">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-[11px] uppercase tracking-[0.18em] text-muted">Skill detail</div>
-                      <h1 className="mt-2 text-2xl font-semibold tracking-tight text-primary">{selectedSkill.id}</h1>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">{selectedSkill.description}</p>
+                      <h2 className="text-xl font-semibold text-primary">{selectedSkill.id}</h2>
+                      <p className="mt-2 text-sm text-secondary">{selectedSkill.description}</p>
                     </div>
-
                     <div className="flex items-center gap-2">
-                      <Button variant={previewMode === 'preview' ? 'secondary' : 'ghost'} onClick={() => setPreviewMode('preview')}>
-                        <Eye size={14} />
-                        Preview
-                      </Button>
-                      <Button variant={previewMode === 'raw' ? 'secondary' : 'ghost'} onClick={() => setPreviewMode('raw')}>
-                        <Code2 size={14} />
-                        Raw
-                      </Button>
-                      <DropdownMenu
-                        trigger={({ toggle }) => (
-                          <IconButton onClick={toggle} label="More" className="border border-border-light bg-surface-secondary">
-                            <MoreHorizontal size={14} />
-                          </IconButton>
-                        )}
-                        width={180}
+                      <Button variant="secondary" size="sm" onClick={() => { openEditEditor(); }}>Edit</Button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedId(null)}
+                        className="flex items-center justify-center w-8 h-8 rounded-full text-muted hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer"
+                        aria-label="Close skill details"
                       >
-                        <DropdownMenuItem onClick={openEditEditor}>Edit skill</DropdownMenuItem>
-                        <DropdownMenuItem destructive onClick={() => void deleteSelectedSkill()}>
-                          {deleting ? 'Deleting...' : 'Delete skill'}
-                        </DropdownMenuItem>
-                      </DropdownMenu>
+                        <X size={18} />
+                      </button>
                     </div>
                   </div>
-
                   {selectedSkill.tools.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {selectedSkill.tools.map((tool) => (
-                        <span key={tool} className="rounded-full border border-border bg-surface-secondary px-2 py-1 text-xs text-secondary">
-                          {tool}
-                        </span>
+                        <Tag key={tool} size="small">{tool}</Tag>
                       ))}
                     </div>
                   )}
                 </div>
-
-                <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">
-                  {previewMode === 'preview' ? (
-                    <div className="rounded-[28px] border border-border-light bg-surface-secondary p-5">
-                      <Markdown content={selectedSkill.prompt_addendum || '_No instructions yet._'} />
-                    </div>
-                  ) : (
-                    <pre className="m-0 whitespace-pre-wrap rounded-[28px] border border-border-light bg-surface-secondary p-5 font-mono text-xs leading-6 text-primary">
-                      {detailDocument}
-                    </pre>
-                  )}
+                <div className="px-6 py-5">
+                  <Markdown content={selectedSkill.prompt_addendum || '_No instructions yet._'} />
                 </div>
-              </>
-            ) : (
-              <div className="flex flex-1 items-center justify-center text-sm text-muted">Select a skill to inspect or create one from the plus menu.</div>
-            )}
-          </div>
-        </>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {editorOpen && (

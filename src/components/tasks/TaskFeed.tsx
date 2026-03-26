@@ -4,6 +4,8 @@ import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
+import type { ApiConfig } from '../../api/client';
+
 interface TaskFeedProps {
   feed: FeedEntry[];
   currentActivity?: string;
@@ -11,6 +13,9 @@ interface TaskFeedProps {
   isStale?: boolean;
   maxWidth?: number;
   modelIconOverrides?: ModelIconOverrides;
+  workflowId?: string;
+  config?: ApiConfig;
+  onApproval?: (taskId: string, approved: boolean) => Promise<void>;
 }
 
 type ToolEntry = Extract<FeedEntry, { kind: 'tool_call' }>;
@@ -61,7 +66,7 @@ function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry
   );
 }
 
-export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, modelIconOverrides }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, modelIconOverrides, workflowId, config, onApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const railContainerRef = useRef<HTMLDivElement>(null);
   const firstMarkerRef = useRef<HTMLDivElement | null>(null);

@@ -1,3 +1,4 @@
+import { Tag, Tooltip } from '@lobehub/ui';
 import type { LiveTask } from '../../api/types';
 
 interface TaskGroupBlockProps {
@@ -12,10 +13,19 @@ const statusIcon = (status: string) => {
 };
 
 const statusClass = (status: string) => {
-  if (status === 'completed' || status === 'skipped') return 'text-green-600';
-  if (status === 'failed' || status === 'cancelled') return 'text-red-500';
-  if (status === 'running') return 'text-blue-500 animate-pulse';
+  if (status === 'completed' || status === 'skipped') return 'text-success';
+  if (status === 'failed' || status === 'cancelled') return 'text-danger';
+  if (status === 'running') return 'text-info animate-pulse';
   return 'text-placeholder';
+};
+
+const agentTagColor = (agentType: string): string => {
+  switch (agentType) {
+    case 'research': return 'blue';
+    case 'code': return 'green';
+    case 'analysis': return 'purple';
+    default: return 'default';
+  }
 };
 
 export function TaskGroupBlock({ tasks }: TaskGroupBlockProps) {
@@ -36,13 +46,17 @@ export function TaskGroupBlock({ tasks }: TaskGroupBlockProps) {
       <div className="px-3.5 py-2 space-y-1.5">
         {tasks.map((task) => (
           <div key={task.id} className="flex items-start gap-2.5 text-sm">
-            <span className={`font-mono text-xs mt-0.5 flex-shrink-0 ${statusClass(task.status)}`}>
-              {statusIcon(task.status)}
-            </span>
+            <Tooltip title={task.status}>
+              <span className={`font-mono text-xs mt-0.5 flex-shrink-0 ${statusClass(task.status)}`}>
+                {statusIcon(task.status)}
+              </span>
+            </Tooltip>
             <div className="flex-1 min-w-0">
               <div className="text-primary text-xs leading-relaxed">{task.description}</div>
               {task.agent_type && task.agent_type !== 'task' && (
-                <div className="text-muted text-[10px] mt-0.5 capitalize">{task.agent_type} agent</div>
+                <Tag color={agentTagColor(task.agent_type)} size="small" className="mt-0.5 capitalize">
+                  {task.agent_type} agent
+                </Tag>
               )}
             </div>
           </div>

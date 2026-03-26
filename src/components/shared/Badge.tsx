@@ -1,3 +1,5 @@
+import { Tag } from '@lobehub/ui';
+
 interface BadgeProps {
   label: string;
   variant?: 'new' | 'status';
@@ -5,29 +7,21 @@ interface BadgeProps {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-surface-tertiary text-muted',
-  planning: 'bg-info/15 text-info',
-  executing: 'bg-warning/15 text-warning',
-  running: 'bg-warning/15 text-warning',
-  completed: 'bg-accent/15 text-accent',
-  failed: 'bg-danger/15 text-danger',
-  cancelled: 'bg-surface-tertiary text-muted',
-  paused: 'bg-surface-secondary text-secondary',
+  pending: 'default',
+  planning: 'info',
+  executing: 'warning',
+  running: 'warning',
+  completed: 'success',
+  failed: 'error',
+  cancelled: 'default',
+  paused: 'purple',
 };
 
 export function Badge({ label, variant = 'status', status }: BadgeProps) {
   if (variant === 'new') {
-    return (
-      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-semibold bg-accent/15 text-accent">
-        New
-      </span>
-    );
+    return <Tag color="green" size="small">New</Tag>;
   }
 
-  const colorClass = statusColors[status ?? label.toLowerCase()] ?? 'bg-surface-tertiary text-muted';
-  return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-2xs font-medium ${colorClass}`}>
-      {label}
-    </span>
-  );
+  const color = statusColors[status ?? label.toLowerCase()] ?? 'default';
+  return <Tag color={color} size="small">{label}</Tag>;
 }

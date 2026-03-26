@@ -1,0 +1,114 @@
+import { useEffect } from 'react';
+import { Hotkey } from '@lobehub/ui';
+import { ActionIcon } from '@lobehub/ui';
+import { X } from 'lucide-react';
+
+interface ShortcutDef {
+  key: string;
+  meta?: boolean;
+  ctrl?: boolean;
+  shift?: boolean;
+  action: () => void;
+  description: string;
+}
+
+const SHORTCUTS: ShortcutDef[] = [];
+
+export function registerShortcuts(shortcuts: ShortcutDef[]) {
+  SHORTCUTS.length = 0;
+  SHORTCUTS.push(...shortcuts);
+}
+
+export function getShortcuts(): ShortcutDef[] {
+  return [...SHORTCUTS];
+}
+
+export function useKeyboardShortcuts(shortcuts: ShortcutDef[]) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+      for (const shortcut of shortcuts) {
+        const metaMatch = shortcut.meta ? (e.metaKey || e.ctrlKey) : true;
+        const shiftMatch = shortcut.shift ? e.shiftKey : !e.shiftKey;
+        const keyMatch = e.key.toLowerCase() === shortcut.key.toLowerCase();
+
+        if (metaMatch && shiftMatch && keyMatch) {
+          e.preventDefault();
+          shortcut.action();
+          return;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [shortcuts]);
+}
+
+function shortcutToKeys(s: { keys: string[] }): string {
+  return s.keys.join('+').replace('⌘', 'meta');
+}
+
+export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null;
+
+  const sections = [
+    {
+      title: 'General',
+      shortcuts: [
+        { keys: ['⌘', 'K'], description: 'Command palette', inverseKeys: 'meta+k' },
+        { keys: ['N'], description: 'New workflow', inverseKeys: 'n' },
+        { keys: ['?'], description: 'Show keyboard shortcuts', inverseKeys: 'shift+?' },
+        { keys: ['Esc'], description: 'Close modal / palette', inverseKeys: 'escape' },
+      ],
+    },
+    {
+      title: 'Navigation',
+      shortcuts: [
+        { keys: ['G', 'T'], description: 'Go to Tasks', inverseKeys: 'g+t' },
+        { keys: ['G', 'F'], description: 'Go to Files', inverseKeys: 'g+f' },
+        { keys: ['G', 'C'], description: 'Go to Connectors', inverseKeys: 'g+c' },
+        { keys: ['G', 'S'], description: 'Go to Skills', inverseKeys: 'g+s' },
+      ],
+    },
+    {
+      title: 'Workflow',
+      shortcuts: [
+        { keys: ['J'], description: 'Next workflow', inverseKeys: 'j' },
+        { keys: ['K'], description: 'Previous workflow', inverseKeys: 'k' },
+        { keys: ['Enter'], description: 'Open selected workflow', inverseKeys: 'enter' },
+      ],
+    },
+  ];
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="w-full max-w-md bg-surface rounded-xl shadow-2xl border border-border overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
+          <h2 className="text-sm font-semibold text-primary">Keyboard Shortcuts</h2>
+          <ActionIcon onClick={onClose} size="small" icon={X} title="Close shortcuts" />
+        </div>
+        <div className="px-5 py-4 space-y-5 max-h-[60vh] overflow-y-auto">
+          {sections.map((section) => (
+            <div key={section.title}>
+              <h3 className="text-xs font-medium text-muted uppercase tracking-wider mb-2">{section.title}</h3>
+              <div className="space-y-1.5">
+                {section.shortcuts.map((s) => (
+                  <div key={s.description} className="flex items-center justify-between py-1">
+                    <span className="text-sm text-secondary">{s.description}</span>
+                    <Hotkey keys={s.inverseKeys} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

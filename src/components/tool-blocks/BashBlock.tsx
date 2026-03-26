@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { Terminal, ChevronDown } from 'lucide-react';
+import { Highlighter } from '@lobehub/ui';
+import { Tooltip } from '@lobehub/ui';
 
 interface BashBlockProps {
   toolName: string;
@@ -23,6 +25,8 @@ export function BashBlock({ toolName, input, status }: BashBlockProps) {
   };
   const label = labelMap[toolName] ?? '$';
 
+  const statusTooltip = status === 'running' ? 'Running' : status === 'done' ? 'Completed' : 'Failed';
+
   return (
     <div className="rounded-xl border border-border bg-surface overflow-hidden my-1.5 transition-all duration-150">
       <button
@@ -40,9 +44,13 @@ export function BashBlock({ toolName, input, status }: BashBlockProps) {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
-          {status === 'running' && <div className="w-1.5 h-1.5 rounded-full bg-muted animate-pulse" />}
-          {status === 'done' && <div className="w-1.5 h-1.5 rounded-full bg-green-500" />}
-          {status === 'failed' && <div className="w-1.5 h-1.5 rounded-full bg-red-500" />}
+          <Tooltip title={statusTooltip}>
+            <div>
+              {status === 'running' && <div className="w-1.5 h-1.5 rounded-full bg-muted animate-pulse" />}
+              {status === 'done' && <div className="w-1.5 h-1.5 rounded-full bg-success" />}
+              {status === 'failed' && <div className="w-1.5 h-1.5 rounded-full bg-danger" />}
+            </div>
+          </Tooltip>
           <ChevronDown
             size={14}
             className={`text-muted transition-transform duration-200 ${expanded ? 'rotate-0' : '-rotate-90'}`}
@@ -54,10 +62,10 @@ export function BashBlock({ toolName, input, status }: BashBlockProps) {
           expanded ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
-        <div className="bg-surface-tertiary rounded-b-xl px-3.5 py-2.5 border-t border-border-light">
-          <pre className="text-xs text-secondary whitespace-pre-wrap break-all font-mono max-h-40 overflow-auto leading-relaxed">
+        <div className="border-t border-border-light">
+          <Highlighter language="bash" copyable variant="filled">
             {command}
-          </pre>
+          </Highlighter>
         </div>
       </div>
     </div>

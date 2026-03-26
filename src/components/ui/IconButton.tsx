@@ -1,46 +1,42 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
-
-/* ─── IconButton ───
- * Minimal icon-only button used for close, menu, settings, etc.
- */
+import { type MouseEventHandler, type ReactNode } from 'react';
+import { ActionIcon as LobeActionIcon } from '@lobehub/ui';
+import { Tooltip } from '@lobehub/ui';
+import type { ActionIconSize } from '@lobehub/ui';
 
 type IconButtonSize = 'sm' | 'md' | 'lg';
 
-interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
+interface IconButtonProps {
+  children?: ReactNode;
   size?: IconButtonSize;
-  /** Makes the button a filled circle (e.g. send button). */
   filled?: boolean;
   label?: string;
+  className?: string;
+  onClick?: MouseEventHandler<HTMLDivElement>;
+  disabled?: boolean;
+  [key: string]: unknown;
 }
 
-const sizeMap: Record<IconButtonSize, string> = {
-  sm: 'w-6 h-6',
-  md: 'w-7 h-7',
-  lg: 'w-9 h-9',
+const sizeMap: Record<IconButtonSize, ActionIconSize> = {
+  sm: 'small',
+  md: 'middle',
+  lg: 'large',
 };
 
-export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ size = 'md', filled = false, label, className = '', children, ...rest }, ref) => {
-    return (
-      <button
-        ref={ref}
-        type="button"
-        aria-label={label}
-        className={[
-          'inline-flex items-center justify-center flex-shrink-0 transition-colors duration-150 cursor-pointer disabled:cursor-default disabled:opacity-30',
-          sizeMap[size],
-          filled
-            ? 'rounded-full bg-primary text-white hover:opacity-90'
-            : 'rounded-lg text-muted hover:text-primary hover:bg-surface-hover',
-          className,
-        ].join(' ')}
-        {...rest}
-      >
-        {children}
-      </button>
-    );
-  },
-);
+export function IconButton({ size = 'md', filled = false, label, className = '', children, onClick, disabled, ...rest }: IconButtonProps) {
+  const btn = (
+    <LobeActionIcon
+      size={sizeMap[size]}
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+      style={filled ? { backgroundColor: 'var(--relay-primary)', color: 'white', borderRadius: '50%' } : undefined}
+      icon={children as any}
+      {...rest}
+    />
+  );
 
-IconButton.displayName = 'IconButton';
+  if (label) {
+    return <Tooltip title={label}>{btn}</Tooltip>;
+  }
+  return btn;
+}

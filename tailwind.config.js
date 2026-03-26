@@ -32,6 +32,15 @@ export default {
         info: '#3B82F6',
         warning: '#F59E0B',
         danger: '#EF4444',
+        success: {
+          DEFAULT: 'rgb(var(--relay-success-rgb))',
+          muted: 'rgb(var(--relay-success-muted-rgb))',
+        },
+        // Sidebar-specific tokens
+        'sidebar-sep': 'var(--relay-sidebar-separator)',
+        'sidebar-accent': 'var(--relay-sidebar-accent)',
+        'avatar-bg': 'var(--relay-avatar-bg)',
+        'status-paused': 'var(--relay-status-paused)',
         // Legacy aliases (kept for backward compat)
         tasklist: 'var(--relay-surface-secondary)',
         taskitem: 'var(--relay-surface-hover)',

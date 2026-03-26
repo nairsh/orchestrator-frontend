@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { ChevronDown, Loader2, ArrowUp, X } from 'lucide-react';
+import { CopyButton, Tooltip } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
 import { IconButton, Textarea } from '../ui';
@@ -32,7 +33,7 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
     : content;
 
   return (
-    <div className={`w-fit max-w-[85%] rounded-2xl px-4.5 py-3.5 text-primary relative ${role === 'user' ? 'bg-surface-secondary' : 'bg-surface-tertiary'}`}>
+    <div className={`w-fit max-w-[85%] rounded-2xl px-4.5 py-3.5 text-primary relative group ${role === 'user' ? 'bg-surface-secondary' : 'bg-surface-tertiary'}`}>
       <div
         className={`font-sans ${role === 'assistant' ? 'font-display' : 'font-sans'}`}
         style={{
@@ -46,6 +47,11 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
           <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-surface-tertiary to-transparent pointer-events-none" />
         )}
       </div>
+      {role === 'assistant' && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <CopyButton content={content} size="small" />
+        </div>
+      )}
       {shouldTruncate && (
         <button
           type="button"
@@ -192,7 +198,10 @@ export function ChatInput({
 
   return (
     <div className={`border-t border-border-light flex-shrink-0 p-4 ${tone === 'warm' ? 'bg-surface-warm' : 'bg-surface'}`}>
-      <div className="flex items-end gap-2 bg-surface rounded-xl border border-border shadow-sm px-3 py-2 max-w-chat mx-auto">
+      <div
+        className="flex items-end gap-2 rounded-lg border border-border shadow-xs px-3 py-2 max-w-chat mx-auto"
+        style={{ backgroundColor: '#FDFBFA' }}
+      >
         <Textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}

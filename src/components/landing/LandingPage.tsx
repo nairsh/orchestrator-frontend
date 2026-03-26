@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { ArrowUp, FileText, X } from 'lucide-react';
+import { FileText, X, Mic, AudioLines, ArrowUp } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
 import { PlusDropdown } from '../dropdowns/PlusDropdown';
 import { Sidebar } from '../layout/Sidebar';
-import { IconButton } from '../ui/IconButton';
 import { Textarea } from '../ui/Input';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
 import { toastError, toastWarning } from '../../lib/toast';
@@ -56,6 +55,7 @@ export function LandingPage({
     'Write unit tests for the files I upload',
     'Research the latest trends in AI agents',
     'Create a detailed project plan from my requirements',
+    'Generate a comprehensive code review report',
   ], []);
 
   const handleSampleClick = useCallback((prompt: string) => {
@@ -114,6 +114,8 @@ export function LandingPage({
     setAttachments([]);
   };
 
+  const hasText = value.trim().length > 0;
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -124,6 +126,7 @@ export function LandingPage({
   return (
     <div className="flex h-full app-ui bg-surface-warm">
       <Sidebar
+        activeNav="computer"
         config={config}
         onOpenSettings={onOpenSettings}
         onSignOut={onSignOut}
@@ -131,97 +134,122 @@ export function LandingPage({
         userLabel={userLabel}
         userAvatarUrl={userAvatarUrl}
         onNavChange={(id) => {
-          if (id === 'tasks') onOpenTasks('tasks');
-          if (id === 'connectors') onOpenTasks('connectors');
-          if (id === 'files') onOpenTasks('files');
-          if (id === 'skills') onOpenTasks('skills');
+          if (id === 'search' || id === 'computer' || id === 'new') {
+            // Search, Computer, and New task all go to landing
+          } else if (id === 'tasks') onOpenTasks('tasks');
+          else if (id === 'connectors') onOpenTasks('connectors');
+          else if (id === 'files') onOpenTasks('files');
+          else if (id === 'skills') onOpenTasks('skills');
         }}
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
       />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center pt-[280px] pl-10">
-        {/* Logo */}
-        <div className="flex items-baseline gap-0.5 mb-10">
-          <span className="font-sans text-[36px] font-medium text-primary tracking-tight">relay</span>
-          <span className="font-sans text-[36px] font-light text-secondary tracking-tight">pro</span>
-        </div>
+      <div className="flex-1 flex flex-col items-center justify-center">
+        {/* Heading */}
+        <h1 className="font-display text-[42px] font-medium text-primary tracking-tight mb-10 text-center" style={{ lineHeight: 1.1 }}>
+          Computer works for you.
+        </h1>
 
         {/* Search box */}
-        <div className="w-[640px] max-w-[calc(100vw-120px)]">
-          <div className="flex flex-col bg-surface rounded-[20px] border border-border shadow p-5 pb-3.5 gap-3.5">
-            {/* Attachments */}
-            {attachments.length > 0 && (
-              <div className="flex flex-wrap gap-2.5">
-                {attachments.map((a) => (
-                  <div
-                    key={a.id}
-                    className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 bg-surface-tertiary border border-border-light font-sans max-w-[320px]"
-                  >
-                    <div className="flex items-center justify-center overflow-hidden flex-shrink-0 w-9 h-9 rounded-sm bg-surface border border-border-light">
-                      {a.media_type.startsWith('image/') ? (
-                        <img
-                          src={`data:${a.media_type};base64,${a.content_base64}`}
-                          alt={a.filename}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <FileText size={18} className="text-muted" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-md leading-5 text-secondary truncate">{a.filename}</div>
-                      <div className="text-sm leading-[18px] text-muted">{formatAttachmentSize(a.size)}</div>
-                    </div>
-                    <IconButton
-                      size="sm"
-                      label={`Remove ${a.filename}`}
-                      onClick={() => setAttachments((prev) => prev.filter((x) => x.id !== a.id))}
+        <div className="w-full max-w-2xl px-4">
+          <div className="rounded-2xl border border-border shadow-sm font-sans" style={{ backgroundColor: '#FDFBFA' }}>
+            <div className="grid grid-cols-[1fr_auto] px-3 pt-3 pb-3">
+              {/* Attachments - span both columns */}
+              {attachments.length > 0 && (
+                <div className="col-start-1 col-end-3 flex flex-wrap gap-2.5 pb-2">
+                  {attachments.map((a) => (
+                    <div
+                      key={a.id}
+                      className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 bg-surface-tertiary border border-border-light font-sans max-w-[320px]"
                     >
-                      <X size={16} />
-                    </IconButton>
-                  </div>
-                ))}
+                      <div className="flex items-center justify-center overflow-hidden flex-shrink-0 w-9 h-9 rounded-sm bg-surface border border-border-light">
+                        {a.media_type.startsWith('image/') ? (
+                          <img
+                            src={`data:${a.media_type};base64,${a.content_base64}`}
+                            alt={a.filename}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <FileText size={18} className="text-muted" />
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-md leading-5 text-secondary truncate">{a.filename}</div>
+                        <div className="text-sm leading-[18px] text-muted">{formatAttachmentSize(a.size)}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setAttachments((prev) => prev.filter((x) => x.id !== a.id))}
+                        className="h-6 w-6 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors cursor-pointer"
+                        aria-label={`Remove ${a.filename}`}
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Textarea - spans both columns */}
+              <div className="col-start-1 col-end-3 pb-2 ml-1 mt-0.5 overflow-hidden">
+                <Textarea
+                  ref={textareaRef}
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="What should we work on next?"
+                  minHeight={48}
+                  maxHeight={200}
+                  autoFocus
+                  className="text-base"
+                />
               </div>
-            )}
 
-            {/* Input area */}
-            <Textarea
-              ref={textareaRef}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask anything..."
-              maxHeight={200}
-              autoFocus
-            />
+              {/* Left: Plus + Model selector */}
+              <div className="col-start-1 row-start-3 flex items-center gap-1.5 min-w-0">
+                <PlusDropdown
+                  ghost
+                  openUpward
+                  onUploadFiles={(files) => void handleUploadFiles(files)}
+                  onOpenConnectors={() => onOpenTasks('connectors')}
+                />
 
-            {/* Tools row */}
-            <div className="flex items-center pt-1">
-              {/* Left: Plus button */}
-              <PlusDropdown
-                openUpward
-                onUploadFiles={(files) => void handleUploadFiles(files)}
-                onOpenConnectors={() => onOpenTasks('connectors')}
-              />
-
-              {/* Spacer */}
-              <div className="flex-1" />
-
-              {/* Right section: Model + Send */}
-              <div className="flex items-center gap-4">
                 <ModelDropdown
                   config={apiConfig}
                   selected={selectedModel}
                   onSelect={setSelectedModel}
                   modelIconOverrides={modelIconOverrides}
+                  align="left"
+                  direction="up"
+                  size="small"
                 />
+              </div>
 
-                {/* Send button */}
-                <IconButton size="lg" filled onClick={handleSubmit} label="Send">
-                  <ArrowUp size={16} />
-                </IconButton>
+              {/* Right: Mic + Send */}
+              <div className="col-start-2 row-start-3 flex items-center justify-self-end gap-1.5">
+                {!hasText && (
+                  <button
+                    type="button"
+                    className="h-8 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors duration-200 cursor-pointer aspect-[9/8]"
+                    aria-label="Voice input"
+                  >
+                    <Mic size={18} />
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className={`h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer aspect-[9/8] ${
+                    hasText ? 'opacity-100' : 'opacity-90 hover:opacity-100'
+                  }`}
+                  style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
+                  aria-label={hasText ? 'Send' : 'Voice mode'}
+                >
+                  {hasText ? <ArrowUp size={16} /> : <AudioLines size={16} />}
+                </button>
               </div>
             </div>
           </div>
@@ -229,30 +257,20 @@ export function LandingPage({
 
         {/* Sample prompts */}
         {value === '' && attachments.length === 0 && (
-          <div className="flex flex-wrap justify-center gap-2 mt-4 w-[640px] max-w-[calc(100vw-120px)]">
-            {SAMPLE_PROMPTS.map((prompt) => (
-              <button
-                key={prompt}
-                type="button"
-                onClick={() => handleSampleClick(prompt)}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3 py-1.5 font-sans text-sm text-secondary hover:bg-surface-tertiary hover:border-border transition-colors cursor-pointer"
-              >
-                {prompt}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Templates Gallery */}
-        {value === '' && attachments.length === 0 && (
-          <div className="mt-8 w-[640px] max-w-[calc(100vw-120px)]">
-            <TemplatesGallery
-              config={config as unknown as ApiConfig}
-              onSelectTemplate={(text) => {
-                setValue(text);
-                textareaRef.current?.focus();
-              }}
-            />
+          <div className="w-full max-w-2xl px-4 mt-6 mx-auto">
+            {/* Text suggestions */}
+            <div className="flex flex-col gap-3">
+              {SAMPLE_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => handleSampleClick(prompt)}
+                  className="text-left font-sans text-base text-muted hover:text-secondary transition-colors cursor-pointer bg-transparent border-none p-0"
+                >
+                  {prompt}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>

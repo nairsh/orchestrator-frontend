@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { PlusDropdown } from '../dropdowns/PlusDropdown';
+import { IconButton, Textarea } from '../ui';
 import { toastWarning } from '../../lib/toast';
 
 interface CommandInputProps {
@@ -38,13 +39,6 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setValue(e.target.value);
-    const el = e.target;
-    el.style.height = 'auto';
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
-  };
-
   return (
     <div
       className="flex-shrink-0 flex flex-col items-center gap-4 px-16 pb-6"
@@ -60,16 +54,15 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
         style={{ maxWidth }}
       >
         {/* Text */}
-        <textarea
+        <Textarea
           ref={textareaRef}
           value={value}
-          onChange={handleChange}
+          onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Type a command..."
+          placeholder={disabled ? 'Workflow in progress…' : 'Type a follow-up or command...'}
           disabled={disabled}
-          rows={1}
-          className="w-full resize-none bg-transparent text-md font-sans text-primary placeholder:text-placeholder outline-none"
-          style={{ minHeight: 24, maxHeight: 160 }}
+          maxHeight={160}
+          className={disabled ? 'opacity-50' : ''}
         />
 
         {/* Bottom row */}
@@ -85,24 +78,23 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
             }}
           />
 
-          {/* Right: send */}
+          {/* Right: model label + send */}
           <div className="flex items-center gap-3">
             {modelLabel && (
-              <div className="flex items-center gap-1.5 font-sans text-md font-medium text-subtle px-2.5 py-1.5 rounded-md">
-                <span className="font-sans text-md font-medium text-subtle">{modelLabel}</span>
-              </div>
+              <span className="font-sans text-md font-medium text-subtle px-2.5 py-1.5 rounded-md">
+                {modelLabel}
+              </span>
             )}
-            <button
-              type="button"
+            <IconButton
+              size="lg"
+              filled
               onClick={handleSubmit}
               disabled={!value.trim() || disabled}
-              className={[
-                'w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-colors duration-150 cursor-pointer disabled:cursor-default',
-                value.trim() ? 'bg-ink' : 'bg-placeholder',
-              ].join(' ')}
+              label="Send"
+              className={value.trim() ? '' : '!bg-placeholder'}
             >
-              <ArrowUp size={16} className="text-white" />
-            </button>
+              <ArrowUp size={16} />
+            </IconButton>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Coins, MessageSquare, ArrowUp } from 'lucide-react';
+import { Coins, MessageSquare, ArrowUp, Search } from 'lucide-react';
+import { Empty } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
 import { TaskItem } from './TaskItem';
@@ -10,9 +11,10 @@ import { StatusFilterDropdown, type WorkflowStatusFilter } from '../dropdowns/St
 import { useBillingBalance } from '../../hooks/useBillingBalance';
 import { PlusDropdown } from '../dropdowns/PlusDropdown';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
-import { Button, IconButton, Input, Modal, ModalHeader, ModalBody, ModalFooter, Textarea } from '../ui';
+import { Button, IconButton, Input, Modal, ModalHeader, ModalBody, ModalFooter, Textarea, SearchInput } from '../ui';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { parseApiTimestampMs } from '../../lib/time';
+import { SkeletonTaskItem } from '../ui/Skeleton';
 
 interface TaskListProps {
   workflows: WorkflowSummary[];
@@ -39,6 +41,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [nowTs, setNowTs] = useState(() => Date.now());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
   const startInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -55,7 +59,15 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   }, []);
 
   const sortedWorkflows = useMemo(() => {
-    const arr = [...workflows];
+    let arr = [...workflows];
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      arr = arr.filter((wf) => {
+        const name = getDisplayName(wf.id) ?? wf.objective;
+        return name.toLowerCase().includes(q) || wf.objective.toLowerCase().includes(q) || wf.id.toLowerCase().includes(q);
+      });
+    }
     arr.sort((a, b) => {
       const pin = sortKey(a.id) - sortKey(b.id);
       if (pin !== 0) return pin;
@@ -64,7 +76,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       return bTs - aTs;
     });
     return arr;
-  }, [workflows, sortKey]);
+  }, [workflows, sortKey, searchQuery, getDisplayName]);
 
   useEffect(() => {
     if (!renameId) return;
@@ -129,10 +141,24 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     <div className="flex flex-col h-full flex-shrink-0 w-full bg-surface-warm">
       {/* Header */}
       <div className="flex items-center justify-between flex-shrink-0 h-12 px-6 border-b border-border bg-surface-warm">
-        <span className="font-sans text-[16px] font-medium text-primary">Tasks</span>
+        {showSearch ? (
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            onEscape={() => { setShowSearch(false); setSearchQuery(''); }}
+            autoFocus
+            placeholder="Search workflows…"
+          />
+        ) : (
+          <>
+            <span className="font-sans text-[16px] font-medium text-primary">Tasks</span>
+            <div className="flex items-center gap-4">
+              {loading && <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse" />}
 
-        <div className="flex items-center gap-4">
-          {loading && <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse" />}
+              {/* Search button */}
+              <IconButton size="md" label="Search workflows" onClick={() => setShowSearch(true)}>
+                <Search size={16} className="text-muted" />
+              </IconButton>
 
           {/* Coins pill */}
           <Button
@@ -168,7 +194,9 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
 
           {/* Filter */}
           <StatusFilterDropdown value={statusFilter} onChange={onStatusFilterChange} />
-        </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Main content area */}
@@ -196,26 +224,34 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
                 onSelect={onSelectModel}
                 modelIconOverrides={modelIconOverrides}
               />
-              <IconButton size="lg" filled onClick={handleStartClick} label="Start workflow">
-                <ArrowUp size={14} />
-              </IconButton>
+              <button
+                type="button"
+                onClick={handleStartClick}
+                aria-label="Start workflow"
+                className="flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity cursor-pointer"
+                style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
+              >
+                <ArrowUp size={15} />
+              </button>
             </div>
           </div>
         </div>
 
         {/* Task list */}
         <div className="flex flex-col gap-2">
+          {loading && sortedWorkflows.length === 0 && (
+            <>
+              <SkeletonTaskItem />
+              <SkeletonTaskItem />
+              <SkeletonTaskItem />
+            </>
+          )}
           {sortedWorkflows.length === 0 && !loading && (
-            <div className="text-center pt-12 flex flex-col items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-tertiary flex items-center justify-center">
-                <span className="text-lg">✨</span>
-              </div>
-              <div className="font-sans text-base text-placeholder">
-                No tasks yet
-              </div>
-              <div className="font-sans text-sm text-placeholder/70">
-                Start a workflow using the input above
-              </div>
+            <div className="pt-8">
+              <Empty
+                description="Start a workflow using the input above"
+                emoji="📋"
+              />
             </div>
           )}
           {sortedWorkflows.map((wf) => (

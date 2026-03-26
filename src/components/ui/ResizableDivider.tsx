@@ -93,8 +93,7 @@ export function ResizableDivider({
 
   return (
     <div
-      className="relative flex items-center justify-center"
-      style={{ width: 12, cursor: 'col-resize', background: 'transparent', zIndex: 10 }}
+      className="relative flex items-center justify-center w-3 cursor-col-resize z-10"
       onMouseDown={handleMouseDown}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -102,14 +101,8 @@ export function ResizableDivider({
     >
       <div className="w-px h-full bg-border" />
       <div
-        className="absolute bg-muted"
-        style={{
-          width: 4,
-          height: 48,
-          borderRadius: 999,
-          opacity: pillOpacity,
-          transition: 'opacity 120ms ease',
-        }}
+        className="absolute w-1 h-12 rounded-full bg-muted transition-opacity duration-100"
+        style={{ opacity: pillOpacity }}
       />
     </div>
   );

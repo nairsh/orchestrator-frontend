@@ -1,38 +1,38 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Bot, Cpu, Eye, Sparkles, Star, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Cpu } from 'lucide-react';
 
 export const MODEL_ICON_LOCAL_STORAGE_KEY = 'relay_model_icon_overrides';
 export const MODEL_ICON_METADATA_NAMESPACE = 'relayPro';
 export const MODEL_ICON_METADATA_FIELD = 'modelIconOverrides';
 
-type FallbackGlyph = 'cpu' | 'bot' | 'zap' | 'star' | 'sparkles' | 'eye';
-
 export interface ModelIconDefinition {
   key: string;
   label: string;
   src: string;
-  fallback: FallbackGlyph;
 }
 
 export type ModelIconOverrides = Record<string, string>;
 
 export const MODEL_ICON_DEFINITIONS: ModelIconDefinition[] = [
-  { key: 'generic', label: 'Generic model', src: '/model-icons/generic.svg', fallback: 'cpu' },
-  { key: 'openai', label: 'OpenAI / GPT', src: '/model-icons/gpt-logo.webp', fallback: 'zap' },
-  { key: 'anthropic', label: 'Claude', src: '/model-icons/claude-logo.png', fallback: 'sparkles' },
-  { key: 'google', label: 'Gemini', src: '/model-icons/gemini-logo.png', fallback: 'star' },
-  { key: 'perplexity', label: 'Perplexity / Sonar', src: '/model-icons/perplexity.svg', fallback: 'bot' },
-  { key: 'groq', label: 'Groq', src: '/model-icons/groq.png', fallback: 'cpu' },
-  { key: 'mistral', label: 'Mistral', src: '/model-icons/mistral.png', fallback: 'cpu' },
-  { key: 'zai', label: 'Z.AI / GLM', src: '/model-icons/zai.png', fallback: 'cpu' },
-  { key: 'nvidia', label: 'NVIDIA / Nemotron', src: '/model-icons/nvidia.svg', fallback: 'eye' },
-  { key: 'deepseek', label: 'DeepSeek', src: '/model-icons/deepseek.svg', fallback: 'cpu' },
-  { key: 'qwen', label: 'Qwen', src: '/model-icons/qwen.jpeg', fallback: 'cpu' },
-  { key: 'minimax', label: 'MiniMax', src: '/model-icons/xiaomi.png', fallback: 'cpu' },
-  { key: 'kimi', label: 'Kimi', src: '/model-icons/kimi.png', fallback: 'cpu' },
+  { key: 'generic',     label: 'Generic model',       src: '/model-icons/generic.svg' },
+  { key: 'openai',      label: 'OpenAI / GPT',        src: '/model-icons/openai.svg' },
+  { key: 'anthropic',   label: 'Claude',               src: '/model-icons/claude.svg' },
+  { key: 'google',      label: 'Gemini',               src: '/model-icons/gemini.svg' },
+  { key: 'perplexity',  label: 'Perplexity / Sonar',  src: '/model-icons/perplexity.svg' },
+  { key: 'groq',        label: 'Groq',                 src: '/model-icons/groq.svg' },
+  { key: 'mistral',     label: 'Mistral',              src: '/model-icons/mistral.svg' },
+  { key: 'zai',         label: 'Z.AI / GLM',           src: '/model-icons/zai.svg' },
+  { key: 'nvidia',      label: 'NVIDIA / Nemotron',    src: '/model-icons/nvidia.svg' },
+  { key: 'deepseek',    label: 'DeepSeek',             src: '/model-icons/deepseek.svg' },
+  { key: 'qwen',        label: 'Qwen',                 src: '/model-icons/qwen.svg' },
+  { key: 'minimax',     label: 'MiniMax',              src: '/model-icons/minimax.svg' },
+  { key: 'kimi',        label: 'Kimi',                 src: '/model-icons/kimi.svg' },
+  { key: 'meta',        label: 'Meta / Llama',         src: '/model-icons/meta.svg' },
 ];
 
-const ICONS_BY_KEY = new Map<string, ModelIconDefinition>(MODEL_ICON_DEFINITIONS.map((entry) => [entry.key, entry]));
+const ICONS_BY_KEY = new Map<string, ModelIconDefinition>(
+  MODEL_ICON_DEFINITIONS.map((entry) => [entry.key, entry])
+);
 
 function toLower(value: string | undefined | null): string {
   return (value ?? '').toLowerCase();
@@ -126,8 +126,15 @@ export function inferModelIconKey(modelId: string, provider?: string): string {
   if (combined.includes('minimax')) {
     return 'minimax';
   }
-  if (combined.includes('kimi')) {
+  if (combined.includes('kimi') || combined.includes('moonshot')) {
     return 'kimi';
+  }
+  if (
+    lowerProvider.includes('meta') ||
+    combined.includes('meta') ||
+    combined.includes('llama')
+  ) {
+    return 'meta';
   }
   return 'generic';
 }
@@ -165,26 +172,14 @@ export function withModelIconOverridesInUnsafeMetadata(
   };
 }
 
-function FallbackIcon({ glyph, size }: { glyph: FallbackGlyph; size: number }) {
-  const className = 'text-muted';
-  if (glyph === 'bot') return <Bot size={size} className={className} />;
-  if (glyph === 'zap') return <Zap size={size} className={className} />;
-  if (glyph === 'star') return <Star size={size} className={className} />;
-  if (glyph === 'sparkles') return <Sparkles size={size} className={className} />;
-  if (glyph === 'eye') return <Eye size={size} className={className} />;
-  return <Cpu size={size} className={className} />;
-}
-
 export function ModelIcon({ iconKey, size = 16 }: { iconKey: string; size?: number }) {
-  const definition = useMemo(() => getModelIconDefinition(iconKey), [iconKey]);
+  const definition = ICONS_BY_KEY.get(iconKey) ?? ICONS_BY_KEY.get('generic')!;
   const [loadFailed, setLoadFailed] = useState(false);
 
-  useEffect(() => {
-    setLoadFailed(false);
-  }, [iconKey]);
+  useEffect(() => { setLoadFailed(false); }, [iconKey]);
 
   if (loadFailed || !definition.src) {
-    return <FallbackIcon glyph={definition.fallback} size={size} />;
+    return <Cpu size={size} className="text-muted" />;
   }
 
   return (
@@ -193,7 +188,7 @@ export function ModelIcon({ iconKey, size = 16 }: { iconKey: string; size?: numb
       alt={definition.label}
       width={size}
       height={size}
-      className="rounded-sm object-contain"
+      className="object-contain grayscale brightness-0"
       onError={() => setLoadFailed(true)}
     />
   );

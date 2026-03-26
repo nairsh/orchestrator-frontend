@@ -1,10 +1,12 @@
-import { Check, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { Tooltip } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
 import { cancelWorkflow } from '../../api/client';
 import { TaskContextMenu } from '../dropdowns/TaskContextMenu';
 import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
 import { parseApiTimestampMs } from '../../lib/time';
+import { StatusDot } from '../shared/StatusDot';
 
 interface TaskItemProps {
   workflow: WorkflowSummary;
@@ -18,22 +20,13 @@ interface TaskItemProps {
   onRename?: () => void;
 }
 
-const STATUS_ICON_COLOR: Record<string, string> = {
-  pending: 'bg-placeholder',
-  executing: 'bg-warning',
-  completed: 'bg-muted',
-  failed: 'bg-danger',
-  cancelled: 'bg-placeholder',
-  paused: 'bg-purple-500',
-};
-
 const STATUS_TEXT_COLOR: Record<string, string> = {
   pending: 'text-placeholder',
   executing: 'text-warning',
   completed: 'text-muted',
   failed: 'text-danger',
   cancelled: 'text-placeholder',
-  paused: 'text-purple-500',
+  paused: 'text-status-paused',
 };
 
 function getSubtitle(workflow: WorkflowSummary): string {
@@ -100,8 +93,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
     }
   };
 
-  const dotColor = STATUS_ICON_COLOR[workflow.status] ?? 'bg-placeholder';
-  const checkColor = STATUS_TEXT_COLOR[workflow.status] ?? 'text-placeholder';
+  const dotColor = STATUS_TEXT_COLOR[workflow.status] ?? 'text-placeholder';
   const isComplete = workflow.status === 'completed' || workflow.status === 'cancelled';
   const subtitle = getSubtitle(workflow);
   const displayTitle = (title ?? workflow.objective).trim() || workflow.objective;
@@ -117,16 +109,10 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
       ].join(' ')}
       onClick={onClick}
     >
-      {/* Left side: icon + title + chevron + subtitle */}
+      {/* Left side: status dot + title + chevron + subtitle */}
       <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-        {/* Status icon */}
-        {isComplete ? (
-          <Check size={14} className={`flex-shrink-0 ${checkColor}`} strokeWidth={2} />
-        ) : workflow.status === 'executing' ? (
-          <div className={`w-2 h-2 rounded-full animate-pulse flex-shrink-0 ${dotColor}`} />
-        ) : (
-          <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
-        )}
+        {/* Status indicator */}
+        <StatusDot status={workflow.status} />
 
         {/* Title */}
         <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0">
@@ -144,12 +130,14 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
         )}
       </div>
 
-      {/* Right side: context menu */}
+      {/* Right side: timestamp + context menu */}
       <div className="flex items-center gap-3 flex-shrink-0">
         {relativeRunTime && (
-          <span className="font-sans text-xs text-muted whitespace-nowrap" title={runDateMs !== null ? new Date(runDateMs).toLocaleString() : ''}>
-            {relativeRunTime}
-          </span>
+          <Tooltip title={runDateMs !== null ? new Date(runDateMs).toLocaleString() : ''}>
+            <span className={`font-sans text-xs whitespace-nowrap ${dotColor}`}>
+              {relativeRunTime}
+            </span>
+          </Tooltip>
         )}
         <TaskContextMenu onDelete={() => void handleDelete()} onPin={onPin} onRename={onRename} />
       </div>

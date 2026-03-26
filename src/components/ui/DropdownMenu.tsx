@@ -19,6 +19,8 @@ interface DropdownMenuProps {
   width?: number;
   /** Max height in px. Default: 360 */
   maxHeight?: number;
+  /** Close the menu when a menu item is clicked. Default: true */
+  closeOnSelect?: boolean;
   /** Additional className on the outer wrapper. */
   className?: string;
 }
@@ -30,6 +32,7 @@ export function DropdownMenu({
   direction = 'down',
   width = 224,
   maxHeight = 360,
+  closeOnSelect = true,
   className = '',
 }: DropdownMenuProps) {
   const [open, setOpen] = useState(false);
@@ -63,6 +66,7 @@ export function DropdownMenu({
           pointerEvents: open ? 'auto' : 'none',
         }}
         role="menu"
+        onClick={() => { if (closeOnSelect) setOpen(false); }}
       >
         {children}
       </div>

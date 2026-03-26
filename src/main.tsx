@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { ClerkProvider, useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import App from './App';
 import './styles/globals.css';
+import { LobeUIProvider } from './components/LobeUIProvider';
 import {
   MODEL_ICON_LOCAL_STORAGE_KEY,
   extractModelIconOverridesFromUnsafeMetadata,
@@ -62,6 +63,23 @@ function sameOverrides(a: ModelIconOverrides, b: ModelIconOverrides): boolean {
     if (a[key] !== b[key]) return false;
   }
   return true;
+}
+
+function getThemeAppearance(): 'dark' | 'light' {
+  const attr = document.documentElement.getAttribute('data-theme');
+  return attr === 'light' ? 'light' : 'dark';
+}
+
+function useThemeAppearance(): 'dark' | 'light' {
+  const [appearance, setAppearance] = useState<'dark' | 'light'>(getThemeAppearance);
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setAppearance(getThemeAppearance());
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+  return appearance;
 }
 
 function ClerkAwareApp() {
@@ -139,12 +157,21 @@ function LocalAwareApp() {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    {clerkPublishableKey ? (
-      <ClerkProvider publishableKey={clerkPublishableKey}>
-        <ClerkAwareApp />
-      </ClerkProvider>
-    ) : (
-      <LocalAwareApp />
-    )}
+    <AppWithLobeUI />
   </React.StrictMode>
 );
+
+function AppWithLobeUI() {
+  const appearance = useThemeAppearance();
+  return (
+    <LobeUIProvider appearance={appearance}>
+      {clerkPublishableKey ? (
+        <ClerkProvider publishableKey={clerkPublishableKey}>
+          <ClerkAwareApp />
+        </ClerkProvider>
+      ) : (
+        <LocalAwareApp />
+      )}
+    </LobeUIProvider>
+  );
+}

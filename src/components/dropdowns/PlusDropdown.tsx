@@ -3,15 +3,19 @@ import { Plus, Paperclip, Plug, ChevronRight } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface PlusDropdownProps {
-  /** When true, renders as a circle with border (landing page style). Default: false (dark filled, task input style). */
+  /** When true, renders as a circle with border (task input style). Default: false (dark filled). */
   openUpward?: boolean;
   /** Force outlined button style regardless of dropdown direction. */
   outlined?: boolean;
+  /** Ghost style: no background or border, just the plain icon. Used on the landing page. */
+  ghost?: boolean;
+  /** Size of the trigger button. Default 'md'. */
+  size?: 'sm' | 'md';
   onUploadFiles?: (files: File[]) => void;
   onOpenConnectors?: () => void;
 }
 
-export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOpenConnectors }: PlusDropdownProps) {
+export function PlusDropdown({ openUpward = false, outlined, ghost = false, size = 'md', onUploadFiles, onOpenConnectors }: PlusDropdownProps) {
   const [open, setOpen] = useState(false);
   const [menuDirection, setMenuDirection] = useState<'up' | 'down'>('down');
   const ref = useRef<HTMLDivElement>(null);
@@ -73,12 +77,14 @@ export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOp
         aria-haspopup="menu"
         className={[
           'flex items-center justify-center flex-shrink-0 transition-colors duration-fast cursor-pointer',
-          useOutlinedStyle
-            ? `w-8 h-8 rounded-full border border-border ${open ? 'bg-surface-tertiary' : 'bg-transparent'}`
-            : 'w-9 h-9 rounded-full bg-ink',
+          ghost
+            ? 'h-8 rounded-full aspect-[9/8] text-secondary hover:text-primary'
+            : useOutlinedStyle
+              ? `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full border border-border ${open ? 'bg-surface-tertiary' : 'bg-transparent'}`
+              : `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full bg-ink`,
         ].join(' ')}
       >
-        <Plus size={useOutlinedStyle ? 16 : 14} className={useOutlinedStyle ? 'text-secondary' : 'text-primary'} />
+        <Plus size={ghost ? 20 : size === 'sm' ? 14 : useOutlinedStyle ? 18 : 14} className={ghost ? '' : useOutlinedStyle ? 'text-secondary' : 'text-primary'} />
       </button>
 
       <div
@@ -88,6 +94,7 @@ export function PlusDropdown({ openUpward = false, outlined, onUploadFiles, onOp
           menuDirection === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
         ].join(' ')}
         style={{
+          fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
           transition: 'opacity 100ms ease, transform 100ms ease',
           opacity: open ? 1 : 0,
           transform: open ? 'translateY(0)' : menuDirection === 'up' ? 'translateY(4px)' : 'translateY(-4px)',

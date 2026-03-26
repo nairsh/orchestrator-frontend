@@ -181,8 +181,10 @@ export interface WorkflowStreamState {
   isTerminal: boolean;
   currentActivity: string;
   isStale: boolean;
+  workflowStatus: string;
   error?: string;
   sendMessage: (text: string) => Promise<void>;
+  handleApproval: (taskId: string, approved: boolean) => Promise<void>;
 }
 
 const STALE_THRESHOLD_MS = 30_000;
@@ -200,7 +202,9 @@ export function useWorkflowStream(
     isTerminal: false,
     currentActivity: 'Initializing…',
     isStale: false,
+    workflowStatus: 'pending',
     sendMessage: async () => undefined,
+    handleApproval: async () => undefined,
   }));
 
   const connectionRef = useRef<{ close: () => void } | null>(null);
@@ -901,6 +905,7 @@ export function useWorkflowStream(
             feed: nextFeed,
             isTerminal: true,
             currentActivity: 'Completed',
+            workflowStatus: 'completed',
           };
         }
 
@@ -917,6 +922,7 @@ export function useWorkflowStream(
             feed: [...feed, { kind: 'ai_message', text: `Workflow failed: ${errorText}` }],
             isTerminal: true,
             currentActivity: 'Failed',
+            workflowStatus: 'failed',
             error: data.error,
           };
         }
@@ -950,6 +956,7 @@ export function useWorkflowStream(
         liveTasks: [],
         isTerminal: false,
         currentActivity: 'Starting environment…',
+        workflowStatus: 'executing',
       }));
 
       try {
@@ -969,5 +976,13 @@ export function useWorkflowStream(
     [config, workflowId, connect]
   );
 
-  return { ...state, sendMessage };
+  const handleApproval = useCallback(
+    async (taskId: string, approved: boolean) => {
+      const { approveWorkflowTask } = await import('../api/client');
+      await approveWorkflowTask(config, workflowId, taskId, approved);
+    },
+    [config, workflowId]
+  );
+
+  return { ...state, sendMessage, handleApproval };
 }

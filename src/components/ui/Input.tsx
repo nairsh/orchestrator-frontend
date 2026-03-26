@@ -43,10 +43,12 @@ Input.displayName = 'Input';
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Max height before scrolling (px). Default: 160 */
   maxHeight?: number;
+  /** Min height (px). Default: 24 */
+  minHeight?: number;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ maxHeight = 160, className = '', onChange, ...rest }, ref) => {
+  ({ maxHeight = 160, minHeight = 24, className = '', onChange, ...rest }, ref) => {
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const el = e.target;
       el.style.height = 'auto';
@@ -58,12 +60,15 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         onChange={handleChange}
+        spellCheck={rest.spellCheck ?? false}
+        autoCorrect={(rest.autoCorrect as string | undefined) ?? 'off'}
+        autoCapitalize={(rest.autoCapitalize as string | undefined) ?? 'off'}
         className={[
           'w-full resize-none bg-transparent text-md font-sans text-primary',
           'placeholder:text-placeholder outline-none',
           className,
         ].join(' ')}
-        style={{ minHeight: 24, maxHeight }}
+        style={{ minHeight, maxHeight, overflowX: 'hidden' }}
         rows={1}
         {...rest}
       />
