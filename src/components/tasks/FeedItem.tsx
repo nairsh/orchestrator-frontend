@@ -1,6 +1,5 @@
 import { CircleAlert } from 'lucide-react';
-import { Alert } from '@lobehub/ui';
-import { Highlighter } from '@lobehub/ui';
+import { Alert, Highlighter } from '@lobehub/ui';
 import type { FeedEntry } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { CitationCard } from '../CitationCard';
@@ -8,6 +7,24 @@ import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { FeedTaskGroup } from './feed/FeedTaskGroup';
 import { FeedToolCall } from './feed/FeedToolCall';
 import { parseCitationsFromText } from './feed/feedHelpers';
+
+const TOOL_LABELS: Record<string, string> = {
+  bash: 'Run Command',
+  bash_execute: 'Run Command',
+  file_write: 'Write File',
+  file_read: 'Read File',
+  file_edit: 'Edit File',
+  file_delete: 'Delete File',
+  glob: 'Find Files',
+  grep: 'Search Files',
+  web_search: 'Search Web',
+  fetch_url: 'Fetch URL',
+  code_execution: 'Execute Code',
+};
+
+function humanizeToolName(name: string): string {
+  return TOOL_LABELS[name] ?? name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 function UserBubble({ text }: { text: string }) {
   return (
@@ -80,7 +97,7 @@ function BashApprovalBlock({
     <Alert
       type="warning"
       variant="outlined"
-      message={`Approval needed for ${toolName}`}
+      message={`Approval needed — ${humanizeToolName(toolName)}`}
       extra={
         <>
           <Highlighter language="bash" copyable variant="filled">{command}</Highlighter>

@@ -2,6 +2,25 @@ import { Check, X, ShieldAlert } from 'lucide-react';
 import { Highlighter, Tag } from '@lobehub/ui';
 import { Button } from './ui/Button';
 
+const TOOL_LABELS: Record<string, string> = {
+  bash: 'Run Command',
+  bash_execute: 'Run Command',
+  file_write: 'Write File',
+  file_read: 'Read File',
+  file_edit: 'Edit File',
+  file_delete: 'Delete File',
+  glob: 'Find Files',
+  grep: 'Search Files',
+  web_search: 'Search Web',
+  fetch_url: 'Fetch URL',
+  code_execution: 'Execute Code',
+  spawn_subagent: 'Start Agent Task',
+};
+
+function humanizeToolName(name: string): string {
+  return TOOL_LABELS[name] ?? name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 interface ApprovalGateProps {
   taskId: string;
   toolName: string;
@@ -37,7 +56,7 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
             )}
           </div>
           <p className="text-xs text-secondary mt-1">
-            <span className="font-medium">{toolName}</span>
+            <span className="font-medium">{humanizeToolName(toolName)}</span>
             {reason && <span> — {reason}</span>}
           </p>
           {command && (

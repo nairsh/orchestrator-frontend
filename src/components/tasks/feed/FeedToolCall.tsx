@@ -27,7 +27,6 @@ function TodoList({ items }: { items: TodoDisplay[] }) {
                 <div className={`font-sans text-sm leading-snug ${isDone ? 'text-placeholder line-through' : 'text-secondary'}`}>
                   {item.description}
                 </div>
-                <div className="font-sans text-2xs text-placeholder mt-0.5">{item.id}</div>
               </div>
             </div>
           );
@@ -97,7 +96,8 @@ export function FeedToolCall({
       return `Search${where}${pattern ? `: ${pattern}` : ''}`;
     }
     if (isBash) return 'Running command';
-    return toolName;
+    // Fallback: humanize raw slug (e.g., "send_message" → "Send Message")
+    return toolName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }, [command, fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;
