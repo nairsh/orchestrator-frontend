@@ -82,7 +82,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
       const result = await cancelWorkflow(config, workflow.id);
 
       if (result.status === 'cancelled') {
-        toastInfo('Workflow cancelled', 'Backend delete mode is not active yet. Restart backend to fully delete workflows.');
+        toastSuccess('Workflow stopped', 'It will no longer appear once you refresh.');
       } else {
         toastSuccess('Workflow deleted');
       }

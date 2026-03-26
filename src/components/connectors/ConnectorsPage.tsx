@@ -147,7 +147,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
           <SegmentedControl
             value={tab}
             options={[
-              { label: 'All', value: 'connectors' as Tab },
+              { label: 'Connectors', value: 'connectors' as Tab },
               { label: 'Schedules', value: 'schedules' as Tab },
               { label: 'Templates', value: 'templates' as Tab },
               { label: 'Memory', value: 'memory' as Tab },
@@ -161,9 +161,9 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
       {!canUseApi ? (
         <div className="flex flex-1 items-center justify-center px-6">
           <div className="max-w-lg rounded-[28px] border border-border-light bg-surface p-8 text-center shadow-sm">
-            <div className="text-lg font-semibold text-primary">Sign in to activate orchestrator surfaces.</div>
+            <div className="text-lg font-semibold text-primary">Sign in to continue.</div>
             <div className="mt-2 text-sm leading-6 text-secondary">
-              Connectors, schedules, memory, templates, and teams all require authenticated API access.
+              Connectors, schedules, memory, templates, and teams all require you to be signed in.
             </div>
           </div>
         </div>
