@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AlertCircle, Code2, Eye, FileUp, FileText, Loader2, MoreHorizontal, Plus, Search, Sparkles, Upload, X } from 'lucide-react';
+import { AlertCircle, FileUp, Loader2, MoreHorizontal, Plus, Search, Sparkles, X } from 'lucide-react';
 import { Tag, Alert } from '@lobehub/ui';
 import type { ApiConfig } from '../../api/client';
 import { ApiError, importSkill, listSkills, removeSkill, upsertSkill } from '../../api/client';
 import type { SkillRecord } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
-import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
+import { toastApiError, toastSuccess, toastWarning } from '../../lib/toast';
 import { Button, DropdownMenu, DropdownMenuItem, IconButton, Input, Modal, ModalBody, ModalFooter, ModalHeader, Textarea } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
-import { SegmentedControl } from '../ui/SegmentedControl';
+
+/** Convert a slug like "weekly-status-report" → "Weekly Status Report" */
+function formatSkillName(id: string): string {
+  return id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 const SKILL_ID_REGEX = /^[a-z0-9-]{1,64}$/;
 
@@ -24,8 +28,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
   const [unsupportedApi, setUnsupportedApi] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [previewMode, setPreviewMode] = useState<'preview' | 'raw'>('preview');
-  const [skillFilter, setSkillFilter] = useState<'all' | 'mine' | 'examples'>('all');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<EditorMode>('create');
@@ -46,6 +49,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
     return skills.filter(
       (skill) =>
         skill.id.toLowerCase().includes(query) ||
+        formatSkillName(skill.id).toLowerCase().includes(query) ||
         skill.description.toLowerCase().includes(query) ||
         skill.prompt_addendum.toLowerCase().includes(query)
     );
@@ -185,15 +189,13 @@ export function SkillsPage({ config }: SkillsPageProps) {
     }
   };
 
-  const deleteSelectedSkill = async () => {
-    if (!selectedSkill) return;
-    const ok = window.confirm(`Delete skill '${selectedSkill.id}'?`);
-    if (!ok) return;
-
+  const deleteSkillById = async (id: string) => {
     setDeleting(true);
     try {
-      await removeSkill(config, selectedSkill.id);
-      toastSuccess('Skill deleted', selectedSkill.id);
+      await removeSkill(config, id);
+      toastSuccess('Skill deleted', formatSkillName(id));
+      setDeleteConfirmId(null);
+      if (selectedId === id) setSelectedId(null);
       await loadSkills();
     } catch (error) {
       toastApiError(error, 'Failed to delete skill');
@@ -243,19 +245,6 @@ export function SkillsPage({ config }: SkillsPageProps) {
             </p>
           </div>
 
-          {/* Filter tabs */}
-          <div className="flex items-center gap-2 px-8 pb-6">
-            <SegmentedControl
-              value={skillFilter}
-              options={[
-                { label: 'All', value: 'all' },
-                { label: 'My skills', value: 'mine' },
-                { label: 'Example skills', value: 'examples' },
-              ]}
-              onChange={(val) => setSkillFilter(val as 'all' | 'mine' | 'examples')}
-            />
-          </div>
-
           {/* Skills grid */}
           <div className="flex-1 overflow-y-auto px-8 pb-8">
             {unsupportedApi && (
@@ -284,7 +273,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                     ].join(' ')}
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-primary">{skill.id}</div>
+                      <div className="text-sm font-semibold text-primary">{formatSkillName(skill.id)}</div>
                       <div className="mt-1.5 line-clamp-2 text-xs leading-5 text-muted">{skill.description}</div>
                     </div>
                     <DropdownMenu
@@ -304,10 +293,9 @@ export function SkillsPage({ config }: SkillsPageProps) {
                         openEditEditor();
                       }}>Edit skill</DropdownMenuItem>
                       <DropdownMenuItem destructive onClick={() => {
-                        setSelectedId(skill.id);
-                        void deleteSelectedSkill();
+                        setDeleteConfirmId(skill.id);
                       }}>
-                        {deleting ? 'Deleting...' : 'Delete skill'}
+                        Delete skill
                       </DropdownMenuItem>
                     </DropdownMenu>
                   </button>
@@ -323,7 +311,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                 <div className="px-6 py-5 border-b border-border-light">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-xl font-semibold text-primary">{selectedSkill.id}</h2>
+                      <h2 className="text-xl font-semibold text-primary">{formatSkillName(selectedSkill.id)}</h2>
                       <p className="mt-2 text-sm text-secondary">{selectedSkill.description}</p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -418,6 +406,27 @@ export function SkillsPage({ config }: SkillsPageProps) {
               </Button>
               <Button onClick={() => void (editorMode === 'import' ? importSkillMarkdown() : saveSkill())} disabled={saving}>
                 {saving ? 'Saving...' : editorMode === 'import' ? 'Import' : editorMode === 'create' ? 'Create' : 'Save'}
+              </Button>
+            </div>
+          </ModalFooter>
+        </Modal>
+      )}
+
+      {/* Inline delete confirmation */}
+      {deleteConfirmId && (
+        <Modal onClose={() => setDeleteConfirmId(null)} maxWidth="max-w-sm" className="border border-border-light bg-surface">
+          <ModalHeader title="Delete skill" onClose={() => setDeleteConfirmId(null)} />
+          <ModalBody>
+            <p className="text-sm text-secondary">
+              Delete <span className="font-semibold text-primary">{formatSkillName(deleteConfirmId)}</span>? This cannot be undone.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <div />
+            <div className="flex items-center gap-2.5">
+              <Button variant="secondary" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+              <Button variant="danger" onClick={() => void deleteSkillById(deleteConfirmId)} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete'}
               </Button>
             </div>
           </ModalFooter>
