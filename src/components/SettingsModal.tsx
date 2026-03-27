@@ -142,7 +142,7 @@ export function SettingsModal({
                       </div>
                     )}
                     <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
-                      <div className="text-xs uppercase tracking-[0.18em] text-muted">Capabilities discovered</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-muted">Available models</div>
                       <div className="mt-2 text-3xl font-semibold tracking-tight text-primary">{settings.models.length}</div>
                       <div className="mt-1 text-sm text-secondary">models available on your server</div>
                     </div>

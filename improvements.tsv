@@ -43,3 +43,4 @@ af24016	ux	low	keep	remove "Clerk" from auth gate button and description
 fdb619a	settings	medium	keep	rewrite SettingsConnectorsPanel hero — remove dev jargon, add clear user-facing copy
 dfabccb	settings	low	keep	remove raw Notion workspace_id from connector summary display
 3f4eb79	onboarding	low	keep	"Start Your First Workflow" → "Start Your First Task" in onboarding modal
+e1ab8d6	files	medium	keep	add confirmation modal for knowledge document deletion in FilesPage
