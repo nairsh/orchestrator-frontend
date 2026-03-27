@@ -14,6 +14,17 @@ function formatSkillName(id: string): string {
   return id.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/** Convert a human name like "Weekly Status Report" → "weekly-status-report" */
+function nameToSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 64);
+}
+
 const SKILL_ID_REGEX = /^[a-z0-9-]{1,64}$/;
 
 interface SkillsPageProps {
@@ -32,6 +43,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorMode, setEditorMode] = useState<EditorMode>('create');
+  const [draftName, setDraftName] = useState(''); // human-readable name (create mode)
   const [draftId, setDraftId] = useState('');
   const [draftDescription, setDraftDescription] = useState('');
   const [draftInstructions, setDraftInstructions] = useState('');
@@ -93,6 +105,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
 
   const openCreateEditor = () => {
     setEditorMode('create');
+    setDraftName('');
     setDraftId('');
     setDraftDescription('');
     setDraftInstructions('');
@@ -141,9 +154,14 @@ export function SkillsPage({ config }: SkillsPageProps) {
   };
 
   const saveSkill = async () => {
-    const id = draftId.trim();
+    // In create mode, derive the ID from the human name
+    const id = editorMode === 'create' ? nameToSlug(draftName) : draftId.trim();
     const description = draftDescription.trim();
 
+    if (editorMode === 'create' && !draftName.trim()) {
+      toastWarning('Missing name', 'Give your skill a name.');
+      return;
+    }
     if (!validateId(id)) return;
     if (!description) {
       toastWarning('Missing description', 'Skill description is required.');
@@ -153,12 +171,12 @@ export function SkillsPage({ config }: SkillsPageProps) {
     setSaving(true);
     try {
       const response = await upsertSkill(config, id, {
-        name: id,
+        name: draftName.trim() || id,
         description,
         prompt_addendum: draftInstructions,
         tools: parseTools(),
       });
-      toastSuccess(editorMode === 'create' ? 'Skill created' : 'Skill updated', response.skill.id);
+      toastSuccess(editorMode === 'create' ? 'Skill created' : 'Skill updated', formatSkillName(response.skill.id));
       setEditorOpen(false);
       await loadSkills(response.skill.id);
     } catch (error) {
@@ -350,7 +368,26 @@ export function SkillsPage({ config }: SkillsPageProps) {
             onClose={() => setEditorOpen(false)}
           />
           <ModalBody className="flex flex-col gap-4">
-            <Input label="Skill id" value={draftId} disabled={editorMode === 'edit'} onChange={(event) => setDraftId(event.target.value)} placeholder="weekly-status-report" />
+            {editorMode === 'create' ? (
+              <div>
+                <Input
+                  label="Name"
+                  value={draftName}
+                  onChange={(event) => setDraftName(event.target.value)}
+                  placeholder="Weekly Status Report"
+                  autoFocus
+                />
+                {draftName.trim() && (
+                  <div className="mt-1.5 text-xs text-muted">
+                    ID: <span className="font-mono">{nameToSlug(draftName)}</span>
+                  </div>
+                )}
+              </div>
+            ) : editorMode === 'edit' ? (
+              <Input label="Name" value={formatSkillName(draftId)} disabled />
+            ) : (
+              <Input label="Skill ID" value={draftId} onChange={(event) => setDraftId(event.target.value)} placeholder="weekly-status-report" />
+            )}
 
             {editorMode === 'import' ? (
               <div>

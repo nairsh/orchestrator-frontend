@@ -160,7 +160,9 @@ export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth 
           <Timeline items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content }))} />
         )}
         {draftAssistant && (
-          <Timeline items={[{ type: 'message', role: 'assistant', content: draftAssistant }]} />
+          <div className="fade-in-soft">
+            <Timeline items={[{ type: 'message', role: 'assistant', content: draftAssistant }]} />
+          </div>
         )}
         {streaming && !draftAssistant && <StreamingIndicator />}
         <div ref={bottomRef} />
