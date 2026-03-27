@@ -105,7 +105,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
 
   const handleStart = async (objective: string) => {
     if (!selectedModel.trim()) {
-      toastInfo('Model unavailable', 'Wait for model discovery to complete, then try again.');
+      toastInfo('Models loading', 'Please wait a moment and try again.');
       return;
     }
 
@@ -147,7 +147,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             onChange={setSearchQuery}
             onEscape={() => { setShowSearch(false); setSearchQuery(''); }}
             autoFocus
-            placeholder="Search workflows…"
+            placeholder="Search tasks…"
           />
         ) : (
           <>
@@ -249,7 +249,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           {sortedWorkflows.length === 0 && !loading && (
             <div className="pt-8">
               <Empty
-                description="Start a workflow using the input above"
+                description="Start a task using the input above"
                 emoji="📋"
               />
             </div>
@@ -278,7 +278,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       {/* Rename modal */}
       {renameId && (
         <Modal onClose={closeRename}>
-          <ModalHeader title="Rename workflow" onClose={closeRename} />
+          <ModalHeader title="Rename task" onClose={closeRename} />
           <ModalBody>
             <div className="space-y-3">
               <Input

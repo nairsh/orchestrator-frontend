@@ -83,7 +83,7 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
   return (
     <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface border border-border font-sans text-sm text-muted">
       <span>{getIcon()}</span>
-      <span>{tool.name}</span>
+      <span>{tool.name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
       {tool.status === 'running' && (
         <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse ml-auto" />
       )}

@@ -22,13 +22,13 @@ const steps = [
   {
     icon: <BotMessageSquare size={32} className="text-info" />,
     title: 'Welcome to Relay Pro',
-    description: 'Your multi-model AI agent orchestration platform. Relay Pro intelligently coordinates multiple AI models to complete complex workflows — from research reports to code generation to data analysis.',
+    description: 'Your AI that gets things done. Relay Pro breaks down complex goals, coordinates the right tools, and delivers results — from research reports to code to data analysis.',
     cta: 'Next',
   },
   {
     icon: <Zap size={32} className="text-warning" />,
     title: 'Start Your First Workflow',
-    description: 'Type any objective in the input field and Relay Pro will plan, execute, and deliver results using the best-fit AI models. Try "Research the latest trends in AI" or "Create a project plan for a mobile app".',
+    description: 'Type any goal in the input field and Relay Pro will figure out the rest. Try "Research the latest trends in AI" or "Create a project plan for a mobile app".',
     cta: 'Next',
   },
   {

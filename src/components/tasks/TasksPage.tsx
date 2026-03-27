@@ -222,7 +222,7 @@ export function TasksPage({
                 </div>
                 <div className="font-sans text-base text-placeholder text-center">Select a task to view details</div>
                 <div className="font-sans text-sm text-placeholder/70 text-center max-w-[200px]">
-                  Choose from the list or start a new workflow above
+                  Choose from the list or start a new task above
                 </div>
               </div>
             )}
