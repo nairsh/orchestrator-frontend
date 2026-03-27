@@ -277,7 +277,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
           <div className="relative pl-6 mt-4">
             <div className="min-w-0 flex flex-col gap-1.5">
               <span className="font-sans text-base font-medium text-muted shimmer-text">
-                Thinking
+                {currentActivity}
               </span>
               {isStale && (
                 <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 mt-1 dark:border-amber-800 dark:bg-amber-950/30">

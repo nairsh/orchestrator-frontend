@@ -99,10 +99,11 @@ export function FeedTaskGroup({
                     <div className="px-4 pb-3 -mt-1 flex flex-col gap-1.5">
                       {[...recentToolCalls].reverse().map((toolCall, idx) => {
                         const Icon = iconForRecentToolCall(toolCall);
+                        const label = toolCall.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
                         return (
                           <div key={`${task.id}:${toolCall}:${idx}`} className="flex items-center gap-2 min-w-0">
                             <Icon size={13} className="text-placeholder flex-shrink-0" />
-                            <span className="font-mono text-2xs text-placeholder truncate">{toolCall}</span>
+                            <span className="font-sans text-2xs text-placeholder truncate">{label}</span>
                           </div>
                         );
                       })}
