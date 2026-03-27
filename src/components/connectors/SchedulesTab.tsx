@@ -154,7 +154,10 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
             </div>
             <div className="grid gap-3">
               {scheduleType === 'cron' ? (
-                <Input value={scheduleCron} onChange={(e) => setScheduleCron(e.target.value)} placeholder="0 * * * *" label="Schedule expression" />
+                <div>
+                  <Input value={scheduleCron} onChange={(e) => setScheduleCron(e.target.value)} placeholder="0 * * * *" label="Schedule expression" />
+                  <p className="text-xs text-muted mt-1">Examples: <code className="text-xs">0 * * * *</code> = every hour, <code className="text-xs">0 9 * * *</code> = daily at 9 AM</p>
+                </div>
               ) : (
                 <div className="grid grid-cols-[140px_1fr] gap-3">
                   <Input value={scheduleIntervalValue} onChange={(e) => setScheduleIntervalValue(e.target.value)} placeholder="6" label="Interval" />
@@ -172,7 +175,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
               <Input value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} placeholder="UTC" label="Timezone" />
               <Input value={scheduleWorkingDirectory} onChange={(e) => setScheduleWorkingDirectory(e.target.value)} placeholder="/Users/you/projects/app" label="Working directory" />
               <Select
-                label="Overlap policy"
+                label="If a task is still running"
                 value={scheduleOverlapPolicy}
                 onChange={(e) => setScheduleOverlapPolicy(e.target.value as 'skip' | 'queue')}
                 options={[
