@@ -82,6 +82,12 @@ function normalizeAuthError(message: string): string {
 }
 
 // Debug: expose toast functions for browser console testing
+declare global {
+  interface Window {
+    __toast?: typeof devToastExports;
+  }
+}
+const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, sileo };
 if (import.meta.env.DEV) {
-  (window as any).__toast = { toastInfo, toastSuccess, toastWarning, toastError, sileo };
+  window.__toast = devToastExports;
 }

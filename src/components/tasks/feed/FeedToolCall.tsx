@@ -9,6 +9,7 @@ import { TodoList } from './TodoList';
 import { BashRenderer } from './BashRenderer';
 import { WebSearchRenderer } from './WebSearchRenderer';
 import { humanizeToolName } from '../../../lib/toolLabels';
+import { getFileName } from '../../../lib/fileUtils';
 import { FetchUrlRenderer } from './FetchUrlRenderer';
 
 export function FeedToolCall({
@@ -40,7 +41,7 @@ export function FeedToolCall({
   const [open, setOpen] = useState(isTodo || isBash || isWebSearch || isFetchUrl);
 
   const filePath = String(out.path ?? inp.filePath ?? inp.path ?? inp.file_path ?? inp.filename ?? '').trim();
-  const fileName = filePath ? filePath.split('/').pop() ?? filePath : 'file';
+  const fileName = filePath ? getFileName(filePath) : 'file';
   const pattern = String(inp.pattern ?? '').trim();
   const include = String(inp.include ?? '').trim();
   const command = String(inp.command ?? out.command ?? '').trim();

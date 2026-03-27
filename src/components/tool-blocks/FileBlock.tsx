@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FileText, ChevronDown } from 'lucide-react';
 import { Highlighter, Tooltip } from '@lobehub/ui';
+import { getFileName, guessLanguage } from '../../lib/fileUtils';
 
 interface FileBlockProps {
   toolName: string;
@@ -8,24 +9,12 @@ interface FileBlockProps {
   status: 'running' | 'done' | 'failed';
 }
 
-function guessLanguage(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase() ?? '';
-  const map: Record<string, string> = {
-    ts: 'typescript', tsx: 'tsx', js: 'javascript', jsx: 'jsx',
-    py: 'python', rb: 'ruby', go: 'go', rs: 'rust',
-    json: 'json', yaml: 'yaml', yml: 'yaml', md: 'markdown',
-    css: 'css', scss: 'scss', html: 'html', sql: 'sql',
-    sh: 'bash', bash: 'bash', zsh: 'bash',
-  };
-  return map[ext] ?? 'text';
-}
-
 export function FileBlock({ toolName, input, status }: FileBlockProps) {
   const [expanded, setExpanded] = useState(false);
 
   const inp = typeof input === 'object' && input !== null ? (input as Record<string, unknown>) : {};
   const fullPath = (inp.path ?? inp.file_path ?? inp.filename ?? inp.target ?? '')?.toString() ?? '';
-  const filename = fullPath.split('/').pop() ?? 'file';
+  const filename = getFileName(fullPath);
 
   const actionMap: Record<string, string> = {
     file_write: 'Writing',

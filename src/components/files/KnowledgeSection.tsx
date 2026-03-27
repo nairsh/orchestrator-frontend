@@ -3,6 +3,7 @@ import { FileSearch, ImageIcon, Loader2, ScanSearch, Trash2, UploadCloud } from 
 import { Highlighter } from '@lobehub/ui';
 import type { KnowledgeDocument, KnowledgeSearchMatch } from '../../api/types';
 import { formatBytes } from './helpers';
+import { getFileExtension } from '../../lib/fileUtils';
 
 interface KnowledgeSectionProps {
   fileTab: 'all' | 'workflows' | 'knowledge';
@@ -94,7 +95,7 @@ export function KnowledgeSection({
       ) : (
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {documents.map((document) => {
-            const ext = document.filename.includes('.') ? document.filename.split('.').pop()?.toUpperCase() ?? '' : '';
+            const ext = getFileExtension(document.filename);
             const isActive = selectedDocumentId === document.id;
             return (
               <div

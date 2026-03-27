@@ -2,6 +2,7 @@ import { FileSearch, ImageIcon, Loader2 } from 'lucide-react';
 import { Highlighter } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
 import type { PreviewState } from './helpers';
+import { getFileName, getFileExtension, isImageExtension } from '../../lib/fileUtils';
 
 interface TaskFilesSectionProps {
   fileTab: 'all' | 'workflows' | 'knowledge';
@@ -69,9 +70,9 @@ export function TaskFilesSection({
       ) : (
         <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredFiles.map((path) => {
-            const fileName = path.split('/').pop() ?? path;
-            const ext = fileName.includes('.') ? fileName.split('.').pop()?.toUpperCase() ?? '' : '';
-            const isImage = ['PNG', 'JPG', 'JPEG', 'GIF', 'SVG', 'WEBP'].includes(ext);
+            const fileName = getFileName(path, path);
+            const ext = getFileExtension(fileName);
+            const isImage = isImageExtension(ext);
             const isActive = preview.kind !== 'empty' && 'path' in preview && preview.path === path;
             return (
               <button

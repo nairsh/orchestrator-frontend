@@ -1,7 +1,10 @@
-import { type MouseEventHandler, type ReactNode } from 'react';
+import { type MouseEventHandler, type FC, type ReactNode } from 'react';
 import { ActionIcon as LobeActionIcon } from '@lobehub/ui';
 import { Tooltip } from '@lobehub/ui';
 import type { ActionIconSize } from '@lobehub/ui';
+import type { LucideIcon } from 'lucide-react';
+
+type ActionIconIcon = LucideIcon | FC | ReactNode;
 
 type IconButtonSize = 'sm' | 'md' | 'lg';
 
@@ -30,7 +33,7 @@ export function IconButton({ size = 'md', filled = false, label, className = '',
       disabled={disabled}
       className={className}
       style={filled ? { backgroundColor: 'var(--relay-primary)', color: 'var(--relay-surface)', borderRadius: '50%' } : undefined}
-      icon={children as any}
+      icon={children as ActionIconIcon}
       {...rest}
     />
   );

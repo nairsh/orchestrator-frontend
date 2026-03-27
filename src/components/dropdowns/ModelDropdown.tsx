@@ -60,7 +60,7 @@ export function ModelDropdown({
 
   const defaultModelId = data?.default_orchestrator_model;
 
-  const options: Array<{ id: string; label: string; description?: string }> = (() => {
+  const options = useMemo(() => {
     if (variant === 'all') {
       const all = [...(data?.models ?? [])].sort((a, b) => a.display_name.localeCompare(b.display_name));
       return all.map((m) => ({ id: m.id, label: humanizeModelName(m.display_name) }));
@@ -71,7 +71,7 @@ export function ModelDropdown({
       const info = modelById.get(id);
       return { id, label: humanizeModelName(info?.display_name ?? id) };
     });
-  })();
+  }, [variant, data?.models, data?.orchestrator_models, modelById]);
 
   useEffect(() => {
     if (!options.length) return;
