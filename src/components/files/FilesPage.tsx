@@ -64,6 +64,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   const [searching, setSearching] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [deleteDocConfirmId, setDeleteDocConfirmId] = useState<string | null>(null);
+  const [deletingDoc, setDeletingDoc] = useState(false);
 
   const sessionId = typeof workspace?.active_session_id === 'string' ? (workspace.active_session_id as string) : null;
 
@@ -499,19 +500,20 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
     </div>
 
     {deleteDocConfirmId && (
-      <Modal onClose={() => setDeleteDocConfirmId(null)} maxWidth="max-w-sm">
-        <ModalHeader title="Remove document?" onClose={() => setDeleteDocConfirmId(null)} />
+      <Modal onClose={() => { if (!deletingDoc) setDeleteDocConfirmId(null); }} maxWidth="max-w-sm">
+        <ModalHeader title="Remove document?" onClose={() => { if (!deletingDoc) setDeleteDocConfirmId(null); }} />
         <ModalBody>
           <p className="text-sm text-secondary">This will permanently remove the document from your knowledge library. This cannot be undone.</p>
         </ModalBody>
         <ModalFooter className="justify-end gap-2">
-          <Button variant="ghost" onClick={() => setDeleteDocConfirmId(null)}>Cancel</Button>
-          <Button variant="danger" onClick={async () => {
+          <Button variant="ghost" disabled={deletingDoc} onClick={() => setDeleteDocConfirmId(null)}>Cancel</Button>
+          <Button variant="danger" disabled={deletingDoc} onClick={async () => {
             const id = deleteDocConfirmId;
-            setDeleteDocConfirmId(null);
-            try { await deleteKnowledgeDocument(config, id); toastSuccess('Document removed'); await refreshKnowledgeDocuments(); }
+            setDeletingDoc(true);
+            try { await deleteKnowledgeDocument(config, id); toastSuccess('Document removed'); setDeleteDocConfirmId(null); await refreshKnowledgeDocuments(); }
             catch (err) { toastApiError(err, 'Failed to delete document'); }
-          }}>Remove</Button>
+            finally { setDeletingDoc(false); }
+          }}>{deletingDoc ? 'Removing…' : 'Remove'}</Button>
         </ModalFooter>
       </Modal>
     )}
