@@ -134,9 +134,9 @@ export function SettingsModal({
                     {clerkEnabled && (
                       <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
                         <div className="text-xs uppercase tracking-[0.18em] text-muted">Authentication</div>
-                        <div className="mt-2 text-sm text-primary">{isSignedIn ? 'Authenticated and ready for protected API routes.' : 'Not signed in yet.'}</div>
+                        <div className="mt-2 text-sm text-primary">{isSignedIn ? 'Signed in and ready.' : 'Not signed in yet.'}</div>
                         <div className="mt-3 flex gap-2">
-                          {!isSignedIn && <Button variant="secondary" onClick={() => void onSignIn?.()}>Sign in with Clerk</Button>}
+                          {!isSignedIn && <Button variant="secondary" onClick={() => void onSignIn?.()}>Sign in</Button>}
                           {isSignedIn && <Button variant="ghost" onClick={() => void onSignOut?.()}>Sign out</Button>}
                         </div>
                       </div>
