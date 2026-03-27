@@ -29,7 +29,7 @@ export function IconButton({ size = 'md', filled = false, label, className = '',
       onClick={onClick}
       disabled={disabled}
       className={className}
-      style={filled ? { backgroundColor: 'var(--relay-primary)', color: 'white', borderRadius: '50%' } : undefined}
+      style={filled ? { backgroundColor: 'var(--relay-primary)', color: 'var(--relay-surface)', borderRadius: '50%' } : undefined}
       icon={children as any}
       {...rest}
     />
