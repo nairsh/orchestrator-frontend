@@ -1,6 +1,7 @@
 import type { ModelInfo } from '../api/types';
 import type { ModelIconOverrides } from '../lib/modelIcons';
 import { MODEL_ICON_DEFINITIONS, ModelIcon, inferModelIconKey, resolveModelIconKey } from '../lib/modelIcons';
+import { humanizeModelName } from '../lib/modelNames';
 import { Select } from './ui';
 import { Loader2 } from 'lucide-react';
 import { Alert } from '@lobehub/ui';
@@ -20,10 +21,10 @@ export function SettingsIconsPanel({ sortedModels, modelsStatus, iconOverrides, 
       <section className="rounded-[28px] border border-border-light bg-surface p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Model icons</div>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Choose icons for each AI model.</h3>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">AI icons</div>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Choose icons for each AI.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
-              Customize which icon appears next to each model. Useful when the default icon doesn't match the provider.
+              Customize which icon appears next to each AI option.
             </p>
           </div>
           {modelsStatus === 'loading' && <Loader2 size={16} className="animate-spin text-muted" />}
@@ -54,17 +55,17 @@ export function SettingsIconsPanel({ sortedModels, modelsStatus, iconOverrides, 
                         <ModelIcon iconKey={selectedIcon} size={18} />
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-medium text-primary">{model.display_name}</div>
-                        <div className="mt-1 truncate text-xs text-muted">{model.id}</div>
+                        <div className="truncate text-sm font-medium text-primary">{humanizeModelName(model.display_name)}</div>
+                        <div className="mt-1 truncate text-xs text-muted">{humanizeModelName(model.id)}</div>
                       </div>
                     </div>
 
                     <Select
                       value={selectedOverride}
                       onChange={(e) => onIconSelection(model.id, e.target.value)}
-                      aria-label={`Icon for ${model.display_name}`}
+                      aria-label={`Icon for ${humanizeModelName(model.display_name)}`}
                       options={[
-                        { value: INFERRED_ICON_VALUE, label: `Use inferred icon (${autoIcon})` },
+                        { value: INFERRED_ICON_VALUE, label: `Automatic (${autoIcon})` },
                         ...MODEL_ICON_DEFINITIONS.map((definition) => ({ value: definition.key, label: definition.label })),
                       ]}
                       className="rounded-2xl border-border-light px-4 py-3"
@@ -76,9 +77,7 @@ export function SettingsIconsPanel({ sortedModels, modelsStatus, iconOverrides, 
           </div>
         )}
 
-        <div className="mt-4 text-xs text-muted">
-          Drop custom files into <code>public/model-icons</code>, then register new keys in <code>src/lib/modelIcons.tsx</code>.
-        </div>
+        {/* Developer: Drop custom icons into public/model-icons and register in src/lib/modelIcons.tsx */}
       </section>
     </div>
   );

@@ -181,7 +181,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               }
               toastInfo(
                 `${billingCredits.toFixed(2)} credits remaining`,
-                `Plan: ${billing.data.tier} • Used this period: ${periodCreditsUsed.toFixed(2)} credits`
+                `Your plan: ${billing.data.tier} • Used this period: ${periodCreditsUsed.toFixed(2)} credits`
               );
             }}
           >

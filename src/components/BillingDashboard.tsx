@@ -6,6 +6,8 @@ import type { BillingUsageEntry, BillingTransaction } from '../api/types';
 import { getBillingUsage, getBillingTransactions, getBillingBalance } from '../api/client';
 import { Button } from './ui/Button';
 
+import { humanizeModelName } from '../lib/modelNames';
+
 interface BillingDashboardProps {
   config: ApiConfig;
 }
@@ -83,7 +85,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
         variant="rounded"
         compact
         items={[
-          { key: 'usage', label: <span className="inline-flex items-center gap-1.5"><BarChart3 size={14} />Usage by Model</span> },
+          { key: 'usage', label: <span className="inline-flex items-center gap-1.5"><BarChart3 size={14} />Usage by AI</span> },
           { key: 'transactions', label: <span className="inline-flex items-center gap-1.5"><CreditCard size={14} />Transactions</span> },
         ]}
       />
@@ -93,14 +95,14 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
         <div className="space-y-2">
           {usage.length === 0 ? (
             <div className="py-4">
-              <Empty description="No usage recorded yet. Start a task to see model usage." />
+              <Empty description="No usage recorded yet. Start a task to see your usage breakdown." />
             </div>
           ) : (
             usage.map((u) => (
               <div key={u.model} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors duration-200">
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-primary truncate">{u.model}</div>
-                  <div className="text-2xs text-muted">{u.request_count} requests</div>
+                  <div className="text-sm font-medium text-primary truncate">{humanizeModelName(u.model)}</div>
+                  <div className="text-2xs text-muted">{u.request_count} {u.request_count === 1 ? 'task' : 'tasks'}</div>
                 </div>
                 <Tooltip title={`${formatCredits(u.credits_used)} / ${formatCredits(maxUsage)} credits`}>
                   <div className="w-24 h-2 rounded-full bg-surface-tertiary overflow-hidden">

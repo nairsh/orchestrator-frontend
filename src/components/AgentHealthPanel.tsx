@@ -25,7 +25,7 @@ const AGENT_LABELS: Record<string, string> = {
   analyze: 'Analysis',
   write: 'Writing',
   code: 'Coding',
-  file: 'File Ops',
+  file: 'File tasks',
   deep_research: 'Deep Research',
 };
 
@@ -94,7 +94,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-muted" />
-          <span className="text-sm font-medium text-primary">Model Health</span>
+          <span className="text-sm font-medium text-primary">AI Health</span>
         </div>
         <Button variant="ghost" size="sm" disabled={refreshing} onClick={() => void fetchHealth(true)} className="gap-1.5">
           {refreshing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}

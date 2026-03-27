@@ -3,6 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { checkHealth } from '../api/client';
 import type { AgentType, ConnectorProvider, ConnectorRecord } from '../api/types';
 import { toastApiError, toastSuccess } from '../lib/toast';
+import { humanizeModelName } from '../lib/modelNames';
 import {
   MODEL_ICON_DEFINITIONS,
   ModelIcon,
@@ -509,8 +510,8 @@ export function SettingsPage({
                                   <ModelIcon iconKey={selectedIcon} size={16} />
                                 </div>
                                 <div className="min-w-0">
-                                  <div className="text-[13.5px] font-medium text-primary truncate">{model.display_name}</div>
-                                  <div className="text-[11.5px] text-muted truncate">{model.id}</div>
+                                  <div className="text-[13.5px] font-medium text-primary truncate">{humanizeModelName(model.display_name)}</div>
+                                  <div className="text-[11.5px] text-muted truncate">{humanizeModelName(model.id)}</div>
                                 </div>
                               </div>
                               <Select
