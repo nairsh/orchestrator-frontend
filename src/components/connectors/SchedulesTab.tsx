@@ -18,6 +18,7 @@ interface SchedulesTabProps {
 
 export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }: SchedulesTabProps) {
   const [showDialog, setShowDialog] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [scheduleType, setScheduleType] = useState<ScheduleType>('cron');
   const [scheduleCron, setScheduleCron] = useState('0 * * * *');
   const [scheduleIntervalValue, setScheduleIntervalValue] = useState('6');
@@ -98,10 +99,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                       try { await updateSchedule(config, schedule.id, { status: schedule.status === 'paused' ? 'active' : 'paused' }); toastSuccess('Updated'); void onRefresh(); }
                       catch (err) { toastApiError(err, 'Failed to update schedule'); }
                     }}>{schedule.status === 'paused' ? 'Resume' : 'Pause'}</Button>
-                    <Button variant="danger" onClick={async () => {
-                      try { await deleteSchedule(config, schedule.id); toastSuccess('Deleted'); void onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to delete schedule'); }
-                    }}>Delete</Button>
+                    <Button variant="danger" onClick={() => setDeleteConfirmId(schedule.id)}>Delete</Button>
                   </div>
                 </div>
                 {schedule.last_error && <Alert className="mt-3" type="error" title={schedule.last_error} variant="outlined" />}
@@ -110,6 +108,24 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
           </div>
         )}
       </div>
+
+      {deleteConfirmId && (
+        <Modal onClose={() => setDeleteConfirmId(null)} maxWidth="max-w-sm">
+          <ModalHeader title="Delete schedule?" onClose={() => setDeleteConfirmId(null)} />
+          <ModalBody>
+            <p className="text-sm text-secondary">This will permanently remove the schedule. This cannot be undone.</p>
+          </ModalBody>
+          <ModalFooter className="justify-end gap-2">
+            <Button variant="ghost" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button variant="danger" onClick={async () => {
+              const id = deleteConfirmId;
+              setDeleteConfirmId(null);
+              try { await deleteSchedule(config, id); toastSuccess('Schedule deleted'); void onRefresh(); }
+              catch (err) { toastApiError(err, 'Failed to delete schedule'); }
+            }}>Delete</Button>
+          </ModalFooter>
+        </Modal>
+      )}
 
       {showDialog && (
         <Modal onClose={() => setShowDialog(false)} maxWidth="max-w-lg">

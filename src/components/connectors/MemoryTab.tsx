@@ -16,6 +16,7 @@ interface MemoryTabProps {
 
 export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: MemoryTabProps) {
   const [showDialog, setShowDialog] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [memoryKey, setMemoryKey] = useState('');
   const [memoryCategory, setMemoryCategory] = useState('general');
   const [memoryContent, setMemoryContent] = useState('');
@@ -48,10 +49,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
                     <div className="text-sm font-semibold text-primary">{memory.key}</div>
                     <div className="mt-1 text-xs text-placeholder">{memory.category}</div>
                   </div>
-                  <Button variant="danger" onClick={async () => {
-                    try { await deleteMemory(config, memory.id); toastSuccess('Deleted'); void onRefresh(); }
-                    catch (err) { toastApiError(err, 'Failed to delete memory'); }
-                  }}>Delete</Button>
+                  <Button variant="danger" onClick={() => setDeleteConfirmId(memory.id)}>Delete</Button>
                 </div>
                 <div className="mt-2.5 whitespace-pre-wrap text-sm text-muted">{memory.content}</div>
               </Card>
@@ -59,6 +57,24 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
           </div>
         )}
       </div>
+
+      {deleteConfirmId && (
+        <Modal onClose={() => setDeleteConfirmId(null)} maxWidth="max-w-sm">
+          <ModalHeader title="Delete memory?" onClose={() => setDeleteConfirmId(null)} />
+          <ModalBody>
+            <p className="text-sm text-secondary">This will permanently remove the memory. This cannot be undone.</p>
+          </ModalBody>
+          <ModalFooter className="justify-end gap-2">
+            <Button variant="ghost" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button variant="danger" onClick={async () => {
+              const id = deleteConfirmId;
+              setDeleteConfirmId(null);
+              try { await deleteMemory(config, id); toastSuccess('Memory deleted'); void onRefresh(); }
+              catch (err) { toastApiError(err, 'Failed to delete memory'); }
+            }}>Delete</Button>
+          </ModalFooter>
+        </Modal>
+      )}
 
       {showDialog && (
         <Modal onClose={() => setShowDialog(false)} maxWidth="max-w-md">

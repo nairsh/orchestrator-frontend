@@ -173,13 +173,14 @@ export function taskActivityLabel(task: { status: string; current_activity?: str
 
 export function agentDisplayName(agentType?: string): string {
   const t = String(agentType ?? '').trim().toLowerCase();
-  if (t === 'research') return 'Research Agent';
-  if (t === 'analyze') return 'Analyze Agent';
-  if (t === 'write') return 'Write Agent';
-  if (t === 'code') return 'Code Agent';
-  if (t === 'file') return 'File Agent';
-  if (t === 'task') return 'Task Agent';
-  return 'Sub Agent';
+  if (t === 'research') return 'Research';
+  if (t === 'analyze') return 'Analysis';
+  if (t === 'write') return 'Writing';
+  if (t === 'code') return 'Code';
+  if (t === 'file') return 'Files';
+  if (t === 'task') return 'Task';
+  if (t) return t.charAt(0).toUpperCase() + t.slice(1);
+  return 'AI';
 }
 
 export function iconForRecentToolCall(toolCall: string): ElementType {
