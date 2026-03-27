@@ -2,7 +2,7 @@ import type { AgentType, ModelPreferences } from '../api/types';
 import { Button } from './ui/Button';
 import { Select } from './ui';
 import { Tag } from '@lobehub/ui';
-import { RefreshCcw } from 'lucide-react';
+import { Loader2, RefreshCcw } from 'lucide-react';
 
 const AGENT_ORDER: AgentType[] = ['research', 'deep_research', 'analyze', 'write', 'code', 'file'];
 const AGENT_LABELS: Record<AgentType, string> = {
@@ -45,8 +45,8 @@ export function SettingsRoutingPanel({
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="ghost" onClick={onRefresh} disabled={!isSignedIn || preferencesStatus === 'loading'}>
-              <RefreshCcw size={14} />
+            <Button variant="ghost" onClick={onRefresh} disabled={!isSignedIn || preferencesStatus === 'loading'} className="gap-1.5">
+              {preferencesStatus === 'loading' ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
               Refresh
             </Button>
             <Button variant="secondary" onClick={onReset} disabled={!isSignedIn || preferencesStatus === 'saving'}>
