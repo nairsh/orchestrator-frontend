@@ -1,0 +1,21 @@
+commit	area	ux_impact	status	description
+0000000	structure	medium	keep	baseline audit — top 5: broken skill filters, raw skill IDs, window.confirm delete, raw tool slugs in approvals, double streaming indicator
+0545de8	skills-page	high	keep	humanize skill IDs, remove broken filter tabs, inline delete confirm
+e78bd86	feed	high	keep	humanize tool names in approvals, remove raw task IDs, fallback slug humanizer
+c914325	ux	medium	keep	remove internal jargon from toasts and connectors page sign-in gate
+19d1118	landing	medium	keep	remove non-functional mic button, dead imports, proper send disable state
+73c3119	feed	medium	keep	show real activity in thinking shimmer instead of hardcoded "Thinking", humanize tool labels
+429d06a	model-dropdown	medium	keep	activate Fast/Smart/Cheap capability badges (pre-existing dead code)
+dafd5e0	settings	low	keep	remove orchestrator/subagents jargon from routing panel, hide raw agent IDs
+73189dc	chat+skills	medium	keep	smooth streaming fade-in, skill create uses human name with auto slug preview
+4e699e7	landing	medium	keep	sample prompts upgraded from plain text to pill chip buttons with arrow icon
+7f4b065	settings	low	keep	remove "orchestrator", "Clerk-backed", "runtime endpoint" jargon from settings modal
+8c71e8d	permissions	high	keep	add execution context note to approval gate — "Runs on AI server, not local machine"
+85fa359	permissions	critical	keep	wire ApprovalGate into feed — approval buttons were never rendered, users couldn't approve/reject commands
+d05cb12	ux	medium	keep	remove dead "Learn more" button, humanize skills 404 error, send button disabled until model loads
+81bc9f7	ux	medium	keep	replace "workflow/orchestration/model discovery" jargon with plain language across task UI and onboarding
+908223b	ux	medium	keep	replace "workflow" with "task" in context menus, tooltips, command palette, keyboard shortcuts, files page
+e3fde05	connectors	low	keep	remove "surface/team context APIs/placeholder" dev jargon from connectors tabs
+7724e7b	task-input	medium	keep	task input send button proper disabled state; "workflow" copy cleanup in CommandInput and TaskList
+932e98b	feed	low	keep	"Workflow Failed" error alert → "Task Failed"
+7acdf9a	schedules	low	keep	humanize overlap policy display, capitalize status, "workflows" → "tasks" in empty state
