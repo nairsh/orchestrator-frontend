@@ -6,7 +6,7 @@ import { deleteKnowledgeDocument, getKnowledgeDocument, getWorkspace, listKnowle
 import type { KnowledgeDocument, KnowledgeSearchMatch, WorkflowSummary } from '../../api/types';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES } from '../../lib/files';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
-import { Button, Input } from '../ui';
+import { Button, Input, Modal, ModalHeader, ModalBody, ModalFooter } from '../ui';
 import { SegmentedControl } from '../ui/SegmentedControl';
 
 function relativeTime(iso: string): string {
@@ -63,6 +63,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   const [searchMatches, setSearchMatches] = useState<KnowledgeSearchMatch[]>([]);
   const [searching, setSearching] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [deleteDocConfirmId, setDeleteDocConfirmId] = useState<string | null>(null);
 
   const sessionId = typeof workspace?.active_session_id === 'string' ? (workspace.active_session_id as string) : null;
 
@@ -267,6 +268,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   ];
 
   return (
+    <>
     <div className="flex h-full flex-1 overflow-hidden bg-surface-warm">
       <div className="flex-1 overflow-y-auto px-8 py-6">
         {/* Header */}
@@ -457,16 +459,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                       </div>
                       <button
                         type="button"
-                        onClick={async (event) => {
-                          event.stopPropagation();
-                          try {
-                            await deleteKnowledgeDocument(config, document.id);
-                            toastSuccess('Document removed');
-                            await refreshKnowledgeDocuments();
-                          } catch (err) {
-                            toastApiError(err, 'Failed to delete document');
-                          }
-                        }}
+                        onClick={(event) => { event.stopPropagation(); setDeleteDocConfirmId(document.id); }}
                         className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all"
                         aria-label="Delete document"
                       >
@@ -504,5 +497,24 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
         )}
       </div>
     </div>
+
+    {deleteDocConfirmId && (
+      <Modal onClose={() => setDeleteDocConfirmId(null)} maxWidth="max-w-sm">
+        <ModalHeader title="Remove document?" onClose={() => setDeleteDocConfirmId(null)} />
+        <ModalBody>
+          <p className="text-sm text-secondary">This will permanently remove the document from your knowledge library. This cannot be undone.</p>
+        </ModalBody>
+        <ModalFooter className="justify-end gap-2">
+          <Button variant="ghost" onClick={() => setDeleteDocConfirmId(null)}>Cancel</Button>
+          <Button variant="danger" onClick={async () => {
+            const id = deleteDocConfirmId;
+            setDeleteDocConfirmId(null);
+            try { await deleteKnowledgeDocument(config, id); toastSuccess('Document removed'); await refreshKnowledgeDocuments(); }
+            catch (err) { toastApiError(err, 'Failed to delete document'); }
+          }}>Remove</Button>
+        </ModalFooter>
+      </Modal>
+    )}
+    </>
   );
 }

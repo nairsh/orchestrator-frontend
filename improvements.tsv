@@ -42,3 +42,4 @@ af24016	ux	low	keep	remove "Clerk" from auth gate button and description
 8f49571	settings	low	keep	connector panel jargon cleanup: metadata/credentials/provider-defined
 fdb619a	settings	medium	keep	rewrite SettingsConnectorsPanel hero — remove dev jargon, add clear user-facing copy
 dfabccb	settings	low	keep	remove raw Notion workspace_id from connector summary display
+3f4eb79	onboarding	low	keep	"Start Your First Workflow" → "Start Your First Task" in onboarding modal
