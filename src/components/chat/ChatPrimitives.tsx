@@ -35,7 +35,7 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
   return (
     <div className={`w-fit max-w-[85%] rounded-2xl px-4.5 py-3.5 text-primary relative group ${role === 'user' ? 'bg-surface-secondary' : 'bg-surface-tertiary'}`}>
       <div
-        className={`font-sans ${role === 'assistant' ? 'font-display' : 'font-sans'}`}
+        className={`font-sans`}
         style={{
           maxHeight: expanded ? undefined : `${MESSAGE_MAX_LINES * 1.5}em`,
           overflow: expanded ? undefined : 'hidden',

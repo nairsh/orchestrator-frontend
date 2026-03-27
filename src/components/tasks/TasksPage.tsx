@@ -22,6 +22,7 @@ interface TasksPageProps {
   onSelectedModelChange?: (model: string) => void;
   onNavigateToLanding?: () => void;
   onOpenSettings?: () => void;
+  onOpenSearch?: () => void;
   onSignOut?: () => Promise<void>;
   isSignedIn?: boolean;
   userLabel?: string | null;
@@ -49,6 +50,7 @@ export function TasksPage({
   onSelectedModelChange,
   onNavigateToLanding,
   onOpenSettings,
+  onOpenSearch,
   onSignOut,
   isSignedIn,
   userLabel,
@@ -141,7 +143,9 @@ export function TasksPage({
           setActiveNav('tasks');
         }}
         onNavChange={(id) => {
-          if (id === 'search' || id === 'computer' || id === 'new') {
+          if (id === 'search') {
+            onOpenSearch?.();
+          } else if (id === 'computer' || id === 'new') {
             onNavigateToLanding?.();
           } else {
             setActiveNav(id);

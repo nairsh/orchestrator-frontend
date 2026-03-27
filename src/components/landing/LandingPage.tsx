@@ -5,6 +5,7 @@ import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
 import { PlusDropdown } from '../dropdowns/PlusDropdown';
 import { Sidebar } from '../layout/Sidebar';
+import { BrandMark } from '../branding/Brand';
 import { Textarea } from '../ui/Input';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
 import { toastError, toastWarning } from '../../lib/toast';
@@ -16,6 +17,7 @@ interface LandingPageProps {
   onOpenSettings: () => void;
   onSignOut?: () => Promise<void>;
   onOpenTasks: (nav?: 'tasks' | 'files' | 'connectors' | 'skills') => void;
+  onOpenSearch?: () => void;
   isSignedIn?: boolean;
   userLabel?: string | null;
   userAvatarUrl?: string | null;
@@ -36,6 +38,7 @@ export function LandingPage({
   onOpenSettings,
   onSignOut,
   onOpenTasks,
+  onOpenSearch,
   isSignedIn,
   userLabel,
   userAvatarUrl,
@@ -131,8 +134,10 @@ export function LandingPage({
         userLabel={userLabel}
         userAvatarUrl={userAvatarUrl}
         onNavChange={(id) => {
-          if (id === 'search' || id === 'computer' || id === 'new') {
-            // Search, Computer, and New task all go to landing
+          if (id === 'search') {
+            onOpenSearch?.();
+          } else if (id === 'computer' || id === 'new') {
+            // Computer and New task stay on landing
           } else if (id === 'tasks') onOpenTasks('tasks');
           else if (id === 'connectors') onOpenTasks('connectors');
           else if (id === 'files') onOpenTasks('files');
@@ -144,24 +149,26 @@ export function LandingPage({
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center">
+        <BrandMark size={22} className="text-primary mb-4" />
+
         {/* Heading */}
-        <h1 className="font-display text-[42px] font-medium text-primary tracking-tight mb-10 text-center" style={{ lineHeight: 1.1 }}>
+        <h1 className="font-display text-[40px] font-medium text-primary tracking-tight mb-10 text-center" style={{ lineHeight: 1.15 }}>
           Computer works for you.
         </h1>
 
         {/* Search box */}
         <div className="w-full max-w-2xl px-4">
-          <div className="rounded-2xl border border-border shadow-sm font-sans" style={{ backgroundColor: '#FDFBFA' }}>
-            <div className="grid grid-cols-[1fr_auto] px-3 pt-3 pb-3">
+          <div className="rounded-2xl border border-border-light shadow-sm font-sans bg-surface">
+            <div className="grid grid-cols-[1fr_auto] px-3.5 pt-3.5 pb-3">
               {/* Attachments - span both columns */}
               {attachments.length > 0 && (
-                <div className="col-start-1 col-end-3 flex flex-wrap gap-2.5 pb-2">
+                <div className="col-start-1 col-end-3 flex flex-wrap gap-2.5 pb-2.5">
                   {attachments.map((a) => (
                     <div
                       key={a.id}
                       className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 bg-surface-tertiary border border-border-light font-sans max-w-[320px]"
                     >
-                      <div className="flex items-center justify-center overflow-hidden flex-shrink-0 w-9 h-9 rounded-sm bg-surface border border-border-light">
+                      <div className="flex items-center justify-center overflow-hidden flex-shrink-0 w-9 h-9 rounded-lg bg-surface border border-border-light">
                         {a.media_type.startsWith('image/') ? (
                           <img
                             src={`data:${a.media_type};base64,${a.content_base64}`}
@@ -179,7 +186,7 @@ export function LandingPage({
                       <button
                         type="button"
                         onClick={() => setAttachments((prev) => prev.filter((x) => x.id !== a.id))}
-                        className="h-6 w-6 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors cursor-pointer"
+                        className="h-6 w-6 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors duration-200 cursor-pointer"
                         aria-label={`Remove ${a.filename}`}
                       >
                         <X size={14} />
@@ -231,9 +238,9 @@ export function LandingPage({
                   onClick={handleSubmit}
                   disabled={!canSend}
                   className={`h-8 rounded-full flex items-center justify-center transition-all duration-200 aspect-[9/8] ${
-                    canSend ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'
+                    canSend ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'
                   }`}
-                  style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
+                  style={{ backgroundColor: 'var(--relay-primary, #1a1a1a)', color: 'var(--relay-surface, white)' }}
                   aria-label="Send"
                 >
                   <ArrowUp size={16} />
@@ -252,10 +259,10 @@ export function LandingPage({
                   key={prompt}
                   type="button"
                   onClick={() => handleSampleClick(prompt)}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-secondary hover:text-primary hover:border-border hover:shadow-xs transition-all duration-150 cursor-pointer font-sans"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs transition-all duration-200 cursor-pointer font-sans"
                 >
                   <span>{prompt}</span>
-                  <ArrowUpRight size={13} className="text-muted group-hover:text-muted transition-colors flex-shrink-0" />
+                  <ArrowUpRight size={13} className="text-placeholder group-hover:text-muted transition-colors flex-shrink-0" />
                 </button>
               ))}
             </div>

@@ -7,9 +7,10 @@ import type { WorkflowSummary } from '../../api/types';
 import {
   IconPlus, IconSearch,
   IconTasks, IconFiles, IconConnectors, IconSkills,
-  IconSidebarToggle, IconMenu, IconSettings,
+  IconSidebarToggle, IconSettings,
   IconSun, IconMoon, IconLogOut, IconFolder, IconChevronUpDown,
 } from '../icons/CustomIcons';
+import { BrandMark, BrandWordmark } from '../branding/Brand';
 
 type NavId = 'search' | 'computer' | 'new' | 'tasks' | 'files' | 'connectors' | 'skills';
 
@@ -125,7 +126,7 @@ export function Sidebar({
   if (collapsed) {
     return (
       <aside
-        className="flex flex-col h-full flex-shrink-0 app-ui items-center bg-sidebar border-r border-sidebar transition-[width] duration-slow overflow-visible"
+        className="flex flex-col h-full flex-shrink-0 app-ui items-center bg-sidebar border-r border-border-subtle transition-[width] duration-slow overflow-visible"
         style={{ width: WIDTH_COLLAPSED, padding: '12px 0' }}
       >
         <div className="group relative flex items-center justify-center">
@@ -133,10 +134,10 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => setCollapsed(false)}
-              className="flex items-center justify-center flex-shrink-0 h-10 w-10 bg-transparent border-none cursor-pointer rounded-md hover:bg-surface-hover transition-colors"
+              className="flex items-center justify-center flex-shrink-0 h-10 w-10 bg-surface border border-border-light cursor-pointer rounded-xl hover:bg-surface-hover transition-colors duration-200"
               aria-label="Expand sidebar"
             >
-              <IconMenu size={16} className="text-primary" />
+              <BrandMark size={18} className="text-primary" />
             </button>
           </Tooltip>
         </div>
@@ -160,7 +161,7 @@ export function Sidebar({
                     onClick={() => onNavChange?.(item.id)}
                     aria-label={item.label}
                     className={[
-                      'flex items-center justify-center h-8 w-8 rounded-md border-none cursor-pointer transition-colors',
+                      'flex items-center justify-center h-8 w-8 rounded-lg border-none cursor-pointer transition-colors duration-200',
                       activeNav === item.id ? 'bg-surface-hover' : 'bg-transparent hover:bg-surface-hover',
                     ].join(' ')}
                   >
@@ -179,26 +180,27 @@ export function Sidebar({
 
   return (
     <aside
-      className="flex flex-col h-full flex-shrink-0 app-ui bg-sidebar border-r border-sidebar transition-[width] duration-slow overflow-hidden"
+      className="flex flex-col h-full flex-shrink-0 app-ui bg-sidebar border-r border-border-subtle transition-[width] duration-slow overflow-hidden"
       style={{ width: WIDTH_EXPANDED, padding: '16px 12px 12px' }}
     >
       {/* Header: brand + toggle */}
-      <div className="flex items-center justify-between px-1 mb-4">
-        <div className="flex items-baseline gap-[3px]">
-          <span className="font-display text-[18px] font-medium text-primary tracking-[-0.4px]">
-            relay
-          </span>
-          <span className="font-display text-[18px] font-light text-secondary tracking-[-0.4px]">
-            pro
-          </span>
+      <div className="flex items-center justify-between px-1 mb-5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-light bg-surface text-primary shadow-xs">
+            <BrandMark size={18} className="text-primary" />
+          </div>
+          <BrandWordmark
+            primaryClassName="text-[18px]"
+            secondaryClassName="text-[18px]"
+          />
         </div>
         <button
           type="button"
           onClick={() => setCollapsed(true)}
-          className="flex items-center justify-center w-7 h-7 rounded-md bg-transparent border-none cursor-pointer hover:bg-surface-hover transition-colors"
+          className="flex items-center justify-center w-7 h-7 rounded-lg bg-transparent border-none cursor-pointer hover:bg-surface-hover transition-colors duration-200"
           aria-label="Collapse sidebar"
         >
-          <IconSidebarToggle size={16} className="text-secondary" />
+          <IconSidebarToggle size={16} className="text-muted" />
         </button>
       </div>
 
@@ -213,16 +215,16 @@ export function Sidebar({
               type="button"
               onClick={() => onNavChange?.(item.id)}
               className={[
-                'group/nav w-full flex items-center gap-2.5 px-2 py-[6px] rounded-md border-none cursor-pointer text-[13.5px] transition-colors whitespace-nowrap',
+                'group/nav w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg border-none cursor-pointer text-[13.5px] transition-colors duration-200 whitespace-nowrap',
                 isActive
-                  ? 'bg-border text-primary font-normal'
+                  ? 'bg-surface-hover text-primary font-normal'
                   : 'bg-transparent text-primary hover:bg-surface-hover',
               ].join(' ')}
             >
-              <span className="flex-shrink-0 text-secondary">{item.icon}</span>
+              <span className="flex-shrink-0 text-muted">{item.icon}</span>
               <span>{item.label}</span>
               {hotkey && (
-                <span className="ml-auto opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150">
+                <span className="ml-auto opacity-0 group-hover/nav:opacity-100 transition-opacity duration-200">
                   <Hotkey keys={hotkey} compact />
                 </span>
               )}
@@ -232,7 +234,7 @@ export function Sidebar({
       </div>
 
       {/* Separator */}
-      <div className="mx-1 my-3 h-px bg-sidebar-sep" />
+      <div className="mx-1 my-3.5 h-px bg-sidebar-sep" />
 
       {/* Page nav items */}
       <div className="flex flex-col gap-[2px]">
@@ -245,16 +247,16 @@ export function Sidebar({
               type="button"
               onClick={() => onNavChange?.(item.id)}
               className={[
-                'group/nav w-full flex items-center gap-2.5 px-2 py-[6px] rounded-md border-none cursor-pointer text-[13.5px] transition-colors whitespace-nowrap',
+                'group/nav w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg border-none cursor-pointer text-[13.5px] transition-colors duration-200 whitespace-nowrap',
                 isActive
-                  ? 'bg-border text-primary font-normal'
+                  ? 'bg-surface-hover text-primary font-normal'
                   : 'bg-transparent text-primary hover:bg-surface-hover',
               ].join(' ')}
             >
-              <span className="flex-shrink-0 text-secondary">{item.icon}</span>
+              <span className="flex-shrink-0 text-muted">{item.icon}</span>
               <span>{item.label}</span>
               {hotkey && (
-                <span className="ml-auto opacity-0 group-hover/nav:opacity-100 transition-opacity duration-150">
+                <span className="ml-auto opacity-0 group-hover/nav:opacity-100 transition-opacity duration-200">
                   <Hotkey keys={hotkey} compact />
                 </span>
               )}
@@ -322,7 +324,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => setProfileMenuOpen((v) => !v)}
-            className="w-full flex items-center gap-2.5 px-1 py-1.5 rounded-lg border-none bg-transparent hover:bg-surface-hover transition-colors cursor-pointer"
+            className="w-full flex items-center gap-2.5 px-1.5 py-1.5 rounded-xl border-none bg-transparent hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
             aria-label="Open account menu"
             aria-haspopup="menu"
             aria-expanded={profileMenuOpen}
@@ -343,13 +345,13 @@ export function Sidebar({
             <div className="flex flex-col items-start min-w-0 flex-1">
               <span className="text-[13px] font-medium text-primary truncate w-full text-left">{displayName}</span>
             </div>
-            <IconChevronUpDown size={14} className="text-secondary flex-shrink-0" />
+            <IconChevronUpDown size={14} className="text-muted flex-shrink-0" />
           </button>
 
           {/* Profile pop-up menu */}
           <div
             className={[
-              'absolute left-0 bottom-full mb-2 min-w-[200px] bg-surface border border-border rounded-xl shadow-dropdown py-1.5 z-50 transition-all duration-150 origin-bottom-left',
+              'absolute left-0 bottom-full mb-2 min-w-[200px] bg-surface border border-border-light rounded-xl shadow-dropdown py-1.5 z-50 transition-all duration-200 origin-bottom-left',
               profileMenuOpen
                 ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
                 : 'opacity-0 scale-95 translate-y-1 pointer-events-none',
@@ -360,9 +362,9 @@ export function Sidebar({
               type="button"
               role="menuitem"
               onClick={() => setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'))}
-              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-primary hover:bg-surface-hover transition-colors text-left border-none bg-transparent cursor-pointer"
+              className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-primary hover:bg-surface-hover transition-colors duration-200 text-left border-none bg-transparent cursor-pointer rounded-lg"
             >
-              {themeMode === 'dark' ? <IconSun size={15} className="text-secondary" /> : <IconMoon size={15} className="text-secondary" />}
+              {themeMode === 'dark' ? <IconSun size={15} className="text-muted" /> : <IconMoon size={15} className="text-muted" />}
               {themeMode === 'dark' ? 'Light mode' : 'Dark mode'}
             </button>
 
@@ -374,16 +376,16 @@ export function Sidebar({
                   setProfileMenuOpen(false);
                   onOpenSettings();
                 }}
-                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-primary hover:bg-surface-hover transition-colors text-left border-none bg-transparent cursor-pointer"
+                className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-primary hover:bg-surface-hover transition-colors duration-200 text-left border-none bg-transparent cursor-pointer rounded-lg"
               >
-                <IconSettings size={15} className="text-secondary" />
+                <IconSettings size={15} className="text-muted" />
                 Settings
               </button>
             )}
 
             {isSignedIn && onSignOut && (
               <>
-                <div className="mx-3 my-1 h-px bg-border" />
+                <div className="mx-3 my-1 h-px bg-border-subtle" />
                 <button
                   type="button"
                   role="menuitem"
@@ -391,9 +393,9 @@ export function Sidebar({
                     setProfileMenuOpen(false);
                     void onSignOut();
                   }}
-                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-primary hover:bg-surface-hover transition-colors text-left border-none bg-transparent cursor-pointer"
+                  className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-primary hover:bg-surface-hover transition-colors duration-200 text-left border-none bg-transparent cursor-pointer rounded-lg"
                 >
-                  <IconLogOut size={15} className="text-secondary" />
+                  <IconLogOut size={15} className="text-muted" />
                   Sign out
                 </button>
               </>

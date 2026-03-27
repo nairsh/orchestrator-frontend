@@ -16,19 +16,19 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'bg-ink text-white hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed',
+    'bg-ink text-white hover:opacity-[0.88] active:opacity-80 disabled:opacity-30 disabled:cursor-not-allowed',
   secondary:
-    'bg-surface border border-border text-primary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed',
+    'bg-surface border border-border-light text-primary hover:bg-surface-hover active:bg-surface-tertiary disabled:opacity-40 disabled:cursor-not-allowed',
   ghost:
-    'bg-transparent text-muted hover:text-primary hover:bg-surface-hover disabled:opacity-40 disabled:cursor-not-allowed',
+    'bg-transparent text-secondary hover:text-primary hover:bg-surface-hover active:bg-surface-tertiary disabled:opacity-40 disabled:cursor-not-allowed',
   danger:
-    'bg-danger text-white hover:bg-danger/80 disabled:opacity-30 disabled:cursor-not-allowed',
+    'bg-danger/10 text-danger border border-danger/20 hover:bg-danger/15 active:bg-danger/20 disabled:opacity-30 disabled:cursor-not-allowed',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'px-2.5 py-1 text-xs rounded-md',
-  md: 'px-3.5 py-1.5 text-sm rounded-lg',
-  lg: 'px-4 py-2 text-base rounded-lg',
+  sm: 'px-2.5 py-1 text-xs rounded-lg gap-1.5',
+  md: 'px-3.5 py-[7px] text-sm rounded-lg gap-2',
+  lg: 'px-5 py-2.5 text-base rounded-xl gap-2',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

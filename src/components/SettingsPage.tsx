@@ -11,6 +11,7 @@ import {
   resolveModelIconKey,
 } from '../lib/modelIcons';
 import { useSettingsState } from '../hooks/useSettingsState';
+import { ProvidersSettingsPanel } from './ProvidersSettingsPanel';
 import { Button, Input, Select } from './ui';
 import { Sidebar } from './layout/Sidebar';
 import { IconGitHub, IconLinear, IconNotion, IconCheck } from './icons/CustomIcons';
@@ -47,10 +48,11 @@ const CONNECTOR_COPY: Record<
   },
 };
 
-type Panel = 'general' | 'routing' | 'connectors' | 'icons' | 'billing' | 'health';
+type Panel = 'general' | 'providers' | 'routing' | 'connectors' | 'icons' | 'billing' | 'health';
 
 const NAV_ITEMS: { id: Panel; label: string }[] = [
   { id: 'general', label: 'General' },
+  { id: 'providers', label: 'API Providers' },
   { id: 'routing', label: 'Model routing' },
   { id: 'connectors', label: 'Connectors' },
   { id: 'icons', label: 'Visual system' },
@@ -76,6 +78,7 @@ interface SettingsPageProps {
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
   onNavigateToLanding?: () => void;
   onOpenTasks?: (nav: string) => void;
+  onOpenSearch?: () => void;
 }
 
 const formatProviderName = (provider: ConnectorProvider): string => CONNECTOR_COPY[provider].label;
@@ -152,6 +155,7 @@ export function SettingsPage({
   onSidebarCollapsedChange,
   onNavigateToLanding,
   onOpenTasks,
+  onOpenSearch,
 }: SettingsPageProps) {
   const [panel, setPanel] = useState<Panel>('general');
   const [baseUrl, setBaseUrl] = useState(initialBaseUrl);
@@ -204,7 +208,8 @@ export function SettingsPage({
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
         onNavChange={(id) => {
-          if (id === 'search' || id === 'computer' || id === 'new') onNavigateToLanding?.();
+          if (id === 'search') onOpenSearch?.();
+          else if (id === 'computer' || id === 'new') onNavigateToLanding?.();
           else { onOpenTasks?.(id); }
         }}
       />
@@ -219,7 +224,7 @@ export function SettingsPage({
           >
             ← Back
           </button>
-          <h1 className="font-display text-[32px] font-medium text-primary tracking-tight mb-8">
+          <h1 className="text-[32px] font-medium text-primary tracking-tight mb-8">
             Settings
           </h1>
 
@@ -327,6 +332,14 @@ export function SettingsPage({
                     </Button>
                   </div>
                 </div>
+              )}
+
+              {/* ── API Providers ── */}
+              {panel === 'providers' && (
+                <ProvidersSettingsPanel
+                  config={{ baseUrl: baseUrl.trim(), getAuthToken }}
+                  isSignedIn={isSignedIn}
+                />
               )}
 
               {/* ── Model Routing ── */}

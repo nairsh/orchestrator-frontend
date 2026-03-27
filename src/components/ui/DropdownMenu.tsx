@@ -48,7 +48,7 @@ export function DropdownMenu({
 
       <div
         className={[
-          'absolute z-50 bg-surface border border-border rounded-lg shadow-dropdown py-1',
+          'absolute z-50 bg-surface border border-border-light rounded-xl shadow-dropdown py-1.5',
           direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
           align === 'left' ? 'left-0' : 'right-0',
         ].join(' ')}
@@ -56,7 +56,7 @@ export function DropdownMenu({
           width,
           maxHeight,
           overflowY: 'auto',
-          transition: 'opacity 100ms ease, transform 100ms ease',
+          transition: 'opacity 150ms ease, transform 150ms ease',
           opacity: open ? 1 : 0,
           transform: open
             ? 'translateY(0)'
@@ -97,7 +97,7 @@ export function DropdownMenuItem({
       role="menuitem"
       onClick={onClick}
       className={[
-        'w-full flex items-center gap-2.5 px-3.5 py-2 text-sm font-sans transition-colors duration-fast cursor-pointer text-left',
+        'w-full flex items-center gap-2.5 px-3.5 py-2 text-sm font-sans transition-colors duration-150 cursor-pointer text-left rounded-lg mx-0',
         destructive
           ? 'text-danger hover:bg-danger/15'
           : 'text-primary hover:bg-surface-hover',

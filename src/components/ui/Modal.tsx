@@ -36,18 +36,18 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-150 ${
-        visible ? 'bg-black/40' : 'bg-black/0'
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-200 ${
+        visible ? 'bg-black/30' : 'bg-black/0'
       }`}
       onClick={handleBackdropClick}
     >
       <div
         className={[
-          'bg-surface rounded-xl shadow-modal w-full overflow-hidden transition-all duration-150',
+          'bg-surface rounded-2xl shadow-lg border border-border-subtle w-full overflow-hidden transition-all duration-200',
           maxWidth,
           visible
             ? 'opacity-100 translate-y-0 scale-100'
-            : 'opacity-0 translate-y-2 scale-[0.98]',
+            : 'opacity-0 translate-y-2 scale-[0.97]',
           className,
         ].join(' ')}
       >
@@ -67,15 +67,15 @@ interface ModalHeaderProps {
 
 export function ModalHeader({ title, onClose, children }: ModalHeaderProps) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
+    <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
       <div className="flex items-center gap-3">
-        <h2 className="text-sm font-semibold text-primary">{title}</h2>
+        <h2 className="text-base font-semibold text-primary">{title}</h2>
         {children}
       </div>
       <button
         type="button"
         onClick={onClose}
-        className="w-7 h-7 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-150 cursor-pointer"
+        className="w-8 h-8 rounded-xl flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
         aria-label="Close"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -97,7 +97,7 @@ export function ModalBody({ children, className = '' }: { children: ReactNode; c
 
 export function ModalFooter({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`flex items-center justify-between px-5 py-3.5 border-t border-border-light bg-surface-secondary/60 ${className}`}>
+    <div className={`flex items-center justify-between px-5 py-4 border-t border-border-subtle bg-surface-secondary/60 ${className}`}>
       {children}
     </div>
   );

@@ -26,7 +26,7 @@ export function RelayEmpty({
         {icon ?? <PackageOpen size={26} className="text-muted" />}
       </div>
       {title && (
-        <h3 className="text-base font-semibold text-primary font-display mb-1.5">{title}</h3>
+        <h3 className="text-base font-semibold text-primary mb-1.5">{title}</h3>
       )}
       {description && (
         <p className="text-sm text-muted font-sans text-center max-w-xs leading-relaxed">

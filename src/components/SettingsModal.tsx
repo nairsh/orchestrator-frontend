@@ -13,6 +13,7 @@ import { AgentHealthPanel } from './AgentHealthPanel';
 import { SettingsRoutingPanel } from './SettingsRoutingPanel';
 import { SettingsConnectorsPanel } from './SettingsConnectorsPanel';
 import { SettingsIconsPanel } from './SettingsIconsPanel';
+import { ProvidersSettingsPanel } from './ProvidersSettingsPanel';
 
 interface SettingsModalProps {
   initialBaseUrl: string;
@@ -29,7 +30,7 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-type Panel = 'workspace' | 'routing' | 'connectors' | 'icons' | 'billing' | 'health';
+type Panel = 'workspace' | 'providers' | 'routing' | 'connectors' | 'icons' | 'billing' | 'health';
 
 export function SettingsModal({
   initialBaseUrl, clerkEnabled = false, requiresAuth = false, isSignedIn = false,
@@ -81,6 +82,7 @@ export function SettingsModal({
             <nav className="space-y-1 p-3">
               {([
                 { id: 'workspace', title: 'Workspace', note: 'Connection and account status' },
+                { id: 'providers', title: 'API Providers', note: 'BYOK for LLM providers' },
                 { id: 'routing', title: 'Model Routing', note: 'Per-task model preferences' },
                 { id: 'connectors', title: 'Connectors', note: 'GitHub, Linear, Notion' },
                 { id: 'icons', title: 'Visual System', note: 'Per-model icons' },
@@ -153,6 +155,13 @@ export function SettingsModal({
                   {status === 'error' && <Alert className="mt-4" type="error" title={errorMsg || 'Connection failed'} variant="outlined" />}
                 </section>
               </div>
+            )}
+
+            {panel === 'providers' && (
+              <ProvidersSettingsPanel
+                config={apiConfig}
+                isSignedIn={isSignedIn}
+              />
             )}
 
             {panel === 'routing' && (

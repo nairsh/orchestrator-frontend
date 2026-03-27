@@ -390,3 +390,43 @@ export interface WorkflowTask {
   origin?: string;
   output_artifact?: string | null;
 }
+
+// ── API Providers (BYOK) ──────────────────────────────────────────────────
+export type ProviderType = 'openai' | 'deepseek' | 'google' | 'openrouter' | 'litellm' | 'custom';
+
+export interface ApiProvider {
+  id: string;
+  provider_type: ProviderType;
+  display_name: string;
+  api_url: string;
+  api_key_masked: string;
+  embedding_model: string | null;
+  is_default_embedding: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProviderPreset {
+  displayName: string;
+  apiUrl: string;
+  urlEditable: boolean;
+}
+
+export interface CreateProviderInput {
+  provider_type: ProviderType;
+  display_name: string;
+  api_url: string;
+  api_key: string;
+  embedding_model?: string;
+  is_default_embedding?: boolean;
+}
+
+export interface UpdateProviderInput {
+  display_name?: string;
+  api_url?: string;
+  api_key?: string;
+  embedding_model?: string;
+  is_default_embedding?: boolean;
+  is_active?: boolean;
+}

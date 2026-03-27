@@ -177,13 +177,13 @@
 
   /* Sidebar nav item hover states */
   .nav-item {
-    @apply transition-all duration-150 rounded-lg px-2.5 py-1.5 text-sm cursor-pointer;
+    @apply transition-all duration-200 rounded-xl px-2.5 py-1.5 text-sm cursor-pointer;
   }
   .nav-item:hover {
     @apply bg-surface-hover;
   }
   .nav-item.active {
-    @apply bg-surface shadow-xs;
+    @apply bg-surface-hover;
   }
 
   /* Input focus: border change, no ring */

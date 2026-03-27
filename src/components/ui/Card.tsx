@@ -15,16 +15,16 @@ interface CardProps {
 
 const paddingClasses: Record<string, string> = {
   none: '',
-  sm: 'p-2',
-  md: 'p-3',
-  lg: 'p-4',
+  sm: 'p-3',
+  md: 'p-4',
+  lg: 'p-5',
 };
 
 export function Card({ children, className = '', padding = 'md' }: CardProps) {
   return (
     <div
       className={[
-        'bg-surface border border-border rounded-xl shadow',
+        'bg-surface border border-border-light rounded-xl shadow-sm',
         paddingClasses[padding],
         className,
       ].join(' ')}

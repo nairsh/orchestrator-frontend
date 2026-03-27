@@ -235,7 +235,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex items-center justify-between flex-shrink-0 px-8 pt-8 pb-2">
-            <h1 className="text-xl font-semibold text-primary font-display">Skills</h1>
+            <h1 className="text-xl font-semibold text-primary">Skills</h1>
             <div className="flex items-center gap-3">
               <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />

@@ -13,8 +13,10 @@ import { toastApiError } from './lib/toast';
 import type { ApiConfig } from './api/client';
 import type { ModelIconOverrides } from './lib/modelIcons';
 import { CommandPalette } from './components/CommandPalette';
+import { TaskSearchDialog } from './components/TaskSearchDialog';
 import { OnboardingModal, hasCompletedOnboarding } from './components/OnboardingModal';
 import { KeyboardShortcutsOverlay, useKeyboardShortcuts } from './components/KeyboardShortcuts';
+import { BrandMark, BrandWordmark } from './components/branding/Brand';
 
 type Screen = 'landing' | 'tasks' | 'settings';
 type TaskNav = 'tasks' | 'files' | 'connectors' | 'skills';
@@ -55,6 +57,7 @@ export default function App({
   const [requestedTaskNav, setRequestedTaskNav] = useState<TaskNav>('tasks');
   const [openTaskInFullView, setOpenTaskInFullView] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showTaskSearch, setShowTaskSearch] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => !hasCompletedOnboarding());
   const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false);
 
@@ -197,6 +200,15 @@ export default function App({
     return (
       <div className="h-screen flex items-center justify-center bg-surface-warm px-6">
         <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-sm">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-border-light bg-surface-secondary text-primary">
+              <BrandMark size={18} className="text-primary" />
+            </div>
+            <BrandWordmark
+              primaryClassName="text-[18px]"
+              secondaryClassName="text-[18px]"
+            />
+          </div>
           <div className="font-sans text-xl font-semibold text-primary">Sign in required</div>
           <p className="mt-2 font-sans text-sm text-secondary">
             Sign in to unlock all features. You can still configure the server URL in Settings.
@@ -260,6 +272,7 @@ export default function App({
           onSubmit={(objective, model, contextFiles) => void handleLandingSubmit(objective, model, contextFiles)}
           onOpenSettings={() => setScreen('settings')}
           onOpenTasks={openTasks}
+          onOpenSearch={() => setShowTaskSearch(true)}
           onSignOut={onSignOut}
           isSignedIn={effectiveAuth}
           userLabel={userLabel}
@@ -287,6 +300,7 @@ export default function App({
           onSidebarCollapsedChange={setSidebarCollapsed}
           onNavigateToLanding={() => setScreen('landing')}
           onOpenTasks={(nav) => openTasks(nav as TaskNav)}
+          onOpenSearch={() => setShowTaskSearch(true)}
         />
       ) : (
         <TasksPage
@@ -297,6 +311,7 @@ export default function App({
           onSelectedModelChange={setSelectedModel}
           onNavigateToLanding={() => setScreen('landing')}
           onOpenSettings={() => setScreen('settings')}
+          onOpenSearch={() => setShowTaskSearch(true)}
           onSignOut={onSignOut}
           isSignedIn={effectiveAuth}
           userLabel={userLabel}
@@ -352,6 +367,22 @@ export default function App({
             setShowCommandPalette(false);
             setScreen('landing');
             window.dispatchEvent(new CustomEvent('relay:focus-input'));
+          }}
+        />
+      )}
+
+      {/* Task Search Dialog (Raycast-style) */}
+      {showTaskSearch && (
+        <TaskSearchDialog
+          open={showTaskSearch}
+          onClose={() => setShowTaskSearch(false)}
+          config={runtimeConfig}
+          onSelectWorkflow={(id, objective) => {
+            setShowTaskSearch(false);
+            setActiveWorkflow({ id, objective });
+            setRequestedTaskNav('tasks');
+            setOpenTaskInFullView(true);
+            setScreen('tasks');
           }}
         />
       )}
