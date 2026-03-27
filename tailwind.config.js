@@ -93,8 +93,8 @@ export default {
       /* ─── Transitions ─── */
       transitionDuration: {
         fast: '100ms',
-        DEFAULT: '150ms',
-        slow: '200ms',
+        DEFAULT: '200ms',
+        slow: '250ms',
       },
       /* ─── Max width ─── */
       maxWidth: {
@@ -121,10 +121,10 @@ export default {
         },
       },
       animation: {
-        'fade-in': 'fade-in 150ms ease-out',
-        'slide-up': 'slide-up 100ms ease-out',
-        'slide-down': 'slide-down 100ms ease-out',
-        'scale-in': 'scale-in 150ms ease-out',
+        'fade-in': 'fade-in 180ms ease-out',
+        'slide-up': 'slide-up 180ms ease-out',
+        'slide-down': 'slide-down 180ms ease-out',
+        'scale-in': 'scale-in 180ms ease-out',
       },
     },
   },
