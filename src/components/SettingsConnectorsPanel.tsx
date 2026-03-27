@@ -137,7 +137,7 @@ export function SettingsConnectorsPanel({
                             <Tag key={scope} size="small">{scope}</Tag>
                           ))
                         ) : (
-                          <span className="text-xs text-muted">Provider-defined at connect time</span>
+                          <span className="text-xs text-muted">Set when you connect</span>
                         )}
                       </div>
                     </div>
@@ -146,12 +146,12 @@ export function SettingsConnectorsPanel({
                       {connector ? (
                         <>
                           <div className="font-medium text-primary">{connector.display_name}</div>
-                          <div className="mt-1 text-xs text-muted">{getConnectorSummary(connector) || 'Connected account metadata available.'}</div>
+                          <div className="mt-1 text-xs text-muted">{getConnectorSummary(connector) || 'Connected.'}</div>
                         </>
                       ) : provider.configured ? (
                         <div className="text-sm text-muted">No account connected yet.</div>
                       ) : (
-                        <div className="text-sm text-warning">Add provider credentials on the server to enable this connector.</div>
+                        <div className="text-sm text-warning">This connector requires server-side setup before it can be used.</div>
                       )}
                     </div>
 
