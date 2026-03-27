@@ -38,13 +38,13 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
   const [approving, setApproving] = useState<'approve' | 'reject' | null>(null);
 
   return (
-    <div className={`rounded-lg border px-4 py-3 ${
+    <div className={`rounded-xl border px-4 py-3 ${
       isPending
         ? 'border-warning/30 bg-warning/10'
         : 'border-border-light bg-surface-secondary'
     }`}>
       <div className="flex items-start gap-3">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+        <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
           isPending ? 'bg-warning/15' : 'bg-surface-tertiary'
         }`}>
           <ShieldAlert size={18} className={isPending ? 'text-warning' : 'text-muted'} />
