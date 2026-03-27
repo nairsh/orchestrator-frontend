@@ -35,7 +35,9 @@ export function FullPageChat({ config, initialMessage, onClose, modelIconOverrid
           setModel(preferred);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Model list unavailable — keep current selection
+      });
     return () => { cancelled = true; };
   }, [config.baseUrl]);
 

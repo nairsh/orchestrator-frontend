@@ -41,7 +41,9 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
           setModel(preferred);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Model list unavailable — keep current selection
+      });
     return () => { cancelled = true; };
   }, [config.baseUrl]);
 

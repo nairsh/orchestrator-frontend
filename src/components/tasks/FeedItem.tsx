@@ -33,7 +33,7 @@ function humanizeToolName(name: string): string {
 function UserBubble({ text, fullView = false }: { text: string; fullView?: boolean }) {
   return (
     <div className="w-full flex justify-end">
-      <div className={`inline-flex rounded-2xl px-3.5 py-2.5 max-w-[72%] min-h-[38px] items-center ${fullView ? 'bg-surface-hover border border-border-light/70' : 'bg-userbubble border border-border-light/80 shadow-[0_1px_0_rgba(0,0,0,0.03)]'}`}>
+      <div className={`inline-flex rounded-2xl px-3.5 py-2.5 max-w-[72%] min-h-[38px] items-center ${fullView ? 'bg-surface-hover border border-border-subtle/50' : 'bg-userbubble border border-border-subtle/40 shadow-[0_1px_0_rgba(0,0,0,0.03)]'}`}>
         <span className="font-sans text-md leading-relaxed text-primary whitespace-pre-wrap break-all">
           {text}
         </span>

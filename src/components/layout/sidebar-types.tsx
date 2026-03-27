@@ -18,9 +18,9 @@ export const navHotkeys: Partial<Record<NavId, string>> = {
   new: 'n',
   search: 'mod+k',
   tasks: '⌘⇧O',
-  files: 'g+f',
-  connectors: 'g+c',
-  skills: 'g+s',
+  files: '⌘⇧E',
+  connectors: '⌘⇧L',
+  skills: '⌘⇧K',
 };
 
 export const getNavItems = (): NavItem[] => [

@@ -77,9 +77,9 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
       title: 'Navigation',
       shortcuts: [
         { keys: ['⌘', '⇧', 'O'], description: 'Go to Tasks', inverseKeys: 'mod+shift+o' },
-        { keys: ['G', 'F'], description: 'Go to Files', inverseKeys: 'g+f' },
-        { keys: ['G', 'C'], description: 'Go to Connectors', inverseKeys: 'g+c' },
-        { keys: ['G', 'S'], description: 'Go to Skills', inverseKeys: 'g+s' },
+        { keys: ['⌘', '⇧', 'E'], description: 'Go to Files', inverseKeys: 'mod+shift+e' },
+        { keys: ['⌘', '⇧', 'L'], description: 'Go to Connectors', inverseKeys: 'mod+shift+l' },
+        { keys: ['⌘', '⇧', 'K'], description: 'Go to Skills', inverseKeys: 'mod+shift+k' },
       ],
     },
   ];

@@ -188,7 +188,7 @@ export function ModelIcon({ iconKey, size = 16 }: { iconKey: string; size?: numb
       alt={definition.label}
       width={size}
       height={size}
-      className="object-contain grayscale brightness-0"
+      className="object-contain model-icon-img"
       onError={() => setLoadFailed(true)}
     />
   );

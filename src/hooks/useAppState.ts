@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useConfig } from './useConfig';
 import { createWorkflow, getModels } from '../api/client';
 import type { ContextFileUpload, ApiConfig } from '../api/client';
@@ -89,53 +89,22 @@ export function useAppState(props: AppProps) {
     },
   ]);
 
-  // G+key two-key navigation sequences (e.g., G then T → Go to Tasks)
-  const gPrefixRef = useRef(false);
+  // ⌘+Shift navigation: O→Tasks, E→Files, L→Connectors, K→Skills
   useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-    const NAV_MAP: Record<string, TaskNav> = { f: 'files', c: 'connectors', s: 'skills' };
+    const NAV_MAP: Record<string, TaskNav | 'tasks'> = { o: 'tasks', e: 'files', l: 'connectors', k: 'skills' };
 
     const handler = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
 
-      const key = e.key.toLowerCase();
-      if (key === 'g' && !e.shiftKey) {
-        gPrefixRef.current = true;
-        clearTimeout(timer);
-        timer = setTimeout(() => { gPrefixRef.current = false; }, 600);
-        return;
-      }
-
-      if (gPrefixRef.current) {
-        gPrefixRef.current = false;
-        clearTimeout(timer);
-        const nav = NAV_MAP[key];
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
+        const nav = NAV_MAP[e.key.toLowerCase()];
         if (nav) {
           e.preventDefault();
           setScreen('tasks');
-          setRequestedTaskNav(nav);
+          setRequestedTaskNav(nav === 'tasks' ? 'tasks' : nav);
           setShowShortcutsOverlay(false);
         }
-      }
-    };
-
-    document.addEventListener('keydown', handler);
-    return () => { document.removeEventListener('keydown', handler); clearTimeout(timer); };
-  }, []);
-
-  // ⌘+Shift+O → Go to Tasks
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      const el = e.target as HTMLElement;
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
-
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
-        e.preventDefault();
-        setScreen('tasks');
-        setRequestedTaskNav('tasks');
-        setShowShortcutsOverlay(false);
       }
     };
 

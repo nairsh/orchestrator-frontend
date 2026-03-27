@@ -22,7 +22,8 @@ export function connectWorkflowStream(
 ): SseConnection {
   const abortController = new AbortController();
 
-  signal?.addEventListener('abort', () => abortController.abort());
+  const abortHandler = () => abortController.abort();
+  signal?.addEventListener('abort', abortHandler);
 
   const url = `${config.baseUrl.replace(/\/$/, '')}/v1/workflows/${workflowId}/stream`;
 
@@ -77,7 +78,10 @@ export function connectWorkflowStream(
   })();
 
   return {
-    close: () => abortController.abort(),
+    close: () => {
+      signal?.removeEventListener('abort', abortHandler);
+      abortController.abort();
+    },
   };
 }
 
@@ -91,7 +95,8 @@ export function streamAgentResponse(
   signal?: AbortSignal
 ): SseConnection {
   const abortController = new AbortController();
-  signal?.addEventListener('abort', () => abortController.abort());
+  const abortHandler = () => abortController.abort();
+  signal?.addEventListener('abort', abortHandler);
 
   const url = `${config.baseUrl.replace(/\/$/, '')}/v1/responses`;
 
@@ -148,7 +153,10 @@ export function streamAgentResponse(
   })();
 
   return {
-    close: () => abortController.abort(),
+    close: () => {
+      signal?.removeEventListener('abort', abortHandler);
+      abortController.abort();
+    },
   };
 }
 
