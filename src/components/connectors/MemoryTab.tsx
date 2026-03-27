@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Brain } from 'lucide-react';
+import { Brain, Loader2 } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { deleteMemory, saveMemory } from '../../api/client';
 import type { Memory } from '../../api/types';
@@ -29,8 +29,9 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted">{memories.length} memories</span>
           <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => void onRefresh()}>
-              {memoriesLoading ? 'Loading...' : 'Refresh'}
+            <Button variant="secondary" disabled={memoriesLoading} onClick={() => void onRefresh()} className="gap-1.5">
+              {memoriesLoading ? <Loader2 size={13} className="animate-spin" /> : null}
+              {memoriesLoading ? 'Loading…' : 'Refresh'}
             </Button>
             <Button onClick={() => setShowDialog(true)}>Save memory</Button>
           </div>
