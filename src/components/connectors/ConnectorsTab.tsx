@@ -82,7 +82,7 @@ export function ConnectorsTab({
                       try { await validateConnector(config, connector.id); toastSuccess('Connection verified'); await onRefresh(); }
                       catch (err) { toastApiError(err, 'Failed to verify connection'); }
                       finally { setConnectorBusyId(null); }
-                    }}>Test connection</Button>
+                    }}>{busy && connectorBusyId === connector.id ? 'Testing…' : 'Test connection'}</Button>
                     {disconnectConfirmId === connector.id ? (
                       <div className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20">
                         <span className="text-xs text-danger font-medium">Disconnect?</span>
