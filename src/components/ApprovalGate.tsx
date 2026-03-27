@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Check, X, ShieldAlert, Server, Loader2 } from 'lucide-react';
 import { Highlighter, Tag } from '@lobehub/ui';
 import { Button } from './ui/Button';
+import { toastApiError } from '../lib/toast';
 
 const TOOL_LABELS: Record<string, string> = {
   bash: 'Run Command',
@@ -82,7 +83,7 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
                 disabled={!!approving}
                 onClick={() => {
                   setApproving('approve');
-                  void Promise.resolve(onApprove(taskId)).finally(() => setApproving(null));
+                  void Promise.resolve(onApprove(taskId)).catch((err) => toastApiError(err, 'Approval failed')).finally(() => setApproving(null));
                 }}
                 className="gap-1.5 !bg-success-muted hover:!bg-success"
               >
@@ -95,7 +96,7 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
                 disabled={!!approving}
                 onClick={() => {
                   setApproving('reject');
-                  void Promise.resolve(onReject(taskId)).finally(() => setApproving(null));
+                  void Promise.resolve(onReject(taskId)).catch((err) => toastApiError(err, 'Rejection failed')).finally(() => setApproving(null));
                 }}
                 className="gap-1.5"
               >
