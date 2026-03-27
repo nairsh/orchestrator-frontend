@@ -71,7 +71,7 @@ export function TasksPage({
   const splitViewRef = useRef<HTMLDivElement>(null);
 
   const { workflows, loading, refresh } = useWorkflows(config, true, statusFilter);
-  const { meta } = useWorkflowMeta();
+  const { meta, getDisplayName } = useWorkflowMeta();
 
   const pinnedIds = useMemo(() => {
     const ids = new Set<string>();
@@ -135,6 +135,7 @@ export function TasksPage({
         onCollapsedChange={onSidebarCollapsedChange}
         workflows={workflows}
         pinnedIds={pinnedIds}
+        getDisplayName={getDisplayName}
         onSelectWorkflow={(id, objective) => {
           handleSelect(id, objective);
           setActiveNav('tasks');
