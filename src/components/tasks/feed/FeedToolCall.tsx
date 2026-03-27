@@ -11,18 +11,21 @@ import { WebSearchRenderer } from './WebSearchRenderer';
 import { humanizeToolName } from '../../../lib/toolLabels';
 import { getFileName } from '../../../lib/fileUtils';
 import { FetchUrlRenderer } from './FetchUrlRenderer';
+import { formatTimeOnly } from '../../../lib/time';
 
 export function FeedToolCall({
   toolName,
   input,
   output,
   status,
+  at,
   showLeadingIcon = true,
 }: {
   toolName: string;
   input: unknown;
   output?: unknown;
   status: string;
+  at?: string;
   showLeadingIcon?: boolean;
 }) {
   const inp = asRecord(input);
@@ -81,6 +84,8 @@ export function FeedToolCall({
   const searchResults = useMemo(() => (isWebSearch ? extractSearchResults(output) : []), [isWebSearch, output]);
   const fetchedSource = useMemo(() => (isFetchUrl ? extractFetchedSource(input, output) : null), [isFetchUrl, input, output]);
 
+  const timeLabel = formatTimeOnly(at);
+
   const hasOutput = !isTodo && !isFile && !isClarification && output !== undefined;
   const expandable = hasOutput || todos.length > 0;
 
@@ -107,14 +112,19 @@ export function FeedToolCall({
         onClick={() => { if (expandable) setOpen((v) => !v); }}
       >
         {showLeadingIcon && <Icon size={16} className={`flex-shrink-0 ${isRunning ? 'text-primary' : 'text-muted'}`} />}
-        <span className={`font-sans text-base ${isRunning ? 'font-medium text-primary' : 'font-normal text-muted'}`}>
+        <span className={`font-sans text-base truncate ${isRunning ? 'font-medium text-primary' : 'font-normal text-muted'}`}>
           {title}
         </span>
         {isRunning && <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-info flex-shrink-0" />}
+        {timeLabel && !isRunning && (
+          <span className="ml-auto font-sans text-xs text-placeholder whitespace-nowrap flex-shrink-0">
+            {timeLabel}
+          </span>
+        )}
         {expandable && (
           <ChevronDown
             size={15}
-            className="ml-auto flex-shrink-0 text-placeholder transition-transform duration-slow"
+            className={`${timeLabel && !isRunning ? '' : 'ml-auto'} flex-shrink-0 text-placeholder transition-transform duration-slow`}
             style={{ transform: open ? 'none' : 'rotate(-90deg)' }}
           />
         )}

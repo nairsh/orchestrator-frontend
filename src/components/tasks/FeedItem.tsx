@@ -121,7 +121,7 @@ export const FeedItem = memo(function FeedItem({
     case 'task_group':
       return <FeedTaskGroup tasks={entry.tasks} modelIconOverrides={modelIconOverrides} />;
     case 'tool_call':
-      return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} />;
+      return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} at={entry.at} />;
     case 'bash_approval':
       if (onApproval && entry.taskId) {
         return (

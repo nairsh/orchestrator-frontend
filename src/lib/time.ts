@@ -37,6 +37,14 @@ export function formatWhen(value: string | null | undefined): string {
   return formatDateTime(date.getTime());
 }
 
+/** Short time only: "10:05 PM". Returns null for invalid values. */
+export function formatTimeOnly(value: string | null | undefined): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
 /** Compact relative time: "just now", "5m ago", "3h ago", "2d ago". Falls back to short date for >30d. */
 export function relativeTimeAgo(ms: number): string {
   const diff = Date.now() - ms;
