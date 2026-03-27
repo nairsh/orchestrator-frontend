@@ -52,12 +52,12 @@ type Panel = 'general' | 'providers' | 'routing' | 'connectors' | 'icons' | 'bil
 
 const NAV_ITEMS: { id: Panel; label: string }[] = [
   { id: 'general', label: 'General' },
-  { id: 'providers', label: 'API Providers' },
-  { id: 'routing', label: 'Model routing' },
+  { id: 'providers', label: 'AI Services' },
+  { id: 'routing', label: 'AI Preferences' },
   { id: 'connectors', label: 'Connectors' },
-  { id: 'icons', label: 'Visual system' },
+  { id: 'icons', label: 'Appearance' },
   { id: 'billing', label: 'Billing' },
-  { id: 'health', label: 'Model health' },
+  { id: 'health', label: 'System Status' },
 ];
 
 interface SettingsPageProps {
@@ -346,8 +346,8 @@ export function SettingsPage({
               {panel === 'routing' && (
                 <div className="space-y-8">
                   <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Model routing</h2>
-                    <p className="text-[13px] text-secondary mb-5">Choose which model to use for each task type.</p>
+                    <h2 className="text-[15px] font-medium text-primary mb-1">AI Preferences</h2>
+                    <p className="text-[13px] text-secondary mb-5">Choose which AI to use for each type of work.</p>
 
                     {!isSignedIn && (
                       <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
@@ -556,8 +556,8 @@ export function SettingsPage({
               {panel === 'health' && (
                 <div className="space-y-8">
                   <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Model health</h2>
-                    <p className="text-[13px] text-secondary mb-5">Model availability, latency, and status.</p>
+                    <h2 className="text-[15px] font-medium text-primary mb-1">System Status</h2>
+                    <p className="text-[13px] text-secondary mb-5">Check whether your AI services are running and responding.</p>
                     <div className="rounded-lg border border-border-light bg-surface p-4">
                       <HealthInline config={{ baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn }} />
                     </div>

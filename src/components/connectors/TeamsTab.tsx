@@ -1,4 +1,3 @@
-import { Snippet } from '@lobehub/ui';
 import { Loader2, Users } from 'lucide-react';
 import { Button, Card } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
@@ -13,11 +12,11 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
   return (
     <div className="space-y-4">
       {teamsStatus === 'disabled' ? (
-        <Card padding="lg" className="rounded-[24px] border-border-light bg-surface">
-          <span className="text-sm text-muted">
-            Teams is disabled on this server. Enable it with <Snippet copyable={false} variant="borderless">TEAMS_BETA_ENABLED=1</Snippet>.
-          </span>
-        </Card>
+        <RelayEmpty
+          icon={<Users size={26} className="text-muted" />}
+          title="Teams coming soon"
+          description="Team collaboration is not yet available on this server. Contact your administrator to enable it."
+        />
       ) : (
         <>
           <div className="flex items-center justify-between">

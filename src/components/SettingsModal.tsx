@@ -82,12 +82,12 @@ export function SettingsModal({
             <nav className="space-y-1 p-3">
               {([
                 { id: 'workspace', title: 'Workspace', note: 'Connection and account status' },
-                { id: 'providers', title: 'API Providers', note: 'BYOK for LLM providers' },
-                { id: 'routing', title: 'Model Routing', note: 'Per-task model preferences' },
+                { id: 'providers', title: 'AI Services', note: 'Connect your own AI accounts' },
+                { id: 'routing', title: 'AI Preferences', note: 'Choose AI for each type of work' },
                 { id: 'connectors', title: 'Connectors', note: 'GitHub, Linear, Notion' },
-                { id: 'icons', title: 'Visual System', note: 'Per-model icons' },
+                { id: 'icons', title: 'Appearance', note: 'Customize how models look' },
                 { id: 'billing', title: 'Billing', note: 'Usage, credits, transactions' },
-                { id: 'health', title: 'Model Health', note: 'Model status and latency' },
+                { id: 'health', title: 'System Status', note: 'AI service availability' },
               ] as const).map((item) => {
                 const active = panel === item.id;
                 return (

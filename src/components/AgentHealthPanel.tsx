@@ -5,6 +5,7 @@ import type { AgentHealthStatus } from '../api/types';
 import type { ApiConfig } from '../api/client';
 import { getAgentHealth } from '../api/client';
 import { Button } from './ui/Button';
+import { humanizeModelName } from '../lib/modelNames';
 
 interface AgentHealthPanelProps {
   config: ApiConfig;
@@ -120,7 +121,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
                   <span className={`text-sm font-medium ${AGENT_COLORS[agent.agent_type] ?? 'text-primary'}`}>
                     {AGENT_LABELS[agent.agent_type] ?? agent.agent_type}
                   </span>
-                  <span className="text-2xs text-muted font-mono truncate">{agent.model}</span>
+                  <span className="text-2xs text-muted truncate">{humanizeModelName(agent.model)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-4 text-xs text-muted">

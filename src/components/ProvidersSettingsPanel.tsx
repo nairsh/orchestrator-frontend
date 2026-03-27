@@ -314,7 +314,7 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-[15px] font-medium text-primary">API Providers</h2>
+            <h2 className="text-[15px] font-medium text-primary">AI Services</h2>
             <p className="mt-0.5 text-[13px] text-secondary">Bring your own API keys for model providers.</p>
           </div>
         </div>
@@ -329,9 +329,9 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-[15px] font-medium text-primary">API Providers</h2>
+            <h2 className="text-[15px] font-medium text-primary">AI Services</h2>
             <p className="mt-0.5 text-[13px] text-secondary">
-              Save your own provider keys and endpoints.
+              Connect your own AI service accounts for more options.
               {defaultEmbeddingProvider && (
                 <span className="ml-1 text-muted">
                   Embeddings: {defaultEmbeddingProvider.display_name}
@@ -354,10 +354,10 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
           </div>
         ) : providers.length === 0 ? (
           <div className="py-8 text-center">
-            <p className="text-[13.5px] text-secondary">No providers added yet.</p>
-            <p className="mt-1 text-[12.5px] text-muted">Add API keys for OpenAI, DeepSeek, Google, OpenRouter, or LiteLLM.</p>
+            <p className="text-[13.5px] text-secondary">No AI services added yet.</p>
+            <p className="mt-1 text-[12.5px] text-muted">Connect your own OpenAI, DeepSeek, Google, or other AI accounts.</p>
             <Button variant="secondary" size="sm" onClick={openCreateDialog} className="mt-4 gap-1.5">
-              <Plus size={13} /> Add provider
+              <Plus size={13} /> Add service
             </Button>
           </div>
         ) : (

@@ -5,6 +5,7 @@ import { DropdownMenu, DropdownMenuItem } from '../ui/DropdownMenu';
 import type { ApiConfig } from '../../api/client';
 import type { ModelsResponse, ModelInfo } from '../../api/types';
 import { ModelIcon, type ModelIconOverrides, resolveModelIconKey } from '../../lib/modelIcons';
+import { humanizeModelName, humanizeProviderName } from '../../lib/modelNames';
 
 const inferProvider = (modelId: string): string => {
   const id = modelId.toLowerCase();
@@ -68,13 +69,13 @@ export function ModelDropdown({
   const options: Array<{ id: string; label: string; description?: string }> = (() => {
     if (variant === 'all') {
       const all = [...(data?.models ?? [])].sort((a, b) => a.display_name.localeCompare(b.display_name));
-      return all.map((m) => ({ id: m.id, label: m.display_name }));
+      return all.map((m) => ({ id: m.id, label: humanizeModelName(m.display_name) }));
     }
 
     const allowedIds = data?.orchestrator_models ?? [];
     return allowedIds.map((id) => {
       const info = modelById.get(id);
-      return { id, label: info?.display_name ?? id };
+      return { id, label: humanizeModelName(info?.display_name ?? id) };
     });
   })();
 
@@ -96,7 +97,8 @@ export function ModelDropdown({
   const groupedOptions = useMemo(() => {
     const groups = new Map<string, typeof options>();
     for (const opt of options) {
-      const provider = modelById.get(opt.id)?.provider ?? inferProvider(opt.id);
+      const rawProvider = modelById.get(opt.id)?.provider ?? inferProvider(opt.id);
+      const provider = humanizeProviderName(rawProvider);
       if (!groups.has(provider)) groups.set(provider, []);
       groups.get(provider)!.push(opt);
     }
