@@ -338,7 +338,7 @@
 }
 
 .animate-scale-in {
-  animation: scaleIn 150ms ease-out both;
+  animation: scaleIn 180ms ease-out both;
 }
 
 /* ─── Progress bar pulse ─── */
