@@ -1,4 +1,4 @@
-import { Check, X, ShieldAlert } from 'lucide-react';
+import { Check, X, ShieldAlert, Server } from 'lucide-react';
 import { Highlighter, Tag } from '@lobehub/ui';
 import { Button } from './ui/Button';
 
@@ -64,6 +64,12 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
               <Highlighter language="bash" variant="filled" copyable>
                 {command}
               </Highlighter>
+            </div>
+          )}
+          {isPending && (
+            <div className="mt-2 flex items-center gap-1.5 text-xs text-muted">
+              <Server size={11} className="flex-shrink-0" />
+              <span>Runs on the AI server, not your local machine.</span>
             </div>
           )}
           {isPending && onApprove && onReject && (
