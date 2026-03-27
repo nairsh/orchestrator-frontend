@@ -96,6 +96,7 @@ export function FeedToolCall({
       return `Search${where}${pattern ? `: ${pattern}` : ''}`;
     }
     if (isBash) return 'Running command';
+    if (toolName === 'request_clarification') return 'Needs more info from you';
     // Fallback: humanize raw slug (e.g., "send_message" → "Send Message")
     return toolName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }, [command, fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);

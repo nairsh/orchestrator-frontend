@@ -21,6 +21,7 @@ const TOOL_LABELS: Record<string, string> = {
   web_search: 'Search Web',
   fetch_url: 'Fetch URL',
   code_execution: 'Execute Code',
+  request_clarification: 'Needs more info from you',
 };
 
 function humanizeToolName(name: string): string {

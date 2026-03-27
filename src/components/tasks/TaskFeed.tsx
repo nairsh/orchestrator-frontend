@@ -283,7 +283,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
                 <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 mt-1">
                   <CircleAlert size={14} className="text-warning mt-0.5 shrink-0" />
                   <span className="font-sans text-sm text-secondary">
-                    No updates received for 30 seconds. The model may be slow or unreachable. Check your connection or try a different model.
+                    No updates received for 30 seconds. The AI may be slow or unreachable. Check your connection or try a different AI.
                   </span>
                 </div>
               )}
