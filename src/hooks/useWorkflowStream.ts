@@ -3,53 +3,21 @@ import { connectWorkflowStream } from '../api/sse';
 import { continueWorkflow, getWorkflow, getWorkflowTrace } from '../api/client';
 import type { ApiConfig } from '../api/client';
 import { toastApiError } from '../lib/toast';
-import type { ClarificationOption, WorkflowEvent, FeedEntry, LiveTask, WorkflowTraceStep } from '../api/types';
+import type { WorkflowEvent, FeedEntry, LiveTask, WorkflowTraceStep } from '../api/types';
 
 import type { WorkflowStreamState, EventReducerContext } from './workflow';
 import { STALE_THRESHOLD_MS, MAX_RECONNECT_ATTEMPTS } from './workflow';
 import { isInternalCapabilityDump } from './workflow';
 import { normalizeTaskStatus, upsertTask, deriveTaskModelByIdFromTrace } from './workflow';
-import { shouldAppendCompletionEntry, buildFeedFromTrace, getHydratedFailureReason } from './workflow';
+import {
+  shouldAppendCompletionEntry,
+  buildFeedFromTrace,
+  getHydratedFailureReason,
+  buildPendingClarificationFromToolPayload,
+} from './workflow';
 import { reduceWorkflowEvent } from './workflow';
 
 export type { WorkflowStreamState };
-
-const toRecord = (value: unknown): Record<string, unknown> =>
-  value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
-
-const normalizeClarificationOptions = (value: unknown): ClarificationOption[] => {
-  if (!Array.isArray(value)) return [];
-
-  return value.reduce<ClarificationOption[]>((acc, option) => {
-    if (!option || typeof option !== 'object') return acc;
-    const record = option as Record<string, unknown>;
-    const label = typeof record.label === 'string' ? record.label.trim() : '';
-    if (!label) return acc;
-    const description = typeof record.description === 'string' ? record.description.trim() : undefined;
-    acc.push(description ? { label, description } : { label });
-    return acc;
-  }, []);
-};
-
-const getClarificationFromToolEntry = (entry: FeedEntry) => {
-  if (entry.kind !== 'tool_call' || entry.toolName !== 'request_clarification') return undefined;
-
-  const input = toRecord(entry.input);
-  const output = toRecord(entry.output);
-  const question =
-    (typeof output.clarification_question === 'string' && output.clarification_question.trim()) ||
-    (typeof output.question === 'string' && output.question.trim()) ||
-    (typeof input.question === 'string' && input.question.trim()) ||
-    '';
-
-  if (!question) return undefined;
-
-  return {
-    question,
-    options: normalizeClarificationOptions(output.options ?? input.options),
-    allowCustom: output.allow_custom !== false && input.allow_custom !== false,
-  };
-};
 
 export function useWorkflowStream(
   config: ApiConfig,
@@ -177,7 +145,8 @@ export function useWorkflowStream(
         const feed = buildFeedFromTrace(trace, prompt, liveTasks);
         const traceClarification = [...feed]
           .reverse()
-          .map((entry) => getClarificationFromToolEntry(entry))
+          .filter((entry): entry is Extract<FeedEntry, { kind: 'tool_call' }> => entry.kind === 'tool_call')
+          .map((entry) => buildPendingClarificationFromToolPayload(entry.input, entry.output))
           .find((entry) => entry !== undefined);
 
         // If already terminal and no completion entry exists, add one.

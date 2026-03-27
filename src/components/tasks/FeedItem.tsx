@@ -3,6 +3,7 @@ import { Alert, Highlighter } from '@lobehub/ui';
 import type { FeedEntry } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { CitationCard } from '../CitationCard';
+import { CopyButton } from '../ui/CopyButton';
 import { humanizeErrorDescription } from '../../lib/humanizeError';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { FeedTaskGroup } from './feed/FeedTaskGroup';
@@ -55,7 +56,10 @@ function AiMessage({ text }: { text: string }) {
   }
   const citations = parseCitationsFromText(text);
   return (
-    <div>
+    <div className="group/msg relative">
+      <div className="absolute -top-1 right-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200">
+        <CopyButton text={text} />
+      </div>
       <Markdown content={text} />
       {citations.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -72,7 +76,10 @@ function CompletionBlock({ output }: { output?: string }) {
   if (!output) return null;
   const citations = parseCitationsFromText(output);
   return (
-    <div>
+    <div className="group/msg relative">
+      <div className="absolute -top-1 right-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200">
+        <CopyButton text={output} />
+      </div>
       <Markdown content={output} />
       {citations.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">

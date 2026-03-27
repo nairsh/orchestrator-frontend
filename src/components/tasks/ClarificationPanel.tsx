@@ -1,129 +1,197 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CircleAlert, Loader2, PencilLine } from 'lucide-react';
+import { Info, ArrowRight } from 'lucide-react';
 import type { PendingClarification } from '../../hooks/workflow/types';
-import { Button, Input } from '../ui';
+import { Button } from '../ui';
 
 interface ClarificationPanelProps {
   clarification: PendingClarification;
   maxWidth?: number;
   onSubmit: (text: string) => Promise<void>;
+  onDismiss?: () => void;
 }
 
-export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit }: ClarificationPanelProps) {
+export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, onDismiss }: ClarificationPanelProps) {
   const [entered, setEntered] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [customValue, setCustomValue] = useState('');
-  const [submittingValue, setSubmittingValue] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setEntered(false);
+    setSelectedOption(null);
+    setCustomValue('');
     const id = requestAnimationFrame(() => setEntered(true));
     return () => cancelAnimationFrame(id);
   }, [clarification.question]);
 
   const options = useMemo(() => clarification.options ?? [], [clarification.options]);
+  
+  // Check if last option is the "custom" option (usually has text about telling Codex what to do)
+  const hasCustomOption = clarification.allowCustom || 
+    (options.length > 0 && options[options.length - 1]?.label.toLowerCase().includes('tell'));
+  
+  const customOptionIndex = hasCustomOption ? options.length - 1 : -1;
+  const regularOptions = hasCustomOption ? options.slice(0, -1) : options;
 
-  const handleSubmit = async (value: string) => {
-    const text = value.trim();
-    if (!text || submittingValue) return;
-    setSubmittingValue(text);
+  const handleSubmit = async () => {
+    if (selectedOption === null && !customValue.trim()) return;
+    
+    setIsSubmitting(true);
     try {
-      await onSubmit(text);
-      setCustomValue('');
+      let text = '';
+      if (selectedOption !== null && selectedOption !== customOptionIndex) {
+        text = options[selectedOption]?.label ?? '';
+      } else if (customValue.trim()) {
+        text = customValue.trim();
+      }
+      if (text) {
+        await onSubmit(text);
+      }
     } finally {
-      setSubmittingValue(null);
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOptionClick = (index: number) => {
+    if (isSubmitting) return;
+    setSelectedOption(index);
+    if (index !== customOptionIndex) {
+      setCustomValue('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape' && onDismiss) {
+      onDismiss();
+    } else if (e.key === 'Enter' && e.metaKey) {
+      void handleSubmit();
     }
   };
 
   return (
-    <div className="flex-shrink-0 px-16 pb-6">
+    <div 
+      className="flex-shrink-0 px-16 pb-6"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
       <div
-        className="mx-auto w-full rounded-[2rem] border border-border-light bg-surface shadow-sm"
+        className="mx-auto w-full rounded-2xl border border-border-light bg-surface shadow-sm overflow-hidden"
         style={{
           maxWidth,
-          transition: 'transform 220ms ease-out, opacity 220ms ease-out',
-          transform: entered ? 'translateY(0)' : 'translateY(18px)',
-          opacity: entered ? 1 : 0.92,
+          transition: 'transform 200ms ease-out, opacity 200ms ease-out',
+          transform: entered ? 'translateY(0)' : 'translateY(16px)',
+          opacity: entered ? 1 : 0.95,
         }}
       >
-        <div className="flex items-start gap-4 px-7 py-6">
-          <div className="mt-0.5 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-warning/10 text-warning">
-            <CircleAlert size={24} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="font-sans text-[15px] font-semibold text-warning">Needs more info from you</div>
-            <p className="mt-2 whitespace-pre-wrap font-sans text-[17px] leading-8 text-primary">
-              {clarification.question}
-            </p>
-          </div>
+        {/* Question */}
+        <div className="px-6 pt-5 pb-4">
+          <p className="font-sans text-[15px] leading-relaxed text-primary">
+            {clarification.question}
+          </p>
         </div>
 
-        {options.length > 0 ? (
-          <div className="px-6 pb-2">
-            {options.map((option, index) => {
-              const isSubmitting = submittingValue === option.label;
-              return (
-                <button
-                  key={`${option.label}:${index}`}
-                  type="button"
-                  onClick={() => void handleSubmit(option.label)}
-                  disabled={!!submittingValue}
-                  className={[
-                    'flex w-full items-center gap-4 border-none bg-transparent px-2 py-6 text-left transition-colors duration-200',
-                    'disabled:cursor-default disabled:opacity-70',
-                    index === 0 && !submittingValue ? 'rounded-[1.8rem] bg-surface-hover' : '',
-                    index < options.length - 1 ? 'border-b border-border-subtle' : '',
-                  ].join(' ')}
-                >
-                  <div className="flex h-[3.3rem] w-[3.3rem] flex-shrink-0 items-center justify-center rounded-[1.25rem] bg-surface-tertiary font-sans text-[18px] text-secondary">
-                    {index + 1}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-sans text-[16px] font-medium text-primary">{option.label}</div>
-                    {option.description ? (
-                      <div className="mt-1 font-sans text-sm text-muted">{option.description}</div>
-                    ) : null}
-                  </div>
-                  {isSubmitting ? <Loader2 size={18} className="animate-spin text-muted" /> : null}
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
+        {/* Options List */}
+        <div className="px-3 pb-2">
+          {regularOptions.map((option, index) => {
+            const isSelected = selectedOption === index;
+            const isRecommended = index === 0; // First option is usually recommended
+            
+            return (
+              <button
+                key={`${option.label}:${index}`}
+                type="button"
+                onClick={() => handleOptionClick(index)}
+                disabled={isSubmitting}
+                className={[
+                  'w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all duration-150 mb-2',
+                  'border',
+                  isSelected 
+                    ? 'bg-surface-hover border-border' 
+                    : 'bg-surface-secondary/50 border-transparent hover:bg-surface-hover',
+                  'disabled:cursor-default disabled:opacity-60',
+                ].join(' ')}
+              >
+                <span className="flex-shrink-0 font-sans text-[15px] text-muted tabular-nums">
+                  {index + 1}.
+                </span>
+                <span className="flex-1 font-sans text-[15px] text-primary">
+                  {option.label}
+                  {isRecommended && (
+                    <span className="ml-2 text-muted">(Recommended)</span>
+                  )}
+                </span>
+                {isRecommended && (
+                  <Info size={16} className="flex-shrink-0 text-muted" />
+                )}
+              </button>
+            );
+          })}
 
-        {clarification.allowCustom ? (
-          <div className="border-t border-border-subtle px-6 py-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-[3.3rem] w-[3.3rem] flex-shrink-0 items-center justify-center rounded-[1.25rem] bg-surface-tertiary text-secondary">
-                <PencilLine size={20} />
+          {/* Custom/Last option with input - always visible like in the design */}
+          {hasCustomOption && customOptionIndex >= 0 && (
+            <div className="w-full rounded-xl border border-border-light bg-surface mb-2 overflow-hidden">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border-subtle/50">
+                <span className="flex-shrink-0 font-sans text-[15px] text-muted tabular-nums">
+                  {customOptionIndex + 1}.
+                </span>
+                <span className="flex-1 font-sans text-[15px] text-primary">
+                  {options[customOptionIndex]?.label || "No, and tell Codex what to do differently"}
+                </span>
               </div>
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <Input
+              
+              <div className="px-4 py-3 bg-surface-secondary/30">
+                <input
+                  type="text"
                   value={customValue}
-                  onChange={(event) => setCustomValue(event.target.value)}
-                  placeholder="Something else"
-                  disabled={!!submittingValue}
-                  className="!rounded-2xl !border-border-light !bg-surface-secondary !px-4 !py-3 text-[16px]"
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      event.preventDefault();
-                      void handleSubmit(customValue);
-                    }
+                  onChange={(e) => {
+                    setCustomValue(e.target.value);
+                    setSelectedOption(customOptionIndex);
                   }}
+                  placeholder="Tell Codex what to do differently..."
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2.5 rounded-lg border border-border-light bg-surface text-[14px] placeholder:text-muted focus:outline-none focus:border-border focus:ring-1 focus:ring-border/50"
                 />
-                <Button
-                  variant="secondary"
-                  size="md"
-                  disabled={!customValue.trim() || !!submittingValue}
-                  onClick={() => void handleSubmit(customValue)}
-                  className="min-w-[7rem] !rounded-2xl"
-                >
-                  {submittingValue && customValue.trim() ? <Loader2 size={16} className="animate-spin" /> : null}
-                  Send
-                </Button>
               </div>
             </div>
-          </div>
-        ) : null}
+          )}
+        </div>
+
+        {/* Footer with actions */}
+        <div className="flex items-center justify-end gap-3 px-4 py-3 border-t border-border-subtle/50">
+          {onDismiss && (
+            <button
+              type="button"
+              onClick={onDismiss}
+              disabled={isSubmitting}
+              className="flex items-center gap-2 px-3 py-2 text-[13px] text-muted hover:text-primary transition-colors"
+            >
+              Dismiss
+              <span className="px-2 py-0.5 rounded-md bg-surface-tertiary text-[11px] font-medium text-secondary">
+                ESC
+              </span>
+            </button>
+          )}
+          
+          <Button
+            variant="primary"
+            size="md"
+            disabled={selectedOption === null && !customValue.trim() || isSubmitting}
+            onClick={() => void handleSubmit()}
+            className="!rounded-xl !px-4 !py-2 !text-[13px] font-medium bg-info hover:bg-info/90 text-white"
+          >
+            {isSubmitting ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                Submit
+                <ArrowRight size={14} className="ml-2" />
+              </>
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

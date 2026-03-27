@@ -17,6 +17,7 @@ import { isInternalPlannerTool, isInternalCapabilityDump, isEnvironmentSetupTool
 import { formatToolActivity, appendRecentToolCalls } from './formatters';
 import { normalizeTaskStatus, upsertTask, resolveTaskModel } from './taskHelpers';
 import { shouldAppendCompletionEntry } from './feedHelpers';
+import { buildPendingClarificationFromEvent } from './clarification';
 
 /** Mutable context passed into the reducer so the caller can read back side-effects. */
 export interface EventReducerContext {
@@ -477,8 +478,8 @@ export function reduceWorkflowEvent(
 
     case 'clarification_requested': {
       const data = event.data as ClarificationRequestedData;
-      const question = typeof data.question === 'string' ? data.question.trim() : '';
-      if (!question) return prev;
+      const clarification = buildPendingClarificationFromEvent(data);
+      if (!clarification) return prev;
 
       const feed = upsertClarificationToolCall(appendEnvironmentReadyIfPending(prev.feed, ctx), data, ctx, event.timestamp);
 
@@ -488,11 +489,7 @@ export function reduceWorkflowEvent(
         currentActivity: 'Waiting for your reply…',
         isTerminal: false,
         workflowStatus: 'paused',
-        pendingClarification: {
-          question,
-          options: data.options,
-          allowCustom: data.allow_custom !== false,
-        },
+        pendingClarification: clarification,
       };
     }
 

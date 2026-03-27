@@ -202,22 +202,27 @@ export function TaskDetail({
         onApproval={handleApproval}
       />
 
-      {hasPendingClarification && pendingClarification ? (
+      {/* Clarification panel appears above chat input */}
+      {hasPendingClarification && pendingClarification && (
         <ClarificationPanel
           clarification={pendingClarification}
           maxWidth={contentMaxWidth}
           onSubmit={handleCommand}
-        />
-      ) : (
-        <CommandInput
-          onSubmit={(t) => void handleCommand(t)}
-          disabled={!isTerminal && !isPaused}
-          maxWidth={contentMaxWidth}
-          modelLabel={fullView ? modelLabel : undefined}
-          animateEntry={animateInputEntry}
-          compactSendButton={fullView}
+          onDismiss={() => {
+            // Dismiss just closes the panel without submitting
+            // The workflow remains paused and can be resumed manually
+          }}
         />
       )}
+      
+      <CommandInput
+        onSubmit={(t) => void handleCommand(t)}
+        disabled={(!isTerminal && !isPaused) || hasPendingClarification}
+        maxWidth={contentMaxWidth}
+        modelLabel={fullView ? modelLabel : undefined}
+        animateEntry={animateInputEntry}
+        compactSendButton={fullView}
+      />
     </div>
   );
 }

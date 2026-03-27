@@ -4,5 +4,6 @@ export { isInternalPlannerTool, isInternalCapabilityDump, isInternalPlannerNoise
 export { formatToolActivity, formatToolCallLabel, appendRecentToolCalls } from './formatters';
 export { normalizeTaskStatus, upsertTask, resolveTaskModel, deriveTaskModelByIdFromTrace } from './taskHelpers';
 export { normalizeComparableText, shouldAppendCompletionEntry, buildFeedFromTrace, getHydratedFailureReason } from './feedHelpers';
+export { buildPendingClarificationFromEvent, buildPendingClarificationFromToolPayload } from './clarification';
 export type { EventReducerContext } from './eventReducer';
 export { reduceWorkflowEvent } from './eventReducer';

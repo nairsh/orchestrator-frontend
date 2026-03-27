@@ -1,5 +1,6 @@
 export { Button } from './Button';
 export { Card } from './Card';
+export { CopyButton } from './CopyButton';
 export { DropdownMenu, DropdownMenuItem, DropdownMenuDivider } from './DropdownMenu';
 export { IconButton } from './IconButton';
 export { Input, Textarea } from './Input';
