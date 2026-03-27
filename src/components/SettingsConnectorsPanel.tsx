@@ -10,7 +10,7 @@ const CONNECTOR_COPY: Record<
   github: {
     label: 'GitHub',
     eyebrow: 'Repos, orgs, code context',
-    description: 'Connect repos and organizations so workflows can reason over active code and metadata.',
+    description: 'Connect repos and organizations so your AI can access active code and project metadata.',
     accent: 'from-[#d7f5e7] to-[#eefaf4]',
   },
   linear: {
@@ -22,7 +22,7 @@ const CONNECTOR_COPY: Record<
   notion: {
     label: 'Notion',
     eyebrow: 'Docs, knowledge, specs',
-    description: 'Pull structured workspace knowledge into prompts, memory, and scheduled workflows.',
+    description: 'Pull structured workspace knowledge into your AI context and scheduled tasks.',
     accent: 'from-[#f3eadb] to-[#faf5ec]',
   },
 };

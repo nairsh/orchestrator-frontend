@@ -37,7 +37,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
           <RelayEmpty
             icon={<Brain size={26} className="text-muted" />}
             title="No memories"
-            description="Save key-value memories so your workflows can recall context across runs."
+            description="Save key-value memories so your AI can recall context across tasks."
           />
         ) : (
           <div className="flex flex-col gap-3">
@@ -81,7 +81,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
             <Button onClick={async () => {
               const key = memoryKey.trim();
               const content = memoryContent.trim();
-              if (!key || !content) { toastWarning('Missing fields', 'key and content are required.'); return; }
+              if (!key || !content) { toastWarning('Missing fields', 'Key and content are required.'); return; }
               try {
                 await saveMemory(config, { key, content, category: memoryCategory.trim() || undefined });
                 toastSuccess('Saved'); setMemoryKey(''); setMemoryContent(''); setShowDialog(false); void onRefresh();
