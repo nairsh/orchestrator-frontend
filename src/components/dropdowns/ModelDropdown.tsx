@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronDown, Zap, Brain, DollarSign } from 'lucide-react';
+import { ChevronDown, Zap, Brain, CircleDollarSign } from 'lucide-react';
 import { getModels } from '../../api/client';
 import { DropdownMenu, DropdownMenuItem } from '../ui/DropdownMenu';
 import type { ApiConfig } from '../../api/client';
@@ -161,11 +161,18 @@ export function ModelDropdown({
                     size={16}
                   />
                 </span>
-                <div className="flex-1 min-w-0 flex flex-col">
-                  <span className="text-sm text-primary font-medium">{opt.label}</span>
-                  {opt.description && (
-                    <span className="text-xs text-muted">{opt.description}</span>
-                  )}
+                <div className="flex-1 min-w-0 flex items-center gap-2">
+                  <span className="text-sm text-primary font-medium truncate">{opt.label}</span>
+                  <div className="flex items-center gap-1 ml-auto flex-shrink-0">
+                    {inferCapabilities(opt.id).map((cap) => (
+                      <span key={cap} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium bg-surface-warm text-muted border border-border-light">
+                        {cap === 'Fast' && <Zap size={9} />}
+                        {cap === 'Smart' && <Brain size={9} />}
+                        {cap === 'Cheap' && <CircleDollarSign size={9} />}
+                        {cap}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </DropdownMenuItem>
             );
