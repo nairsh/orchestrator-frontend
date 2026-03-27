@@ -45,7 +45,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted">{schedules.length} schedules</span>
+          <span className="text-sm text-muted">{schedules.length} {schedules.length === 1 ? 'schedule' : 'schedules'}</span>
           <div className="flex items-center gap-2">
             <Button variant="secondary" disabled={schedulesLoading} onClick={() => void onRefresh()} className="gap-1.5">
               {schedulesLoading ? <Loader2 size={13} className="animate-spin" /> : null}

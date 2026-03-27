@@ -1,7 +1,9 @@
+import { createElement } from 'react';
 import { Coins, MessageSquare, Search } from 'lucide-react';
 import { StatusFilterDropdown, type WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { Button, IconButton, SearchInput } from '../ui';
 import { toastInfo } from '../../lib/toast';
+import { sileo } from 'sileo';
 
 interface BillingSnapshot {
   data: { tier: string; credits_balance: number; usage_this_period?: { credits_used: number; request_count: number } } | null | undefined;
@@ -70,10 +72,29 @@ export function TaskListHeader({
                   }
                   return;
                 }
-                toastInfo(
-                  `${billingCredits.toFixed(0)} credits remaining`,
-                  `Plan: ${billing.data.tier} • Used this period: ${periodCreditsUsed.toFixed(0)} credits`
-                );
+                const total = billingCredits + periodCreditsUsed;
+                const pct = total > 0 ? Math.round((billingCredits / total) * 100) : 0;
+                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+                sileo.info({
+                  title: `${billingCredits.toFixed(0)} credits remaining`,
+                  duration: 5000,
+                  roundness: 20,
+                  fill: isDark ? '#282624' : '#ffffff',
+                  styles: { title: 'relay-toast-title', description: 'relay-toast-description' },
+                  description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' } },
+                    createElement('div', { style: { width: '100%', height: '6px', borderRadius: '3px', background: isDark ? '#3a3836' : '#e8e5e0', overflow: 'hidden' } },
+                      createElement('div', { style: { width: `${pct}%`, height: '100%', borderRadius: '3px', background: pct > 20 ? '#6b8f71' : '#c4573a', transition: 'width 0.4s ease' } })
+                    ),
+                    createElement('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#b0aca6' : '#706b64' } },
+                      createElement('span', null, `${pct}% remaining`),
+                      createElement('span', null, `${periodCreditsUsed.toFixed(0)} used`)
+                    ),
+                    createElement('div', { style: { fontSize: '11px', color: isDark ? '#8a8580' : '#918b84', marginTop: '2px' } },
+                      `Plan: ${billing.data.tier}`
+                    )
+                  ),
+                });
               }}
             >
               <Coins size={14} className="text-muted" />

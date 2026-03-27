@@ -27,7 +27,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
     <>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted">{memories.length} memories</span>
+          <span className="text-sm text-muted">{memories.length} {memories.length === 1 ? 'memory' : 'memories'}</span>
           <div className="flex items-center gap-2">
             <Button variant="secondary" disabled={memoriesLoading} onClick={() => void onRefresh()} className="gap-1.5">
               {memoriesLoading ? <Loader2 size={13} className="animate-spin" /> : null}

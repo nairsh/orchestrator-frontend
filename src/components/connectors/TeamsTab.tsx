@@ -20,7 +20,7 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted">{teams.length} teams</span>
+            <span className="text-sm text-muted">{teams.length} {teams.length === 1 ? 'team' : 'teams'}</span>
             <Button variant="secondary" disabled={teamsStatus === 'loading'} onClick={() => void onRefresh()} className="gap-1.5">
               {teamsStatus === 'loading' ? <Loader2 size={13} className="animate-spin" /> : null}
               {teamsStatus === 'loading' ? 'Loading…' : 'Refresh'}
