@@ -64,7 +64,7 @@ function AiMessage({ text }: { text: string }) {
       {citations.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {citations.map((citation, idx) => (
-            <CitationCard key={idx} url={citation.url} title={citation.title} index={idx + 1} />
+            <CitationCard key={`${citation.url}-${idx}`} url={citation.url} title={citation.title} index={idx + 1} />
           ))}
         </div>
       )}
@@ -84,7 +84,7 @@ function CompletionBlock({ output }: { output?: string }) {
       {citations.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
           {citations.map((citation, idx) => (
-            <CitationCard key={idx} url={citation.url} title={citation.title} index={idx + 1} />
+            <CitationCard key={`${citation.url}-${idx}`} url={citation.url} title={citation.title} index={idx + 1} />
           ))}
         </div>
       )}

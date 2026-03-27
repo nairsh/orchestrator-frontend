@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BotMessageSquare, ArrowRight, Zap, BookOpen, Palette, X } from 'lucide-react';
 import { Button } from './ui/Button';
 
@@ -57,6 +57,12 @@ export function OnboardingModal({ onClose, onStartWorkflow, onOpenSettings }: On
   };
 
   const current = steps[step];
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleSkip(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/30" onClick={(e) => { if (e.target === e.currentTarget) handleSkip(); }}>

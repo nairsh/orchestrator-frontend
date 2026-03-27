@@ -15,6 +15,9 @@ import {
 } from './feed/feedHelpers';
 import type { ApiConfig } from '../../api/client';
 
+/** Max ms between tool calls to collapse them into a parallel group */
+const PARALLEL_TOOL_WINDOW_MS = 1400;
+
 interface TaskFeedProps {
   feed: FeedEntry[];
   currentActivity?: string;
@@ -103,7 +106,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
         const nextAt = Date.parse(next.at ?? '');
         const sameTask = next.taskId === first.taskId;
         const hasValidTime = Number.isFinite(firstAt) && Number.isFinite(nextAt);
-        const withinWindow = hasValidTime ? nextAt - firstAt <= 1400 : false;
+        const withinWindow = hasValidTime ? nextAt - firstAt <= PARALLEL_TOOL_WINDOW_MS : false;
 
         if (!sameTask || !withinWindow) break;
         group.push(next);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Globe } from 'lucide-react';
 
 interface CitationCardProps {
@@ -24,7 +25,7 @@ function getFaviconUrl(url: string): string {
   }
 }
 
-export function CitationCard({ index, url, title, snippet }: CitationCardProps) {
+export const CitationCard = memo(function CitationCard({ index, url, title, snippet }: CitationCardProps) {
   const domain = extractDomain(url);
   const favicon = getFaviconUrl(url);
 
@@ -63,7 +64,7 @@ export function CitationCard({ index, url, title, snippet }: CitationCardProps) 
       </div>
     </a>
   );
-}
+});
 
 // Parse citation markers like [1], [2] from text and extract URLs
 export function parseCitations(text: string): { cleanText: string; citations: Array<{ index: number; url: string }> } {
