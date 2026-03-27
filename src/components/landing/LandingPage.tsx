@@ -104,16 +104,14 @@ export function LandingPage({
   const handleSubmit = () => {
     const text = value.trim();
     if (!text) return;
-    if (!selectedModel.trim()) {
-      toastWarning('Model not ready', 'Please wait for models to load before sending.');
-      return;
-    }
+    if (!selectedModel.trim()) return;
     onSubmit(text, selectedModel, contextFiles);
     setValue('');
     setAttachments([]);
   };
 
   const hasText = value.trim().length > 0;
+  const canSend = hasText && !!selectedModel.trim();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -231,9 +229,9 @@ export function LandingPage({
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={!hasText}
-                  className={`h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer aspect-[9/8] ${
-                    hasText ? 'opacity-100' : 'opacity-40 cursor-not-allowed'
+                  disabled={!canSend}
+                  className={`h-8 rounded-full flex items-center justify-center transition-all duration-200 aspect-[9/8] ${
+                    canSend ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'
                   }`}
                   style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
                   aria-label="Send"

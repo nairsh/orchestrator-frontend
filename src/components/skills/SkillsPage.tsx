@@ -258,15 +258,14 @@ export function SkillsPage({ config }: SkillsPageProps) {
           <div className="px-8 pb-4">
             <p className="text-sm text-secondary leading-relaxed">
               Extend what your computer can do with reusable capabilities and actions.
-              Skills are applied automatically when needed.{' '}
-              <button type="button" className="text-info hover:underline cursor-pointer bg-transparent border-none p-0 font-sans text-sm">Learn more</button>
+              Skills are applied automatically when needed.
             </p>
           </div>
 
           {/* Skills grid */}
           <div className="flex-1 overflow-y-auto px-8 pb-8">
             {unsupportedApi && (
-              <Alert className="mb-4" type="warning" title="Skills endpoint is missing (`/v1/skills` returned 404). Update the API server." variant="outlined" />
+              <Alert className="mb-4" type="warning" title="Skills are not available on this server. Check that your server supports the skills API." variant="outlined" />
             )}
 
             {filteredSkills.length === 0 ? (
