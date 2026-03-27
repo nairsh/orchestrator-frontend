@@ -27,7 +27,7 @@ export function ConnectorsTab({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div className="text-sm text-secondary">{connectorCards.length} connector providers available</div>
+        <div className="text-sm text-secondary">{connectorCards.length} services available</div>
         <Button variant="secondary" onClick={() => void onRefresh()}>
           {connectorsLoading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
           Refresh

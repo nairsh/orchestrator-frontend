@@ -9,7 +9,7 @@ const CONNECTOR_COPY: Record<
 > = {
   github: {
     label: 'GitHub',
-    eyebrow: 'Repos, orgs, code context',
+    eyebrow: 'Repos and organizations',
     description: 'Connect repos and organizations so your AI can access active code and project metadata.',
     accent: 'from-[#d7f5e7] to-[#eefaf4]',
   },

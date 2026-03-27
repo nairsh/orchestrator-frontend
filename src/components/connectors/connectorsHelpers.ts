@@ -18,7 +18,7 @@ export const providerCopy: Record<
   github: {
     title: 'GitHub',
     eyebrow: 'Engineering context',
-    description: 'Give your AI access to your repos, organizations, and code context.',
+    description: 'Give your AI access to your repos and organizations.',
     accent: 'from-[#d8f2e5] to-[#effaf4]',
     icon: IconGitHub,
   },

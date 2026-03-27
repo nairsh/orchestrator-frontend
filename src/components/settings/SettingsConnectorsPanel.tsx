@@ -9,7 +9,7 @@ const CONNECTOR_COPY: Record<
 > = {
   github: {
     label: 'GitHub',
-    description: 'Connect repos and organizations for code context.',
+    description: 'Connect your repos and organizations.',
     icon: <IconGitHub size={20} />,
   },
   linear: {
@@ -19,7 +19,7 @@ const CONNECTOR_COPY: Record<
   },
   notion: {
     label: 'Notion',
-    description: 'Pull workspace docs and specs into prompts.',
+    description: 'Pull workspace docs and pages into your tasks.',
     icon: <IconNotion size={20} />,
   },
 };

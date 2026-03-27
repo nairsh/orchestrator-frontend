@@ -435,7 +435,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             {/* Document cards */}
             {documents.length === 0 ? (
               <div className="rounded-xl border border-border-light bg-surface p-8 text-center text-sm text-muted">
-                No documents ingested yet. Upload text, PDF, or image files to build your knowledge library.
+                No documents added yet. Upload text, PDF, or image files to build your knowledge library.
               </div>
             ) : (
               <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
