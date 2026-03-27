@@ -172,7 +172,11 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             className="gap-2"
             onClick={() => {
               if (!billing.data) {
-                toastInfo('Billing', 'Sign in to see credits.');
+                if (billing.error) {
+                  toastInfo('Credits unavailable', 'Could not load billing info. Check your server connection.');
+                } else {
+                  toastInfo('Billing', 'Sign in to see credits.');
+                }
                 return;
               }
               toastInfo(
