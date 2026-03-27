@@ -346,7 +346,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                   {selectedSkill.tools.length > 0 && (
                     <div className="mt-4 flex flex-wrap gap-2">
                       {selectedSkill.tools.map((tool) => (
-                        <Tag key={tool} size="small">{tool}</Tag>
+                        <Tag key={tool} size="small">{tool.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</Tag>
                       ))}
                     </div>
                   )}
@@ -434,7 +434,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
           <ModalFooter>
             <div className="flex items-center gap-2 text-xs text-muted">
               <AlertCircle size={13} />
-              Skills are stored in your user scope and merged with built-ins.
+              Saved to your account and applied alongside built-in capabilities.
             </div>
             <div className="flex items-center gap-2.5">
               <Button variant="secondary" onClick={() => setEditorOpen(false)}>
