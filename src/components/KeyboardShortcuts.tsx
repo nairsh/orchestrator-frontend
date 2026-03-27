@@ -59,7 +59,7 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
       title: 'General',
       shortcuts: [
         { keys: ['⌘', 'K'], description: 'Command palette', inverseKeys: 'meta+k' },
-        { keys: ['N'], description: 'New workflow', inverseKeys: 'n' },
+        { keys: ['N'], description: 'New task', inverseKeys: 'n' },
         { keys: ['?'], description: 'Show keyboard shortcuts', inverseKeys: 'shift+?' },
         { keys: ['Esc'], description: 'Close modal / palette', inverseKeys: 'escape' },
       ],
@@ -74,11 +74,11 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
       ],
     },
     {
-      title: 'Workflow',
+      title: 'Tasks',
       shortcuts: [
-        { keys: ['J'], description: 'Next workflow', inverseKeys: 'j' },
-        { keys: ['K'], description: 'Previous workflow', inverseKeys: 'k' },
-        { keys: ['Enter'], description: 'Open selected workflow', inverseKeys: 'enter' },
+        { keys: ['J'], description: 'Next task', inverseKeys: 'j' },
+        { keys: ['K'], description: 'Previous task', inverseKeys: 'k' },
+        { keys: ['Enter'], description: 'Open selected task', inverseKeys: 'enter' },
       ],
     },
   ];

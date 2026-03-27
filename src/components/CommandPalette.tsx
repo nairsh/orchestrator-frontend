@@ -49,7 +49,7 @@ export function CommandPalette({
 
     // Actions
     result.push(
-      { id: 'new-workflow', label: 'New Workflow', category: 'actions', icon: <Zap size={16} />, action: () => { onNewWorkflow(); onClose(); }, keywords: 'create start' },
+      { id: 'new-workflow', label: 'New Task', category: 'actions', icon: <Zap size={16} />, action: () => { onNewWorkflow(); onClose(); }, keywords: 'create start workflow' },
       { id: 'open-settings', label: 'Open Settings', category: 'actions', icon: <Settings size={16} />, action: () => { onOpenSettings(); onClose(); }, keywords: 'config preferences' },
     );
 
@@ -134,7 +134,7 @@ export function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search workflows, actions, pages..."
+            placeholder="Search tasks, actions, pages..."
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-placeholder outline-none font-sans"
           />
           <kbd className="text-2xs text-muted bg-surface-tertiary rounded px-1.5 py-0.5 border border-border-light font-mono">

@@ -51,7 +51,7 @@ export function TemplatesTab({ templates, templatesLoading, config, onRefresh, o
                   try {
                     const res = await useTemplate(config, tpl.id, obj);
                     const started = await createWorkflow(config, res.config);
-                    toastSuccess('Workflow started', started.workflow_id);
+                    toastSuccess('Task started', 'Your task is now running.');
                     onWorkflowStarted?.(started.workflow_id, obj);
                   } catch (err) { toastApiError(err, 'Failed to start workflow'); }
                 }}>Use</Button>

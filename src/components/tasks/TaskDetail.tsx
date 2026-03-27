@@ -99,7 +99,7 @@ export function TaskDetail({
         <div className="flex items-center gap-2 flex-shrink-0">
           {/* Workflow control buttons */}
           {isFailed && (
-            <Tooltip title="Retry workflow">
+            <Tooltip title="Retry task">
               <Button
                 variant="secondary"
                 size="sm"
@@ -113,7 +113,7 @@ export function TaskDetail({
           )}
           {isExecuting && (
             <>
-              <Tooltip title="Pause workflow">
+              <Tooltip title="Pause task">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -122,7 +122,7 @@ export function TaskDetail({
                   <Pause size={12} />
                 </Button>
               </Tooltip>
-              <Tooltip title="Cancel workflow">
+              <Tooltip title="Cancel task">
                 <Button
                   variant="danger"
                   size="sm"
@@ -135,7 +135,7 @@ export function TaskDetail({
             </>
           )}
           {isPaused && (
-            <Tooltip title="Resume workflow">
+            <Tooltip title="Resume task">
               <Button
                 variant="secondary"
                 size="sm"

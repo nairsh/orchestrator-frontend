@@ -262,7 +262,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   const [fileTab, setFileTab] = useState<'all' | 'workflows' | 'knowledge'>('all');
   const FILE_TABS = [
     { id: 'all' as const, label: 'All' },
-    { id: 'workflows' as const, label: 'Workflow files' },
+    { id: 'workflows' as const, label: 'Task files' },
     { id: 'knowledge' as const, label: 'Knowledge library' },
   ];
 
@@ -273,7 +273,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
         <div className="mb-6 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-primary">Files</h1>
-            <p className="mt-1 text-sm text-secondary">Browse workflow outputs and manage your knowledge library.</p>
+            <p className="mt-1 text-sm text-secondary">Browse task outputs and manage your knowledge library.</p>
           </div>
           <div className="flex items-center gap-2">
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors">
@@ -315,7 +315,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
         {/* Content */}
         {(fileTab === 'all' || fileTab === 'workflows') && (
           <div className="mb-8">
-            {fileTab === 'all' && <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Workflow files</h2>}
+            {fileTab === 'all' && <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Task files</h2>}
 
             {/* Workflow selector */}
             <div className="mb-4">
@@ -331,7 +331,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                 >
                   {filteredWorkflows.map((wf) => (
                     <option key={wf.id} value={wf.id}>
-                      {wf.objective || 'Untitled'} ({wf.id.slice(-6)})
+                      {wf.objective || 'Untitled'}
                     </option>
                   ))}
                 </select>
@@ -343,7 +343,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             {/* File cards */}
             {filteredFiles.length === 0 ? (
               <div className="rounded-xl border border-border-light bg-surface p-8 text-center text-sm text-muted">
-                {files.length === 0 ? 'No files created through workflows yet.' : 'No files match your filter.'}
+                {files.length === 0 ? 'No files created yet.' : 'No files match your filter.'}
               </div>
             ) : (
               <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
