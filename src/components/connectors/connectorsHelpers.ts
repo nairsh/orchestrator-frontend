@@ -1,5 +1,6 @@
 import type { ConnectorProvider, ConnectorRecord, ScheduledWorkflow } from '../../api/types';
 import { IconGitHub, IconLinear, IconNotion } from '../icons/CustomIcons';
+import { formatWhen } from '../../lib/time';
 
 /* ─── Types ─── */
 
@@ -42,12 +43,7 @@ export { TabPill } from './TabPill';
 
 /* ─── Helper functions ─── */
 
-export function formatWhen(value: string | null | undefined): string {
-  if (!value) return '—';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString();
-}
+export { formatWhen };
 
 export function getConnectorSummary(connector: ConnectorRecord): string {
   if (connector.provider === 'github') {

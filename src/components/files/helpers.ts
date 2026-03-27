@@ -23,16 +23,6 @@ export const FILE_TABS: { id: FileTab; label: string }[] = [
   { id: 'knowledge', label: 'Knowledge library' },
 ];
 
-export function relativeTime(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
 export async function resolveAuthToken(config: ApiConfig): Promise<string | null> {
   const sessionToken = config.getAuthToken ? await config.getAuthToken() : null;
   if (sessionToken && sessionToken.trim().length > 0) return sessionToken.trim();

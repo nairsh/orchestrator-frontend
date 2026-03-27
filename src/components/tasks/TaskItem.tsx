@@ -6,7 +6,7 @@ import type { ApiConfig } from '../../api/client';
 import { cancelWorkflow } from '../../api/client';
 import { TaskContextMenu } from '../dropdowns/TaskContextMenu';
 import { toastApiError, toastSuccess } from '../../lib/toast';
-import { parseApiTimestampMs } from '../../lib/time';
+import { parseApiTimestampMs, formatDateTime } from '../../lib/time';
 import { StatusDot } from '../shared/StatusDot';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from '../ui';
 
@@ -140,7 +140,7 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
       {/* Right side: timestamp + context menu */}
       <div className="flex items-center gap-3 flex-shrink-0">
         {relativeRunTime && (
-          <Tooltip title={runDateMs !== null ? new Date(runDateMs).toLocaleString() : ''}>
+          <Tooltip title={runDateMs !== null ? formatDateTime(runDateMs) : ''}>
             <span className={`font-sans text-xs whitespace-nowrap ${dotColor}`}>
               {relativeRunTime}
             </span>

@@ -13,6 +13,43 @@ export function parseApiTimestampMs(value: string | null | undefined): number | 
   return Number.isNaN(ms) ? null : ms;
 }
 
+/** Full date + time: "Jan 5, 2025, 3:42 PM" */
+export function formatDateTime(ms: number): string {
+  return new Date(ms).toLocaleString(undefined, {
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit',
+  });
+}
+
+/** Short date + time (no year): "Jan 5, 3:42 PM" */
+export function formatDateTimeShort(value: string | number): string {
+  const d = typeof value === 'number' ? new Date(value) : new Date(value);
+  return d.toLocaleDateString(undefined, {
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+}
+
+/** Safe format — returns '—' for null/invalid values. */
+export function formatWhen(value: string | null | undefined): string {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return formatDateTime(date.getTime());
+}
+
+/** Compact relative time: "just now", "5m ago", "3h ago", "2d ago". Falls back to short date for >30d. */
+export function relativeTimeAgo(ms: number): string {
+  const diff = Date.now() - ms;
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days}d ago`;
+  return formatDateTimeShort(ms);
+}
+
 export type DateGroup = 'Today' | 'Yesterday' | 'Previous 7 days' | 'This month' | 'Earlier';
 
 /** Classify a timestamp (ms) into a human-friendly date group relative to now. */

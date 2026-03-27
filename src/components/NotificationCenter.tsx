@@ -5,6 +5,7 @@ import { ActionIcon, Empty, Tooltip } from '@lobehub/ui';
 import type { Notification } from '../hooks/useNotifications';
 import { useNotifications } from '../hooks/useNotifications';
 import { useClickOutside } from '../hooks/useClickOutside';
+import { relativeTimeAgo } from '../lib/time';
 
 export interface NotificationCenterProps {
   notifications?: Notification[];
@@ -13,17 +14,6 @@ export interface NotificationCenterProps {
   onMarkAllAsRead?: () => void;
   onClearAll?: () => void;
   onClickNotification?: (notif: Notification) => void;
-}
-
-function timeAgo(ts: number): string {
-  const diff = Date.now() - ts;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
 }
 
 function notifIcon(type: Notification['type']) {
@@ -159,7 +149,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
                       {!notif.read && <div className="w-1.5 h-1.5 rounded-full bg-info flex-shrink-0" />}
                     </div>
                     <p className="text-xs text-muted mt-0.5 line-clamp-2">{notif.message}</p>
-                    <span className="text-2xs text-placeholder mt-1 block">{timeAgo(notif.timestamp)}</span>
+                    <span className="text-2xs text-placeholder mt-1 block">{relativeTimeAgo(notif.timestamp)}</span>
                   </div>
                 </button>
               ))

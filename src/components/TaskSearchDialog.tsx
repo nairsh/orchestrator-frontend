@@ -4,6 +4,7 @@ import { Hotkey } from '@lobehub/ui';
 import { listWorkflows } from '../api/client';
 import type { ApiConfig } from '../api/client';
 import type { WorkflowSummary } from '../api/types';
+import { relativeTimeAgo } from '../lib/time';
 
 interface TaskSearchDialogProps {
   open: boolean;
@@ -29,20 +30,6 @@ const STATUS_LABEL: Record<string, string> = {
   paused: 'Paused',
   pending: 'Pending',
 };
-
-function formatRelativeTime(dateStr: string): string {
-  const now = Date.now();
-  const then = new Date(dateStr).getTime();
-  const diffMs = now - then;
-  const diffMin = Math.floor(diffMs / 60_000);
-  if (diffMin < 1) return 'Just now';
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffH = Math.floor(diffMin / 60);
-  if (diffH < 24) return `${diffH}h ago`;
-  const diffD = Math.floor(diffH / 24);
-  if (diffD < 30) return `${diffD}d ago`;
-  return new Date(dateStr).toLocaleDateString();
-}
 
 export function TaskSearchDialog({
   open,
@@ -177,7 +164,7 @@ export function TaskSearchDialog({
                   <div className="flex items-center gap-2 mt-0.5">
                     <span className="text-2xs text-muted">{statusLabel}</span>
                     <span className="text-2xs text-placeholder">·</span>
-                    <span className="text-2xs text-placeholder">{formatRelativeTime(timeStr)}</span>
+                    <span className="text-2xs text-placeholder">{relativeTimeAgo(new Date(timeStr).getTime())}</span>
                   </div>
                 </div>
                 {isSelected && (

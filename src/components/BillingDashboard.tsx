@@ -7,6 +7,7 @@ import { getBillingUsage, getBillingTransactions, getBillingBalance } from '../a
 import { Button } from './ui/Button';
 
 import { humanizeModelName } from '../lib/modelNames';
+import { formatDateTimeShort } from '../lib/time';
 
 interface BillingDashboardProps {
   config: ApiConfig;
@@ -14,11 +15,6 @@ interface BillingDashboardProps {
 
 function formatCredits(n: number): string {
   return n % 1 === 0 ? n.toFixed(0) : n.toFixed(2);
-}
-
-function formatDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
 export function BillingDashboard({ config }: BillingDashboardProps) {
@@ -154,7 +150,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="text-sm text-primary truncate">{tx.description}</div>
-                  <div className="text-2xs text-muted">{formatDate(tx.created_at)}</div>
+                  <div className="text-2xs text-muted">{formatDateTimeShort(tx.created_at)}</div>
                 </div>
                 <span className={`text-xs font-mono ${tx.type === 'debit' ? 'text-danger' : 'text-success'}`}>
                   {tx.type === 'debit' ? '-' : '+'}{formatCredits(Math.abs(tx.amount))}
