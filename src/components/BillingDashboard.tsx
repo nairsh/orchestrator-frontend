@@ -13,7 +13,7 @@ interface BillingDashboardProps {
 }
 
 function formatCredits(n: number): string {
-  return n.toFixed(2);
+  return n % 1 === 0 ? n.toFixed(0) : n.toFixed(2);
 }
 
 function formatDate(dateStr: string): string {
