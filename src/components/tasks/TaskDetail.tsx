@@ -94,10 +94,12 @@ export function TaskDetail({
           <span className="font-sans text-sm font-medium text-primary truncate">
             {objective}
           </span>
+          {isFailed && <span className="flex-shrink-0 rounded-full bg-danger/10 px-2 py-0.5 text-[11px] font-medium text-danger">Failed</span>}
+          {isPaused && <span className="flex-shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning">Paused</span>}
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Workflow control buttons */}
+          {/* Task control buttons */}
           {isFailed && (
             <Tooltip title="Retry task">
               <Button
