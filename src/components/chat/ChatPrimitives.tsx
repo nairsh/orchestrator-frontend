@@ -195,7 +195,7 @@ export function ChatInput({
   return (
     <div className={`border-t border-border-light flex-shrink-0 p-4 ${tone === 'warm' ? 'bg-surface-warm' : 'bg-surface'}`}>
       <div
-        className="flex items-end gap-2 rounded-xl border border-border-light shadow-xs px-3 py-2 max-w-chat mx-auto bg-surface"
+        className="flex items-end gap-2 rounded-xl border border-border-light shadow-xs px-3 py-2 max-w-chat mx-auto bg-surface focus-within:border-border focus-within:shadow-sm transition-all duration-200"
       >
         <Textarea
           value={value}

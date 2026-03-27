@@ -141,8 +141,10 @@ export function SettingsPage({
                   <button
                     key={item.id} type="button" onClick={() => setPanel(item.id)}
                     className={[
-                      'text-left px-3 py-[7px] rounded-lg text-[13.5px] border-none cursor-pointer transition-colors duration-200 whitespace-nowrap',
-                      panel === item.id ? 'bg-surface-hover font-medium text-primary' : 'bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
+                      'text-left px-3 py-[7px] rounded-lg text-[13.5px] border-none cursor-pointer transition-all duration-200 whitespace-nowrap',
+                      panel === item.id
+                        ? 'bg-surface-hover font-medium text-primary shadow-xs'
+                        : 'bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
                     ].join(' ')}
                   >
                     {item.label}

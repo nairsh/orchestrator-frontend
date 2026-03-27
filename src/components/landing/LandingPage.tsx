@@ -163,7 +163,7 @@ export function LandingPage({
 
         {/* Search box */}
         <div className="w-full max-w-2xl px-4 fade-in-up-soft" style={{ animationDelay: '80ms' }}>
-          <div className="relative z-10 rounded-2xl border border-border-light shadow-sm font-sans bg-surface">
+          <div className="relative z-10 rounded-2xl border border-border-light shadow-sm font-sans bg-surface focus-within:border-border focus-within:shadow-md transition-all duration-200">
             <div className="grid grid-cols-[1fr_auto] px-3.5 pt-3.5 pb-3">
               {/* Attachments - span both columns */}
               {attachments.length > 0 && (

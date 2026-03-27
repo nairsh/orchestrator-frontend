@@ -35,7 +35,7 @@ export function TaskStartInput({
   modelIconOverrides,
 }: TaskStartInputProps) {
   return (
-    <div className="flex flex-col flex-shrink-0 rounded-xl bg-surface border border-border-light px-3.5 py-3 min-h-[92px] gap-2.5 shadow-xs">
+    <div className="flex flex-col flex-shrink-0 rounded-xl bg-surface border border-border-light px-3.5 py-3 min-h-[92px] gap-2.5 shadow-xs focus-within:border-border focus-within:shadow-sm transition-all duration-200">
       <Textarea
         ref={inputRef}
         value={value}
