@@ -21,9 +21,9 @@ const AGENT_COLORS: Record<string, string> = {
 
 const AGENT_LABELS: Record<string, string> = {
   research: 'Research',
-  analyze: 'Analyze',
-  write: 'Write',
-  code: 'Code',
+  analyze: 'Analysis',
+  write: 'Writing',
+  code: 'Coding',
   file: 'File Ops',
   deep_research: 'Deep Research',
 };
