@@ -70,7 +70,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
 
   const chatContent = (
     <>
-      <ChatHeader title="Agent chat" onClose={handleClose} tone={fullscreen ? 'warm' : 'surface'}>
+      <ChatHeader title="AI Chat" onClose={handleClose} tone={fullscreen ? 'warm' : 'surface'}>
         <ModelDropdown
           config={config}
           selected={model}

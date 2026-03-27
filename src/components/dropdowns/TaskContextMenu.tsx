@@ -25,7 +25,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
         className="w-6 h-6 rounded flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-all duration-150 opacity-0 group-hover:opacity-100 cursor-pointer"
         aria-expanded={open}
         aria-haspopup="menu"
-        aria-label="Workflow actions"
+        aria-label="Task actions"
       >
         <MoreHorizontal size={14} />
       </button>

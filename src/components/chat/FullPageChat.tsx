@@ -68,7 +68,7 @@ export function FullPageChat({ config, initialMessage, onClose, modelIconOverrid
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden chat-ui bg-surface-warm">
-      <ChatHeader title="Agent chat" onClose={handleClose} tone="warm">
+      <ChatHeader title="AI Chat" onClose={handleClose} tone="warm">
         <ModelDropdown
           config={config}
           selected={model}

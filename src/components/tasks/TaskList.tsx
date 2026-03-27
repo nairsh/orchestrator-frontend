@@ -190,7 +190,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           {/* Chat pill */}
           <IconButton
             size="md"
-            label="Open agent chat"
+            label="Open chat"
             onClick={() => onOpenChat?.()}
             className="border border-border rounded-lg px-3 py-2"
           >
