@@ -43,6 +43,7 @@ export function TaskDetail({
   const isExecuting = workflowStatus === 'executing';
   const isPaused = workflowStatus === 'paused';
   const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | 'resume' | null>(null);
+  const [cancelConfirm, setCancelConfirm] = useState(false);
 
   const handleCommand = async (text: string) => {
     try {
@@ -131,17 +132,27 @@ export function TaskDetail({
                   {actionBusy === 'pause' ? <Loader2 size={12} className="animate-spin" /> : <Pause size={12} />}
                 </Button>
               </Tooltip>
-              <Tooltip title="Cancel task">
-                <Button
-                  variant="danger"
-                  size="sm"
-                  disabled={!!actionBusy}
-                  onClick={() => void handleCancel()}
-                  className="opacity-75 hover:opacity-100"
-                >
-                  {actionBusy === 'cancel' ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
-                </Button>
-              </Tooltip>
+              {cancelConfirm ? (
+                <div className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20">
+                  <span className="text-xs text-danger font-medium">Cancel task?</span>
+                  <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => { setCancelConfirm(false); void handleCancel(); }} className="h-5 px-2 text-[11px]">
+                    {actionBusy === 'cancel' ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
+                  </Button>
+                  <button type="button" onClick={() => setCancelConfirm(false)} className="text-xs text-muted hover:text-primary">✕</button>
+                </div>
+              ) : (
+                <Tooltip title="Cancel task">
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    disabled={!!actionBusy}
+                    onClick={() => setCancelConfirm(true)}
+                    className="opacity-75 hover:opacity-100"
+                  >
+                    <XCircle size={12} />
+                  </Button>
+                </Tooltip>
+              )}
             </>
           )}
           {isPaused && (
