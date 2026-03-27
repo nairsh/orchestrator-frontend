@@ -100,7 +100,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   if (fullscreen) {
     return (
       <div
-        className={`flex-1 flex flex-col h-full overflow-hidden chat-ui bg-surface-warm transition-all duration-150 ${
+        className={`flex-1 flex flex-col h-full overflow-hidden chat-ui bg-surface-warm transition-all duration-200 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}
       >
@@ -111,13 +111,13 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-150 chat-ui ${
+      className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-200 chat-ui ${
         visible ? 'bg-black/30' : 'bg-black/0'
       }`}
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
       <div
-        className={`bg-surface rounded-2xl shadow-modal w-full max-w-2xl overflow-hidden transition-all duration-150 chat-ui flex flex-col max-h-[min(80vh,720px)] ${
+        className={`bg-surface rounded-2xl shadow-modal w-full max-w-2xl overflow-hidden transition-all duration-200 chat-ui flex flex-col max-h-[min(80vh,720px)] ${
           visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-[0.98]'
         }`}
       >

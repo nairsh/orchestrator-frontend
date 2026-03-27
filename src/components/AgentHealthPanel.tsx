@@ -110,7 +110,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
           {agents.map((agent) => (
             <div
               key={agent.agent_type}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-border-light bg-surface"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl border border-border-light bg-surface"
             >
               <Tooltip title={agent.status}>
                 <StatusIcon status={agent.status} />

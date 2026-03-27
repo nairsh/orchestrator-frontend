@@ -63,8 +63,8 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
   return (
     <div className="space-y-4">
       {/* Balance summary */}
-      <div className="flex items-center gap-4 p-4 rounded-lg bg-surface-secondary/50 border border-border-light">
-        <div className="w-10 h-10 rounded-lg bg-surface-tertiary flex items-center justify-center">
+      <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-secondary/50 border border-border-light">
+        <div className="w-10 h-10 rounded-xl bg-surface-tertiary flex items-center justify-center">
           <CreditCard size={20} className="text-info" />
         </div>
         <div className="flex-1">

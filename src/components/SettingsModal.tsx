@@ -92,7 +92,7 @@ export function SettingsModal({
                 const active = panel === item.id;
                 return (
                   <button key={item.id} type="button" onClick={() => setPanel(item.id as Panel)}
-                    className={['flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition-all duration-150', active ? 'bg-surface text-primary shadow-sm ring-1 ring-border-light' : 'text-secondary hover:bg-surface hover:text-primary'].join(' ')}>
+                    className={['flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-left transition-all duration-200', active ? 'bg-surface text-primary shadow-sm ring-1 ring-border-light' : 'text-secondary hover:bg-surface hover:text-primary'].join(' ')}>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-medium">{item.title}</div>
                       <div className="mt-1 text-xs text-muted">{item.note}</div>
@@ -204,7 +204,7 @@ export function SettingsModal({
 
       <ModalFooter className="border-t border-border-light bg-surface-secondary px-5 py-4">
         <button type="button" onClick={() => void handleTest()} disabled={status === 'checking' || saving || !baseUrl.trim()}
-          className="flex items-center gap-1.5 text-sm text-muted transition-colors duration-150 hover:text-primary disabled:cursor-default disabled:opacity-40">
+          className="flex items-center gap-1.5 text-sm text-muted transition-colors duration-200 hover:text-primary disabled:cursor-default disabled:opacity-40">
           {status === 'checking' && <Loader2 size={13} className="animate-spin flex-shrink-0" />}
           Test connection
         </button>

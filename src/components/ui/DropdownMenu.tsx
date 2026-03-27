@@ -97,7 +97,7 @@ export function DropdownMenuItem({
       role="menuitem"
       onClick={onClick}
       className={[
-        'w-full flex items-center gap-2.5 px-3.5 py-2 text-sm font-sans transition-colors duration-150 cursor-pointer text-left rounded-lg mx-0',
+        'w-full flex items-center gap-2.5 px-3.5 py-2 text-sm font-sans transition-colors duration-200 cursor-pointer text-left rounded-lg mx-0',
         destructive
           ? 'text-danger hover:bg-danger/15'
           : 'text-primary hover:bg-surface-hover',

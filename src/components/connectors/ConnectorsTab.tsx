@@ -40,7 +40,7 @@ export function ConnectorsTab({
           const Icon = copy.icon;
           const busy = connectorBusyProvider === provider.provider || connectorBusyId === connector?.id;
           return (
-            <div key={provider.provider} className="rounded-xl border border-border-light bg-surface p-5 hover:border-border hover:shadow-xs transition-all duration-150">
+            <div key={provider.provider} className="rounded-xl border border-border-light bg-surface p-5 hover:border-border-light hover:shadow-sm transition-all duration-200">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border-light bg-surface-secondary flex-shrink-0">
                   <Icon size={22} className="text-primary" />

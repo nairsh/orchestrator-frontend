@@ -14,7 +14,7 @@ export function TabPill({ active, label, onClick }: TabPillProps) {
       type="button"
       onClick={onClick}
       className={[
-        'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-150',
+        'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-200',
         active ? 'border-border bg-surface text-primary shadow-sm' : 'border-border-light bg-surface-secondary text-secondary hover:bg-surface',
       ].join(' ')}
     >

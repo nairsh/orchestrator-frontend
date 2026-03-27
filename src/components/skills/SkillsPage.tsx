@@ -283,7 +283,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                     type="button"
                     onClick={() => setSelectedId(skill.id)}
                     className={[
-                      'rounded-xl border px-5 py-4 text-left transition-colors duration-150 flex items-start justify-between gap-3',
+                      'rounded-xl border px-5 py-4 text-left transition-colors duration-200 flex items-start justify-between gap-3',
                       selectedId === skill.id
                         ? 'border-border-light bg-surface shadow-sm'
                         : 'border-border-light bg-surface hover:border-border hover:shadow-xs',

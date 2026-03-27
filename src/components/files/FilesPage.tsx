@@ -361,7 +361,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                       type="button"
                       onClick={() => void openFile(path)}
                       className={[
-                        'group rounded-xl border bg-surface p-4 text-left transition-all duration-150 hover:shadow-sm',
+                        'group rounded-xl border bg-surface p-4 text-left transition-all duration-200 hover:shadow-sm',
                         isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
                       ].join(' ')}
                     >
@@ -446,7 +446,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                     <div
                       key={document.id}
                       className={[
-                        'group relative rounded-xl border bg-surface p-4 transition-all duration-150 cursor-pointer hover:shadow-sm',
+                        'group relative rounded-xl border bg-surface p-4 transition-all duration-200 cursor-pointer hover:shadow-sm',
                         isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
                       ].join(' ')}
                       onClick={() => setSelectedDocumentId(document.id)}

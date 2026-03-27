@@ -132,7 +132,7 @@ export function ModelDropdown({
           <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : 'text-sm max-w-[200px]'}`}>{triggerLabel}</span>
           <ChevronDown
             size={isLarge ? 18 : 14}
-            className="text-subtle transition-transform duration-150"
+            className="text-subtle transition-transform duration-200"
             style={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
           />
         </button>
