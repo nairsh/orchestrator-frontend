@@ -65,7 +65,7 @@ export function ConnectorsTab({
                   try {
                     const { authorize_url } = await startConnectorOAuth(config, provider.provider, { frontend_origin: window.location.origin });
                     window.open(authorize_url, '_blank', 'noopener,noreferrer,width=620,height=760');
-                    toastInfo(`${copy.title} authorization opened`, 'Complete provider auth, then refresh or validate.');
+                    toastInfo(`${copy.title} sign-in opened`, 'Complete sign-in in the popup, then click Refresh to activate.');
                   } catch (err) { toastApiError(err, `Failed to start ${copy.title} connection`); }
                   finally { setConnectorBusyProvider(null); }
                 }}>
@@ -76,14 +76,14 @@ export function ConnectorsTab({
                   <>
                     <Button variant="secondary" size="sm" disabled={busy} onClick={async () => {
                       setConnectorBusyId(connector.id);
-                      try { await validateConnector(config, connector.id); toastSuccess('Connector validated'); await onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to validate connector'); }
+                      try { await validateConnector(config, connector.id); toastSuccess('Connection verified'); await onRefresh(); }
+                      catch (err) { toastApiError(err, 'Failed to verify connection'); }
                       finally { setConnectorBusyId(null); }
-                    }}>Validate</Button>
+                    }}>Test connection</Button>
                     <Button variant="ghost" size="sm" disabled={busy} onClick={async () => {
                       setConnectorBusyId(connector.id);
-                      try { await disconnectConnector(config, connector.id); toastSuccess('Connector disconnected'); await onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to disconnect connector'); }
+                      try { await disconnectConnector(config, connector.id); toastSuccess('Disconnected'); await onRefresh(); }
+                      catch (err) { toastApiError(err, 'Failed to disconnect'); }
                       finally { setConnectorBusyId(null); }
                     }}>Disconnect</Button>
                   </>
