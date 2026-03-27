@@ -6,7 +6,6 @@ import { useSettingsState } from '../hooks/useSettingsState';
 import { ProvidersSettingsPanel } from './ProvidersSettingsPanel';
 import { BillingDashboard } from './BillingDashboard';
 import { AgentHealthPanel } from './AgentHealthPanel';
-import { Button } from './ui';
 import { Sidebar } from './layout/Sidebar';
 import { SettingsGeneralPanel } from './settings/SettingsGeneralPanel';
 import { SettingsRoutingInlinePanel } from './settings/SettingsRoutingInlinePanel';

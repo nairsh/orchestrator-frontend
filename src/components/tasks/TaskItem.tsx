@@ -5,7 +5,7 @@ import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
 import { cancelWorkflow } from '../../api/client';
 import { TaskContextMenu } from '../dropdowns/TaskContextMenu';
-import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
+import { toastApiError, toastSuccess } from '../../lib/toast';
 import { parseApiTimestampMs } from '../../lib/time';
 import { StatusDot } from '../shared/StatusDot';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from '../ui';
@@ -101,7 +101,6 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
   };
 
   const dotColor = STATUS_TEXT_COLOR[workflow.status] ?? 'text-placeholder';
-  const isComplete = workflow.status === 'completed' || workflow.status === 'cancelled';
   const subtitle = getSubtitle(workflow);
   const displayTitle = (title ?? workflow.objective).trim() || workflow.objective;
   const runTimestamp = workflow.started_at ?? workflow.created_at;

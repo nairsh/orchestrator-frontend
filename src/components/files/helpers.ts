@@ -1,5 +1,5 @@
 import type { ApiConfig } from '../../api/client';
-import type { KnowledgeDocument, KnowledgeSearchMatch, WorkflowSummary } from '../../api/types';
+import type { WorkflowSummary } from '../../api/types';
 
 export type PreviewState =
   | { kind: 'empty' }

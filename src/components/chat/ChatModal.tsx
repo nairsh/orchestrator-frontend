@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { ApiConfig } from '../../api/client';
 import { getModels } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
-import { Modal } from '../ui/Modal';
 import { useChatStream } from '../../hooks/useChatStream';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { ChatHeader, ChatMessageArea, ChatInput } from './ChatPrimitives';

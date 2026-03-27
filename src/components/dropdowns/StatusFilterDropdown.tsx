@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Check, ListFilter } from 'lucide-react';
 import { DropdownMenu, DropdownMenuItem } from '../ui/DropdownMenu';
 

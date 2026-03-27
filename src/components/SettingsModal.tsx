@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Check, ChevronRight, Loader2, Sparkles } from 'lucide-react';
+import { ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import { Alert, Tag } from '@lobehub/ui';
 import { checkHealth } from '../api/client';
-import { toastApiError, toastSuccess } from '../lib/toast';
+import { toastSuccess } from '../lib/toast';
 import type { ModelIconOverrides } from '../lib/modelIcons';
 import { useSettingsState } from '../hooks/useSettingsState';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from './ui/Modal';

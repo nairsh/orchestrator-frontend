@@ -1,6 +1,5 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CopyButton } from '@lobehub/ui';
 import { Highlighter } from '@lobehub/ui';
 
 interface MarkdownProps {

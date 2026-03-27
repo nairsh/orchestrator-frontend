@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BotMessageSquare, ArrowRight, Zap, BookOpen, Palette, X } from 'lucide-react';
+import { BotMessageSquare, ArrowRight, Zap, Palette, X } from 'lucide-react';
 import { Button } from './ui/Button';
 
 interface OnboardingModalProps {

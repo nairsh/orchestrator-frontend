@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Search, ArrowRight, FileText, Clock, Zap, Settings, LayoutGrid, Brain, Calendar, Database } from 'lucide-react';
+import { Search, ArrowRight, FileText, Clock, Zap, Settings, LayoutGrid, Brain, Database } from 'lucide-react';
 import { Empty, Hotkey } from '@lobehub/ui';
 import type { WorkflowSummary } from '../api/types';
 

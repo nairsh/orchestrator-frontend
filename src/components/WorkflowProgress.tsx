@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { CheckCircle2, Loader2, Circle, XCircle, Clock } from 'lucide-react';
-import { Tooltip, Tag } from '@lobehub/ui';
+import { Tooltip } from '@lobehub/ui';
 import type { LiveTask } from '../api/types';
 
 interface WorkflowProgressProps {
@@ -16,15 +16,6 @@ const AGENT_COLORS: Record<string, string> = {
   code: 'bg-orange-500',
   file: 'bg-gray-500',
   deep_research: 'bg-cyan-500',
-};
-
-const AGENT_LABELS: Record<string, string> = {
-  research: 'Research',
-  analyze: 'Analyze',
-  write: 'Write',
-  code: 'Code',
-  file: 'File',
-  deep_research: 'Deep Research',
 };
 
 function StatusIcon({ status }: { status: string }) {

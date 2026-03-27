@@ -1,5 +1,4 @@
 import { memo } from 'react';
-import { CircleAlert } from 'lucide-react';
 import { Alert, Highlighter } from '@lobehub/ui';
 import type { FeedEntry } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';

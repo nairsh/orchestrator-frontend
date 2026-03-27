@@ -77,8 +77,6 @@ export function LandingPage({
 
   const contextFiles = useMemo(() => attachments.map(({ id: _id, size: _size, ...rest }) => rest), [attachments]);
 
-  const totalBytes = useMemo(() => attachments.reduce((sum, a) => sum + a.size, 0), [attachments]);
-
   const handleUploadFiles = async (files: File[]) => {
     let runningTotal = attachments.reduce((sum, a) => sum + a.size, 0);
     for (const file of files) {

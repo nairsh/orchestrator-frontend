@@ -1,6 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-react';
+import { Bell, CheckCheck, Trash2 } from 'lucide-react';
 import { ActionIcon, Empty, Tooltip } from '@lobehub/ui';
 import type { Notification } from '../hooks/useNotifications';
 import { useNotifications } from '../hooks/useNotifications';

@@ -18,10 +18,9 @@ export function useFilesPageState(
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<PreviewState>({ kind: 'empty' });
   const [filter, setFilter] = useState('');
-  const [workflowSearch, setWorkflowSearch] = useState('');
 
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
-  const [documentsLoading, setDocumentsLoading] = useState(false);
+  const [, setDocumentsLoading] = useState(false);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [documentContent, setDocumentContent] = useState('');
   const [documentLoading, setDocumentLoading] = useState(false);
@@ -42,10 +41,8 @@ export function useFilesPageState(
   }, [files, filter]);
 
   const filteredWorkflows = useMemo(() => {
-    const q = workflowSearch.trim().toLowerCase();
-    const matched = q ? workflows.filter((w) => w.objective.toLowerCase().includes(q) || w.id.includes(q)) : workflows;
-    return matched.slice(0, workflowSearch ? 100 : 20);
-  }, [workflows, workflowSearch]);
+    return workflows.slice(0, 20);
+  }, [workflows]);
 
   const selectedDocument = useMemo(
     () => (selectedDocumentId ? documents.find((document) => document.id === selectedDocumentId) ?? null : null),

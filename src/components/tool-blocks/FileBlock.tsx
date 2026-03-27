@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { FileText, ChevronDown } from 'lucide-react';
-import { Highlighter, CopyButton } from '@lobehub/ui';
-import { Tooltip } from '@lobehub/ui';
+import { Highlighter, Tooltip } from '@lobehub/ui';
 
 interface FileBlockProps {
   toolName: string;

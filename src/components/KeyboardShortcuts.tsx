@@ -47,10 +47,6 @@ export function useKeyboardShortcuts(shortcuts: ShortcutDef[]) {
   }, [shortcuts]);
 }
 
-function shortcutToKeys(s: { keys: string[] }): string {
-  return s.keys.join('+').replace('⌘', 'meta');
-}
-
 export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   useEffect(() => {
     if (!open) return;

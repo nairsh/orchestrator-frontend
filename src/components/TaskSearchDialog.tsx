@@ -3,7 +3,7 @@ import { Search, ArrowRight, Clock, CheckCircle2, XCircle, Loader2, Pause, Alert
 import { Hotkey } from '@lobehub/ui';
 import { listWorkflows } from '../api/client';
 import type { ApiConfig } from '../api/client';
-import type { WorkflowSummary, WorkflowStatus } from '../api/types';
+import type { WorkflowSummary } from '../api/types';
 
 interface TaskSearchDialogProps {
   open: boolean;
@@ -56,7 +56,6 @@ export function TaskSearchDialog({
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const fetchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Fetch workflows on open
   useEffect(() => {

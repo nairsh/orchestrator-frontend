@@ -83,7 +83,6 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
   const lastMarkerRef = useRef<HTMLDivElement | null>(null);
   const [railTopOffset, setRailTopOffset] = useState(0);
   const [railBottomOffset, setRailBottomOffset] = useState(0);
-  const hasThinkingRow = !isTerminal && /thinking/i.test(currentActivity ?? '');
 
   const renderRows = useMemo<RenderRow[]>(() => {
     const rows: RenderRow[] = [];
@@ -140,7 +139,6 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
   })();
 
   const hasTimeline = markerIndices.length > 0;
-  const totalRows = renderRows.length + (hasThinkingRow ? 1 : 0);
 
   // Track whether user is near the bottom of the scroll container
   const [isNearBottom, setIsNearBottom] = useState(true);

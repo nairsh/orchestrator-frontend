@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { ChevronDown, Loader2, ArrowUp, X } from 'lucide-react';
-import { CopyButton, Tooltip } from '@lobehub/ui';
+import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
 import { IconButton, Textarea } from '../ui';
