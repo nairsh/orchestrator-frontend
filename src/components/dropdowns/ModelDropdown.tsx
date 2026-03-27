@@ -6,6 +6,7 @@ import type { ApiConfig } from '../../api/client';
 import type { ModelsResponse, ModelInfo } from '../../api/types';
 import { ModelIcon, type ModelIconOverrides, resolveModelIconKey } from '../../lib/modelIcons';
 import { humanizeModelName, humanizeProviderName } from '../../lib/modelNames';
+import { toastApiError } from '../../lib/toast';
 
 const inferProvider = (modelId: string): string => {
   const id = modelId.toLowerCase();
@@ -48,7 +49,7 @@ export function ModelDropdown({
     setLoading(true);
     getModels(config)
       .then((res) => setData(res))
-      .catch(() => setData(null))
+      .catch((err) => { setData(null); toastApiError(err, "Couldn't load AI models"); })
       .finally(() => setLoading(false));
   }, [config]);
 

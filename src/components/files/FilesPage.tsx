@@ -31,6 +31,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
               onChange={(e) => state.fileTab === 'knowledge' ? state.setSearchQuery(e.target.value) : state.setFilter(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && state.fileTab === 'knowledge') void state.handleSearch(); }}
               placeholder={state.fileTab === 'knowledge' ? 'Search knowledge base…' : 'Filter files…'}
+              aria-label={state.fileTab === 'knowledge' ? 'Search knowledge base' : 'Filter files'}
               className="pl-9"
             />
           </div>

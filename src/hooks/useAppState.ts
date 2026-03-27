@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useConfig } from './useConfig';
 import { useIsMobile } from './useIsMobile';
 import { createWorkflow, getModels } from '../api/client';
@@ -18,7 +18,14 @@ export function useAppState(props: AppProps) {
   const { config, saveConfig } = useConfig();
   const [screen, setScreen] = useState<Screen>('landing');
   const [activeWorkflow, setActiveWorkflow] = useState<{ id: string; objective: string } | null>(null);
-  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedModel, setSelectedModelRaw] = useState(() => localStorage.getItem('relay-selected-model') ?? '');
+  const setSelectedModel = useCallback((modelOrUpdater: string | ((prev: string) => string)) => {
+    setSelectedModelRaw((prev) => {
+      const next = typeof modelOrUpdater === 'function' ? modelOrUpdater(prev) : modelOrUpdater;
+      if (next) localStorage.setItem('relay-selected-model', next);
+      return next;
+    });
+  }, []);
   const [showSettings, setShowSettings] = useState(false);
   const [pendingObjective, setPendingObjective] = useState('');
   const [pendingContextFiles, setPendingContextFiles] = useState<ContextFileUpload[]>([]);

@@ -52,7 +52,7 @@ export function BashRenderer({
               <span className="font-sans text-xs text-placeholder">output</span>
             </div>
             <div className="px-3">
-              <Highlighter language="bash" variant="borderless" copyable={false} showLanguage={false} wrap>{renderedOutput}</Highlighter>
+              <Highlighter language="bash" variant="borderless" copyable showLanguage={false} wrap>{renderedOutput}</Highlighter>
             </div>
           </div>
         )}

@@ -34,6 +34,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                   value={state.searchQuery}
                   onChange={(e) => state.setSearchQuery(e.target.value)}
                   placeholder="Search skills"
+                  aria-label="Search skills"
                   className="pl-9 pr-3 py-2 rounded-lg border border-border-light bg-surface text-sm text-primary placeholder:text-placeholder outline-none w-[140px] md:w-[200px]"
                 />
               </div>
