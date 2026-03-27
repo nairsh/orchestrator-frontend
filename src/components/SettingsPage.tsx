@@ -400,7 +400,7 @@ export function SettingsPage({
                 <div className="space-y-8">
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Connectors</h2>
-                    <p className="text-[13px] text-secondary mb-5">Manage OAuth connections to external services.</p>
+                    <p className="text-[13px] text-secondary mb-5">Connect GitHub, Linear, Notion, and more.</p>
 
                     {!isSignedIn && (
                       <div className="rounded-lg border border-border bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
@@ -439,7 +439,7 @@ export function SettingsPage({
                                 {connector && (
                                   <>
                                     <Button variant="ghost" size="sm" onClick={() => void settings.handleValidateConnector(connector.id)} disabled={busy}>
-                                      Refresh
+                                      Test connection
                                     </Button>
                                     <Button variant="ghost" size="sm" onClick={() => void settings.handleDisconnectConnector(connector.id)} disabled={busy}>
                                       Disconnect
