@@ -1,5 +1,5 @@
 import { Snippet } from '@lobehub/ui';
-import { Users } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
 import { Button, Card } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
 
@@ -22,8 +22,9 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
         <>
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted">{teams.length} teams</span>
-            <Button variant="secondary" onClick={() => void onRefresh()}>
-              {teamsStatus === 'loading' ? 'Loading...' : 'Refresh'}
+            <Button variant="secondary" disabled={teamsStatus === 'loading'} onClick={() => void onRefresh()} className="gap-1.5">
+              {teamsStatus === 'loading' ? <Loader2 size={13} className="animate-spin" /> : null}
+              {teamsStatus === 'loading' ? 'Loading…' : 'Refresh'}
             </Button>
           </div>
 
