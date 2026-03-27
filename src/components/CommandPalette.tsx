@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Search, ArrowRight, FileText, Clock, Zap, Settings, LayoutGrid, Brain, Database } from 'lucide-react';
+import { Search, ArrowRight, FileText, Clock, Zap, Settings, LayoutGrid, Brain, Database, MessageSquare, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Empty, Hotkey } from '@lobehub/ui';
 import type { WorkflowSummary } from '../api/types';
 
@@ -20,6 +20,7 @@ interface CommandItem {
   icon: React.ReactNode;
   action: () => void;
   keywords?: string;
+  shortcut?: string;
 }
 
 export function CommandPalette({
@@ -49,26 +50,32 @@ export function CommandPalette({
 
     // Actions
     result.push(
-      { id: 'new-workflow', label: 'New Task', category: 'actions', icon: <Zap size={16} />, action: () => { onNewWorkflow(); onClose(); }, keywords: 'create start workflow' },
+      { id: 'new-workflow', label: 'New Task', category: 'actions', icon: <Zap size={16} />, action: () => { onNewWorkflow(); onClose(); }, keywords: 'create start workflow', shortcut: 'N' },
+      { id: 'open-chat', label: 'Toggle Chat', category: 'actions', icon: <MessageSquare size={16} />, action: () => { window.dispatchEvent(new CustomEvent('relay:toggle-chat')); onClose(); }, keywords: 'chat conversation ai assistant', shortcut: '⌘⇧C' },
       { id: 'open-settings', label: 'Open Settings', category: 'actions', icon: <Settings size={16} />, action: () => { onOpenSettings(); onClose(); }, keywords: 'config preferences' },
     );
 
     // Navigation
     result.push(
-      { id: 'nav-tasks', label: 'Go to Tasks', category: 'navigation', icon: <LayoutGrid size={16} />, action: () => { onNavigate('tasks'); onClose(); }, keywords: 'workflows' },
-      { id: 'nav-files', label: 'Go to Files', category: 'navigation', icon: <FileText size={16} />, action: () => { onNavigate('files'); onClose(); }, keywords: 'knowledge documents' },
-      { id: 'nav-connectors', label: 'Go to Connectors', category: 'navigation', icon: <Database size={16} />, action: () => { onNavigate('connectors'); onClose(); }, keywords: 'github linear notion' },
-      { id: 'nav-skills', label: 'Go to Skills', category: 'navigation', icon: <Brain size={16} />, action: () => { onNavigate('skills'); onClose(); }, keywords: 'prompts' },
+      { id: 'nav-tasks', label: 'Go to Tasks', category: 'navigation', icon: <LayoutGrid size={16} />, action: () => { onNavigate('tasks'); onClose(); }, keywords: 'workflows', shortcut: '⌘⇧O' },
+      { id: 'nav-files', label: 'Go to Files', category: 'navigation', icon: <FileText size={16} />, action: () => { onNavigate('files'); onClose(); }, keywords: 'knowledge documents', shortcut: '⌘⇧E' },
+      { id: 'nav-connectors', label: 'Go to Connectors', category: 'navigation', icon: <Database size={16} />, action: () => { onNavigate('connectors'); onClose(); }, keywords: 'github linear notion', shortcut: '⌘⇧L' },
+      { id: 'nav-skills', label: 'Go to Skills', category: 'navigation', icon: <Brain size={16} />, action: () => { onNavigate('skills'); onClose(); }, keywords: 'prompts', shortcut: '⌘⇧K' },
     );
 
     // Recent workflows
     const recent = workflows.slice(0, 8);
     for (const wf of recent) {
+      const statusIcon = wf.status === 'completed'
+        ? <CheckCircle2 size={16} className="text-green-500" />
+        : wf.status === 'failed'
+          ? <AlertCircle size={16} className="text-red-400" />
+          : <Clock size={16} />;
       result.push({
         id: `wf-${wf.id}`,
         label: wf.objective.length > 60 ? wf.objective.slice(0, 60) + '…' : wf.objective,
         category: 'recent',
-        icon: <Clock size={16} />,
+        icon: statusIcon,
         action: () => { onSelectWorkflow(wf.id, wf.objective); onClose(); },
         keywords: wf.objective,
       });
@@ -143,7 +150,7 @@ export function CommandPalette({
         </div>
 
         {/* Results */}
-        <div ref={listRef} className="max-h-[320px] overflow-y-auto py-2">
+        <div ref={listRef} className="max-h-[420px] overflow-y-auto py-2">
           {filtered.length === 0 && (
             <div className="py-8">
               <Empty description="No results found" />
@@ -166,7 +173,11 @@ export function CommandPalette({
                   >
                     <span className="text-muted">{item.icon}</span>
                     <span className="flex-1 truncate">{item.label}</span>
-                    <ArrowRight size={14} className="text-muted opacity-0 group-hover:opacity-100" />
+                    {item.shortcut ? (
+                      <kbd className="text-2xs text-muted font-mono opacity-60">{item.shortcut}</kbd>
+                    ) : (
+                      <ArrowRight size={14} className="text-muted opacity-0 group-hover:opacity-100" />
+                    )}
                   </button>
                 );
               })}
@@ -189,6 +200,7 @@ export function CommandPalette({
                   >
                     <span className="text-muted">{item.icon}</span>
                     <span className="flex-1 truncate">{item.label}</span>
+                    {item.shortcut && <kbd className="text-2xs text-muted font-mono opacity-60">{item.shortcut}</kbd>}
                   </button>
                 );
               })}

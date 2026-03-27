@@ -3,6 +3,7 @@ import { CommandPalette } from './components/CommandPalette';
 import { TaskSearchDialog } from './components/TaskSearchDialog';
 import { KeyboardShortcutsOverlay } from './components/KeyboardShortcuts';
 import { OnboardingModal } from './components/OnboardingModal';
+import { useWorkflows } from './hooks/useWorkflows';
 import type { AppState } from './hooks/useAppState';
 import type { AppProps, TaskNav } from './appTypes';
 
@@ -21,6 +22,9 @@ export function AppModals({ state, appProps }: AppModalsProps) {
     modelIconOverrides = {},
     onSaveModelIconOverrides,
   } = appProps;
+
+  // Only fetch workflows when the command palette is open
+  const { workflows: paletteWorkflows } = useWorkflows(state.runtimeConfig, state.showCommandPalette);
 
   return (
     <>
@@ -45,7 +49,7 @@ export function AppModals({ state, appProps }: AppModalsProps) {
         <CommandPalette
           open={state.showCommandPalette}
           onClose={() => state.setShowCommandPalette(false)}
-          workflows={[]}
+          workflows={paletteWorkflows}
           onNavigate={(target) => {
             state.setShowCommandPalette(false);
             if (target === 'landing') state.setScreen('landing');

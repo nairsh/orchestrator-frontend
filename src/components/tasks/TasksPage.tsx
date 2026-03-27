@@ -122,8 +122,13 @@ export function TasksPage({
         setChatOpen((prev) => !prev);
       }
     };
+    const eventHandler = () => setChatOpen((prev) => !prev);
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    window.addEventListener('relay:toggle-chat', eventHandler);
+    return () => {
+      document.removeEventListener('keydown', handler);
+      window.removeEventListener('relay:toggle-chat', eventHandler);
+    };
   }, []);
 
   const handleWidthChange = (nextWidth: number) => {
