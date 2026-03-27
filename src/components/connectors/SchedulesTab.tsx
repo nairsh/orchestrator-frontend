@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarClock, Clock3 } from 'lucide-react';
+import { CalendarClock, Clock3, Loader2 } from 'lucide-react';
 import { Alert, Segmented } from '@lobehub/ui';
 import type { ApiConfig, CreateScheduleInput } from '../../api/client';
 import { createSchedule, deleteSchedule, updateSchedule } from '../../api/client';
@@ -59,8 +59,9 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
         <div className="flex items-center justify-between">
           <span className="text-sm text-muted">{schedules.length} schedules</span>
           <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => void onRefresh()}>
-              {schedulesLoading ? 'Loading...' : 'Refresh'}
+            <Button variant="secondary" disabled={schedulesLoading} onClick={() => void onRefresh()} className="gap-1.5">
+              {schedulesLoading ? <Loader2 size={13} className="animate-spin" /> : null}
+              {schedulesLoading ? 'Loading…' : 'Refresh'}
             </Button>
             <Button onClick={() => setShowDialog(true)}>
               <CalendarClock size={14} className="mr-1.5" />

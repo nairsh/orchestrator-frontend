@@ -65,7 +65,7 @@ export function ConnectorsTab({
                   try {
                     const { authorize_url } = await startConnectorOAuth(config, provider.provider, { frontend_origin: window.location.origin });
                     window.open(authorize_url, '_blank', 'noopener,noreferrer,width=620,height=760');
-                    toastInfo(`${copy.title} sign-in opened`, 'Complete sign-in in the popup, then click Refresh to activate.');
+                    toastInfo(`${copy.title} sign-in opened`, 'Sign in to complete the connection, then click Refresh.');
                   } catch (err) { toastApiError(err, `Failed to start ${copy.title} connection`); }
                   finally { setConnectorBusyProvider(null); }
                 }}>
