@@ -47,3 +47,39 @@ e1ab8d6	files	medium	keep	add confirmation modal for knowledge document deletion
 524764a	settings	low	keep	"Capabilities discovered" → "Available models" in SettingsModal
 5192bdb	settings	low	keep	remove jargon from SettingsModal nav descriptions (control plane, runtime routing, curation)
 a2d883f	settings	low	keep	SettingsIconsPanel hero copy — remove "curate", "inferred branding", "base URL"
+e3ce5a1	settings	low	keep	"Relay Control Room" badge → "Settings" in SettingsModal header
+dc8f37d	approval-gate	high	done	ApprovalGate: disable both buttons + spinner while approve/reject in flight
+36d8999	task-detail	high	done	TaskDetail: disable Retry/Pause/Cancel buttons + spinner during action
+3a908e2	panels	medium	done	Improve empty states, error messages, remove 'endpoint' jargon
+7c156b3	jargon	medium	done	CommandPalette 'Recent Workflows', SkillsPage 'ID:', CommandInput 'Attachments'
+bfddc35	connectors	low	done	ConnectorsTab toast copy, SchedulesTab refresh spinner
+7d5d465	templates+skills	low	done	TemplatesTab 'Objective' -> 'Goal', refresh spinner; SkillsPage import toast humanized
+e6451b4	jargon	low	done	Remove 'agent'/'workflow' from TaskContextMenu, TaskList, FullPageChat, ChatModal
+3aa7c50	jargon	low	done	SettingsModal: 'workflows' -> 'tasks' in server description
+2264b3e	skills	low	done	SkillsPage: 'what your computer can do' -> 'what your AI can do'
+386ff4c	files	low	done	FilesPage: 'Session active/inactive' → 'Workspace ready/No active workspace'; toast copy
+2ad4649	toasts	low	done	SchedulesTab 'Objective required' → 'Task goal required'; billing toast copy
+1a527a0	forms	low	done	SchedulesTab: 'Objective' form label → 'Goal'
+723fb67	landing	low	done	LandingPage: 'request limit' -> 'file size too large' in attachment toast
+72f85fd	forms	low	done	MemoryTab: add spinner to refresh button (consistent with other tabs)
+1a118f7	approval-gate	high	done	ApprovalGate: show error toast when approve/reject fails silently
+648fe5b	billing	medium	done	TaskList: differentiate billing load error vs not-signed-in in credits button toast
+81c14a7	validation	low	done	SkillsPage and MemoryTab: more specific validation toast messages
+36dca1c	memory	low	done	MemoryTab: 'Key' label → 'Name', better form placeholders
+2357480	memory	low	done	MemoryTab: empty state copy, conditional category display
+3850ff5	scheduling	medium	done	SchedulesTab: guard JSON.parse of workflow_config against malformed JSON
+5c79fae	loading-states	low	done	TaskDetail Resume + AgentHealthPanel Refresh: add spinner/disabled states
+911dee3	jargon	low	done	SettingsModal: 'Sign in with Clerk' + 'protected API routes' jargon removed
+0d2b84e	task-detail	high	done	TaskDetail: inline confirm prompt before cancelling a running task
+18cf527	connectors	high	done	ConnectorsTab: inline confirm before disconnecting a connector
+40c6a7c	files	medium	done	FilesPage: keep delete doc modal open during deletion, loading state, correct error recovery
+cb01fed	scheduling	medium	done	SchedulesTab: keep delete modal open during deletion (same pattern as MemoryTab)
+c08eee5	task-item	medium	done	TaskItem: keep delete modal open during deletion (consistent error recovery)
+022dd2e	connectors	low	done	ConnectorsTab: 'Test connection' shows 'Testing...' during validation
+959d989	jargon	low	done	ConnectorsPage: 'Computer' → 'your AI' in page subtitle
+d6770d1	jargon	low	done	ChatPrimitives: 'Message the agent...' → 'Send a message...', 'Agent chat' default → 'AI Chat'
+9b0365a	loading-states	low	done	TeamsTab: add spinner and disabled state to Refresh button
+aaf35a6	settings	low	done	SettingsConnectorsPanel: add loading spinner; 'Validate' → 'Test connection'
+993189b	copy	low	done	LandingPage: 'AI agents' jargon removed; TaskList attachment toast improved
+2668cc4	skills	low	done	SkillsPage: cleaner validation messages, consistent ellipsis, better tools label
+4a3689e	settings	low	done	SettingsPage: remove 'OAuth' jargon; 'Refresh' → 'Test connection' in connector row
