@@ -50,7 +50,7 @@ export function SettingsModal({
   const handleTest = async () => {
     setStatus('checking'); setErrorMsg('');
     try {
-      if (requiresAuth) { const token = getAuthToken ? await getAuthToken() : null; if (!token) throw new Error('Sign in with Clerk to continue.'); }
+      if (requiresAuth) { const token = getAuthToken ? await getAuthToken() : null; if (!token) throw new Error('Sign in to continue.'); }
       await checkHealth({ baseUrl: baseUrl.trim(), getAuthToken }); setStatus('ok');
     } catch (err) { setStatus('error'); setErrorMsg(err instanceof Error ? err.message : String(err)); }
   };
@@ -76,14 +76,14 @@ export function SettingsModal({
             <div className="border-b border-border-light px-5 py-5">
               <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Environment</div>
               <div className="mt-2 text-lg font-semibold text-primary">{userLabel ? `${userLabel}'s workspace` : 'Server workspace'}</div>
-              <div className="mt-1 text-sm text-secondary">Tune runtime routing, connector access, and how the app presents available models.</div>
+              <div className="mt-1 text-sm text-secondary">Configure your server, model preferences, and connected tools.</div>
             </div>
             <nav className="space-y-1 p-3">
               {([
                 { id: 'workspace', title: 'Workspace', note: 'Connection and account status' },
-                { id: 'routing', title: 'Model Routing', note: 'Agent-to-model control plane' },
+                { id: 'routing', title: 'Model Routing', note: 'Per-task model preferences' },
                 { id: 'connectors', title: 'Connectors', note: 'GitHub, Linear, Notion' },
-                { id: 'icons', title: 'Visual System', note: 'Per-model icon curation' },
+                { id: 'icons', title: 'Visual System', note: 'Per-model icons' },
                 { id: 'billing', title: 'Billing', note: 'Usage, credits, transactions' },
                 { id: 'health', title: 'Model Health', note: 'Model status and latency' },
               ] as const).map((item) => {
