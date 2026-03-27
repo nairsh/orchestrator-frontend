@@ -213,7 +213,7 @@ export function FeedToolCall({
                     href={result.resolvedUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-sm px-2 py-1 hover:bg-surface-warm transition-colors duration-fast no-underline fade-in-up-soft"
+                    className="rounded-sm px-2 py-1 hover:bg-surface-warm transition-colors duration-200 no-underline fade-in-up-soft"
                     style={{ animationDelay: `${Math.min(idx * 28, 220)}ms` }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
@@ -240,7 +240,7 @@ export function FeedToolCall({
                 )}
                 {fetchedSource && (
                   <a href={fetchedSource.url} target="_blank" rel="noreferrer"
-                    className="block px-4 py-1 hover:bg-surface-warm transition-colors duration-fast no-underline"
+                    className="block px-4 py-1 hover:bg-surface-warm transition-colors duration-200 no-underline"
                   >
                     <div className="flex items-center gap-1.5 min-w-0 h-5">
                       <img

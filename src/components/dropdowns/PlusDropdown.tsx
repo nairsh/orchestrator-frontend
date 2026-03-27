@@ -76,7 +76,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         aria-expanded={open}
         aria-haspopup="menu"
         className={[
-          'flex items-center justify-center flex-shrink-0 transition-colors duration-fast cursor-pointer',
+          'flex items-center justify-center flex-shrink-0 transition-colors duration-200 cursor-pointer',
           ghost
             ? 'h-8 rounded-full aspect-[9/8] text-secondary hover:text-primary'
             : useOutlinedStyle

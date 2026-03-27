@@ -43,7 +43,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
     >
       <div
         className={[
-          'bg-surface rounded-2xl shadow-lg border border-border-subtle w-full overflow-hidden transition-all duration-200',
+          'bg-surface rounded-2xl shadow-modal border border-border-subtle w-full overflow-hidden transition-all duration-200',
           maxWidth,
           visible
             ? 'opacity-100 translate-y-0 scale-100'
