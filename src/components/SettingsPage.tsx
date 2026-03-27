@@ -122,7 +122,7 @@ export function SettingsPage({
       />
 
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-8 py-10">
+        <div className="max-w-4xl mx-auto px-4 md:px-8 py-6 md:py-10">
           <button
             type="button"
             onClick={onBack}
@@ -134,15 +134,15 @@ export function SettingsPage({
             Settings
           </h1>
 
-          <div className="flex gap-10">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-10">
             {/* Left nav */}
-            <nav className="w-[160px] flex-shrink-0">
-              <div className="flex flex-col gap-[2px]">
+            <nav className="w-full md:w-[160px] flex-shrink-0">
+              <div className="flex md:flex-col gap-[2px] overflow-x-auto">
                 {NAV_ITEMS.map((item) => (
                   <button
                     key={item.id} type="button" onClick={() => setPanel(item.id)}
                     className={[
-                      'text-left px-3 py-[7px] rounded-lg text-[13.5px] border-none cursor-pointer transition-colors duration-200',
+                      'text-left px-3 py-[7px] rounded-lg text-[13.5px] border-none cursor-pointer transition-colors duration-200 whitespace-nowrap',
                       panel === item.id ? 'bg-surface-hover font-medium text-primary' : 'bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
                     ].join(' ')}
                   >

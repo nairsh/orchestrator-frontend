@@ -15,7 +15,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   return (
     <>
     <div className="flex h-full flex-1 overflow-hidden bg-surface-warm">
-      <div className="flex-1 overflow-y-auto px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
           <div>

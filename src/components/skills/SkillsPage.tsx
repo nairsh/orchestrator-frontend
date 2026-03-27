@@ -24,7 +24,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
         </div>
       ) : (
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between flex-shrink-0 px-8 pt-8 pb-2">
+          <div className="flex items-center justify-between flex-shrink-0 px-4 md:px-8 pt-6 md:pt-8 pb-2">
             <h1 className="text-xl font-semibold text-primary">Skills</h1>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -44,14 +44,14 @@ export function SkillsPage({ config }: SkillsPageProps) {
             </div>
           </div>
 
-          <div className="px-8 pb-4">
+          <div className="px-4 md:px-8 pb-4">
             <p className="text-sm text-secondary leading-relaxed">
               Custom instructions and tools that extend what your AI can do.
               Skills are applied automatically when relevant.
             </p>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-8 pb-8">
+          <div className="flex-1 overflow-y-auto px-4 md:px-8 pb-8">
             {state.unsupportedApi && (
               <Alert className="mb-4" type="warning" title="Skills aren't available on this server yet. Contact your administrator to enable them." variant="outlined" />
             )}
