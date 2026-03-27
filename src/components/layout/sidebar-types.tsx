@@ -47,6 +47,7 @@ export interface SidebarProps {
   pinnedIds?: Set<string>;
   onSelectWorkflow?: (id: string, objective: string) => void;
   getDisplayName?: (id: string) => string | null | undefined;
+  isMobile?: boolean;
 }
 
 export const WIDTH_EXPANDED = 240;

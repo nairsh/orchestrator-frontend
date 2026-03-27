@@ -371,6 +371,9 @@
   .animate-scale-in {
     animation: none;
   }
+  .animate-slide-in-left {
+    animation: none;
+  }
   .progress-pulse {
     animation: none;
   }
@@ -384,6 +387,15 @@
   .mobile-stack {
     flex-direction: column;
   }
+}
+
+/* ─── Mobile sidebar slide-in ─── */
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+.animate-slide-in-left {
+  animation: slideInLeft 200ms ease-out;
 }
 
 /* ─── Line clamp ─── */

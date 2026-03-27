@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Tooltip } from '@lobehub/ui';
+import { Menu } from 'lucide-react';
 import { IconSidebarToggle } from '../icons/CustomIcons';
 import { BrandMark, BrandWordmark } from '../branding/Brand';
 import type { SidebarProps } from './sidebar-types';
@@ -24,6 +26,7 @@ export function Sidebar({
   pinnedIds,
   onSelectWorkflow,
   getDisplayName,
+  isMobile = false,
 }: SidebarProps) {
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const collapsed = collapsedProp !== undefined ? collapsedProp : internalCollapsed;
@@ -36,7 +39,94 @@ export function Sidebar({
   const actionItems = navItems.filter((i) => i.group === 'action');
   const pageItems = navItems.filter((i) => i.group === 'page');
 
-  /* ─── Collapsed state ─── */
+  // On mobile, wrap nav change to auto-collapse after navigation
+  const handleNavChange = (id: typeof activeNav) => {
+    onNavChange?.(id);
+    if (isMobile) setCollapsed(true);
+  };
+
+  /* ─── Mobile: collapsed = hamburger button only ─── */
+  if (isMobile && collapsed) {
+    return (
+      <div className="flex-shrink-0 flex items-start pt-3 pl-3" style={{ width: 52 }}>
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface border border-border-light shadow-sm cursor-pointer hover:bg-surface-hover transition-colors duration-200"
+          aria-label="Open menu"
+        >
+          <Menu size={18} className="text-primary" />
+        </button>
+      </div>
+    );
+  }
+
+  /* ─── Mobile: expanded = overlay sidebar ─── */
+  if (isMobile && !collapsed) {
+    return createPortal(
+      <div className="fixed inset-0 z-[100] flex">
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/40 transition-opacity duration-200"
+          onClick={() => setCollapsed(true)}
+          aria-hidden="true"
+        />
+        {/* Sidebar panel */}
+        <aside
+          className="relative flex flex-col h-full bg-sidebar border-r border-border-subtle overflow-hidden animate-slide-in-left"
+          style={{ width: WIDTH_EXPANDED, padding: '16px 12px 12px' }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-1 mb-5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-border-light bg-surface text-primary shadow-xs">
+                <BrandMark size={18} className="text-primary" />
+              </div>
+              <BrandWordmark primaryClassName="text-[18px]" secondaryClassName="text-[18px]" />
+            </div>
+            <button
+              type="button"
+              onClick={() => setCollapsed(true)}
+              className="flex items-center justify-center w-7 h-7 rounded-lg bg-transparent border-none cursor-pointer hover:bg-surface-hover transition-colors duration-200"
+              aria-label="Close menu"
+            >
+              <IconSidebarToggle size={16} className="text-muted" />
+            </button>
+          </div>
+
+          <SidebarExpandedNavGroup items={actionItems} activeNav={activeNav} onNavChange={handleNavChange} />
+          <div className="mx-1 my-3.5 h-px bg-sidebar-sep" />
+          <SidebarExpandedNavGroup items={pageItems} activeNav={activeNav} onNavChange={handleNavChange} />
+
+          <SidebarWorkflows
+            workflows={workflows}
+            pinnedIds={pinnedIds}
+            onSelectWorkflow={(id, obj) => {
+              onSelectWorkflow?.(id, obj);
+              setCollapsed(true);
+            }}
+            getDisplayName={getDisplayName}
+          />
+
+          <div className="flex-1" />
+
+          <SidebarAccount
+            isSignedIn={isSignedIn}
+            userLabel={userLabel}
+            userAvatarUrl={userAvatarUrl}
+            onOpenSettings={() => {
+              onOpenSettings?.();
+              setCollapsed(true);
+            }}
+            onSignOut={onSignOut}
+          />
+        </aside>
+      </div>,
+      document.body,
+    );
+  }
+
+  /* ─── Desktop: collapsed state ─── */
 
   if (collapsed) {
     return (
@@ -62,7 +152,7 @@ export function Sidebar({
     );
   }
 
-  /* ─── Expanded state ─── */
+  /* ─── Desktop: expanded state ─── */
 
   return (
     <aside

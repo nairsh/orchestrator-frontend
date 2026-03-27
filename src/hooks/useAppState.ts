@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useConfig } from './useConfig';
+import { useIsMobile } from './useIsMobile';
 import { createWorkflow, getModels } from '../api/client';
 import type { ContextFileUpload, ApiConfig } from '../api/client';
 import { toastApiError } from '../lib/toast';
@@ -22,6 +23,12 @@ export function useAppState(props: AppProps) {
   const [pendingObjective, setPendingObjective] = useState('');
   const [pendingContextFiles, setPendingContextFiles] = useState<ContextFileUpload[]>([]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Auto-collapse sidebar on mobile
+  useEffect(() => {
+    if (isMobile) setSidebarCollapsed(true);
+  }, [isMobile]);
   const [requestedTaskNav, setRequestedTaskNav] = useState<TaskNav>('tasks');
   const [openTaskInFullView, setOpenTaskInFullView] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -224,6 +231,7 @@ export function useAppState(props: AppProps) {
 
     sidebarCollapsed,
     setSidebarCollapsed,
+    isMobile,
     requestedTaskNav,
     openTaskInFullView,
     themeMode,

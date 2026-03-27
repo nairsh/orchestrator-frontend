@@ -29,6 +29,7 @@ interface TasksPageProps {
   userAvatarUrl?: string | null;
   sidebarCollapsed?: boolean;
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
+  isMobile?: boolean;
   requestedNav?: 'tasks' | 'files' | 'connectors' | 'skills';
   modelIconOverrides?: ModelIconOverrides;
 }
@@ -58,6 +59,7 @@ export function TasksPage({
   userAvatarUrl,
   sidebarCollapsed,
   onSidebarCollapsedChange,
+  isMobile,
   requestedNav,
   modelIconOverrides,
 }: TasksPageProps) {
@@ -147,6 +149,7 @@ export function TasksPage({
         userAvatarUrl={userAvatarUrl}
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
+        isMobile={isMobile}
         workflows={workflows}
         pinnedIds={pinnedIds}
         getDisplayName={getDisplayName}

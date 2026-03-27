@@ -110,6 +110,7 @@ export default function App(props: AppProps) {
           userAvatarUrl={userAvatarUrl}
           sidebarCollapsed={state.sidebarCollapsed}
           onSidebarCollapsedChange={state.setSidebarCollapsed}
+          isMobile={state.isMobile}
           modelIconOverrides={modelIconOverrides}
         />
       ) : state.screen === 'settings' ? (
@@ -129,6 +130,7 @@ export default function App(props: AppProps) {
           onBack={() => state.setScreen('tasks')}
           sidebarCollapsed={state.sidebarCollapsed}
           onSidebarCollapsedChange={state.setSidebarCollapsed}
+          isMobile={state.isMobile}
           onNavigateToLanding={() => state.setScreen('landing')}
           onOpenTasks={(nav) => state.openTasks(nav as TaskNav)}
           onOpenSearch={() => state.setShowTaskSearch(true)}
@@ -149,6 +151,7 @@ export default function App(props: AppProps) {
           userAvatarUrl={userAvatarUrl}
           sidebarCollapsed={state.sidebarCollapsed}
           onSidebarCollapsedChange={state.setSidebarCollapsed}
+          isMobile={state.isMobile}
           requestedNav={state.requestedTaskNav}
           initialTaskFullView={state.openTaskInFullView}
           modelIconOverrides={modelIconOverrides}

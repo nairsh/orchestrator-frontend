@@ -41,6 +41,7 @@ interface SettingsPageProps {
   onBack: () => void;
   sidebarCollapsed?: boolean;
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
+  isMobile?: boolean;
   onNavigateToLanding?: () => void;
   onOpenTasks?: (nav: string) => void;
   onOpenSearch?: () => void;
@@ -64,6 +65,7 @@ export function SettingsPage({
   onBack,
   sidebarCollapsed,
   onSidebarCollapsedChange,
+  isMobile,
   onNavigateToLanding,
   onOpenTasks,
   onOpenSearch,
@@ -111,6 +113,7 @@ export function SettingsPage({
         userAvatarUrl={userAvatarUrl}
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
+        isMobile={isMobile}
         onNavChange={(id) => {
           if (id === 'search') onOpenSearch?.();
           else if (id === 'computer' || id === 'new') onNavigateToLanding?.();

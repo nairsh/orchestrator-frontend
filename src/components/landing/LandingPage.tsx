@@ -23,6 +23,7 @@ interface LandingPageProps {
   userAvatarUrl?: string | null;
   sidebarCollapsed?: boolean;
   onSidebarCollapsedChange?: (collapsed: boolean) => void;
+  isMobile?: boolean;
   modelIconOverrides?: ModelIconOverrides;
 }
 
@@ -44,6 +45,7 @@ export function LandingPage({
   userAvatarUrl,
   sidebarCollapsed,
   onSidebarCollapsedChange,
+  isMobile,
   modelIconOverrides,
 }: LandingPageProps) {
   const [value, setValue] = useState('');
@@ -149,6 +151,7 @@ export function LandingPage({
         }}
         collapsed={sidebarCollapsed}
         onCollapsedChange={onSidebarCollapsedChange}
+        isMobile={isMobile}
       />
 
       {/* Main content */}
