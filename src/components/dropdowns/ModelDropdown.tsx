@@ -134,7 +134,7 @@ export function ModelDropdown({
           } ${open ? 'bg-surface-secondary' : 'bg-surface-tertiary hover:bg-surface-secondary'}`}
         >
           {loading ? <Loader2 size={isLarge ? 18 : 14} className="text-subtle animate-spin" /> : <ModelIcon iconKey={selectedIconKey} size={isLarge ? 18 : 14} />}
-          <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : 'text-sm max-w-[200px]'}`}>{loading ? 'Loading…' : triggerLabel}</span>
+          <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : isSmall ? 'text-sm max-w-[140px]' : 'text-sm max-w-[200px]'}`}>{loading ? 'Loading…' : triggerLabel}</span>
           <ChevronDown
             size={isLarge ? 18 : 14}
             className="text-subtle transition-transform duration-200"

@@ -45,19 +45,20 @@ export function TaskStartInput({
         maxHeight={100}
         className="text-md"
       />
-      <div className="flex items-center mt-auto">
+      <div className="flex items-center mt-auto gap-2 min-w-0">
         <PlusDropdown
           outlined
           onUploadFiles={() => toastInfo('Open a task first', 'Files can only be attached when starting a new task from the main screen.')}
           onOpenConnectors={() => onOpenConnectors?.()}
         />
-        <div className="flex-1" />
-        <div className="flex items-center gap-2">
+        <div className="flex-1 min-w-0" />
+        <div className="flex items-center gap-2 min-w-0">
           <ModelDropdown
             config={config}
             selected={selectedModel}
             onSelect={onSelectModel}
             modelIconOverrides={modelIconOverrides}
+            size="small"
           />
           <button
             type="button"

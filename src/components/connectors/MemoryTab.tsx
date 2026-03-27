@@ -49,7 +49,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
               <Card key={memory.id} padding="md" className="rounded-[22px] border-border-light bg-surface">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
-                    <div className="text-sm font-semibold text-primary">{memory.key}</div>
+                    <div className="text-sm font-semibold text-primary">{memory.key.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</div>
                     {memory.category && <div className="mt-1 text-xs text-placeholder">{memory.category}</div>}
                   </div>
                   <Button variant="danger" onClick={() => setDeleteConfirmId(memory.id)}>Delete</Button>
@@ -85,8 +85,8 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
           <ModalHeader title="Save memory" onClose={() => setShowDialog(false)} />
           <ModalBody>
             <div className="grid gap-3">
-              <Input value={memoryKey} onChange={(e) => setMemoryKey(e.target.value)} placeholder="e.g. preferred-language" label="Name" />
-              <Input value={memoryCategory} onChange={(e) => setMemoryCategory(e.target.value)} placeholder="e.g. preferences" label="Category" />
+              <Input value={memoryKey} onChange={(e) => setMemoryKey(e.target.value)} placeholder="e.g. coding style, project setup" label="Name" />
+              <Input value={memoryCategory} onChange={(e) => setMemoryCategory(e.target.value)} placeholder="e.g. preferences, facts, instructions" label="Category" />
               <Textarea
                 value={memoryContent}
                 onChange={(e) => setMemoryContent(e.target.value)}

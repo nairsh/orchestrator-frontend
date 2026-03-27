@@ -35,6 +35,7 @@ interface TasksPageProps {
 
 const MIN_TASK_LIST_WIDTH = 240;
 const MAX_TASK_LIST_WIDTH = 600;
+const COMPACT_TASK_LAYOUT_BREAKPOINT = 1180;
 
 function getDefaultTaskListWidth(containerWidth: number): number {
   const half = Math.floor((containerWidth - 12) / 2);
@@ -70,6 +71,7 @@ export function TasksPage({
   const [taskListWidth, setTaskListWidth] = useState(MIN_TASK_LIST_WIDTH);
   const [activeModel, setActiveModel] = useState(selectedModel);
   const [splitWidthInitialized, setSplitWidthInitialized] = useState(false);
+  const [isCompactTaskLayout, setIsCompactTaskLayout] = useState(false);
   const splitViewRef = useRef<HTMLDivElement>(null);
 
   const { workflows, loading, refresh } = useWorkflows(config, true, statusFilter);
@@ -123,6 +125,16 @@ export function TasksPage({
     setActiveNav(requestedNav);
   }, [requestedNav]);
 
+  useEffect(() => {
+    const updateCompactLayout = () => {
+      setIsCompactTaskLayout(window.innerWidth < COMPACT_TASK_LAYOUT_BREAKPOINT);
+    };
+
+    updateCompactLayout();
+    window.addEventListener('resize', updateCompactLayout);
+    return () => window.removeEventListener('resize', updateCompactLayout);
+  }, []);
+
   return (
     <div className="flex h-full overflow-hidden app-ui bg-surface-warm">
       <Sidebar
@@ -167,6 +179,50 @@ export function TasksPage({
               animateInputEntry={animateFromLanding}
               modelIconOverrides={modelIconOverrides}
             />
+        ) : isCompactTaskLayout ? (
+          chatOpen ? (
+            <ChatModal
+              config={config}
+              onClose={() => setChatOpen(false)}
+              fullscreen
+              modelIconOverrides={modelIconOverrides}
+            />
+          ) : selectedId ? (
+            <TaskDetail
+              key={selectedId}
+              workflowId={selectedId}
+              objective={selectedObjective}
+              config={config}
+              onCollapse={() => setSelectedId(null)}
+              onOpenFullChat={() => setTaskFullView(true)}
+              activeModel={activeModel}
+              modelIconOverrides={modelIconOverrides}
+            />
+          ) : (
+            <div className="flex flex-1 min-w-0">
+              <div className="flex-1 min-w-0">
+                <TaskList
+                  workflows={workflows}
+                  selectedId={selectedId}
+                  onSelect={handleSelect}
+                  config={config}
+                  selectedModel={activeModel}
+                  onSelectModel={handleModelChange}
+                  onRefresh={refresh}
+                  loading={loading}
+                  statusFilter={statusFilter}
+                  onStatusFilterChange={setStatusFilter}
+                  modelIconOverrides={modelIconOverrides}
+                  onOpenChat={() => {
+                    setChatOpen(true);
+                    setTaskFullView(false);
+                    setSelectedId(null);
+                  }}
+                  onOpenConnectors={() => setActiveNav('connectors')}
+                />
+              </div>
+            </div>
+          )
         ) : (
           <div ref={splitViewRef} className="flex flex-1 min-w-0">
             <div

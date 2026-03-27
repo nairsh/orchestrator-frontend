@@ -24,6 +24,10 @@ type RenderRow =
   | { kind: 'entry'; key: string; entry: FeedEntry }
   | { kind: 'tool_parallel'; key: string; entries: ToolEntry[] };
 
+const TIMELINE_RAIL_X = 16;
+const TIMELINE_ROW_PADDING_LEFT = 46;
+const TIMELINE_MARKER_SIZE = 24;
+
 function toolIconForName(toolName: string) {
   if (['write_todo', 'edit_todo', 'list_todos', 'spawn_subagent', 'await_subagents'].includes(toolName)) return ListChecks;
   if (['file_read', 'file_write', 'file_edit'].includes(toolName)) return FileText;
@@ -195,14 +199,14 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
   }, [renderRows, hasTimeline]);
 
   return (
-    <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20 ${fullView ? 'pt-6' : 'pt-0'}`}>
+    <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>
       <div ref={railContainerRef} className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: hasTimeline ? 0 : 32 }}>
         {/* Timeline rail - solid line connecting all markers */}
         {hasTimeline && (
           <div
             className="absolute pointer-events-none bg-border-light"
             style={{
-              left: '15px',
+              left: `${TIMELINE_RAIL_X - 1}px`,
               top: railTopOffset,
               bottom: railBottomOffset,
               width: '2px',
@@ -221,6 +225,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
           const markerKind = markerKindForRow(row);
           const showMarker = markerKind !== 'none';
+          const rowIsUser = row.kind === 'entry' && (row.entry.kind === 'prompt' || row.entry.kind === 'user_message');
 
           let MarkerIcon = Terminal;
           if (row.kind === 'tool_parallel') {
@@ -234,7 +239,15 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
           }
 
           return (
-            <div key={row.key} className="relative pl-6" style={{ marginTop: mt }}>
+            <div
+              key={row.key}
+              className="relative"
+              style={{
+                marginTop: mt,
+                marginBottom: !fullView && rowIsUser ? 10 : 0,
+                paddingLeft: TIMELINE_ROW_PADDING_LEFT,
+              }}
+            >
               {showMarker && (
                 <div
                   ref={(el) => {
@@ -243,20 +256,25 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
                   }}
                   className="absolute"
                   style={{
-                    left: '11px',
-                    top: '10px',
+                    left: `${TIMELINE_RAIL_X}px`,
+                    top: 0,
+                    width: TIMELINE_MARKER_SIZE,
+                    height: TIMELINE_MARKER_SIZE,
+                    transform: 'translateX(-50%)',
                   }}
                 >
                   {markerKind === 'dot' ? (
-                    <div
-                      className={[
-                        'w-2 h-2 rounded-full border-2 border-surface',
-                        idx === lastUserDotIndex ? 'bg-ink' : 'bg-muted',
-                      ].join(' ')}
-                    />
+                    <div className="w-6 h-6 flex items-center justify-center">
+                      <div
+                        className={[
+                          'w-3 h-3 rounded-full border-2 border-surface',
+                          idx === lastUserDotIndex ? 'bg-ink' : 'bg-muted',
+                        ].join(' ')}
+                      />
+                    </div>
                   ) : (
-                    <div className="-ml-[3px] -mt-[3px] w-5 h-5 rounded-full bg-surface flex items-center justify-center border-2 border-surface">
-                      <MarkerIcon size={12} className={markerKind === 'warning' ? 'text-amber-700' : 'text-muted'} />
+                    <div className="w-6 h-6 rounded-full bg-surface flex items-center justify-center border-2 border-surface shadow-sm">
+                      <MarkerIcon size={14} className={markerKind === 'warning' ? 'text-amber-700' : 'text-muted'} />
                     </div>
                   )}
                 </div>
@@ -275,7 +293,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
         {/* Thinking shimmer */}
         {!isTerminal && currentActivity && (
-          <div className="relative pl-6 mt-4">
+          <div className="relative pl-8 mt-4">
             <div className="min-w-0 flex flex-col gap-1.5">
               <span className="font-sans text-base font-medium text-muted shimmer-text">
                 {currentActivity}
