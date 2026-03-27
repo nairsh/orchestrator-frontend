@@ -43,6 +43,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   const [nowTs, setNowTs] = useState(() => Date.now());
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [startValue, setStartValue] = useState('');
   const renameInputRef = useRef<HTMLInputElement>(null);
   const startInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -117,7 +118,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       onRefresh();
       onSelect(result.workflow_id, objective);
     } catch (err) {
-      toastApiError(err, 'Failed to start workflow');
+      toastApiError(err, 'Failed to start task');
     }
   };
 
@@ -125,16 +126,16 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     if (e.key === 'Enter') {
       if (e.shiftKey) return;
       e.preventDefault();
-      const val = e.currentTarget.value.trim();
-      if (val) { void handleStart(val); e.currentTarget.value = ''; }
+      const val = startValue.trim();
+      if (val) { void handleStart(val); setStartValue(''); }
     }
   };
 
   const handleStartClick = () => {
-    const val = startInputRef.current?.value.trim() ?? '';
+    const val = startValue.trim();
     if (!val) return;
     void handleStart(val);
-    if (startInputRef.current) startInputRef.current.value = '';
+    setStartValue('');
   };
 
   return (
@@ -205,6 +206,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
         <div className="flex flex-col flex-shrink-0 rounded-xl bg-surface-tertiary border border-border px-3.5 py-3 min-h-[92px] gap-2.5">
           <Textarea
             ref={startInputRef}
+            value={startValue}
+            onChange={(e) => setStartValue(e.target.value)}
             placeholder="Start a task"
             onKeyDown={handleKeyDown}
             maxHeight={100}
@@ -213,7 +216,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           <div className="flex items-center mt-auto">
             <PlusDropdown
               outlined
-              onUploadFiles={() => toastInfo('Not supported yet', 'Attachments are only supported when starting a new workflow from landing.')}
+              onUploadFiles={() => toastInfo('Not supported here', 'Attachments can only be added when starting a new task.')}
               onOpenConnectors={() => onOpenConnectors?.()}
             />
             <div className="flex-1" />
@@ -227,8 +230,9 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               <button
                 type="button"
                 onClick={handleStartClick}
-                aria-label="Start workflow"
-                className="flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity cursor-pointer"
+                disabled={!startValue.trim()}
+                aria-label="Start task"
+                className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity ${startValue.trim() ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
                 style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
               >
                 <ArrowUp size={15} />

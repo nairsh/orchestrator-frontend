@@ -59,7 +59,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={disabled ? 'Workflow in progress…' : 'Type a follow-up or command...'}
+          placeholder={disabled ? 'Task in progress…' : 'Type a follow-up or command...'}
           disabled={disabled}
           maxHeight={160}
           className={disabled ? 'opacity-50' : ''}
@@ -71,7 +71,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           <PlusDropdown
             outlined
             onUploadFiles={() => {
-              toastWarning('Not supported yet', 'Attachments are only supported when starting a new workflow.');
+              toastWarning('Not supported here', 'Attachments can only be added when starting a new task.');
             }}
             onOpenConnectors={() => {
               toastWarning('Not available here', 'Open Connectors from the sidebar.');
