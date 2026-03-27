@@ -3,25 +3,7 @@ import { Check, X, ShieldAlert, Server, Loader2 } from 'lucide-react';
 import { Highlighter, Tag } from '@lobehub/ui';
 import { Button } from './ui/Button';
 import { toastApiError } from '../lib/toast';
-
-const TOOL_LABELS: Record<string, string> = {
-  bash: 'Run Command',
-  bash_execute: 'Run Command',
-  file_write: 'Write File',
-  file_read: 'Read File',
-  file_edit: 'Edit File',
-  file_delete: 'Delete File',
-  glob: 'Find Files',
-  grep: 'Search Files',
-  web_search: 'Search Web',
-  fetch_url: 'Fetch URL',
-  code_execution: 'Execute Code',
-  spawn_subagent: 'Start Parallel Task',
-};
-
-function humanizeToolName(name: string): string {
-  return TOOL_LABELS[name] ?? name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
+import { humanizeToolName } from '../lib/toolLabels';
 
 interface ApprovalGateProps {
   taskId: string;

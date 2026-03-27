@@ -5,30 +5,13 @@ import { Markdown } from '../markdown/Markdown';
 import { CitationCard } from '../CitationCard';
 import { CopyButton } from '../ui/CopyButton';
 import { humanizeErrorDescription } from '../../lib/humanizeError';
+import { humanizeToolName } from '../../lib/toolLabels';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { FeedTaskGroup } from './feed/FeedTaskGroup';
 import { FeedToolCall } from './feed/FeedToolCall';
 import { parseCitationsFromText } from './feed/feedHelpers';
 import { ApprovalGate } from '../ApprovalGate';
 
-const TOOL_LABELS: Record<string, string> = {
-  bash: 'Run Command',
-  bash_execute: 'Run Command',
-  file_write: 'Write File',
-  file_read: 'Read File',
-  file_edit: 'Edit File',
-  file_delete: 'Delete File',
-  glob: 'Find Files',
-  grep: 'Search Files',
-  web_search: 'Search Web',
-  fetch_url: 'Fetch URL',
-  code_execution: 'Execute Code',
-  request_clarification: 'Needs more info from you',
-};
-
-function humanizeToolName(name: string): string {
-  return TOOL_LABELS[name] ?? name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-}
 
 function UserBubble({ text, fullView = false }: { text: string; fullView?: boolean }) {
   return (

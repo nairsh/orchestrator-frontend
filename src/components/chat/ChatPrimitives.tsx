@@ -4,6 +4,7 @@ import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
 import { IconButton, Textarea } from '../ui';
+import { humanizeToolName } from '../../lib/toolLabels';
 
 /* ─── Types ─── */
 
@@ -83,7 +84,7 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
   return (
     <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-surface border border-border-light font-sans text-sm text-muted">
       <span>{getIcon()}</span>
-      <span>{tool.name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
+      <span>{humanizeToolName(tool.name)}</span>
       {tool.status === 'running' && (
         <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse ml-auto" />
       )}

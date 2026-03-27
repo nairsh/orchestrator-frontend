@@ -8,6 +8,7 @@ import { asRecord, extractTodoDisplay, extractSearchResults, extractFetchedSourc
 import { TodoList } from './TodoList';
 import { BashRenderer } from './BashRenderer';
 import { WebSearchRenderer } from './WebSearchRenderer';
+import { humanizeToolName } from '../../../lib/toolLabels';
 import { FetchUrlRenderer } from './FetchUrlRenderer';
 
 export function FeedToolCall({
@@ -71,7 +72,7 @@ export function FeedToolCall({
     }
     if (isBash) return 'Running command';
     if (toolName === 'request_clarification') return 'Needs more info from you';
-    return toolName.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    return humanizeToolName(toolName);
   }, [command, fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;

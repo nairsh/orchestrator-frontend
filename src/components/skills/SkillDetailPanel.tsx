@@ -4,6 +4,7 @@ import type { SkillRecord } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { Button } from '../ui';
 import { formatSkillName } from './helpers';
+import { humanizeToolName } from '../../lib/toolLabels';
 
 interface SkillDetailPanelProps {
   skill: SkillRecord;
@@ -36,7 +37,7 @@ export function SkillDetailPanel({ skill, onClose, onEdit }: SkillDetailPanelPro
           {skill.tools.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {skill.tools.map((tool) => (
-                <Tag key={tool} size="small">{tool.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</Tag>
+                <Tag key={tool} size="small">{humanizeToolName(tool)}</Tag>
               ))}
             </div>
           )}

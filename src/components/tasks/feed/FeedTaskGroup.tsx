@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Repeat2, ChevronDown, Bot, Pencil, Check, CircleAlert, Loader2, Zap } from 'lucide-react';
 import { ModelIcon, resolveModelIconKey, type ModelIconOverrides } from '../../../lib/modelIcons';
 import { normalizeStatus, compactModelLabel, agentDisplayName, iconForRecentToolCall, taskActivityLabel } from './feedHelpers';
+import { humanizeToolName } from '../../../lib/toolLabels';
 
 interface Task {
   id: string;
@@ -105,7 +106,7 @@ export function FeedTaskGroup({
                     <div className="px-4 pb-3 -mt-1 flex flex-col gap-1.5">
                       {[...recentToolCalls].reverse().map((toolCall, idx) => {
                         const Icon = iconForRecentToolCall(toolCall);
-                        const label = toolCall.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+                        const label = humanizeToolName(toolCall);
                         return (
                           <div key={`${task.id}:${toolCall}:${idx}`} className="flex items-center gap-2 min-w-0">
                             <Icon size={13} className="text-placeholder flex-shrink-0" />
