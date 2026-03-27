@@ -94,8 +94,8 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
           <Activity size={16} className="text-muted" />
           <span className="text-sm font-medium text-primary">Model Health</span>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => void fetchHealth()} className="gap-1.5">
-          <RefreshCw size={12} />
+        <Button variant="ghost" size="sm" disabled={loading} onClick={() => void fetchHealth()} className="gap-1.5">
+          {loading ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
           Refresh
         </Button>
       </div>

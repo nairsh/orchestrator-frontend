@@ -42,7 +42,7 @@ export function TaskDetail({
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';
   const isPaused = workflowStatus === 'paused';
-  const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | null>(null);
+  const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | 'resume' | null>(null);
 
   const handleCommand = async (text: string) => {
     try {
@@ -149,10 +149,11 @@ export function TaskDetail({
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => void handleCommand('continue')}
+                disabled={!!actionBusy}
+                onClick={async () => { setActionBusy('resume'); try { await handleCommand('continue'); } finally { setActionBusy(null); } }}
                 className="gap-1.5 text-accent border-accent/20 hover:bg-accent/10"
               >
-                <Play size={12} />
+                {actionBusy === 'resume' ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}
                 Resume
               </Button>
             </Tooltip>
