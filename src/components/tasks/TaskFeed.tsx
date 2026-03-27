@@ -41,6 +41,8 @@ function ParallelToolCalls({
         type="button"
         className="flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={`${open ? 'Collapse' : 'Expand'} ${entries.length} parallel actions`}
       >
         <span className="font-sans text-sm text-muted">
           Running {entries.length} actions in parallel

@@ -58,6 +58,7 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
           type="button"
           onClick={() => setExpanded(!expanded)}
           className="mt-2 flex items-center gap-1 text-sm text-muted hover:text-primary cursor-pointer bg-transparent border-none p-0 font-sans"
+          aria-expanded={expanded}
         >
           {expanded ? 'Show less' : 'Show more'}
           <ChevronDown

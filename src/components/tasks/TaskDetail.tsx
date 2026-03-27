@@ -180,7 +180,7 @@ export function TaskDetail({
                   <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => { setCancelConfirm(false); void handleCancel(); }} className="h-5 px-2 text-[11px]">
                     {actionBusy === 'cancel' ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
                   </Button>
-                  <button type="button" onClick={() => setCancelConfirm(false)} className="text-xs text-muted hover:text-primary transition-colors duration-200">✕</button>
+                  <button type="button" onClick={() => setCancelConfirm(false)} className="text-xs text-muted hover:text-primary transition-colors duration-200" aria-label="Dismiss cancel confirmation">✕</button>
                 </div>
               ) : (
                 <Tooltip title="Cancel task">

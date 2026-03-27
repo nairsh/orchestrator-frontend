@@ -110,6 +110,8 @@ export function FeedToolCall({
         type="button"
         className={`flex items-center gap-2 bg-transparent border-none p-0 text-left w-full ${expandable ? 'cursor-pointer' : 'cursor-default'}`}
         onClick={() => { if (expandable) setOpen((v) => !v); }}
+        aria-expanded={expandable ? open : undefined}
+        aria-label={expandable ? `${open ? 'Collapse' : 'Expand'} ${title}` : title}
       >
         {showLeadingIcon && <Icon size={16} className={`flex-shrink-0 ${isRunning ? 'text-primary' : 'text-muted'}`} />}
         <span className={`font-sans text-base truncate ${isRunning ? 'font-medium text-primary' : 'font-normal text-muted'}`}>
