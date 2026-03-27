@@ -50,11 +50,12 @@ function formatRate(rate: number): string {
 
 export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
   const [agents, setAgents] = useState<AgentHealthStatus[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchHealth = async () => {
-    setLoading(true);
+  const fetchHealth = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true); else setInitialLoading(true);
     setError(null);
     try {
       const res = await getAgentHealth(config);
@@ -62,7 +63,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
     } catch (err) {
       setError('Could not load model health. Check your server connection and try again.');
     } finally {
-      setLoading(false);
+      if (isRefresh) setRefreshing(false); else setInitialLoading(false);
     }
   };
 
@@ -70,7 +71,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
     void fetchHealth();
   }, [config.baseUrl]);
 
-  if (loading) {
+  if (initialLoading) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 size={20} className="animate-spin text-muted" />
@@ -82,7 +83,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
         <p className="text-sm text-muted">{error}</p>
-        <Button variant="ghost" size="sm" onClick={() => void fetchHealth()}>Retry</Button>
+        <Button variant="ghost" size="sm" onClick={() => void fetchHealth()}>Try again</Button>
       </div>
     );
   }
@@ -94,8 +95,8 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
           <Activity size={16} className="text-muted" />
           <span className="text-sm font-medium text-primary">Model Health</span>
         </div>
-        <Button variant="ghost" size="sm" disabled={loading} onClick={() => void fetchHealth()} className="gap-1.5">
-          {loading ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+        <Button variant="ghost" size="sm" disabled={refreshing} onClick={() => void fetchHealth(true)} className="gap-1.5">
+          {refreshing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
           Refresh
         </Button>
       </div>
