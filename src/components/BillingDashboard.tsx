@@ -92,7 +92,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
         <div className="space-y-2">
           {usage.length === 0 ? (
             <div className="py-4">
-              <Empty description="No usage data yet" />
+              <Empty description="No usage recorded yet. Start a task to see model usage." />
             </div>
           ) : (
             usage.map((u) => (
@@ -121,7 +121,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
         <div className="space-y-1">
           {transactions.length === 0 ? (
             <div className="py-4">
-              <Empty description="No transactions yet" />
+              <Empty description="No transactions yet. Credit activity will appear here." />
             </div>
           ) : (
             transactions.map((tx) => (

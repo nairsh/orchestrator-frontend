@@ -100,7 +100,7 @@ export function SettingsRoutingPanel({
                       className="mt-4 rounded-2xl border-border px-4 py-3"
                     />
                     {invalidAssignment && (
-                      <div className="mt-3 text-xs text-warning">This mapped model is no longer available from the current endpoint.</div>
+                      <div className="mt-3 text-xs text-warning">This model is no longer available on your server.</div>
                     )}
                   </div>
                 );
