@@ -109,14 +109,14 @@ export function SettingsModal({
                 <section className="rounded-[28px] border border-border-light bg-surface p-6 shadow-sm">
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="max-w-xl">
-                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted"><Sparkles size={12} />Runtime endpoint</div>
-                      <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Point the app at the live orchestrator.</h3>
-                      <p className="mt-2 text-sm leading-6 text-secondary">This URL drives models, schedules, connectors, file tools, and every authenticated workflow surface.</p>
+                      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted"><Sparkles size={12} />Server connection</div>
+                      <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Connect to your AI server.</h3>
+                      <p className="mt-2 text-sm leading-6 text-secondary">This URL powers all models, workflows, connectors, and file tools in the app.</p>
                     </div>
                     <div className="rounded-2xl border border-border-light bg-surface-secondary px-4 py-3 text-right">
                       <div className="text-[11px] uppercase tracking-[0.18em] text-muted">Session</div>
                       <div className="mt-2 text-sm font-medium text-primary">{isSignedIn ? `Signed in${userLabel ? ` as ${userLabel}` : ''}` : 'Signed out'}</div>
-                      <div className="mt-1 text-xs text-muted">{clerkEnabled ? 'Clerk-backed authentication' : 'Local mode'}</div>
+                      <div className="mt-1 text-xs text-muted">{clerkEnabled ? 'Authenticated session' : 'Local mode'}</div>
                     </div>
                   </div>
 

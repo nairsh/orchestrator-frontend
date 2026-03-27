@@ -346,7 +346,7 @@ export function SettingsPage({
                       <div className="space-y-6">
                         <div>
                           <Select
-                            label="Default orchestrator model"
+                            label="Default model"
                             value={modelPreferences.default_orchestrator_model}
                             onChange={(e) => settings.handleDefaultModelChange(e.target.value)}
                             options={modelOptions}
