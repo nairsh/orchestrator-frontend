@@ -260,6 +260,16 @@ export function useWorkflowStream(
         await continueWorkflow(config, workflowId, msg);
       } catch (error) {
         pendingEnvironmentSetupRef.current = false;
+        // Roll back optimistic UI state on failure
+        setState((prev) => ({
+          ...prev,
+          feed: prev.feed.filter(
+            (e) => !(e.kind === 'system_status' && e.text === 'Starting environment…')
+          ),
+          isTerminal: true,
+          currentActivity: '',
+          workflowStatus: prev.workflowStatus === 'executing' ? 'failed' : prev.workflowStatus,
+        }));
         throw error;
       }
 

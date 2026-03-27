@@ -13,7 +13,7 @@ import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 interface LandingPageProps {
   config: AppConfig;
-  onSubmit: (objective: string, model: string, contextFiles: ContextFileUpload[]) => void;
+  onSubmit: (objective: string, model: string, contextFiles: ContextFileUpload[]) => void | Promise<void>;
   onOpenSettings: () => void;
   onSignOut?: () => Promise<void>;
   onOpenTasks: (nav?: 'tasks' | 'files' | 'connectors' | 'skills') => void;
@@ -134,16 +134,19 @@ export function LandingPage({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const text = value.trim();
     if (!text) return;
     if (!selectedModel.trim()) return;
     if (submittingRef.current) return;
     submittingRef.current = true;
-    onSubmit(text, selectedModel, contextFiles);
     setValue('');
     setAttachments([]);
-    setTimeout(() => { submittingRef.current = false; }, 1000);
+    try {
+      await onSubmit(text, selectedModel, contextFiles);
+    } finally {
+      submittingRef.current = false;
+    }
   };
 
   const hasText = value.trim().length > 0;

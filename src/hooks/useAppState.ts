@@ -66,11 +66,11 @@ export function useAppState(props: AppProps) {
 
   const effectiveAuth = clerkEnabled ? hasSessionAuth : true;
 
-  const runtimeConfig: ApiConfig = {
+  const runtimeConfig: ApiConfig = useMemo(() => ({
     ...config,
     getAuthToken,
     hasAuth: effectiveAuth,
-  };
+  }), [config, getAuthToken, effectiveAuth]);
   const isConfigured = config.baseUrl.trim().length > 0;
 
   // Cmd+K / Ctrl+K: Open command palette

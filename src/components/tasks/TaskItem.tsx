@@ -110,11 +110,14 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
   return (
     <>
     <div
+      role="button"
+      tabIndex={0}
       className={[
         'group relative flex items-center cursor-pointer rounded-xl px-3 py-2.5 gap-2 transition-colors duration-200 justify-between active:bg-surface-tertiary',
         isSelected ? 'bg-surface-secondary' : 'hover:bg-surface-hover',
       ].join(' ')}
       onClick={onClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
     >
       {/* Left side: status dot + title + chevron + subtitle */}
       <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">

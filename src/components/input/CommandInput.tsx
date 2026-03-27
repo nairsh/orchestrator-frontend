@@ -44,7 +44,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
 
   return (
     <div
-      className="flex-shrink-0 flex flex-col items-center gap-4 px-16 pb-6"
+      className="flex-shrink-0 flex flex-col items-center gap-4 px-4 sm:px-8 md:px-16 pb-6"
       style={{
         transition: 'transform 200ms ease-out, opacity 200ms ease-out',
         transform: entered ? 'translateY(0)' : 'translateY(-22px)',

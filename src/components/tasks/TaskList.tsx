@@ -24,6 +24,7 @@ interface TaskListProps {
   onSelectModel: (modelId: string) => void;
   onRefresh: () => void;
   loading: boolean;
+  error?: string | null;
   statusFilter: WorkflowStatusFilter;
   onStatusFilterChange: (value: WorkflowStatusFilter) => void;
   onOpenChat?: () => void;
@@ -31,7 +32,7 @@ interface TaskListProps {
   modelIconOverrides?: ModelIconOverrides;
 }
 
-export function TaskList({ workflows, selectedId, onSelect, config, selectedModel, onSelectModel, onRefresh, loading, statusFilter, onStatusFilterChange, onOpenChat, onOpenConnectors, modelIconOverrides }: TaskListProps) {
+export function TaskList({ workflows, selectedId, onSelect, config, selectedModel, onSelectModel, onRefresh, loading, error, statusFilter, onStatusFilterChange, onOpenChat, onOpenConnectors, modelIconOverrides }: TaskListProps) {
   const { togglePin, setDisplayName, getDisplayName, isPinned, sortKey } = useWorkflowMeta();
   const billing = useBillingBalance(config, true);
   const billingCredits = typeof billing.data?.credits_balance === 'number' ? billing.data.credits_balance : 0;
@@ -182,9 +183,22 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               <SkeletonTaskItem />
             </>
           )}
-          {sortedWorkflows.length === 0 && !loading && (
+          {sortedWorkflows.length === 0 && !loading && !error && (
             <div className="pt-8">
               <Empty description="Start a task using the input above" emoji="📋" />
+            </div>
+          )}
+          {error && !loading && (
+            <div className="flex flex-col items-center pt-8 text-center px-4">
+              <p className="text-sm text-danger font-medium">Failed to load tasks</p>
+              <p className="text-xs text-secondary mt-1">{error}</p>
+              <button
+                type="button"
+                onClick={onRefresh}
+                className="mt-3 text-xs font-medium text-primary hover:underline"
+              >
+                Try again
+              </button>
             </div>
           )}
           {groupedWorkflows.map((group) => (

@@ -146,6 +146,9 @@ export function streamAgentResponse(
         if (done) break;
         parser.feed(decoder.decode(value, { stream: true }));
       }
+
+      // Ensure streaming state is finalized even if server closes without `done` event
+      onChunk({ type: 'done' } as StreamChunk);
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       onError(err instanceof Error ? err : new Error(String(err)));

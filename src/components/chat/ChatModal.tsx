@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { RotateCcw } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
 import { useChatStream } from '../../hooks/useChatStream';
@@ -19,7 +20,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   const [model, setModel] = useChatModel(config);
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
-  const { messages, streaming, draftAssistant, canSend, send, abort } = useChatStream({ config, model });
+  const { messages, streaming, draftAssistant, canSend, send, abort, clearHistory } = useChatStream({ config, model });
 
   useEffect(() => {
     const t = requestAnimationFrame(() => setVisible(true));
@@ -52,13 +53,25 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   const chatContent = (
     <>
       <ChatHeader title="AI Chat" onClose={handleClose} tone={fullscreen ? 'warm' : 'surface'} variant={fullscreen ? 'fullscreen' : 'modal'}>
-        <ModelDropdown
-          config={config}
-          selected={model}
-          onSelect={setModel}
-          variant="all"
-          modelIconOverrides={modelIconOverrides}
-        />
+        <div className="flex items-center gap-1.5">
+          {messages.length > 0 && (
+            <button
+              type="button"
+              onClick={clearHistory}
+              title="New chat"
+              className="flex items-center justify-center h-7 w-7 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors"
+            >
+              <RotateCcw size={14} />
+            </button>
+          )}
+          <ModelDropdown
+            config={config}
+            selected={model}
+            onSelect={setModel}
+            variant="all"
+            modelIconOverrides={modelIconOverrides}
+          />
+        </div>
       </ChatHeader>
 
       <ChatMessageArea

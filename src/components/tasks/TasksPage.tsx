@@ -76,7 +76,7 @@ export function TasksPage({
   const [isCompactTaskLayout, setIsCompactTaskLayout] = useState(false);
   const splitViewRef = useRef<HTMLDivElement>(null);
 
-  const { workflows, loading, refresh } = useWorkflows(config, true, statusFilter);
+  const { workflows, loading, error: workflowListError, refresh } = useWorkflows(config, true, statusFilter);
   const { meta, getDisplayName } = useWorkflowMeta();
 
   const pinnedIds = useMemo(() => {
@@ -232,6 +232,7 @@ export function TasksPage({
                   onSelectModel={handleModelChange}
                   onRefresh={refresh}
                   loading={loading}
+                  error={workflowListError}
                   statusFilter={statusFilter}
                   onStatusFilterChange={setStatusFilter}
                   modelIconOverrides={modelIconOverrides}
@@ -261,6 +262,7 @@ export function TasksPage({
                 onSelectModel={handleModelChange}
                 onRefresh={refresh}
                 loading={loading}
+                error={workflowListError}
                 statusFilter={statusFilter}
                 onStatusFilterChange={setStatusFilter}
                 modelIconOverrides={modelIconOverrides}

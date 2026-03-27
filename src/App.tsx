@@ -101,7 +101,7 @@ export default function App(props: AppProps) {
         <ErrorBoundary inline label="Landing page">
         <LandingPage
           config={state.runtimeConfig}
-          onSubmit={(objective, model, contextFiles) => void state.handleLandingSubmit(objective, model, contextFiles)}
+          onSubmit={(objective, model, contextFiles) => state.handleLandingSubmit(objective, model, contextFiles)}
           onOpenSettings={() => state.setScreen('settings')}
           onOpenTasks={state.openTasks}
           onOpenSearch={() => state.setShowTaskSearch(true)}

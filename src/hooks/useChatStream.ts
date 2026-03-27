@@ -1,10 +1,29 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { streamAgentResponse } from '../api/sse';
 import { toastApiError } from '../lib/toast';
 import type { ApiConfig } from '../api/client';
 import type { StreamChunk } from '../api/types';
 
 export type ChatMessage = { role: 'user' | 'assistant'; content: string };
+
+const STORAGE_KEY = 'relay-chat-history';
+
+function loadPersistedMessages(): ChatMessage[] {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as ChatMessage[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistMessages(messages: ChatMessage[]) {
+  try {
+    // Keep only the last 50 messages to avoid storage limits
+    const trimmed = messages.slice(-50);
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+  } catch { /* quota exceeded — silently ignore */ }
+}
 
 interface UseChatStreamOptions {
   config: ApiConfig;
@@ -16,11 +35,22 @@ interface UseChatStreamOptions {
  * across ChatModal and FullPageChat.
  */
 export function useChatStream({ config, model }: UseChatStreamOptions) {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>(loadPersistedMessages);
   const [streaming, setStreaming] = useState(false);
   const [draftAssistant, setDraftAssistant] = useState('');
   const assistantBufferRef = useRef('');
   const abortRef = useRef<{ close: () => void } | null>(null);
+  const messagesRef = useRef(messages);
+
+  // Keep ref in sync for use in callbacks
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  // Persist messages whenever they change
+  useEffect(() => {
+    persistMessages(messages);
+  }, [messages]);
 
   const canSend = useCallback(
     (input: string) => input.trim().length > 0 && !streaming,
@@ -35,10 +65,16 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
         return;
       }
 
+      const userMsg: ChatMessage = { role: 'user', content: text };
+      const updatedMessages = [...messagesRef.current, userMsg];
+
       setStreaming(true);
       assistantBufferRef.current = '';
       setDraftAssistant('');
-      setMessages((prev) => [...prev, { role: 'user', content: text }]);
+      setMessages(updatedMessages);
+
+      // Send full conversation history so the model has context
+      const conversationInput = updatedMessages.map(m => ({ role: m.role, content: m.content }));
 
       abortRef.current?.close();
       abortRef.current = streamAgentResponse(
@@ -46,7 +82,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
           baseUrl: config.baseUrl,
           getAuthToken: config.getAuthToken,
         },
-        { model, input: text },
+        { model, input: conversationInput },
         (chunk: StreamChunk) => {
           if (chunk.type === 'text_delta' && chunk.text) {
             assistantBufferRef.current += chunk.text;
@@ -98,5 +134,10 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
     abortRef.current = null;
   }, []);
 
-  return { messages, streaming, draftAssistant, canSend, send, abort };
+  const clearHistory = useCallback(() => {
+    setMessages([]);
+    sessionStorage.removeItem(STORAGE_KEY);
+  }, []);
+
+  return { messages, streaming, draftAssistant, canSend, send, abort, clearHistory };
 }

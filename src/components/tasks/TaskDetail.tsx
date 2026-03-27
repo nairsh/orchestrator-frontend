@@ -124,7 +124,7 @@ export function TaskDetail({
   return (
     <div className="flex flex-col h-full flex-1 min-w-0 bg-surface-warm">
       {/* Header */}
-      <div className="flex items-center justify-between flex-shrink-0 h-12 px-8 border-b border-border-subtle">
+      <div className="flex items-center justify-between flex-shrink-0 h-12 px-4 sm:px-8 border-b border-border-subtle">
         <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
           <IconButton
             size="md"
@@ -229,7 +229,7 @@ export function TaskDetail({
 
       {/* Progress bar */}
       {liveTasks.length > 0 && !isTerminal && (
-        <div className="px-8 py-2 border-b border-border-subtle/50">
+        <div className="px-4 sm:px-8 py-2 border-b border-border-subtle/50">
           <WorkflowProgress tasks={liveTasks} isTerminal={isTerminal} />
         </div>
       )}
