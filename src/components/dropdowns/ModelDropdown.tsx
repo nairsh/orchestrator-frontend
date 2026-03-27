@@ -120,7 +120,7 @@ export function ModelDropdown({
 
   return (
     <DropdownMenu
-      width={280}
+      width={320}
       align={align}
       direction={direction}
       trigger={({ open, toggle }) => (
