@@ -11,9 +11,10 @@ interface CommandInputProps {
   modelLabel?: string;
   animateEntry?: boolean;
   placeholder?: string;
+  compactSendButton?: boolean;
 }
 
-export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, animateEntry = false, placeholder }: CommandInputProps) {
+export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, animateEntry = false, placeholder, compactSendButton = false }: CommandInputProps) {
   const [value, setValue] = useState('');
   const [entered, setEntered] = useState(!animateEntry);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -89,14 +90,14 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
               </span>
             )}
             <IconButton
-              size="lg"
+              size={compactSendButton ? 'sm' : 'lg'}
               filled
               onClick={handleSubmit}
               disabled={!value.trim() || disabled}
               label="Send"
-              className={value.trim() ? '' : '!bg-placeholder'}
+              className={[compactSendButton ? 'w-8 h-8' : '', value.trim() ? '' : '!bg-placeholder'].join(' ')}
             >
-              <ArrowUp size={16} />
+              <ArrowUp size={compactSendButton ? 14 : 16} />
             </IconButton>
           </div>
         </div>

@@ -5,6 +5,7 @@ import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
 import { retryWorkflow, pauseWorkflow, cancelWorkflow } from '../../api/client';
 import { TaskFeed } from './TaskFeed';
+import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
 import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
@@ -42,6 +43,7 @@ export function TaskDetail({
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';
   const isPaused = workflowStatus === 'paused';
+  const hasPendingClarification = isPaused && !!pendingClarification;
   const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | 'resume' | null>(null);
   const [cancelConfirm, setCancelConfirm] = useState(false);
 
@@ -155,7 +157,7 @@ export function TaskDetail({
               )}
             </>
           )}
-          {isPaused && (
+          {isPaused && !hasPendingClarification && (
             <Tooltip title="Resume task">
               <Button
                 variant="secondary"
@@ -170,7 +172,7 @@ export function TaskDetail({
             </Tooltip>
           )}
 
-          {!isTerminal && (
+          {!isTerminal && !isPaused && (
             <div className="flex items-center gap-1.5 ml-2">
               <div className="w-1.5 h-1.5 rounded-full animate-pulse bg-info" />
               <span className="font-sans text-xs text-muted">{currentActivity}</span>
@@ -189,26 +191,33 @@ export function TaskDetail({
       {/* Feed */}
       <TaskFeed
         feed={feed}
-        currentActivity={isTerminal ? undefined : currentActivity}
+        currentActivity={isTerminal || isPaused ? undefined : currentActivity}
         isTerminal={isTerminal}
         isStale={isStale}
         maxWidth={contentMaxWidth}
+        fullView={fullView}
         modelIconOverrides={modelIconOverrides}
         workflowId={workflowId}
         config={config}
         onApproval={handleApproval}
-        onClarificationSubmit={handleCommand}
       />
 
-      {/* Input — enabled when terminal for follow-up */}
-      <CommandInput
-        onSubmit={(t) => void handleCommand(t)}
-        disabled={!isTerminal && !isPaused}
-        maxWidth={contentMaxWidth}
-        modelLabel={fullView ? modelLabel : undefined}
-        animateEntry={animateInputEntry}
-        placeholder={isPaused ? pendingClarification?.question ?? 'Reply to continue…' : undefined}
-      />
+      {hasPendingClarification && pendingClarification ? (
+        <ClarificationPanel
+          clarification={pendingClarification}
+          maxWidth={contentMaxWidth}
+          onSubmit={handleCommand}
+        />
+      ) : (
+        <CommandInput
+          onSubmit={(t) => void handleCommand(t)}
+          disabled={!isTerminal && !isPaused}
+          maxWidth={contentMaxWidth}
+          modelLabel={fullView ? modelLabel : undefined}
+          animateEntry={animateInputEntry}
+          compactSendButton={fullView}
+        />
+      )}
     </div>
   );
 }

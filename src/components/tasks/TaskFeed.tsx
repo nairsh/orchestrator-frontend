@@ -12,11 +12,11 @@ interface TaskFeedProps {
   isTerminal: boolean;
   isStale?: boolean;
   maxWidth?: number;
+  fullView?: boolean;
   modelIconOverrides?: ModelIconOverrides;
   workflowId?: string;
   config?: ApiConfig;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
-  onClarificationSubmit?: (text: string) => Promise<void>;
 }
 
 type ToolEntry = Extract<FeedEntry, { kind: 'tool_call' }>;
@@ -36,11 +36,9 @@ function toolIconForName(toolName: string) {
 function ParallelToolCalls({
   entries,
   modelIconOverrides,
-  onClarificationSubmit,
 }: {
   entries: ToolEntry[];
   modelIconOverrides?: ModelIconOverrides;
-  onClarificationSubmit?: (text: string) => Promise<void>;
 }) {
   const [open, setOpen] = useState(true);
 
@@ -72,7 +70,6 @@ function ParallelToolCalls({
               entry={entry}
               inTimeline
               modelIconOverrides={modelIconOverrides}
-              onClarificationSubmit={onClarificationSubmit}
             />
           ))}
         </div>
@@ -81,7 +78,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, modelIconOverrides, workflowId, config, onApproval, onClarificationSubmit }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId, config, onApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const railContainerRef = useRef<HTMLDivElement>(null);
   const firstMarkerRef = useRef<HTMLDivElement | null>(null);
@@ -207,7 +204,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
   }, [renderRows, hasTimeline]);
 
   return (
-    <div ref={scrollContainerRef} className="flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20">
+    <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20 ${fullView ? 'pt-6' : 'pt-0'}`}>
       <div ref={railContainerRef} className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: hasTimeline ? 0 : 32 }}>
         {/* Timeline rail */}
         {hasTimeline && (
@@ -278,9 +275,9 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
               <div className="min-w-0 w-full">
                 {row.kind === 'tool_parallel' ? (
-                  <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} onClarificationSubmit={onClarificationSubmit} />
+                  <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
                 ) : (
-                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} onApproval={onApproval} onClarificationSubmit={onClarificationSubmit} />
+                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} onApproval={onApproval} fullView={fullView} />
                 )}
               </div>
             </div>

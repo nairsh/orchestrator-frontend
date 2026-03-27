@@ -1,11 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   ChevronDown, ScanSearch, Terminal,
   Globe, FileText, Zap, ListChecks,
 } from 'lucide-react';
 import { Highlighter } from '@lobehub/ui';
 import { asRecord, extractTodoDisplay, extractSearchResults, extractFetchedSource } from './feedHelpers';
-import { ClarificationPrompt, useClarification } from './ClarificationPrompt';
 import { TodoList } from './TodoList';
 import { BashRenderer } from './BashRenderer';
 import { WebSearchRenderer } from './WebSearchRenderer';
@@ -17,14 +16,12 @@ export function FeedToolCall({
   output,
   status,
   showLeadingIcon = true,
-  onClarificationSubmit,
 }: {
   toolName: string;
   input: unknown;
   output?: unknown;
   status: string;
   showLeadingIcon?: boolean;
-  onClarificationSubmit?: (text: string) => Promise<void>;
 }) {
   const inp = asRecord(input);
   const out = asRecord(output);
@@ -37,15 +34,9 @@ export function FeedToolCall({
   const isWebSearch = toolName === 'web_search';
   const isFetchUrl = toolName === 'fetch_url';
   const isTodo = ['write_todo', 'edit_todo', 'list_todos', 'spawn_subagent', 'await_subagents'].includes(toolName);
-  const { clarification, isClarification } = useClarification(toolName, input, output);
+  const isClarification = toolName === 'request_clarification';
 
-  const [open, setOpen] = useState(isTodo || isBash || isWebSearch || isFetchUrl || isClarification);
-
-  useEffect(() => {
-    if (isClarification) {
-      setOpen(true);
-    }
-  }, [isClarification]);
+  const [open, setOpen] = useState(isTodo || isBash || isWebSearch || isFetchUrl);
 
   const filePath = String(out.path ?? inp.filePath ?? inp.path ?? inp.file_path ?? inp.filename ?? '').trim();
   const fileName = filePath ? filePath.split('/').pop() ?? filePath : 'file';
@@ -89,7 +80,7 @@ export function FeedToolCall({
   const fetchedSource = useMemo(() => (isFetchUrl ? extractFetchedSource(input, output) : null), [isFetchUrl, input, output]);
 
   const hasOutput = !isTodo && !isFile && !isClarification && output !== undefined;
-  const expandable = hasOutput || todos.length > 0 || isClarification;
+  const expandable = hasOutput || todos.length > 0;
 
   const renderedOutput = useMemo(() => {
     if (!hasOutput) return '';
@@ -134,9 +125,7 @@ export function FeedToolCall({
         <div className="flex flex-col gap-2.5 ml-6">
           <TodoList items={todos} />
 
-          {isClarification && clarification ? (
-            <ClarificationPrompt details={clarification} disabled={isRunning} onSubmit={onClarificationSubmit} />
-          ) : isBash ? (
+          {isBash ? (
             <BashRenderer command={command} isRunning={isRunning} hasOutput={hasOutput} renderedOutput={renderedOutput} />
           ) : isWebSearch ? (
             <WebSearchRenderer query={query} isRunning={isRunning} searchResults={searchResults} />

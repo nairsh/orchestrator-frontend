@@ -143,7 +143,11 @@ export function useAppState(props: AppProps) {
           return preferred;
         });
       })
-      .catch(() => {});
+      .catch((err) => {
+        if (!cancelled) {
+          toastApiError(err, "Couldn't load available AI options");
+        }
+      });
 
     return () => {
       cancelled = true;

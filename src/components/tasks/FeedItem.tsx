@@ -29,10 +29,10 @@ function humanizeToolName(name: string): string {
   return TOOL_LABELS[name] ?? name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function UserBubble({ text }: { text: string }) {
+function UserBubble({ text, fullView = false }: { text: string; fullView?: boolean }) {
   return (
     <div className="w-full flex justify-end">
-      <div className="inline-flex rounded-2xl bg-userbubble px-3.5 py-2.5 max-w-[72%] min-h-[38px] items-center">
+      <div className={`inline-flex rounded-2xl px-3.5 py-2.5 max-w-[72%] min-h-[38px] items-center ${fullView ? 'bg-surface-secondary' : 'bg-userbubble'}`}>
         <span className="font-sans text-md leading-relaxed text-primary whitespace-pre-wrap break-all">
           {text}
         </span>
@@ -117,32 +117,23 @@ export function FeedItem({
   inTimeline = false,
   modelIconOverrides,
   onApproval,
-  onClarificationSubmit,
+  fullView = false,
 }: {
   entry: FeedEntry;
   inTimeline?: boolean;
   modelIconOverrides?: ModelIconOverrides;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
-  onClarificationSubmit?: (text: string) => Promise<void>;
+  fullView?: boolean;
 }) {
   switch (entry.kind) {
     case 'prompt':
-      return <UserBubble text={entry.text} />;
+      return <UserBubble text={entry.text} fullView={fullView} />;
     case 'system_status':
       return <span className="font-sans text-sm text-muted">{entry.text}</span>;
     case 'task_group':
       return <FeedTaskGroup tasks={entry.tasks} modelIconOverrides={modelIconOverrides} />;
     case 'tool_call':
-      return (
-        <FeedToolCall
-          toolName={entry.toolName}
-          input={entry.input}
-          output={entry.output}
-          status={entry.status}
-          showLeadingIcon={!inTimeline}
-          onClarificationSubmit={onClarificationSubmit}
-        />
-      );
+      return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} showLeadingIcon={!inTimeline} />;
     case 'bash_approval':
       if (onApproval && entry.taskId) {
         return (
@@ -159,7 +150,7 @@ export function FeedItem({
       }
       return <BashApprovalBlock toolName={entry.toolName} command={entry.command} reason={entry.reason} showIcon={!inTimeline} />;
     case 'user_message':
-      return <UserBubble text={entry.text} />;
+      return <UserBubble text={entry.text} fullView={fullView} />;
     case 'ai_message':
       return <AiMessage text={entry.text} />;
     case 'planning':

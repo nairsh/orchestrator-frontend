@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { connectWorkflowStream } from '../api/sse';
 import { continueWorkflow, getWorkflow, getWorkflowTrace } from '../api/client';
 import type { ApiConfig } from '../api/client';
-import type { WorkflowEvent, FeedEntry, LiveTask, WorkflowTraceStep } from '../api/types';
+import { toastApiError } from '../lib/toast';
+import type { ClarificationOption, WorkflowEvent, FeedEntry, LiveTask, WorkflowTraceStep } from '../api/types';
 
 import type { WorkflowStreamState, EventReducerContext } from './workflow';
 import { STALE_THRESHOLD_MS, MAX_RECONNECT_ATTEMPTS } from './workflow';
@@ -12,6 +13,43 @@ import { shouldAppendCompletionEntry, buildFeedFromTrace, getHydratedFailureReas
 import { reduceWorkflowEvent } from './workflow';
 
 export type { WorkflowStreamState };
+
+const toRecord = (value: unknown): Record<string, unknown> =>
+  value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
+
+const normalizeClarificationOptions = (value: unknown): ClarificationOption[] => {
+  if (!Array.isArray(value)) return [];
+
+  return value.reduce<ClarificationOption[]>((acc, option) => {
+    if (!option || typeof option !== 'object') return acc;
+    const record = option as Record<string, unknown>;
+    const label = typeof record.label === 'string' ? record.label.trim() : '';
+    if (!label) return acc;
+    const description = typeof record.description === 'string' ? record.description.trim() : undefined;
+    acc.push(description ? { label, description } : { label });
+    return acc;
+  }, []);
+};
+
+const getClarificationFromToolEntry = (entry: FeedEntry) => {
+  if (entry.kind !== 'tool_call' || entry.toolName !== 'request_clarification') return undefined;
+
+  const input = toRecord(entry.input);
+  const output = toRecord(entry.output);
+  const question =
+    (typeof output.clarification_question === 'string' && output.clarification_question.trim()) ||
+    (typeof output.question === 'string' && output.question.trim()) ||
+    (typeof input.question === 'string' && input.question.trim()) ||
+    '';
+
+  if (!question) return undefined;
+
+  return {
+    question,
+    options: normalizeClarificationOptions(output.options ?? input.options),
+    allowCustom: output.allow_custom !== false && input.allow_custom !== false,
+  };
+};
 
 export function useWorkflowStream(
   config: ApiConfig,
@@ -137,6 +175,10 @@ export function useWorkflowStream(
         }));
 
         const feed = buildFeedFromTrace(trace, prompt, liveTasks);
+        const traceClarification = [...feed]
+          .reverse()
+          .map((entry) => getClarificationFromToolEntry(entry))
+          .find((entry) => entry !== undefined);
 
         // If already terminal and no completion entry exists, add one.
         const withCompletion: FeedEntry[] = (() => {
@@ -166,14 +208,14 @@ export function useWorkflowStream(
           isTerminal,
           currentActivity:
             details.workflow.status === 'paused'
-              ? details.workflow.pending_clarification ?? details.workflow.pause_reason ?? 'Waiting for your reply…'
+              ? 'Waiting for your reply…'
               : isTerminal
                 ? 'Completed'
                 : 'Executing…',
           workflowStatus: details.workflow.status,
           pendingClarification:
             details.workflow.status === 'paused'
-              ? {
+              ? traceClarification ?? {
                   question: details.workflow.pending_clarification ?? details.workflow.pause_reason ?? 'Waiting for your reply…',
                   allowCustom: true,
                 }
@@ -224,17 +266,22 @@ export function useWorkflowStream(
       const msg = text.trim();
       if (!msg) return;
 
-      pendingEnvironmentSetupRef.current = true;
+      setState((prev) => {
+        const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
+        pendingEnvironmentSetupRef.current = !isClarificationReply;
 
-      setState((prev) => ({
-        ...prev,
-        feed: [...prev.feed, { kind: 'user_message', text: msg }, { kind: 'system_status', text: 'Starting environment…' }],
-        liveTasks: [],
-        isTerminal: false,
-        currentActivity: 'Starting environment…',
-        workflowStatus: 'executing',
-        pendingClarification: undefined,
-      }));
+        return {
+          ...prev,
+          feed: isClarificationReply
+            ? [...prev.feed, { kind: 'user_message', text: msg }]
+            : [...prev.feed, { kind: 'user_message', text: msg }, { kind: 'system_status', text: 'Starting environment…' }],
+          liveTasks: isClarificationReply ? prev.liveTasks : [],
+          isTerminal: false,
+          currentActivity: isClarificationReply ? 'Resuming…' : 'Starting environment…',
+          workflowStatus: 'executing',
+          pendingClarification: undefined,
+        };
+      });
 
       try {
         await continueWorkflow(config, workflowId, msg);
@@ -251,8 +298,12 @@ export function useWorkflowStream(
 
   const handleApproval = useCallback(
     async (taskId: string, approved: boolean) => {
-      const { approveWorkflowTask } = await import('../api/client');
-      await approveWorkflowTask(config, workflowId, taskId, approved);
+      try {
+        const { approveWorkflowTask } = await import('../api/client');
+        await approveWorkflowTask(config, workflowId, taskId, approved);
+      } catch (err) {
+        toastApiError(err, approved ? "Couldn't approve this action" : "Couldn't reject this action");
+      }
     },
     [config, workflowId]
   );
