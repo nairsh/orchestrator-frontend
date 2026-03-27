@@ -25,10 +25,11 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
   const [usage, setUsage] = useState<BillingUsageEntry[]>([]);
   const [transactions, setTransactions] = useState<BillingTransaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [tab, setTab] = useState<'usage' | 'transactions'>('usage');
 
-  const fetchAll = async () => {
-    setLoading(true);
+  const fetchAll = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true); else setLoading(true);
     try {
       const [balRes, usageRes, txRes] = await Promise.allSettled([
         getBillingBalance(config),
@@ -42,7 +43,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
       if (usageRes.status === 'fulfilled') setUsage(usageRes.value.usage ?? []);
       if (txRes.status === 'fulfilled') setTransactions(txRes.value.transactions ?? []);
     } finally {
-      setLoading(false);
+      if (isRefresh) setRefreshing(false); else setLoading(false);
     }
   };
 
@@ -68,10 +69,10 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
         </div>
         <div className="flex-1">
           <div className="text-lg font-semibold text-primary">{balance !== null ? formatCredits(balance) : '—'} credits</div>
-          <div className="text-xs text-muted">Tier: {tier || 'unknown'} • Total used this period: {formatCredits(totalUsed)}</div>
+          <div className="text-xs text-muted">Plan: {tier || 'unknown'} • Used this period: {formatCredits(totalUsed)}</div>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => void fetchAll()} className="gap-1.5">
-          <RefreshCw size={12} />
+        <Button variant="ghost" size="sm" onClick={() => void fetchAll(true)} disabled={refreshing} className="gap-1.5">
+          {refreshing ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
         </Button>
       </div>
 
