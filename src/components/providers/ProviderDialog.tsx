@@ -37,13 +37,13 @@ export function ProviderDialog({
 
   return (
     <Modal onClose={onClose} maxWidth="max-w-2xl" className="border border-border-light bg-surface shadow-modal">
-      <ModalHeader title={isEditing ? 'Edit provider' : 'Add API provider'} onClose={onClose} />
+      <ModalHeader title={isEditing ? 'Edit AI service' : 'Add AI service'} onClose={onClose} />
 
       <ModalBody className="space-y-5 px-6 py-6">
         {/* Provider picker */}
         {!isEditing && (
           <div>
-            <div className="mb-2.5 text-[12px] font-medium text-secondary">Provider</div>
+            <div className="mb-2.5 text-[12px] font-medium text-secondary">Service</div>
             <div className="flex flex-wrap gap-2">
               {PROVIDER_OPTIONS.map((option) => {
                 const active = state.providerType === option.value;
@@ -82,7 +82,7 @@ export function ProviderDialog({
             />
           </div>
           <div>
-            <label className="block text-[12px] font-medium text-secondary mb-1.5">API URL</label>
+            <label className="block text-[12px] font-medium text-secondary mb-1.5">Server address</label>
             <Input
               value={state.apiUrl}
               onChange={(e) => update({ apiUrl: e.target.value })}
@@ -90,7 +90,7 @@ export function ProviderDialog({
               disabled={!urlEditable && !isEditing}
             />
             {state.providerType === 'litellm' && (
-              <p className="mt-1 text-[11.5px] text-muted">Your LiteLLM proxy URL, e.g. http://localhost:4000/v1</p>
+              <p className="mt-1 text-[11.5px] text-muted">Your LiteLLM server address, e.g. http://localhost:4000/v1</p>
             )}
           </div>
         </div>
@@ -98,7 +98,7 @@ export function ProviderDialog({
         {/* API key */}
         <div>
           <label className="block text-[12px] font-medium text-secondary mb-1.5">
-            API key{isEditing && <span className="ml-1 font-normal text-muted">— leave blank to keep existing</span>}
+            Secret key{isEditing && <span className="ml-1 font-normal text-muted">— leave blank to keep existing</span>}
           </label>
           <Input
             type="password"

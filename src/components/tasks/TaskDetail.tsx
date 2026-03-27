@@ -37,7 +37,7 @@ export function TaskDetail({
   onRefreshList,
 }: TaskDetailProps) {
   const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval } = useWorkflowStream(config, workflowId, true, objective);
-  const modelLabel = activeModel || 'Unknown model';
+  const modelLabel = activeModel || 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';

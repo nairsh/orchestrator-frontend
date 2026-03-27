@@ -34,7 +34,7 @@ const steps = [
   {
     icon: <Palette size={32} className="text-accent" />,
     title: 'Customize Your Setup',
-    description: 'Choose your preferred model in the dropdown, configure connections to GitHub/Linear/Notion, upload knowledge documents, and create custom skills to make Relay Pro work the way you want.',
+    description: 'Choose your preferred AI in the dropdown, connect services like GitHub, Linear, and Notion, upload knowledge documents, and create custom skills to make Relay Pro work the way you want.',
     cta: 'Get Started',
   },
 ];

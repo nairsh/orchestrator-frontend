@@ -85,7 +85,7 @@ export function SettingsModal({
                 { id: 'providers', title: 'AI Services', note: 'Connect your own AI accounts' },
                 { id: 'routing', title: 'AI Preferences', note: 'Choose AI for each type of work' },
                 { id: 'connectors', title: 'Connectors', note: 'GitHub, Linear, Notion' },
-                { id: 'icons', title: 'Appearance', note: 'Customize how models look' },
+                { id: 'icons', title: 'Appearance', note: 'Customize how AIs appear' },
                 { id: 'billing', title: 'Billing', note: 'Usage, credits, transactions' },
                 { id: 'health', title: 'System Status', note: 'AI service availability' },
               ] as const).map((item) => {

@@ -62,7 +62,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
       const res = await getAgentHealth(config);
       setAgents(res.agents ?? []);
     } catch (err) {
-      setError('Could not load model health. Check your server connection and try again.');
+      setError('Couldn\'t load AI health info. Check your server connection and try again.');
     } finally {
       if (isRefresh) setRefreshing(false); else setInitialLoading(false);
     }
@@ -104,7 +104,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
 
       {agents.length === 0 ? (
         <div className="py-4">
-          <Empty description="No model health data available from your server." />
+          <Empty description="No AI health data available from your server." />
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-2">
