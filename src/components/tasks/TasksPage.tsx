@@ -112,6 +112,20 @@ export function TasksPage({
     setAnimateFromLanding(false);
   };
 
+  // ⌘+Shift+C — toggle chat panel
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+        const el = e.target as HTMLElement;
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
+        e.preventDefault();
+        setChatOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, []);
+
   const handleWidthChange = (nextWidth: number) => {
     setTaskListWidth(Math.max(MIN_TASK_LIST_WIDTH, Math.min(MAX_TASK_LIST_WIDTH, nextWidth)));
   };

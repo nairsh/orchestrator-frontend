@@ -4,6 +4,7 @@ import { Highlighter } from '@lobehub/ui';
 import type { KnowledgeDocument, KnowledgeSearchMatch } from '../../api/types';
 import { formatBytes } from './helpers';
 import { getFileExtension } from '../../lib/fileUtils';
+import { SkeletonCard } from '../ui';
 
 interface KnowledgeSectionProps {
   fileTab: 'all' | 'workflows' | 'knowledge';
@@ -14,6 +15,7 @@ interface KnowledgeSectionProps {
   documentContent: string;
   documentLoading: boolean;
   uploading?: boolean;
+  loading?: boolean;
   onUpload?: (files: FileList | null) => void;
   onSelectDocument: (id: string | null) => void;
   onDeleteDocument: (id: string) => void;
@@ -29,6 +31,7 @@ export function KnowledgeSection({
   documentContent,
   documentLoading,
   uploading,
+  loading,
   onUpload,
   onSelectDocument,
   onDeleteDocument,
@@ -88,7 +91,13 @@ export function KnowledgeSection({
       )}
 
       {/* Document cards */}
-      {documents.length === 0 ? (
+      {loading && documents.length === 0 ? (
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : documents.length === 0 ? (
         <div className="rounded-xl border border-border-light bg-surface p-8 text-center text-sm text-muted">
           No documents added yet. Upload text, PDF, or image files to build your knowledge library.
         </div>

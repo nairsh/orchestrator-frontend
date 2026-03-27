@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2, Clock, Download } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
@@ -12,6 +12,7 @@ import { WorkflowProgress } from '../WorkflowProgress';
 import { toastApiError, toastSuccess } from '../../lib/toast';
 import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import { humanizeModelName } from '../../lib/modelNames';
+import { useNotifications } from '../../hooks/useNotifications';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 function formatDuration(startedAt?: string | null, endedAt?: string | null): string | null {
@@ -64,6 +65,31 @@ export function TaskDetail({
   const duration = isTerminal ? formatDuration(startedAt, endedAt) : null;
   const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | 'resume' | null>(null);
   const [cancelConfirm, setCancelConfirm] = useState(false);
+  const { addNotification } = useNotifications();
+  const notifiedRef = useRef(false);
+  const wasTerminalOnMountRef = useRef(isTerminal);
+
+  // Emit notification when workflow reaches terminal state (only for live transitions)
+  useEffect(() => {
+    if (!isTerminal || notifiedRef.current || wasTerminalOnMountRef.current) return;
+    notifiedRef.current = true;
+    const truncatedObjective = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+    if (workflowStatus === 'completed') {
+      addNotification({
+        type: 'workflow_complete',
+        title: 'Task completed',
+        message: truncatedObjective,
+        workflowId,
+      });
+    } else if (workflowStatus === 'failed') {
+      addNotification({
+        type: 'workflow_failed',
+        title: 'Task failed',
+        message: truncatedObjective,
+        workflowId,
+      });
+    }
+  }, [isTerminal, workflowStatus]);
 
   const handleCommand = async (text: string) => {
     try {

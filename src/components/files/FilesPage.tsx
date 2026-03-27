@@ -80,6 +80,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             documentContent={state.documentContent}
             documentLoading={state.documentLoading}
             uploading={state.uploading}
+            loading={state.loading}
             onUpload={(files) => void state.handleUploadDocuments(files)}
             onSelectDocument={state.setSelectedDocumentId}
             onDeleteDocument={(id) => state.setDeleteDocConfirmId(id)}

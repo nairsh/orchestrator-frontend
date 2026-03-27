@@ -76,6 +76,7 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
         { keys: ['⌘', '⇧', 'E'], description: 'Go to Files', inverseKeys: 'mod+shift+e' },
         { keys: ['⌘', '⇧', 'L'], description: 'Go to Connectors', inverseKeys: 'mod+shift+l' },
         { keys: ['⌘', '⇧', 'K'], description: 'Go to Skills', inverseKeys: 'mod+shift+k' },
+        { keys: ['⌘', '⇧', 'C'], description: 'Toggle chat', inverseKeys: 'mod+shift+c' },
       ],
     },
   ];
