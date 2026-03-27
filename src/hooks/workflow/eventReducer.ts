@@ -481,7 +481,8 @@ export function reduceWorkflowEvent(
       const clarification = buildPendingClarificationFromEvent(data);
       if (!clarification) return prev;
 
-      const feed = upsertClarificationToolCall(appendEnvironmentReadyIfPending(prev.feed, ctx), data, ctx, event.timestamp);
+      // Don't add clarification to feed - it's shown in the panel above chat input
+      const feed = appendEnvironmentReadyIfPending(prev.feed, ctx);
 
       return {
         ...prev,

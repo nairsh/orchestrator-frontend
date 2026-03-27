@@ -182,6 +182,8 @@ export function useWorkflowStream(
                 ? 'Completed'
                 : 'Executing…',
           workflowStatus: details.workflow.status,
+          startedAt: details.workflow.started_at,
+          endedAt: details.workflow.ended_at ?? details.workflow.completed_at,
           pendingClarification:
             details.workflow.status === 'paused'
               ? traceClarification ?? {

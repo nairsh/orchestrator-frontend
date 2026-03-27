@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2 } from 'lucide-react';
+import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2, Clock } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
@@ -11,6 +11,21 @@ import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
 import { toastApiError, toastSuccess } from '../../lib/toast';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
+
+function formatDuration(startedAt?: string | null, endedAt?: string | null): string | null {
+  if (!startedAt || !endedAt) return null;
+  const ms = new Date(endedAt).getTime() - new Date(startedAt).getTime();
+  if (ms < 0 || isNaN(ms)) return null;
+  if (ms < 1000) return 'under 1s';
+  const totalSec = Math.round(ms / 1000);
+  if (totalSec < 60) return `${totalSec}s`;
+  const min = Math.floor(totalSec / 60);
+  const sec = totalSec % 60;
+  if (min < 60) return sec > 0 ? `${min}m ${sec}s` : `${min}m`;
+  const hr = Math.floor(min / 60);
+  const remMin = min % 60;
+  return remMin > 0 ? `${hr}h ${remMin}m` : `${hr}h`;
+}
 
 interface TaskDetailProps {
   workflowId: string;
@@ -37,13 +52,14 @@ export function TaskDetail({
   modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel || 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';
   const isPaused = workflowStatus === 'paused';
   const hasPendingClarification = isPaused && !!pendingClarification;
+  const duration = isTerminal ? formatDuration(startedAt, endedAt) : null;
   const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | 'resume' | null>(null);
   const [cancelConfirm, setCancelConfirm] = useState(false);
 
@@ -104,6 +120,12 @@ export function TaskDetail({
           </span>
           {isFailed && <span className="flex-shrink-0 rounded-full bg-danger/10 px-2 py-0.5 text-[11px] font-medium text-danger">Failed</span>}
           {isPaused && <span className="flex-shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning">Paused</span>}
+          {duration && (
+            <span className="flex-shrink-0 flex items-center gap-1 rounded-full bg-surface-secondary px-2 py-0.5 text-[11px] font-medium text-muted">
+              <Clock size={10} strokeWidth={2} />
+              {duration}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">

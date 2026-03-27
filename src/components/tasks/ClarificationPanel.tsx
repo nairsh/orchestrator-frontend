@@ -10,7 +10,7 @@ interface ClarificationPanelProps {
   onDismiss?: () => void;
 }
 
-export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, onDismiss }: ClarificationPanelProps) {
+export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, onDismiss }: ClarificationPanelProps) {
   const [entered, setEntered] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [customValue, setCustomValue] = useState('');
@@ -25,13 +25,6 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
   }, [clarification.question]);
 
   const options = useMemo(() => clarification.options ?? [], [clarification.options]);
-  
-  // Check if last option is the "custom" option (usually has text about telling Codex what to do)
-  const hasCustomOption = clarification.allowCustom || 
-    (options.length > 0 && options[options.length - 1]?.label.toLowerCase().includes('tell'));
-  
-  const customOptionIndex = hasCustomOption ? options.length - 1 : -1;
-  const regularOptions = hasCustomOption ? options.slice(0, -1) : options;
 
   const handleSubmit = async () => {
     if (selectedOption === null && !customValue.trim()) return;
@@ -39,7 +32,7 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
     setIsSubmitting(true);
     try {
       let text = '';
-      if (selectedOption !== null && selectedOption !== customOptionIndex) {
+      if (selectedOption !== null && selectedOption < options.length) {
         text = options[selectedOption]?.label ?? '';
       } else if (customValue.trim()) {
         text = customValue.trim();
@@ -55,27 +48,39 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
   const handleOptionClick = (index: number) => {
     if (isSubmitting) return;
     setSelectedOption(index);
-    if (index !== customOptionIndex) {
-      setCustomValue('');
-    }
+    setCustomValue('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape' && onDismiss) {
+      e.preventDefault();
       onDismiss();
     } else if (e.key === 'Enter' && e.metaKey) {
+      e.preventDefault();
       void handleSubmit();
     }
   };
 
+  // Build display options: all provided options + always add custom option
+  const displayOptions = useMemo(() => {
+    const baseOptions = [...options];
+    // Always add a custom option at the end
+    baseOptions.push({
+      label: "No, and tell Relay what to do differently",
+    });
+    return baseOptions;
+  }, [options]);
+
+  const customOptionIndex = displayOptions.length - 1;
+  const regularOptions = displayOptions.slice(0, -1);
+
   return (
     <div 
-      className="flex-shrink-0 px-16 pb-6"
+      className="flex-shrink-0 px-16 pb-2 outline-none"
       onKeyDown={handleKeyDown}
-      tabIndex={0}
     >
       <div
-        className="mx-auto w-full rounded-2xl border border-border-light bg-surface shadow-sm overflow-hidden"
+        className="mx-auto w-full rounded-xl border border-border-light bg-surface shadow-sm overflow-hidden"
         style={{
           maxWidth,
           transition: 'transform 200ms ease-out, opacity 200ms ease-out',
@@ -84,8 +89,8 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
         }}
       >
         {/* Question */}
-        <div className="px-6 pt-5 pb-4">
-          <p className="font-sans text-[15px] leading-relaxed text-primary">
+        <div className="px-5 pt-4 pb-5">
+          <p className="font-sans text-[14px] leading-relaxed text-primary">
             {clarification.question}
           </p>
         </div>
@@ -94,7 +99,7 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
         <div className="px-3 pb-2">
           {regularOptions.map((option, index) => {
             const isSelected = selectedOption === index;
-            const isRecommended = index === 0; // First option is usually recommended
+            const isRecommended = index === 0;
             
             return (
               <button
@@ -103,7 +108,7 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
                 onClick={() => handleOptionClick(index)}
                 disabled={isSubmitting}
                 className={[
-                  'w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left transition-all duration-150 mb-2',
+                  'w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all duration-150 mb-2',
                   'border',
                   isSelected 
                     ? 'bg-surface-hover border-border' 
@@ -111,62 +116,60 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
                   'disabled:cursor-default disabled:opacity-60',
                 ].join(' ')}
               >
-                <span className="flex-shrink-0 font-sans text-[15px] text-muted tabular-nums">
+                <span className="flex-shrink-0 font-sans text-[14px] text-muted tabular-nums">
                   {index + 1}.
                 </span>
-                <span className="flex-1 font-sans text-[15px] text-primary">
+                <span className="flex-1 font-sans text-[14px] text-primary">
                   {option.label}
                   {isRecommended && (
-                    <span className="ml-2 text-muted">(Recommended)</span>
+                    <span className="ml-1.5 text-muted">(Recommended)</span>
                   )}
                 </span>
                 {isRecommended && (
-                  <Info size={16} className="flex-shrink-0 text-muted" />
+                  <Info size={14} className="flex-shrink-0 text-muted" />
                 )}
               </button>
             );
           })}
 
-          {/* Custom/Last option with input - always visible like in the design */}
-          {hasCustomOption && customOptionIndex >= 0 && (
-            <div className="w-full rounded-xl border border-border-light bg-surface mb-2 overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-border-subtle/50">
-                <span className="flex-shrink-0 font-sans text-[15px] text-muted tabular-nums">
-                  {customOptionIndex + 1}.
-                </span>
-                <span className="flex-1 font-sans text-[15px] text-primary">
-                  {options[customOptionIndex]?.label || "No, and tell Codex what to do differently"}
-                </span>
-              </div>
-              
-              <div className="px-4 py-3 bg-surface-secondary/30">
-                <input
-                  type="text"
-                  value={customValue}
-                  onChange={(e) => {
-                    setCustomValue(e.target.value);
-                    setSelectedOption(customOptionIndex);
-                  }}
-                  placeholder="Tell Codex what to do differently..."
-                  disabled={isSubmitting}
-                  className="w-full px-3 py-2.5 rounded-lg border border-border-light bg-surface text-[14px] placeholder:text-muted focus:outline-none focus:border-border focus:ring-1 focus:ring-border/50"
-                />
-              </div>
+          {/* Custom option with input - always visible */}
+          <div className="w-full rounded-lg border border-border-light bg-surface mb-2 overflow-hidden">
+            <div className="flex items-center gap-3 px-3 py-2.5 border-b border-border-subtle/50">
+              <span className="flex-shrink-0 font-sans text-[14px] text-muted tabular-nums">
+                {customOptionIndex + 1}.
+              </span>
+              <span className="flex-1 font-sans text-[14px] text-primary">
+                {displayOptions[customOptionIndex]?.label}
+              </span>
             </div>
-          )}
+            
+            <div className="px-3 py-2.5 bg-surface-secondary/30">
+              <input
+                type="text"
+                value={customValue}
+                onChange={(e) => {
+                  setCustomValue(e.target.value);
+                  setSelectedOption(customOptionIndex);
+                }}
+                placeholder="Tell Relay what to do differently"
+                disabled={isSubmitting}
+                className="w-full px-3 py-2 rounded-md border border-border-light bg-surface text-[13px] placeholder:text-muted focus:outline-none focus:border-border focus:ring-1 focus:ring-border/50"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Footer with actions */}
-        <div className="flex items-center justify-end gap-3 px-4 py-3 border-t border-border-subtle/50">
+        <div className="flex items-center justify-end gap-3 px-3 py-2.5 border-t border-border-subtle/50">
           {onDismiss && (
             <button
               type="button"
               onClick={onDismiss}
               disabled={isSubmitting}
-              className="flex items-center gap-2 px-3 py-2 text-[13px] text-muted hover:text-primary transition-colors"
+              className="flex items-center gap-2 px-2 py-1.5 text-[12px] text-muted hover:text-primary transition-colors"
             >
               Dismiss
-              <span className="px-2 py-0.5 rounded-md bg-surface-tertiary text-[11px] font-medium text-secondary">
+              <span className="px-1.5 py-0.5 rounded bg-surface-tertiary text-[10px] font-medium text-secondary">
                 ESC
               </span>
             </button>
@@ -174,20 +177,20 @@ export function ClarificationPanel({ clarification, maxWidth = 760, onSubmit, on
           
           <Button
             variant="primary"
-            size="md"
-            disabled={selectedOption === null && !customValue.trim() || isSubmitting}
+            size="sm"
+            disabled={(selectedOption === null && !customValue.trim()) || isSubmitting}
             onClick={() => void handleSubmit()}
-            className="!rounded-xl !px-4 !py-2 !text-[13px] font-medium bg-info hover:bg-info/90 text-white"
+            className="!rounded-lg !px-3 !py-1.5 !text-[12px] font-medium bg-info hover:bg-info/90 text-white"
           >
             {isSubmitting ? (
               <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1.5" />
                 Submitting...
               </>
             ) : (
               <>
                 Submit
-                <ArrowRight size={14} className="ml-2" />
+                <ArrowRight size={12} className="ml-1.5" />
               </>
             )}
           </Button>

@@ -15,6 +15,8 @@ export interface WorkflowStreamState {
   workflowStatus: string;
   error?: string;
   pendingClarification?: PendingClarification;
+  startedAt?: string | null;
+  endedAt?: string | null;
   sendMessage: (text: string) => Promise<void>;
   handleApproval: (taskId: string, approved: boolean) => Promise<void>;
 }

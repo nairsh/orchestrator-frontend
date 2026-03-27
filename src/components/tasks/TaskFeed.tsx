@@ -153,15 +153,6 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
   const hasTimeline = markerIndices.length > 0;
   const totalRows = renderRows.length + (hasThinkingRow ? 1 : 0);
-  const lineTopOpacity = 0.82;
-  const lineBottomOpacity = Math.max(0.14, 0.32 - totalRows * 0.004);
-  const lineMidOpacity = (lineTopOpacity + lineBottomOpacity) / 2;
-
-  const getDotOpacity = (index: number, total: number): number => {
-    if (total <= 1) return 0.75;
-    const t = index / (total - 1);
-    return Math.max(0.38, 0.9 - 0.52 * t);
-  };
 
   useEffect(() => {
     const el = scrollContainerRef.current;
@@ -206,16 +197,15 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
   return (
     <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20 ${fullView ? 'pt-6' : 'pt-0'}`}>
       <div ref={railContainerRef} className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: hasTimeline ? 0 : 32 }}>
-        {/* Timeline rail */}
+        {/* Timeline rail - solid line connecting all markers */}
         {hasTimeline && (
           <div
-            className="absolute pointer-events-none transition-[top,bottom] duration-slow will-change-[top,bottom]"
+            className="absolute pointer-events-none bg-border-light"
             style={{
-              left: 7,
+              left: '15px',
               top: railTopOffset,
               bottom: railBottomOffset,
-              width: 1.5,
-              background: `linear-gradient(180deg, rgba(176,176,176,${lineTopOpacity}) 0%, rgba(176,176,176,${lineMidOpacity}) 54%, rgba(176,176,176,${lineBottomOpacity}) 100%)`,
+              width: '2px',
             }}
           />
         )}
@@ -231,7 +221,6 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
           const markerKind = markerKindForRow(row);
           const showMarker = markerKind !== 'none';
-          const dotOpacity = getDotOpacity(idx, totalRows);
 
           let MarkerIcon = Terminal;
           if (row.kind === 'tool_parallel') {
@@ -252,22 +241,22 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
                     if (idx === firstMarkerIndex) firstMarkerRef.current = el;
                     if (idx === lastMarkerIndex) lastMarkerRef.current = el;
                   }}
+                  className="absolute"
+                  style={{
+                    left: '11px',
+                    top: '10px',
+                  }}
                 >
                   {markerKind === 'dot' ? (
                     <div
                       className={[
-                        'absolute w-2 h-2 rounded-full',
+                        'w-2 h-2 rounded-full border-2 border-surface',
                         idx === lastUserDotIndex ? 'bg-ink' : 'bg-muted',
                       ].join(' ')}
-                      style={{
-                        left: 3,
-                        top: 10,
-                        opacity: dotOpacity,
-                      }}
                     />
                   ) : (
-                    <div className="absolute left-0 top-1.5 w-3.5 h-3.5 rounded-full bg-surface-warm flex items-center justify-center">
-                      <MarkerIcon size={13} className={markerKind === 'warning' ? 'text-amber-700' : 'text-muted'} />
+                    <div className="-ml-[3px] -mt-[3px] w-5 h-5 rounded-full bg-surface flex items-center justify-center border-2 border-surface">
+                      <MarkerIcon size={12} className={markerKind === 'warning' ? 'text-amber-700' : 'text-muted'} />
                     </div>
                   )}
                 </div>
