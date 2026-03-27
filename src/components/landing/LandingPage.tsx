@@ -50,6 +50,7 @@ export function LandingPage({
   const [selectedModel, setSelectedModel] = useState('');
   const [attachments, setAttachments] = useState<Array<ContextFileUpload & { id: string; size: number }>>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const submittingRef = useRef(false);
   const apiConfig: ApiConfig = config;
 
   const SAMPLE_PROMPTS = useMemo(() => [
@@ -108,9 +109,12 @@ export function LandingPage({
     const text = value.trim();
     if (!text) return;
     if (!selectedModel.trim()) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     onSubmit(text, selectedModel, contextFiles);
     setValue('');
     setAttachments([]);
+    setTimeout(() => { submittingRef.current = false; }, 1000);
   };
 
   const hasText = value.trim().length > 0;
