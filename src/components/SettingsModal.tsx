@@ -77,7 +77,7 @@ export function SettingsModal({
             <div className="border-b border-border-light px-5 py-5">
               <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Environment</div>
               <div className="mt-2 text-lg font-semibold text-primary">{userLabel ? `${userLabel}'s workspace` : 'Server workspace'}</div>
-              <div className="mt-1 text-sm text-secondary">Configure your server, model preferences, and connected tools.</div>
+              <div className="mt-1 text-sm text-secondary">Configure your server, AI preferences, and connected tools.</div>
             </div>
             <nav className="space-y-1 p-3">
               {([
