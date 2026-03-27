@@ -257,8 +257,8 @@ export function SkillsPage({ config }: SkillsPageProps) {
           {/* Description */}
           <div className="px-8 pb-4">
             <p className="text-sm text-secondary leading-relaxed">
-              Extend what your computer can do with reusable capabilities and actions.
-              Skills are applied automatically when needed.
+              Custom instructions and tools that extend what your AI can do.
+              Skills are applied automatically when relevant.
             </p>
           </div>
 
@@ -272,7 +272,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
               <RelayEmpty
                 icon={<Sparkles size={26} className="text-muted" />}
                 title={loading ? 'Loading skills…' : 'No skills found'}
-                description={loading ? 'Fetching your skills from the server.' : 'Create your first skill to extend what your computer can do.'}
+                description={loading ? 'Fetching your skills from the server.' : 'Create your first skill to extend what your AI can do.'}
                 action={!loading ? <Button onClick={openCreateEditor}><Plus size={14} /> Create skill</Button> : undefined}
               />
             ) : (
