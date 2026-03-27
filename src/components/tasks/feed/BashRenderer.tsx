@@ -35,7 +35,9 @@ export function BashRenderer({
             </button>
           </Tooltip>
         </div>
-        <Highlighter language="bash" variant="borderless" copyable={false} showLanguage={false} wrap>{command || 'bash command'}</Highlighter>
+        <div className="px-3">
+          <Highlighter language="bash" variant="borderless" copyable={false} showLanguage={false} wrap>{command || 'bash command'}</Highlighter>
+        </div>
       </div>
 
       <div
@@ -49,7 +51,9 @@ export function BashRenderer({
               <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500" />
               <span className="font-sans text-xs text-placeholder">output</span>
             </div>
-            <Highlighter language="bash" variant="borderless" copyable={false} showLanguage={false} wrap>{renderedOutput}</Highlighter>
+            <div className="px-3">
+              <Highlighter language="bash" variant="borderless" copyable={false} showLanguage={false} wrap>{renderedOutput}</Highlighter>
+            </div>
           </div>
         )}
       </div>

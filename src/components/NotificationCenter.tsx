@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-react';
 import { ActionIcon, Empty, Tooltip } from '@lobehub/ui';
 import type { Notification } from '../hooks/useNotifications';
@@ -45,12 +46,58 @@ export function NotificationCenter(props: NotificationCenterProps) {
   const onClickNotification = props.onClickNotification;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, () => setOpen(false));
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
+  useClickOutside(ref, () => {
+    // Also check if the click was inside the portal dropdown
+    if (dropdownRef.current) return;
+    setOpen(false);
+  });
+
+  // Close dropdown when clicking outside both the button and the portal dropdown
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (ref.current?.contains(target)) return;
+      if (dropdownRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  // Position the dropdown relative to the button using a portal
+  const updatePosition = useCallback(() => {
+    const btn = buttonRef.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    // Open upward from the button, left-aligned so it extends into main content
+    setDropdownStyle({
+      position: 'fixed',
+      left: rect.left,
+      bottom: window.innerHeight - rect.top + 4,
+      zIndex: 9999,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [open, updatePosition]);
 
   return (
     <div ref={ref} className="relative">
       <Tooltip title="Notifications">
         <button
+          ref={buttonRef}
           type="button"
           onClick={() => setOpen(!open)}
           className="relative w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
@@ -65,8 +112,8 @@ export function NotificationCenter(props: NotificationCenterProps) {
         </button>
       </Tooltip>
 
-      {open && (
-        <div className="absolute right-0 top-10 w-80 bg-surface rounded-xl shadow-modal border border-border-light z-50 overflow-hidden animate-scale-in">
+      {open && createPortal(
+        <div ref={dropdownRef} className="w-80 bg-surface rounded-xl shadow-modal border border-border-light overflow-hidden animate-scale-in" style={dropdownStyle}>
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
             <span className="text-sm font-semibold text-primary">Notifications</span>
@@ -118,7 +165,8 @@ export function NotificationCenter(props: NotificationCenterProps) {
               ))
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

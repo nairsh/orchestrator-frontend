@@ -46,11 +46,22 @@ export const upsertActiveTaskGroup = (
 
   if (lastTaskGroupIndex < 0 || lastTaskGroupIndex < lastConversationIndex) {
     const nextTaskGroup: FeedEntry = { kind: 'task_group', taskId: `tg:${ctx.seq()}`, tasks: [...liveTasks] };
-    const terminalEntryIndex = feed.findIndex(
-      (entry) =>
+
+    // Search for a terminal entry AFTER the last conversation marker only.
+    // Using findIndex from the start would incorrectly match a completion
+    // from a previous turn, inserting the task_group in the wrong position.
+    const searchStart = Math.max(lastConversationIndex, 0);
+    let terminalEntryIndex = -1;
+    for (let i = searchStart; i < feed.length; i++) {
+      const entry = feed[i];
+      if (
         entry.kind === 'completion' ||
         (entry.kind === 'ai_message' && /^workflow failed:/i.test(entry.text.trim()))
-    );
+      ) {
+        terminalEntryIndex = i;
+        break;
+      }
+    }
 
     if (terminalEntryIndex >= 0) {
       return [...feed.slice(0, terminalEntryIndex), nextTaskGroup, ...feed.slice(terminalEntryIndex)];

@@ -28,6 +28,12 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
   useEffect(() => {
     if (!open) return;
 
+    // When openUpward is explicitly set, respect it without dynamic calculation
+    if (openUpward) {
+      setMenuDirection('up');
+      return;
+    }
+
     const updatePlacement = () => {
       const trigger = ref.current;
       const menu = menuRef.current;
@@ -53,7 +59,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
       window.removeEventListener('resize', updatePlacement);
       window.removeEventListener('scroll', updatePlacement, true);
     };
-  }, [open]);
+  }, [open, openUpward]);
 
   return (
     <div ref={ref} className="relative">

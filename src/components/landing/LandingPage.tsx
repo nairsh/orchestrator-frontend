@@ -162,7 +162,7 @@ export function LandingPage({
 
         {/* Search box */}
         <div className="w-full max-w-2xl px-4 fade-in-up-soft" style={{ animationDelay: '80ms' }}>
-          <div className="rounded-2xl border border-border-light shadow-sm font-sans bg-surface">
+          <div className="relative z-10 rounded-2xl border border-border-light shadow-sm font-sans bg-surface">
             <div className="grid grid-cols-[1fr_auto] px-3.5 pt-3.5 pb-3">
               {/* Attachments - span both columns */}
               {attachments.length > 0 && (
@@ -256,7 +256,7 @@ export function LandingPage({
 
         {/* Sample prompts */}
         {value === '' && attachments.length === 0 && (
-          <div className="w-full max-w-2xl px-4 mt-5 mx-auto">
+          <div className="w-full max-w-2xl px-4 mt-5 mx-auto relative z-0">
             <div className="flex flex-wrap gap-2">
               {SAMPLE_PROMPTS.map((prompt, i) => (
                 <button
