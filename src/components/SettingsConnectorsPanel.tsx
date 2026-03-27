@@ -16,7 +16,7 @@ const CONNECTOR_COPY: Record<
   linear: {
     label: 'Linear',
     eyebrow: 'Issues, cycles, teams',
-    description: 'Bring product planning and execution context directly into recurring runs and approvals.',
+    description: 'Let your AI track your team\'s issues, cycles, and deliverables.',
     accent: 'from-[#dce8ff] to-[#f2f5ff]',
   },
   notion: {
