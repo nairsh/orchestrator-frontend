@@ -20,16 +20,16 @@ interface ClarificationDetails {
 
 function normalizeClarificationOptions(value: unknown): ClarificationOption[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((option) => {
-      if (!option || typeof option !== 'object') return null;
-      const record = option as Record<string, unknown>;
-      const label = typeof record.label === 'string' ? record.label.trim() : '';
-      if (!label) return null;
-      const description = typeof record.description === 'string' ? record.description.trim() : undefined;
-      return { label, description } satisfies ClarificationOption;
-    })
-    .filter((option): option is ClarificationOption => option !== null);
+  const options: ClarificationOption[] = [];
+  for (const option of value) {
+    if (!option || typeof option !== 'object') continue;
+    const record = option as Record<string, unknown>;
+    const label = typeof record.label === 'string' ? record.label.trim() : '';
+    if (!label) continue;
+    const description = typeof record.description === 'string' ? record.description.trim() : undefined;
+    options.push(description ? { label, description } : { label });
+  }
+  return options;
 }
 
 function getClarificationDetails(input: unknown, output: unknown): ClarificationDetails | null {

@@ -197,7 +197,7 @@ export function TaskDetail({
         workflowId={workflowId}
         config={config}
         onApproval={handleApproval}
-        onClarificationSubmit={(text) => void handleCommand(text)}
+        onClarificationSubmit={handleCommand}
       />
 
       {/* Input — enabled when terminal for follow-up */}

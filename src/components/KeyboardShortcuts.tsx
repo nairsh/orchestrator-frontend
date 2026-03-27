@@ -82,14 +82,6 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
         { keys: ['G', 'S'], description: 'Go to Skills', inverseKeys: 'g+s' },
       ],
     },
-    {
-      title: 'Tasks',
-      shortcuts: [
-        { keys: ['J'], description: 'Next task', inverseKeys: 'j' },
-        { keys: ['K'], description: 'Previous task', inverseKeys: 'k' },
-        { keys: ['Enter'], description: 'Open selected task', inverseKeys: 'enter' },
-      ],
-    },
   ];
 
   return (
