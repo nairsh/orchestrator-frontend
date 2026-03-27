@@ -262,7 +262,7 @@ export function LandingPage({
                   className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs transition-all duration-200 cursor-pointer font-sans"
                 >
                   <span>{prompt}</span>
-                  <ArrowUpRight size={13} className="text-placeholder group-hover:text-muted transition-colors flex-shrink-0" />
+                  <ArrowUpRight size={13} className="text-placeholder group-hover:text-muted transition-colors duration-200 flex-shrink-0" />
                 </button>
               ))}
             </div>

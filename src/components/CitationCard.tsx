@@ -33,7 +33,7 @@ export function CitationCard({ index, url, title, snippet }: CitationCardProps) 
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-start gap-2.5 px-3 py-2 rounded-lg border border-border-light bg-surface-secondary/50 hover:bg-surface-hover hover:border-border transition-colors no-underline group"
+      className="flex items-start gap-2.5 px-3 py-2 rounded-lg border border-border-light bg-surface-secondary/50 hover:bg-surface-hover hover:border-border transition-colors duration-200 no-underline group"
     >
       <span className="flex items-center justify-center w-5 h-5 rounded bg-surface-tertiary text-2xs font-bold text-muted flex-shrink-0 mt-0.5">
         {index}
@@ -53,7 +53,7 @@ export function CitationCard({ index, url, title, snippet }: CitationCardProps) 
           <span className="text-2xs text-muted truncate">{domain}</span>
         </div>
         {title && (
-          <div className="text-sm font-medium text-primary mt-0.5 truncate group-hover:text-info transition-colors">
+          <div className="text-sm font-medium text-primary mt-0.5 truncate group-hover:text-info transition-colors duration-200">
             {title}
           </div>
         )}

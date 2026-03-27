@@ -53,7 +53,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className="relative w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer"
+          className="relative w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
           aria-label="Notifications"
         >
           <Bell size={18} />
@@ -99,7 +99,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
                     onMarkAsRead(notif.id);
                     onClickNotification?.(notif);
                   }}
-                  className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-surface-hover border-b border-border-light/50 cursor-pointer ${
+                  className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-surface-hover border-b border-border-light/50 cursor-pointer ${
                     !notif.read ? 'bg-surface-tertiary/50' : ''
                   }`}
                 >

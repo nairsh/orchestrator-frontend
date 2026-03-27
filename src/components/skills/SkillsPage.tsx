@@ -298,7 +298,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); toggle(); }}
-                          className="flex items-center justify-center w-7 h-7 rounded-md text-muted hover:text-primary hover:bg-surface-hover transition-colors flex-shrink-0 cursor-pointer"
+                          className="flex items-center justify-center w-7 h-7 rounded-md text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 flex-shrink-0 cursor-pointer"
                         >
                           <MoreHorizontal size={16} />
                         </button>
@@ -336,7 +336,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                       <button
                         type="button"
                         onClick={() => setSelectedId(null)}
-                        className="flex items-center justify-center w-8 h-8 rounded-full text-muted hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer"
+                        className="flex items-center justify-center w-8 h-8 rounded-full text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
                         aria-label="Close skill details"
                       >
                         <X size={18} />

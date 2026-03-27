@@ -164,7 +164,7 @@ export function TaskSearchDialog({
                   onSelectWorkflow(wf.id, wf.objective);
                   onClose();
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors duration-200 ${
                   isSelected
                     ? 'bg-surface-hover text-primary'
                     : 'text-secondary hover:bg-surface-hover'

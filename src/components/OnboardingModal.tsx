@@ -63,7 +63,7 @@ export function OnboardingModal({ onClose, onStartWorkflow, onOpenSettings }: On
       <div className="w-full max-w-md bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden">
         {/* Close button */}
         <div className="flex justify-end px-4 pt-4">
-          <button type="button" onClick={handleSkip} className="text-muted hover:text-primary transition-colors cursor-pointer" aria-label="Close onboarding">
+          <button type="button" onClick={handleSkip} className="text-muted hover:text-primary transition-colors duration-200 cursor-pointer" aria-label="Close onboarding">
             <X size={18} />
           </button>
         </div>
@@ -81,7 +81,7 @@ export function OnboardingModal({ onClose, onStartWorkflow, onOpenSettings }: On
             {steps.map((_, i) => (
               <div
                 key={i}
-                className={`w-2 h-2 rounded-full transition-colors ${
+                className={`w-2 h-2 rounded-full transition-colors duration-200 ${
                   i === step ? 'bg-info' : i < step ? 'bg-info/40' : 'bg-surface-hover'
                 }`}
               />

@@ -160,7 +160,7 @@ export function CommandPalette({
                     key={item.id}
                     type="button"
                     onClick={item.action}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
                     }`}
                   >
@@ -183,7 +183,7 @@ export function CommandPalette({
                     key={item.id}
                     type="button"
                     onClick={item.action}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
                     }`}
                   >
@@ -205,7 +205,7 @@ export function CommandPalette({
                     key={item.id}
                     type="button"
                     onClick={item.action}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors ${
+                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
                     }`}
                   >

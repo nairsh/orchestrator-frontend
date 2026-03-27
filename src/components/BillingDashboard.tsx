@@ -97,7 +97,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
             </div>
           ) : (
             usage.map((u) => (
-              <div key={u.model} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors">
+              <div key={u.model} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors duration-200">
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-primary truncate">{u.model}</div>
                   <div className="text-2xs text-muted">{u.request_count} requests</div>
@@ -105,7 +105,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
                 <Tooltip title={`${formatCredits(u.credits_used)} / ${formatCredits(maxUsage)} credits`}>
                   <div className="w-24 h-2 rounded-full bg-surface-tertiary overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-info transition-all"
+                      className="h-full rounded-full bg-info transition-all duration-200"
                       style={{ width: `${(u.credits_used / maxUsage) * 100}%` }}
                     />
                   </div>
@@ -126,7 +126,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
             </div>
           ) : (
             transactions.map((tx) => (
-              <div key={tx.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors">
+              <div key={tx.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors duration-200">
                 {tx.type === 'debit' ? (
                   <ArrowDownCircle size={16} className="text-danger flex-shrink-0" />
                 ) : (

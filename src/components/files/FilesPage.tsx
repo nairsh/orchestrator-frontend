@@ -279,7 +279,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             <p className="mt-1 text-sm text-secondary">Browse task outputs and manage your knowledge library.</p>
           </div>
           <div className="flex items-center gap-2">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-light bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-light bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
               Upload
               <input type="file" multiple className="hidden" onChange={(event) => void handleUploadDocuments(event.target.files)} />
@@ -418,7 +418,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                         setSelectedDocumentId(match.document_id);
                         setSearchMatches([]);
                       }}
-                      className="rounded-xl border border-border-light bg-surface p-4 text-left hover:border-border hover:shadow-sm transition-all"
+                      className="rounded-xl border border-border-light bg-surface p-4 text-left hover:border-border hover:shadow-sm transition-all duration-200"
                     >
                       <div className="flex items-center gap-2 text-sm font-medium text-primary">
                         {match.extraction_mode === 'ocr' ? <ScanSearch size={14} /> : match.extraction_mode === 'document' ? <ImageIcon size={14} /> : <FileSearch size={14} />}
@@ -461,7 +461,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                       <button
                         type="button"
                         onClick={(event) => { event.stopPropagation(); setDeleteDocConfirmId(document.id); }}
-                        className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all"
+                        className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all duration-200"
                         aria-label="Delete document"
                       >
                         <Trash2 size={14} />
