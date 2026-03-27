@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { FileText, X, Mic, AudioLines, ArrowUp } from 'lucide-react';
+import { FileText, X, ArrowUp } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
@@ -9,7 +9,6 @@ import { Textarea } from '../ui/Input';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
 import { toastError, toastWarning } from '../../lib/toast';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
-import { TemplatesGallery } from '../TemplatesGallery';
 
 interface LandingPageProps {
   config: AppConfig;
@@ -227,28 +226,19 @@ export function LandingPage({
                 />
               </div>
 
-              {/* Right: Mic + Send */}
+              {/* Right: Send */}
               <div className="col-start-2 row-start-3 flex items-center justify-self-end gap-1.5">
-                {!hasText && (
-                  <button
-                    type="button"
-                    className="h-8 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors duration-200 cursor-pointer aspect-[9/8]"
-                    aria-label="Voice input"
-                  >
-                    <Mic size={18} />
-                  </button>
-                )}
-
                 <button
                   type="button"
                   onClick={handleSubmit}
+                  disabled={!hasText}
                   className={`h-8 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer aspect-[9/8] ${
-                    hasText ? 'opacity-100' : 'opacity-90 hover:opacity-100'
+                    hasText ? 'opacity-100' : 'opacity-40 cursor-not-allowed'
                   }`}
                   style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
-                  aria-label={hasText ? 'Send' : 'Voice mode'}
+                  aria-label="Send"
                 >
-                  {hasText ? <ArrowUp size={16} /> : <AudioLines size={16} />}
+                  <ArrowUp size={16} />
                 </button>
               </div>
             </div>
