@@ -59,7 +59,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={disabled ? 'Task in progress…' : 'Type a follow-up or command...'}
+          placeholder={disabled ? 'Task in progress…' : 'Ask a follow-up or give instructions…'}
           disabled={disabled}
           maxHeight={160}
           className={disabled ? 'opacity-50' : ''}
@@ -71,10 +71,10 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           <PlusDropdown
             outlined
             onUploadFiles={() => {
-              toastWarning('Not supported here', 'Files can only be attached when starting a new task.');
+              toastWarning('Files not supported here', 'Attach files from the home screen when starting a new task.');
             }}
             onOpenConnectors={() => {
-              toastWarning('Not available here', 'Open Connectors from the sidebar.');
+              toastWarning('Open Connectors from the sidebar', 'Use the sidebar nav to access Connectors.');
             }}
           />
 
