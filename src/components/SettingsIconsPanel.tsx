@@ -20,17 +20,17 @@ export function SettingsIconsPanel({ sortedModels, modelsStatus, iconOverrides, 
       <section className="rounded-[28px] border border-border-light bg-surface p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Visual identity</div>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Curate the model catalog so it feels intentional.</h3>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Model icons</div>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Choose icons for each AI model.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
-              Override icons per model when the inferred branding is not good enough. Changes are stored with Clerk when available, otherwise locally.
+              Customize which icon appears next to each model. Useful when the default icon doesn't match the provider.
             </p>
           </div>
           {modelsStatus === 'loading' && <Loader2 size={16} className="animate-spin text-muted" />}
         </div>
 
         {modelsStatus === 'error' && (
-          <Alert className="mt-5" type="warning" title="Could not load models from this base URL. Fix the URL or test connection first." variant="outlined" />
+          <Alert className="mt-5" type="warning" title="Could not load models. Check your server URL and try again." variant="outlined" />
         )}
 
         {sortedModels.length === 0 && modelsStatus !== 'error' && (

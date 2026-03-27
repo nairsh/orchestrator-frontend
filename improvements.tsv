@@ -45,3 +45,4 @@ dfabccb	settings	low	keep	remove raw Notion workspace_id from connector summary 
 3f4eb79	onboarding	low	keep	"Start Your First Workflow" → "Start Your First Task" in onboarding modal
 e1ab8d6	files	medium	keep	add confirmation modal for knowledge document deletion in FilesPage
 524764a	settings	low	keep	"Capabilities discovered" → "Available models" in SettingsModal
+5192bdb	settings	low	keep	remove jargon from SettingsModal nav descriptions (control plane, runtime routing, curation)
