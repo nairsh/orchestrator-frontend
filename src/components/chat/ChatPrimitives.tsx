@@ -22,11 +22,10 @@ export type TimelineItem =
 /* ─── Constants ─── */
 
 const MESSAGE_TRUNCATE_LENGTH = 200;
-const MESSAGE_MAX_LINES = 4;
 
-/* ─── MessageBubble ─── */
+/* ─── UserBubble ─── */
 
-export function MessageBubble({ content, role }: { content: string; role: 'user' | 'assistant' }) {
+export function UserBubble({ content }: { content: string }) {
   const [expanded, setExpanded] = useState(false);
   const shouldTruncate = content.length > MESSAGE_TRUNCATE_LENGTH;
   const displayContent = shouldTruncate && !expanded
@@ -34,25 +33,8 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
     : content;
 
   return (
-    <div className={`w-fit max-w-[85%] rounded-2xl px-4.5 py-3.5 text-primary relative group ${role === 'user' ? 'bg-surface-secondary' : 'bg-surface-tertiary'}`}>
-      <div
-        className={`font-sans`}
-        style={{
-          maxHeight: expanded ? undefined : `${MESSAGE_MAX_LINES * 1.5}em`,
-          overflow: expanded ? undefined : 'hidden',
-          position: 'relative',
-        }}
-      >
-        <Markdown content={displayContent} />
-        {shouldTruncate && !expanded && (
-          <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-surface-tertiary to-transparent pointer-events-none" />
-        )}
-      </div>
-      {role === 'assistant' && (
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <CopyButton content={content} size="small" />
-        </div>
-      )}
+    <div className="w-fit max-w-[85%] rounded-2xl px-4.5 py-3.5 text-primary bg-userbubble">
+      <p className="font-sans text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
       {shouldTruncate && (
         <button
           type="button"
@@ -68,6 +50,21 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
           />
         </button>
       )}
+    </div>
+  );
+}
+
+/* ─── AssistantMessage ─── */
+
+export function AssistantMessage({ content }: { content: string }) {
+  return (
+    <div className="relative group max-w-[85%]">
+      <div className="font-sans text-sm leading-relaxed text-primary">
+        <Markdown content={content} />
+      </div>
+      <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-y-1 translate-x-8">
+        <CopyButton content={content} size="small" />
+      </div>
     </div>
   );
 }
@@ -93,42 +90,26 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
   );
 }
 
-/* ─── Timeline ─── */
+/* ─── MessageList (flat, no timeline rail) ─── */
 
-export function Timeline({ items }: { items: TimelineItem[] }) {
+export function MessageList({ items }: { items: TimelineItem[] }) {
   return (
-    <div className="flex flex-col">
-      {items.map((item, idx) => {
-        const isLast = idx === items.length - 1;
-        const isFirst = idx === 0;
-
-        const dotColor =
-          item.type === 'message'
-            ? item.role === 'user' ? 'bg-ink' : 'bg-info'
-            : 'bg-warning';
-
-        return (
-          <div key={idx} className="flex gap-4">
-            {/* Timeline line and node */}
-            <div className="flex flex-col items-center w-6 flex-shrink-0">
-              {!isFirst ? <div className="w-0.5 flex-1 bg-border-subtle" /> : <div className="flex-1" />}
-              <div className={`w-2.5 h-2.5 rounded-full ${dotColor} flex-shrink-0 my-2`} />
-              {!isLast ? <div className="w-0.5 flex-1 bg-border-subtle" /> : <div className="flex-1" />}
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 pb-4">
-              {item.type === 'message' ? (
-                <div className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <MessageBubble content={item.content} role={item.role} />
-                </div>
+    <div className="flex flex-col gap-6">
+      {items.map((item, idx) => (
+        <div key={idx}>
+          {item.type === 'message' ? (
+            <div className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {item.role === 'user' ? (
+                <UserBubble content={item.content} />
               ) : (
-                <ToolCallItem tool={item.tool} />
+                <AssistantMessage content={item.content} />
               )}
             </div>
-          </div>
-        );
-      })}
+          ) : (
+            <ToolCallItem tool={item.tool} />
+          )}
+        </div>
+      ))}
     </div>
   );
 }
@@ -137,7 +118,7 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
 
 export function StreamingIndicator() {
   return (
-    <div className="flex items-center gap-2 text-muted font-sans text-sm ml-10">
+    <div className="flex items-center gap-2 text-muted font-sans text-sm mt-6">
       <Loader2 size={14} className="animate-spin" />
       Thinking…
     </div>
@@ -159,11 +140,11 @@ export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth 
     <div className="flex-1 overflow-y-auto p-5 bg-surface-warm">
       <div className={`flex flex-col w-full ${maxWidth} mx-auto`}>
         {messages.length > 0 && (
-          <Timeline items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content }))} />
+          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content }))} />
         )}
         {draftAssistant && (
-          <div className="fade-in-soft">
-            <Timeline items={[{ type: 'message', role: 'assistant', content: draftAssistant }]} />
+          <div className="fade-in-soft mt-6">
+            <AssistantMessage content={draftAssistant} />
           </div>
         )}
         {streaming && !draftAssistant && <StreamingIndicator />}

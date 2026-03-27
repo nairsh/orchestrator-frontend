@@ -34,6 +34,7 @@ export function IconButton({ size = 'md', filled = false, label, className = '',
       className={className}
       style={filled ? { backgroundColor: 'var(--relay-primary)', color: 'var(--relay-surface)', borderRadius: '50%' } : undefined}
       icon={children as ActionIconIcon}
+      aria-label={label}
       {...rest}
     />
   );
