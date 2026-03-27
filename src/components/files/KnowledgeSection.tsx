@@ -101,7 +101,7 @@ export function KnowledgeSection({
               <div
                 key={document.id}
                 className={[
-                  'group relative rounded-xl border bg-surface p-4 transition-all duration-200 cursor-pointer hover:shadow-sm',
+                  'group relative rounded-xl border bg-surface p-4 transition-all duration-200 cursor-pointer hover:shadow-sm hover:-translate-y-px active:translate-y-0',
                   isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
                 ].join(' ')}
                 onClick={() => onSelectDocument(document.id)}

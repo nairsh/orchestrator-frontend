@@ -1,6 +1,6 @@
 import { MoreHorizontal, Plus, Sparkles } from 'lucide-react';
 import type { SkillRecord } from '../../api/types';
-import { Button, DropdownMenu, DropdownMenuItem } from '../ui';
+import { Button, DropdownMenu, DropdownMenuItem, SkeletonCard } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
 import { formatSkillName } from './helpers';
 
@@ -15,13 +15,21 @@ interface SkillGridProps {
 }
 
 export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSkill, onDeleteSkill, onCreateSkill }: SkillGridProps) {
+  if (skills.length === 0 && loading) {
+    return (
+      <div className="grid grid-cols-2 gap-4">
+        {Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} />)}
+      </div>
+    );
+  }
+
   if (skills.length === 0) {
     return (
       <RelayEmpty
         icon={<Sparkles size={26} className="text-muted" />}
-        title={loading ? 'Loading skills…' : 'No skills found'}
-        description={loading ? 'Fetching your skills from the server.' : 'Create your first skill to extend what your AI can do.'}
-        action={!loading ? <Button onClick={onCreateSkill}><Plus size={14} /> Create skill</Button> : undefined}
+        title="No skills found"
+        description="Create your first skill to extend what your AI can do."
+        action={<Button onClick={onCreateSkill}><Plus size={14} /> Create skill</Button>}
       />
     );
   }
@@ -34,10 +42,10 @@ export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSk
           type="button"
           onClick={() => onSelectSkill(skill.id)}
           className={[
-            'rounded-xl border px-5 py-4 text-left transition-colors duration-200 flex items-start justify-between gap-3 active:shadow-sm',
+            'rounded-xl border px-5 py-4 text-left transition-all duration-200 flex items-start justify-between gap-3 cursor-pointer',
             selectedId === skill.id
               ? 'border-border-light bg-surface shadow-sm'
-              : 'border-border-light bg-surface hover:border-border hover:shadow-xs',
+              : 'border-border-light bg-surface hover:border-border hover:shadow-sm hover:-translate-y-px active:translate-y-0',
           ].join(' ')}
         >
           <div className="min-w-0 flex-1">

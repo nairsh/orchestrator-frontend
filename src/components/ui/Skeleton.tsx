@@ -60,3 +60,14 @@ export function SkeletonFeedItem() {
     </div>
   );
 }
+
+export function SkeletonCard() {
+  return (
+    <div className="rounded-xl border border-border-light bg-surface px-5 py-4">
+      <SkeletonTitle style={{ width: '60%', height: 14 }} active />
+      <div className="mt-2">
+        <SkeletonParagraph rows={2} active />
+      </div>
+    </div>
+  );
+}

@@ -9,4 +9,4 @@ export { ResizableDivider } from './ResizableDivider';
 export { Select } from './Select';
 export type { SelectOption } from './Select';
 export { SearchInput } from './SearchInput';
-export { Skeleton, SkeletonText, SkeletonTaskItem, SkeletonFeedItem } from './Skeleton';
+export { Skeleton, SkeletonText, SkeletonTaskItem, SkeletonFeedItem, SkeletonCard } from './Skeleton';
