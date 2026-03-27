@@ -115,7 +115,15 @@ export function SidebarAccount({ isSignedIn, userLabel, userAvatarUrl, onOpenSet
         </div>
       </div>
 
-      <NotificationCenter />
+      <NotificationCenter
+        onClickNotification={(notif) => {
+          if (notif.workflowId) {
+            window.dispatchEvent(new CustomEvent('relay:select-workflow', {
+              detail: { id: notif.workflowId, objective: notif.message },
+            }));
+          }
+        }}
+      />
     </div>
   );
 }

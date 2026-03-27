@@ -126,6 +126,21 @@ export function useAppState(props: AppProps) {
     return () => document.removeEventListener('keydown', handler);
   }, []);
 
+  // Listen for notification-triggered workflow selection
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ id: string; objective: string }>).detail;
+      if (detail?.id) {
+        setActiveWorkflow(detail);
+        setRequestedTaskNav('tasks');
+        setOpenTaskInFullView(true);
+        setScreen('tasks');
+      }
+    };
+    window.addEventListener('relay:select-workflow', handler);
+    return () => window.removeEventListener('relay:select-workflow', handler);
+  }, []);
+
   useEffect(() => {
     if (!isConfigured) return;
 
