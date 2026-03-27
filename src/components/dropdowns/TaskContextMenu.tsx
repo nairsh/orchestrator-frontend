@@ -22,7 +22,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           e.stopPropagation();
           setOpen((v) => !v);
         }}
-        className="w-6 h-6 rounded flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-all duration-150 opacity-0 group-hover:opacity-100 cursor-pointer"
+        className="w-6 h-6 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-all duration-200 opacity-0 group-hover:opacity-100 cursor-pointer"
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Task actions"
@@ -32,7 +32,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
 
       <div
         className={[
-          'absolute right-0 top-full mt-1.5 w-44 bg-surface border border-border rounded-lg shadow-dropdown py-1 z-50 transition-all duration-150 origin-top-right',
+          'absolute right-0 top-full mt-1.5 w-44 bg-surface border border-border-light rounded-xl shadow-dropdown py-1 z-50 transition-all duration-200 origin-top-right',
           open
             ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
             : 'opacity-0 scale-95 -translate-y-1 pointer-events-none',
@@ -43,7 +43,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           type="button"
           role="menuitem"
           onClick={(e) => { e.stopPropagation(); onPin?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-150 cursor-pointer text-left"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left"
         >
           <Pin size={13} className="text-muted flex-shrink-0 mt-0.5" />
           <span className="break-words">Pin task</span>
@@ -52,7 +52,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           type="button"
           role="menuitem"
           onClick={(e) => { e.stopPropagation(); onRename?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-150 cursor-pointer text-left"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left"
         >
           <Pencil size={13} className="text-muted flex-shrink-0 mt-0.5" />
           <span className="break-words">Rename task</span>
@@ -62,7 +62,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           type="button"
           role="menuitem"
           onClick={(e) => { e.stopPropagation(); onDelete?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-danger hover:bg-danger/15 transition-colors duration-150 cursor-pointer text-left"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-danger hover:bg-danger/10 transition-colors duration-200 cursor-pointer text-left"
         >
           <Trash2 size={13} className="flex-shrink-0 mt-0.5" />
           <span className="break-words">Delete task</span>

@@ -222,11 +222,11 @@ export function TasksPage({
               />
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-surface-tertiary flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-surface-tertiary border border-border-subtle flex items-center justify-center">
                   <span className="text-xl">⚡</span>
                 </div>
-                <div className="font-sans text-base text-placeholder text-center">Select a task to view details</div>
-                <div className="font-sans text-sm text-placeholder/70 text-center max-w-[200px]">
+                <div className="font-sans text-sm font-medium text-muted text-center">Select a task to view details</div>
+                <div className="font-sans text-sm text-placeholder text-center max-w-[220px] leading-relaxed">
                   Choose from the list or start a new task above
                 </div>
               </div>

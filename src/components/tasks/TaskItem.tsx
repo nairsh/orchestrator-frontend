@@ -112,7 +112,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
     <>
     <div
       className={[
-        'group relative flex items-center cursor-pointer rounded-md px-3 py-2.5 gap-2 transition-colors duration-fast justify-between',
+        'group relative flex items-center cursor-pointer rounded-xl px-3 py-2.5 gap-2 transition-colors duration-200 justify-between',
         isSelected ? 'bg-surface-secondary' : 'hover:bg-surface-hover',
       ].join(' ')}
       onClick={onClick}

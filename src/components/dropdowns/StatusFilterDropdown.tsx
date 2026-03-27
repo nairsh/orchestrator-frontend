@@ -38,8 +38,8 @@ export function StatusFilterDropdown({ value, onChange }: StatusFilterDropdownPr
           aria-expanded={open}
           aria-haspopup="menu"
           aria-label={`Filter: ${activeLabel}`}
-          className={`flex items-center justify-center rounded-md px-3 py-2 border border-border transition-colors duration-fast cursor-pointer ${
-            open ? 'bg-surface' : 'bg-transparent'
+          className={`flex items-center justify-center rounded-lg px-3 py-2 border border-border-light transition-colors duration-200 cursor-pointer ${
+            open ? 'bg-surface' : 'bg-transparent hover:bg-surface-hover'
           }`}
         >
           <ListFilter size={16} className="text-primary" />

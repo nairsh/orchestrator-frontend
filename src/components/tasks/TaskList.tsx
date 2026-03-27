@@ -145,7 +145,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   return (
     <div className="flex flex-col h-full flex-shrink-0 w-full bg-surface-warm">
       {/* Header */}
-      <div className="flex items-center justify-between flex-shrink-0 h-12 px-6 border-b border-border bg-surface-warm">
+      <div className="flex items-center justify-between flex-shrink-0 h-12 px-6 border-b border-border-subtle bg-surface-warm">
         {showSearch ? (
           <SearchInput
             value={searchQuery}
@@ -156,8 +156,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           />
         ) : (
           <>
-            <span className="font-sans text-[16px] font-medium text-primary">Tasks</span>
-            <div className="flex items-center gap-4">
+            <span className="font-sans text-[15px] font-semibold text-primary">Tasks</span>
+            <div className="flex items-center gap-3">
               {loading && <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse" />}
 
               {/* Search button */}
@@ -169,7 +169,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           <Button
             variant="secondary"
             size="sm"
-            className="gap-2"
+            className="gap-1.5"
             onClick={() => {
               if (!billing.data) {
                 if (billing.error) {
@@ -185,8 +185,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               );
             }}
           >
-            <Coins size={16} className="text-primary" />
-            <span className="font-sans text-base font-medium text-primary">
+            <Coins size={14} className="text-muted" />
+            <span className="font-sans text-sm font-medium text-primary">
               {billing.data ? billingCredits.toFixed(2) : '—'}
             </span>
           </Button>
@@ -196,9 +196,9 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             size="md"
             label="Open chat"
             onClick={() => onOpenChat?.()}
-            className="border border-border rounded-lg px-3 py-2"
+            className="border border-border-light rounded-lg px-3 py-2"
           >
-            <MessageSquare size={16} className="text-primary" />
+            <MessageSquare size={16} className="text-muted" />
           </IconButton>
 
           {/* Filter */}
@@ -211,7 +211,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto flex flex-col hide-scrollbar bg-surface-warm p-6 gap-6">
         {/* Start a task input */}
-        <div className="flex flex-col flex-shrink-0 rounded-xl bg-surface-tertiary border border-border px-3.5 py-3 min-h-[92px] gap-2.5">
+        <div className="flex flex-col flex-shrink-0 rounded-xl bg-surface border border-border-light px-3.5 py-3 min-h-[92px] gap-2.5 shadow-xs">
           <Textarea
             ref={startInputRef}
             value={startValue}
@@ -240,8 +240,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
                 onClick={handleStartClick}
                 disabled={!startValue.trim() || starting}
                 aria-label="Start task"
-                className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity ${startValue.trim() && !starting ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
-                style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
+                className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity duration-200 ${startValue.trim() && !starting ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'}`}
+                style={{ backgroundColor: 'var(--relay-primary, #1a1a1a)', color: 'var(--relay-surface, white)' }}
               >
                 {starting ? <Loader2 size={14} className="animate-spin" /> : <ArrowUp size={15} />}
               </button>

@@ -80,7 +80,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
           ghost
             ? 'h-8 rounded-full aspect-[9/8] text-secondary hover:text-primary'
             : useOutlinedStyle
-              ? `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full border border-border ${open ? 'bg-surface-tertiary' : 'bg-transparent'}`
+              ? `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full border border-border-light ${open ? 'bg-surface-tertiary' : 'bg-transparent hover:bg-surface-hover'}`
               : `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full bg-ink`,
         ].join(' ')}
       >
@@ -90,12 +90,12 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
       <div
         ref={menuRef}
         className={[
-          'absolute left-0 w-56 bg-surface border border-border rounded-lg shadow-dropdown py-1 z-50',
+          'absolute left-0 w-56 bg-surface border border-border-light rounded-xl shadow-dropdown py-1 z-50',
           menuDirection === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
         ].join(' ')}
         style={{
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          transition: 'opacity 100ms ease, transform 100ms ease',
+          transition: 'opacity 150ms ease, transform 150ms ease',
           opacity: open ? 1 : 0,
           transform: open ? 'translateY(0)' : menuDirection === 'up' ? 'translateY(4px)' : 'translateY(-4px)',
           pointerEvents: open ? 'auto' : 'none',
@@ -105,7 +105,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         <button
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-fast cursor-pointer font-sans"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer font-sans"
           onClick={() => {
             if (!onUploadFiles) {
               setOpen(false);
@@ -120,7 +120,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         <button
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-fast cursor-pointer font-sans"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer font-sans"
           onClick={() => {
             setOpen(false);
             onOpenConnectors?.();

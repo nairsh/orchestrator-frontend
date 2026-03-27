@@ -89,7 +89,7 @@ export function ResizableDivider({
     };
   }, []);
 
-  const pillOpacity = isDragging ? 1 : isHovering ? 0.9 : 0.6;
+  const pillOpacity = isDragging ? 1 : isHovering ? 0.8 : 0.4;
 
   return (
     <div
@@ -99,9 +99,9 @@ export function ResizableDivider({
       onMouseLeave={() => setIsHovering(false)}
       aria-hidden="true"
     >
-      <div className="w-px h-full bg-border" />
+      <div className="w-px h-full bg-border-subtle" />
       <div
-        className="absolute w-1 h-12 rounded-full bg-muted transition-opacity duration-100"
+        className="absolute w-1 h-10 rounded-full bg-placeholder transition-opacity duration-200"
         style={{ opacity: pillOpacity }}
       />
     </div>

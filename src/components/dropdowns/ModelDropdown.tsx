@@ -124,10 +124,9 @@ export function ModelDropdown({
           onClick={toggle}
           aria-expanded={open}
           aria-label="Select model"
-          className={`flex items-center font-sans font-medium text-primary rounded-full transition-colors duration-fast cursor-pointer ${
+          className={`flex items-center font-sans font-medium text-primary rounded-full transition-colors duration-200 cursor-pointer ${
             isLarge ? 'gap-2.5 text-lg px-4 py-2.5' : isSmall ? 'h-8 gap-1.5 text-sm px-3' : 'h-8 gap-2 text-sm px-3'
-          }`}
-          style={{ backgroundColor: open ? '#EAE7E4' : '#F5F3F1' }}
+          } ${open ? 'bg-surface-secondary' : 'bg-surface-tertiary hover:bg-surface-secondary'}`}
         >
           <ModelIcon iconKey={selectedIconKey} size={isLarge ? 18 : 14} />
           <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : 'text-sm max-w-[200px]'}`}>{triggerLabel}</span>

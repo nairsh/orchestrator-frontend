@@ -50,7 +50,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
     >
       {/* Input card */}
       <div
-        className="w-full bg-surface border border-border rounded-xl shadow p-3 flex flex-col gap-4"
+        className="w-full bg-surface border border-border-light rounded-xl shadow-sm p-3 flex flex-col gap-4"
         style={{ maxWidth }}
       >
         {/* Text */}
@@ -100,7 +100,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
       </div>
 
       {/* Drag handle pill */}
-      <div className="w-12 h-1.5 rounded-pill bg-muted" />
+      <div className="w-12 h-1 rounded-pill bg-border" />
     </div>
   );
 }
