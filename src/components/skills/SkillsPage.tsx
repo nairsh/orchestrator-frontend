@@ -159,12 +159,12 @@ export function SkillsPage({ config }: SkillsPageProps) {
     const description = draftDescription.trim();
 
     if (editorMode === 'create' && !draftName.trim()) {
-      toastWarning('Missing name', 'Give your skill a name.');
+      toastWarning('Name required', 'Give your skill a name to continue.');
       return;
     }
     if (!validateId(id)) return;
     if (!description) {
-      toastWarning('Missing description', 'Skill description is required.');
+      toastWarning('Description required', 'Add a short description of what this skill does.');
       return;
     }
 
@@ -427,7 +427,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                   />
                 </div>
 
-                <Input label="Tools (comma separated)" value={draftTools} onChange={(event) => setDraftTools(event.target.value)} placeholder="bash, file_read, grep" />
+                <Input label="Tools" value={draftTools} onChange={(event) => setDraftTools(event.target.value)} placeholder="bash, file_read, grep (comma-separated)" />
               </>
             )}
           </ModalBody>
@@ -441,7 +441,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                 Cancel
               </Button>
               <Button onClick={() => void (editorMode === 'import' ? importSkillMarkdown() : saveSkill())} disabled={saving}>
-                {saving ? 'Saving...' : editorMode === 'import' ? 'Import' : editorMode === 'create' ? 'Create' : 'Save'}
+                {saving ? 'Saving…' : editorMode === 'import' ? 'Import' : editorMode === 'create' ? 'Create' : 'Save'}
               </Button>
             </div>
           </ModalFooter>
