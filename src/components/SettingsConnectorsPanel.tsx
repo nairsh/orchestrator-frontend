@@ -1,7 +1,7 @@
 import type { ConnectorProvider, ConnectorProviderInfo, ConnectorRecord } from '../api/types';
 import { Tag, Tooltip } from '@lobehub/ui';
 import { Button } from './ui/Button';
-import { RefreshCcw } from 'lucide-react';
+import { Loader2, RefreshCcw } from 'lucide-react';
 
 const CONNECTOR_COPY: Record<
   ConnectorProvider,
@@ -97,7 +97,7 @@ export function SettingsConnectorsPanel({
             </p>
           </div>
           <Button variant="ghost" onClick={onRefresh} disabled={!isSignedIn || connectorsLoading}>
-            <RefreshCcw size={14} />
+            {connectorsLoading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCcw size={14} />}
             Refresh
           </Button>
         </div>
@@ -160,7 +160,7 @@ export function SettingsConnectorsPanel({
                       </Button>
                       {connector && (
                         <>
-                          <Button variant="secondary" onClick={() => onValidate(connector.id)} disabled={busy} className="rounded-2xl">Validate</Button>
+                          <Button variant="secondary" onClick={() => onValidate(connector.id)} disabled={busy} className="rounded-2xl">Test connection</Button>
                           <Button variant="ghost" onClick={() => onDisconnect(connector.id)} disabled={busy} className="rounded-2xl">Disconnect</Button>
                         </>
                       )}
