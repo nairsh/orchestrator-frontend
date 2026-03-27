@@ -80,21 +80,23 @@ function formatRelativeRunTime(timestamp: string | null | undefined, nowTs: numb
 
 export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
-    setDeleteConfirm(false);
+    setDeleting(true);
     try {
       const result = await cancelWorkflow(config, workflow.id);
-
       if (result.status === 'cancelled') {
         toastSuccess('Task stopped', 'It will no longer appear once you refresh.');
       } else {
         toastSuccess('Task deleted');
       }
-
+      setDeleteConfirm(false);
       onDeleted();
     } catch (err) {
       toastApiError(err, 'Failed to delete task');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -150,14 +152,14 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
     </div>
 
     {deleteConfirm && (
-      <Modal onClose={() => setDeleteConfirm(false)} maxWidth="max-w-sm">
-        <ModalHeader title="Delete task?" onClose={() => setDeleteConfirm(false)} />
+      <Modal onClose={() => { if (!deleting) setDeleteConfirm(false); }} maxWidth="max-w-sm">
+        <ModalHeader title="Delete task?" onClose={() => { if (!deleting) setDeleteConfirm(false); }} />
         <ModalBody>
           <p className="text-sm text-secondary">This will permanently delete the task and its history. This cannot be undone.</p>
         </ModalBody>
         <ModalFooter className="justify-end gap-2">
-          <Button variant="ghost" onClick={() => setDeleteConfirm(false)}>Cancel</Button>
-          <Button variant="danger" onClick={() => void handleDelete()}>Delete</Button>
+          <Button variant="ghost" disabled={deleting} onClick={() => setDeleteConfirm(false)}>Cancel</Button>
+          <Button variant="danger" disabled={deleting} onClick={() => void handleDelete()}>{deleting ? 'Deleting…' : 'Delete'}</Button>
         </ModalFooter>
       </Modal>
     )}
