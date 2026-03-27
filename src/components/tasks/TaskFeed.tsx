@@ -280,9 +280,9 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
                 {currentActivity}
               </span>
               {isStale && (
-                <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 mt-1 dark:border-amber-800 dark:bg-amber-950/30">
-                  <CircleAlert size={14} className="text-amber-600 mt-0.5 shrink-0 dark:text-amber-400" />
-                  <span className="font-sans text-sm text-amber-800 dark:text-amber-300">
+                <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 mt-1">
+                  <CircleAlert size={14} className="text-warning mt-0.5 shrink-0" />
+                  <span className="font-sans text-sm text-secondary">
                     No updates received for 30 seconds. The model may be slow or unreachable. Check your connection or try a different model.
                   </span>
                 </div>
