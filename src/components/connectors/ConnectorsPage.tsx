@@ -141,7 +141,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
       <div className="bg-surface-warm px-8 pt-8 pb-2">
         <h1 className="text-xl font-semibold text-primary font-display">Connectors</h1>
         <p className="mt-2 text-sm text-secondary leading-relaxed">
-          Connect your apps and services so Computer can access and act on your data.
+          Connect your apps and services so your AI can access and act on your data.
         </p>
         <div className="flex items-center justify-between mt-5">
           <SegmentedControl
