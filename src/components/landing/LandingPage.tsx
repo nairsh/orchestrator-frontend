@@ -52,7 +52,7 @@ export function LandingPage({
   const SAMPLE_PROMPTS = useMemo(() => [
     'Analyze my codebase and summarize the architecture',
     'Write unit tests for the files I upload',
-    'Research the latest trends in AI agents',
+    'Research the latest breakthroughs in AI',
     'Create a detailed project plan from my requirements',
     'Generate a comprehensive code review report',
   ], []);

@@ -224,7 +224,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           <div className="flex items-center mt-auto">
             <PlusDropdown
               outlined
-              onUploadFiles={() => toastInfo('Not supported here', 'Attachments can only be added when starting a new task.')}
+              onUploadFiles={() => toastInfo('Open a task first', 'Files can only be attached when starting a new task from the main screen.')}
               onOpenConnectors={() => onOpenConnectors?.()}
             />
             <div className="flex-1" />
