@@ -101,7 +101,7 @@ export function ConnectorsTab({
                           catch (err) { toastApiError(err, 'Couldn\'t disconnect'); }
                           finally { setConnectorBusyId(null); }
                         }} className="h-5 px-2 text-[11px]">Yes</Button>
-                        <button type="button" onClick={() => setDisconnectConfirmId(null)} className="text-xs text-muted hover:text-primary transition-colors duration-200">✕</button>
+                        <button type="button" onClick={() => setDisconnectConfirmId(null)} className="text-xs text-muted hover:text-primary transition-colors duration-200" aria-label="Cancel">✕</button>
                       </div>
                     ) : (
                       <Button variant="ghost" size="sm" disabled={busy} onClick={() => setDisconnectConfirmId(connector.id)}>Disconnect</Button>

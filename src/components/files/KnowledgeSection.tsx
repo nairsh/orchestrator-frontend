@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FileSearch, ImageIcon, Loader2, ScanSearch, Trash2 } from 'lucide-react';
 import { Highlighter } from '@lobehub/ui';
 import type { KnowledgeDocument, KnowledgeSearchMatch } from '../../api/types';
@@ -28,6 +29,8 @@ export function KnowledgeSection({
   onDeleteDocument,
   onClearSearchMatches,
 }: KnowledgeSectionProps) {
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
   return (
     <div>
       {fileTab === 'all' && <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Knowledge library</h2>}
@@ -85,14 +88,34 @@ export function KnowledgeSection({
                 <div className="mt-0.5 text-xs text-muted">
                   {ext && `${ext} • `}{formatBytes(document.byte_size)}
                 </div>
-                <button
-                  type="button"
-                  onClick={(event) => { event.stopPropagation(); onDeleteDocument(document.id); }}
-                  className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all duration-200"
-                  aria-label="Delete document"
-                >
-                  <Trash2 size={14} />
-                </button>
+                {deleteConfirmId === document.id ? (
+                  <div
+                    className="absolute top-2 right-2 flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <span className="text-xs text-danger font-medium">Delete?</span>
+                    <button
+                      type="button"
+                      onClick={() => { setDeleteConfirmId(null); onDeleteDocument(document.id); }}
+                      className="rounded px-1.5 py-0.5 text-[11px] font-medium text-white bg-danger hover:bg-danger/90 transition-colors duration-200"
+                    >Yes</button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmId(null)}
+                      className="text-xs text-muted hover:text-primary transition-colors duration-200"
+                      aria-label="Cancel"
+                    >✕</button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(event) => { event.stopPropagation(); setDeleteConfirmId(document.id); }}
+                    className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all duration-200"
+                    aria-label="Delete document"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
               </div>
             );
           })}

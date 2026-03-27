@@ -11,6 +11,7 @@ import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
 import { toastApiError, toastSuccess } from '../../lib/toast';
 import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
+import { humanizeModelName } from '../../lib/modelNames';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 function formatDuration(startedAt?: string | null, endedAt?: string | null): string | null {
@@ -54,7 +55,7 @@ export function TaskDetail({
   onRefreshList,
 }: TaskDetailProps) {
   const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
-  const modelLabel = activeModel || 'AI';
+  const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';

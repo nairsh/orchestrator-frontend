@@ -11,7 +11,7 @@ import { Input } from './ui/Input';
 import { BillingDashboard } from './BillingDashboard';
 import { AgentHealthPanel } from './AgentHealthPanel';
 import { SettingsRoutingPanel } from './SettingsRoutingPanel';
-import { SettingsConnectorsPanel } from './SettingsConnectorsPanel';
+import { SettingsConnectorsPanel } from './settings/SettingsConnectorsPanel';
 import { SettingsIconsPanel } from './SettingsIconsPanel';
 import { ProvidersSettingsPanel } from './ProvidersSettingsPanel';
 
@@ -175,11 +175,14 @@ export function SettingsModal({
 
             {panel === 'connectors' && (
               <SettingsConnectorsPanel
-                isSignedIn={isSignedIn} connectorsLoading={settings.connectorsLoading}
-                connectorBusyProvider={settings.connectorBusyProvider} connectorBusyId={settings.connectorBusyId}
-                providerCards={settings.providerCards} onRefresh={() => void settings.refreshConnectors()}
-                onConnect={(p) => void settings.handleConnectProvider(p)} onValidate={(id) => void settings.handleValidateConnector(id)}
-                onDisconnect={(id) => void settings.handleDisconnectConnector(id)}
+                isSignedIn={isSignedIn}
+                providerCards={settings.providerCards}
+                connectorsLoading={settings.connectorsLoading}
+                connectorBusyProvider={settings.connectorBusyProvider}
+                connectorBusyId={settings.connectorBusyId}
+                handleConnectProvider={settings.handleConnectProvider}
+                handleValidateConnector={settings.handleValidateConnector}
+                handleDisconnectConnector={settings.handleDisconnectConnector}
               />
             )}
 
