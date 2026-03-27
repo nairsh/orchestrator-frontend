@@ -82,13 +82,13 @@ export default {
       },
       /* ─── Box shadows ─── */
       boxShadow: {
-        xs: '0 1px 2px rgba(0,0,0,0.18)',
-        sm: '0 2px 4px rgba(0,0,0,0.2)',
-        DEFAULT: '0 2px 8px rgba(0,0,0,0.22)',
-        md: '0 4px 12px rgba(0,0,0,0.28)',
-        lg: '0 8px 24px rgba(0,0,0,0.34)',
-        dropdown: '0 10px 32px rgba(0,0,0,0.45)',
-        modal: '0 20px 64px rgba(0,0,0,0.5)',
+        xs: '0 1px 2px rgba(0,0,0,0.04)',
+        sm: '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
+        DEFAULT: '0 2px 6px rgba(0,0,0,0.06)',
+        md: '0 4px 12px rgba(0,0,0,0.07)',
+        lg: '0 8px 24px rgba(0,0,0,0.08)',
+        dropdown: '0 8px 30px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04)',
+        modal: '0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.05)',
       },
       /* ─── Transitions ─── */
       transitionDuration: {
