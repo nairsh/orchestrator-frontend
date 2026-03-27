@@ -53,11 +53,11 @@ export function LandingPage({
   const apiConfig: ApiConfig = config;
 
   const SAMPLE_PROMPTS = useMemo(() => [
-    'Analyze my codebase and summarize the architecture',
-    'Write unit tests for the files I upload',
-    'Research the latest breakthroughs in AI',
-    'Create a detailed project plan from my requirements',
-    'Generate a comprehensive code review report',
+    'Research the latest news about electric vehicles',
+    'Summarize this document and pull out key takeaways',
+    'Help me plan a weekend trip to the mountains',
+    'Create a project plan from my requirements',
+    'Compare the top 5 laptops under $1,000',
   ], []);
 
   const handleSampleClick = useCallback((prompt: string) => {
@@ -153,7 +153,7 @@ export function LandingPage({
 
         {/* Heading */}
         <h1 className="font-display text-[40px] font-medium text-primary tracking-tight mb-10 text-center fade-in-up-soft" style={{ lineHeight: 1.15, animationDelay: '40ms' }}>
-          Computer works for you.
+          What can I help you with?
         </h1>
 
         {/* Search box */}
