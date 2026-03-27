@@ -136,7 +136,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
   /* ─── Tab-contextual headings ─── */
   const TAB_HEADINGS: Record<Tab, { title: string; description: string }> = {
     connectors: { title: 'Connectors', description: 'Connect your apps and services so your AI can access and act on your data.' },
-    schedules: { title: 'Schedules', description: 'Automate recurring tasks on a cron or interval basis.' },
+    schedules: { title: 'Schedules', description: 'Automate recurring tasks on a fixed schedule or repeating interval.' },
     templates: { title: 'Templates', description: 'Save and reuse task configurations as starting points.' },
     memory: { title: 'Memory', description: 'Save context your AI can recall across tasks — preferences, facts, or instructions.' },
     teams: { title: 'Teams', description: 'Collaborate with team members and share context across your organization.' },

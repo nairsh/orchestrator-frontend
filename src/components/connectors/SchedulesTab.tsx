@@ -36,7 +36,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
 
     if (scheduleType === 'cron') {
       const cron = scheduleCron.trim();
-      if (!cron) { toastWarning('Cron required', 'Enter a cron expression.'); return null; }
+      if (!cron) { toastWarning('Schedule required', 'Enter a schedule expression.'); return null; }
       return {
         objective, schedule_type: 'cron', cron_expression: cron,
         timezone: scheduleTimezone.trim() || 'UTC', overlap_policy: scheduleOverlapPolicy,
@@ -74,7 +74,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
           <RelayEmpty
             icon={<CalendarClock size={26} className="text-muted" />}
             title="No schedules"
-            description="Create a schedule to automate recurring tasks on a cron or interval basis."
+            description="Create a schedule to automate recurring tasks on a fixed schedule or repeating interval."
           />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
@@ -145,8 +145,8 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
               <Segmented
                 value={scheduleType}
                 options={[
-                  { label: 'Cron', value: 'cron' as ScheduleType },
-                  { label: 'Interval', value: 'interval' as ScheduleType },
+                  { label: 'Custom schedule', value: 'cron' as ScheduleType },
+                  { label: 'Repeating', value: 'interval' as ScheduleType },
                 ]}
                 onChange={(val) => setScheduleType(val as ScheduleType)}
                 size="small"
@@ -154,7 +154,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
             </div>
             <div className="grid gap-3">
               {scheduleType === 'cron' ? (
-                <Input value={scheduleCron} onChange={(e) => setScheduleCron(e.target.value)} placeholder="0 * * * *" label="Cron expression" />
+                <Input value={scheduleCron} onChange={(e) => setScheduleCron(e.target.value)} placeholder="0 * * * *" label="Schedule expression" />
               ) : (
                 <div className="grid grid-cols-[140px_1fr] gap-3">
                   <Input value={scheduleIntervalValue} onChange={(e) => setScheduleIntervalValue(e.target.value)} placeholder="6" label="Interval" />

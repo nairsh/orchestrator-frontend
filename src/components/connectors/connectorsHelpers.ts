@@ -73,5 +73,5 @@ export function getScheduleLabel(schedule: ScheduledWorkflow): string {
   if (schedule.schedule_type === 'interval') {
     return `Every ${schedule.interval_value} ${schedule.interval_unit}`;
   }
-  return schedule.cron_expression ?? 'Custom cron';
+  return schedule.cron_expression ?? 'Custom schedule';
 }
