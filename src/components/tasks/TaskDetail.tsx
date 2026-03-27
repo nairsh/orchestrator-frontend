@@ -1,4 +1,5 @@
-import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2 } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
@@ -41,6 +42,7 @@ export function TaskDetail({
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';
   const isPaused = workflowStatus === 'paused';
+  const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | null>(null);
 
   const handleCommand = async (text: string) => {
     try {
@@ -51,32 +53,35 @@ export function TaskDetail({
   };
 
   const handleRetry = async () => {
+    setActionBusy('retry');
     try {
       await retryWorkflow(config, workflowId);
       toastSuccess('Retrying task');
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Failed to retry task');
-    }
+    } finally { setActionBusy(null); }
   };
 
   const handlePause = async () => {
+    setActionBusy('pause');
     try {
       await pauseWorkflow(config, workflowId);
       toastSuccess('Task paused');
     } catch (err) {
       toastApiError(err, 'Failed to pause task');
-    }
+    } finally { setActionBusy(null); }
   };
 
   const handleCancel = async () => {
+    setActionBusy('cancel');
     try {
       await cancelWorkflow(config, workflowId);
       toastSuccess('Task cancelled');
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Failed to cancel task');
-    }
+    } finally { setActionBusy(null); }
   };
 
   return (
@@ -105,10 +110,11 @@ export function TaskDetail({
               <Button
                 variant="secondary"
                 size="sm"
+                disabled={!!actionBusy}
                 onClick={() => void handleRetry()}
                 className="gap-1.5 text-info border-info/20 hover:bg-info/10"
               >
-                <RefreshCw size={12} />
+                {actionBusy === 'retry' ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
                 Retry
               </Button>
             </Tooltip>
@@ -119,19 +125,21 @@ export function TaskDetail({
                 <Button
                   variant="ghost"
                   size="sm"
+                  disabled={!!actionBusy}
                   onClick={() => void handlePause()}
                 >
-                  <Pause size={12} />
+                  {actionBusy === 'pause' ? <Loader2 size={12} className="animate-spin" /> : <Pause size={12} />}
                 </Button>
               </Tooltip>
               <Tooltip title="Cancel task">
                 <Button
                   variant="danger"
                   size="sm"
+                  disabled={!!actionBusy}
                   onClick={() => void handleCancel()}
                   className="opacity-75 hover:opacity-100"
                 >
-                  <XCircle size={12} />
+                  {actionBusy === 'cancel' ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
                 </Button>
               </Tooltip>
             </>
