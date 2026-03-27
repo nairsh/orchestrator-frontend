@@ -81,7 +81,7 @@ export function LandingPage({
         continue;
       }
       if (runningTotal + file.size > MAX_TOTAL_CONTEXT_BYTES) {
-        toastWarning('Attachment limit reached', 'Total attachments exceed the request limit.');
+        toastWarning('Total file size too large', 'Remove some files before adding more.');
         break;
       }
 
