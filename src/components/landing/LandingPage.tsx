@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { FileText, X, ArrowUp } from 'lucide-react';
+import { FileText, X, ArrowUp, ArrowUpRight } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
@@ -247,17 +247,17 @@ export function LandingPage({
 
         {/* Sample prompts */}
         {value === '' && attachments.length === 0 && (
-          <div className="w-full max-w-2xl px-4 mt-6 mx-auto">
-            {/* Text suggestions */}
-            <div className="flex flex-col gap-3">
+          <div className="w-full max-w-2xl px-4 mt-5 mx-auto">
+            <div className="flex flex-wrap gap-2">
               {SAMPLE_PROMPTS.map((prompt) => (
                 <button
                   key={prompt}
                   type="button"
                   onClick={() => handleSampleClick(prompt)}
-                  className="text-left font-sans text-base text-muted hover:text-secondary transition-colors cursor-pointer bg-transparent border-none p-0"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-secondary hover:text-primary hover:border-border hover:shadow-xs transition-all duration-150 cursor-pointer font-sans"
                 >
-                  {prompt}
+                  <span>{prompt}</span>
+                  <ArrowUpRight size={13} className="text-muted group-hover:text-muted transition-colors flex-shrink-0" />
                 </button>
               ))}
             </div>
