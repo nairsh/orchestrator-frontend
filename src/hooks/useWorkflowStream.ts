@@ -35,6 +35,7 @@ export function useWorkflowStream(
     workflowStatus: 'pending',
     sendMessage: async () => undefined,
     handleApproval: async () => undefined,
+    handleBashApproval: async () => undefined,
   }));
 
   const connectionRef = useRef<{ close: () => void } | null>(null);
@@ -280,5 +281,17 @@ export function useWorkflowStream(
     [config, workflowId]
   );
 
-  return { ...state, sendMessage, handleApproval };
+  const handleBashApproval = useCallback(
+    async (approvalId: string, approved: boolean) => {
+      try {
+        const { approveBashCommand } = await import('../api/client');
+        await approveBashCommand(config, workflowId, approvalId, approved ? 'approve' : 'deny');
+      } catch (err) {
+        toastApiError(err, approved ? "Couldn't approve this command" : "Couldn't reject this command");
+      }
+    },
+    [config, workflowId]
+  );
+
+  return { ...state, sendMessage, handleApproval, handleBashApproval };
 }

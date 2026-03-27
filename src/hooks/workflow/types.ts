@@ -20,6 +20,7 @@ export interface WorkflowStreamState {
   endedAt?: string | null;
   sendMessage: (text: string) => Promise<void>;
   handleApproval: (taskId: string, approved: boolean) => Promise<void>;
+  handleBashApproval: (approvalId: string, approved: boolean) => Promise<void>;
 }
 
 export const STALE_THRESHOLD_MS = 30_000;

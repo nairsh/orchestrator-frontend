@@ -121,6 +121,7 @@ interface FeedItemProps {
   entry: FeedEntry;
   modelIconOverrides?: ModelIconOverrides;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
+  onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
   fullView?: boolean;
 }
 
@@ -128,6 +129,7 @@ export const FeedItem = memo(function FeedItem({
   entry,
   modelIconOverrides,
   onApproval,
+  onBashApproval,
   fullView = false,
 }: FeedItemProps) {
   switch (entry.kind) {
@@ -140,16 +142,16 @@ export const FeedItem = memo(function FeedItem({
     case 'tool_call':
       return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} at={entry.at} />;
     case 'bash_approval':
-      if (onApproval && entry.taskId) {
+      if (onBashApproval && entry.id) {
         return (
           <ApprovalGate
-            taskId={entry.taskId}
+            taskId={entry.id}
             toolName={entry.toolName}
             command={entry.command}
             reason={entry.reason}
             status={entry.status}
-            onApprove={(id) => void onApproval(id, true)}
-            onReject={(id) => void onApproval(id, false)}
+            onApprove={(id) => void onBashApproval(id, true)}
+            onReject={(id) => void onBashApproval(id, false)}
           />
         );
       }

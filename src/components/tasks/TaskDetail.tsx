@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2, Clock, Download } from 'lucide-react';
+import { ArrowLeftToLine, RefreshCw, Play, XCircle, Loader2, Clock, Download } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
-import { retryWorkflow, pauseWorkflow, cancelWorkflow } from '../../api/client';
+import { retryWorkflow, cancelWorkflow } from '../../api/client';
 import { TaskFeed } from './TaskFeed';
 import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
@@ -55,7 +55,7 @@ export function TaskDetail({
   modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
@@ -63,7 +63,7 @@ export function TaskDetail({
   const isPaused = workflowStatus === 'paused';
   const hasPendingClarification = isPaused && !!pendingClarification;
   const duration = isTerminal ? formatDuration(startedAt, endedAt) : null;
-  const [actionBusy, setActionBusy] = useState<'retry' | 'pause' | 'cancel' | 'resume' | null>(null);
+  const [actionBusy, setActionBusy] = useState<'retry' | 'cancel' | 'resume' | null>(null);
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const { addNotification } = useNotifications();
   const notifiedRef = useRef(false);
@@ -107,16 +107,6 @@ export function TaskDetail({
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Couldn\'t retry this task');
-    } finally { setActionBusy(null); }
-  };
-
-  const handlePause = async () => {
-    setActionBusy('pause');
-    try {
-      await pauseWorkflow(config, workflowId);
-      toastSuccess('Task paused');
-    } catch (err) {
-      toastApiError(err, 'Couldn\'t pause this task');
     } finally { setActionBusy(null); }
   };
 
@@ -190,16 +180,6 @@ export function TaskDetail({
           )}
           {isExecuting && (
             <>
-              <Tooltip title="Pause task">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={!!actionBusy}
-                  onClick={() => void handlePause()}
-                >
-                  {actionBusy === 'pause' ? <Loader2 size={12} className="animate-spin" /> : <Pause size={12} />}
-                </Button>
-              </Tooltip>
               {cancelConfirm ? (
                 <div className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20">
                   <span className="text-xs text-danger font-medium">Cancel task?</span>
@@ -267,6 +247,7 @@ export function TaskDetail({
         workflowId={workflowId}
         config={config}
         onApproval={handleApproval}
+        onBashApproval={handleBashApproval}
       />
 
       {/* Clarification panel appears above chat input */}

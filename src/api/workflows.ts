@@ -123,11 +123,28 @@ export async function approveWorkflowTask(
   );
 }
 
+export async function approveBashCommand(
+  config: ApiConfig,
+  workflowId: string,
+  approvalId: string,
+  decision: 'approve' | 'deny'
+): Promise<{ workflow_id: string; approval_id: string; decision: string }> {
+  return request<{ workflow_id: string; approval_id: string; decision: string }>(
+    config,
+    `/v1/workflows/${workflowId}/bash-approve`,
+    { method: 'POST', body: JSON.stringify({ approval_id: approvalId, decision }) }
+  );
+}
+
 export async function getPendingApprovals(
   config: ApiConfig,
   workflowId: string
 ): Promise<{ approvals: ApprovalRequest[] }> {
-  return request<{ approvals: ApprovalRequest[] }>(config, `/v1/workflows/${workflowId}/approve/pending`);
+  const res = await request<{ workflow_id: string; pending_approvals: ApprovalRequest[] }>(
+    config,
+    `/v1/workflows/${workflowId}/pending-approvals`
+  );
+  return { approvals: res.pending_approvals };
 }
 
 export async function getWorkflowProgress(

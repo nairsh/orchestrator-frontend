@@ -25,6 +25,7 @@ interface TaskFeedProps {
   workflowId?: string;
   config?: ApiConfig;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
+  onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
 }
 
 function ParallelToolCalls({
@@ -73,7 +74,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId: _workflowId, config: _config, onApproval }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId: _workflowId, config: _config, onApproval, onBashApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const renderRows = useMemo<RenderRow[]>(() => {
@@ -196,7 +197,7 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
                 {row.kind === 'tool_parallel' ? (
                   <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
                 ) : (
-                  <FeedItem entry={row.entry} modelIconOverrides={modelIconOverrides} onApproval={onApproval} fullView={fullView} />
+                  <FeedItem entry={row.entry} modelIconOverrides={modelIconOverrides} onApproval={onApproval} onBashApproval={onBashApproval} fullView={fullView} />
                 )}
               </div>
             </div>

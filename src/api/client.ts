@@ -15,6 +15,7 @@ export {
   retryWorkflow,
   pauseWorkflow,
   approveWorkflowTask,
+  approveBashCommand,
   getPendingApprovals,
   getWorkflowProgress,
 } from './workflows';
