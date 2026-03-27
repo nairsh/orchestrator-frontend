@@ -259,7 +259,7 @@ export function LandingPage({
                   key={prompt}
                   type="button"
                   onClick={() => handleSampleClick(prompt)}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs transition-all duration-200 cursor-pointer font-sans opacity-0"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs hover:-translate-y-px transition-all duration-200 cursor-pointer font-sans opacity-0"
                   style={{ animation: `fadeInUpSoft 250ms ease-out ${80 + i * 50}ms both` }}
                 >
                   <span>{prompt}</span>
