@@ -98,6 +98,7 @@ export default function App(props: AppProps) {
         options={state.toasterOptions}
       />
       {state.screen === 'landing' ? (
+        <ErrorBoundary inline label="Landing page">
         <LandingPage
           config={state.runtimeConfig}
           onSubmit={(objective, model, contextFiles) => void state.handleLandingSubmit(objective, model, contextFiles)}
@@ -113,7 +114,9 @@ export default function App(props: AppProps) {
           isMobile={state.isMobile}
           modelIconOverrides={modelIconOverrides}
         />
+        </ErrorBoundary>
       ) : state.screen === 'settings' ? (
+        <ErrorBoundary inline label="Settings">
         <SettingsPage
           initialBaseUrl={state.config.baseUrl}
           clerkEnabled={clerkEnabled}
@@ -135,7 +138,9 @@ export default function App(props: AppProps) {
           onOpenTasks={(nav) => state.openTasks(nav as TaskNav)}
           onOpenSearch={() => state.setShowTaskSearch(true)}
         />
+        </ErrorBoundary>
       ) : (
+        <ErrorBoundary inline label="Tasks">
         <TasksPage
           config={state.runtimeConfig}
           initialWorkflowId={state.activeWorkflow?.id}
@@ -156,6 +161,7 @@ export default function App(props: AppProps) {
           initialTaskFullView={state.openTaskInFullView}
           modelIconOverrides={modelIconOverrides}
         />
+        </ErrorBoundary>
       )}
 
       <AppModals state={state} appProps={props} />

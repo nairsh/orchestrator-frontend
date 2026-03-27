@@ -55,16 +55,45 @@ export function LandingPage({
   const submittingRef = useRef(false);
   const apiConfig: ApiConfig = config;
 
-  const SAMPLE_PROMPTS = useMemo(() => [
-    'Research the latest news about electric vehicles',
-    'Summarize this document and pull out key takeaways',
-    'Help me plan a weekend trip to the mountains',
-    'Create a project plan from my requirements',
-    'Compare the top 5 laptops under $1,000',
-  ], []);
+  const SAMPLE_PROMPTS = useMemo(() => {
+    const pool = [
+      // Research
+      '🔍 Research the latest news about electric vehicles',
+      '🔍 What are the top AI startups to watch this year?',
+      '🔍 Compare pricing plans for the top 3 project management tools',
+      // Analysis
+      '📊 Summarize this document and pull out key takeaways',
+      '📊 Analyze the pros and cons of remote work policies',
+      '📊 Compare the top 5 laptops under $1,000',
+      // Planning
+      '📝 Help me plan a weekend trip to the mountains',
+      '📝 Create a project plan from my requirements',
+      '📝 Draft a meal plan for a week of healthy eating',
+      // Code
+      '💻 Write a Python script to analyze CSV data',
+      '💻 Build a REST API with CRUD endpoints',
+      '💻 Create a landing page with HTML and Tailwind CSS',
+      // Creative
+      '✨ Write a professional email to reschedule a meeting',
+      '✨ Generate 10 creative names for a tech startup',
+      '✨ Draft a blog post outline about sustainable energy',
+    ];
+    // Pick 5 random prompts, one from each category when possible
+    const categories = ['🔍', '📊', '📝', '💻', '✨'];
+    const picked: string[] = [];
+    for (const cat of categories) {
+      const options = pool.filter(p => p.startsWith(cat) && !picked.includes(p));
+      if (options.length > 0) {
+        picked.push(options[Math.floor(Math.random() * options.length)]);
+      }
+    }
+    return picked;
+  }, []);
 
   const handleSampleClick = useCallback((prompt: string) => {
-    setValue(prompt);
+    // Strip the emoji prefix (e.g. "🔍 ") before filling the input
+    const clean = prompt.replace(/^[^\w]+\s/, '');
+    setValue(clean);
     textareaRef.current?.focus();
   }, []);
 
