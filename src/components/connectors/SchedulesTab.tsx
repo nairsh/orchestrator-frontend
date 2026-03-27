@@ -123,13 +123,14 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
             <p className="text-sm text-secondary">This will permanently remove the schedule. This cannot be undone.</p>
           </ModalBody>
           <ModalFooter className="justify-end gap-2">
-            <Button variant="ghost" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
-            <Button variant="danger" onClick={async () => {
+            <Button variant="ghost" disabled={busyId === deleteConfirmId} onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button variant="danger" disabled={busyId === deleteConfirmId} onClick={async () => {
               const id = deleteConfirmId;
-              setDeleteConfirmId(null);
-              try { await deleteSchedule(config, id); toastSuccess('Schedule deleted'); void onRefresh(); }
+              setBusyId(id);
+              try { await deleteSchedule(config, id); toastSuccess('Schedule deleted'); setDeleteConfirmId(null); void onRefresh(); }
               catch (err) { toastApiError(err, 'Failed to delete schedule'); }
-            }}>Delete</Button>
+              finally { setBusyId(null); }
+            }}>{busyId === deleteConfirmId ? 'Deleting…' : 'Delete'}</Button>
           </ModalFooter>
         </Modal>
       )}
