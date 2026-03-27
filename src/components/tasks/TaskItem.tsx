@@ -122,15 +122,15 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
         <StatusDot status={workflow.status} />
 
         {/* Title */}
-        <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0" title={displayTitle.length > 30 ? displayTitle : undefined}>
-          {displayTitle.slice(0, 55)}{displayTitle.length > 55 ? '…' : ''}
+        <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0" title={displayTitle}>
+          {displayTitle}
         </span>
 
-        {/* Chevron + subtitle */}
+        {/* Chevron + subtitle — hidden on very narrow viewports */}
         {subtitle && (
           <>
-            <ChevronRight size={12} className="flex-shrink-0 text-muted" />
-            <span className="truncate font-sans text-sm font-normal text-muted flex-shrink min-w-0">
+            <ChevronRight size={12} className="flex-shrink-0 text-muted hidden sm:block" />
+            <span className="truncate font-sans text-sm font-normal text-muted flex-shrink min-w-0 hidden sm:block">
               {subtitle}
             </span>
           </>

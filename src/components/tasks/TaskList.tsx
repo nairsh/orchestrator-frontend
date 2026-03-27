@@ -159,7 +159,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
         onOpenChat={onOpenChat}
       />
 
-      <div className="flex-1 overflow-y-auto flex flex-col hide-scrollbar bg-surface-warm p-6 gap-6">
+      <div className="flex-1 overflow-y-auto flex flex-col hide-scrollbar bg-surface-warm p-3 sm:p-6 gap-4 sm:gap-6">
         <TaskStartInput
           value={startValue}
           onChange={setStartValue}
