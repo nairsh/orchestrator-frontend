@@ -128,7 +128,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
                 <Tooltip title="Success rate (1h)">
                   <span>{formatRate(agent.success_rate_1h)}</span>
                 </Tooltip>
-                <Tooltip title="Average latency">
+                <Tooltip title="Average response time">
                   <span>{formatMs(agent.avg_latency_ms)}</span>
                 </Tooltip>
               </div>

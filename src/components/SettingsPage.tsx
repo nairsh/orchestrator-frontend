@@ -84,7 +84,7 @@ export function SettingsPage({
     try {
       if (requiresAuth) { const token = getAuthToken ? await getAuthToken() : null; if (!token) throw new Error('Sign in to continue.'); }
       await checkHealth({ baseUrl: baseUrl.trim(), getAuthToken }); setStatus('ok');
-    } catch (err) { setStatus('error'); setErrorMsg(err instanceof Error ? err.message : String(err)); }
+    } catch (err) { setStatus('error'); setErrorMsg(err instanceof Error && err.message ? err.message : 'Couldn\'t connect to the server. Check the address and try again.'); }
   };
 
   const handleSave = async () => {

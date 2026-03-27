@@ -109,7 +109,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                     <Button variant="danger" disabled={busyId === schedule.id} onClick={() => setDeleteConfirmId(schedule.id)}>Delete</Button>
                   </div>
                 </div>
-                {schedule.last_error && <Alert className="mt-3" type="error" title={schedule.last_error} variant="outlined" />}
+                {schedule.last_error && <Alert className="mt-3" type="error" title="Last run had an error" description={schedule.last_error} variant="outlined" />}
               </Card>
             ))}
           </div>

@@ -53,14 +53,14 @@ export function SettingsModal({
     try {
       if (requiresAuth) { const token = getAuthToken ? await getAuthToken() : null; if (!token) throw new Error('Sign in to continue.'); }
       await checkHealth({ baseUrl: baseUrl.trim(), getAuthToken }); setStatus('ok');
-    } catch (err) { setStatus('error'); setErrorMsg(err instanceof Error ? err.message : String(err)); }
+    } catch (err) { setStatus('error'); setErrorMsg(err instanceof Error && err.message ? err.message : 'Couldn\'t connect to the server. Check the address and try again.'); }
   };
 
   const handleSave = async () => {
     if (!baseUrl.trim()) return;
     setSaveError(''); setSaving(true);
     try { await onSave(baseUrl.trim()); if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides); toastSuccess('Settings saved', 'Server settings and visual preferences are updated.'); }
-    catch (err) { setSaveError(err instanceof Error ? err.message : String(err)); }
+    catch (err) { setSaveError(err instanceof Error && err.message ? err.message : 'Couldn\'t save settings. Please try again.'); }
     finally { setSaving(false); }
   };
 

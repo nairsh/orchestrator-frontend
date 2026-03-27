@@ -100,7 +100,7 @@ export function LandingPage({
           },
         ]);
       } catch (err) {
-        toastError('Upload failed', err instanceof Error ? err.message : String(err));
+        toastError('Upload failed', err instanceof Error ? err.message : 'Something went wrong — try again.');
       }
     }
   };
