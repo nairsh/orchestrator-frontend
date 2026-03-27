@@ -30,6 +30,7 @@ export function useWorkflowStream(
     liveTasks: [],
     isTerminal: false,
     currentActivity: 'Initializing…',
+    thinkingText: '',
     isStale: false,
     workflowStatus: 'pending',
     sendMessage: async () => undefined,

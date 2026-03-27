@@ -16,6 +16,7 @@ const PARALLEL_TOOL_WINDOW_MS = 1400;
 interface TaskFeedProps {
   feed: FeedEntry[];
   currentActivity?: string;
+  thinkingText?: string;
   isTerminal: boolean;
   isStale?: boolean;
   maxWidth?: number;
@@ -72,7 +73,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId: _workflowId, config: _config, onApproval }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId: _workflowId, config: _config, onApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const renderRows = useMemo<RenderRow[]>(() => {
@@ -203,7 +204,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
         })}
 
         {!isTerminal && currentActivity && (
-          <ThinkingIndicator currentActivity={currentActivity} isStale={isStale} />
+          <ThinkingIndicator currentActivity={currentActivity} thinkingText={thinkingText} isStale={isStale} />
         )}
       </div>
 

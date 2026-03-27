@@ -11,6 +11,7 @@ export interface WorkflowStreamState {
   liveTasks: LiveTask[];
   isTerminal: boolean;
   currentActivity: string;
+  thinkingText: string;
   isStale: boolean;
   workflowStatus: string;
   error?: string;

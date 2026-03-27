@@ -33,6 +33,17 @@ export function reduceWorkflowEvent(
   event: WorkflowEvent,
   ctx: EventReducerContext,
 ): WorkflowStreamState {
+  // Clear thinking text when transitioning away from thinking
+  const clearThinking = event.type !== 'orchestrator_thinking' && prev.thinkingText ? '' : prev.thinkingText;
+  const result = _reduceWorkflowEvent(prev, event, ctx);
+  return result === prev ? result : { ...result, thinkingText: event.type === 'orchestrator_thinking' ? result.thinkingText : clearThinking };
+}
+
+function _reduceWorkflowEvent(
+  prev: WorkflowStreamState,
+  event: WorkflowEvent,
+  ctx: EventReducerContext,
+): WorkflowStreamState {
   switch (event.type) {
     case 'tasks_initialized':
       return handleTasksInitialized(prev, event, ctx);
@@ -171,10 +182,12 @@ export function reduceWorkflowEvent(
     }
 
     case 'orchestrator_thinking': {
+      const thinkingData = event.data as { thinking?: string } | undefined;
       return {
         ...prev,
         feed: appendEnvironmentReadyIfPending(prev.feed, ctx),
         currentActivity: 'Thinking…',
+        thinkingText: thinkingData?.thinking ?? prev.thinkingText,
         isTerminal: false,
         workflowStatus: 'executing',
         pendingClarification: undefined,

@@ -54,7 +54,7 @@ export function TaskDetail({
   modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
@@ -232,6 +232,7 @@ export function TaskDetail({
       <TaskFeed
         feed={feed}
         currentActivity={isTerminal || isPaused ? undefined : currentActivity}
+        thinkingText={isTerminal || isPaused ? undefined : thinkingText}
         isTerminal={isTerminal}
         isStale={isStale}
         maxWidth={contentMaxWidth}
