@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { CalendarClock, Clock3, Loader2 } from 'lucide-react';
-import { Alert, Segmented } from '@lobehub/ui';
+import { Alert } from '@lobehub/ui';
 import type { ApiConfig, CreateScheduleInput } from '../../api/client';
 import { createSchedule, deleteSchedule, updateSchedule } from '../../api/client';
 import type { ScheduledWorkflow } from '../../api/types';
 import { toastApiError, toastSuccess, toastWarning } from '../../lib/toast';
 import { Button, Card, Input, Modal, ModalHeader, ModalBody, ModalFooter, Select } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
-import { formatWhen, getScheduleLabel, intervalUnits, type IntervalUnit, type ScheduleType } from './connectorsHelpers';
+import { formatWhen, getScheduleLabel, intervalUnits, type IntervalUnit } from './connectorsHelpers';
 
 interface SchedulesTabProps {
   schedules: ScheduledWorkflow[];
@@ -21,8 +21,6 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
-  const [scheduleType, setScheduleType] = useState<ScheduleType>('cron');
-  const [scheduleCron, setScheduleCron] = useState('0 * * * *');
   const [scheduleIntervalValue, setScheduleIntervalValue] = useState('6');
   const [scheduleIntervalUnit, setScheduleIntervalUnit] = useState<IntervalUnit>('hours');
   const [scheduleTimezone, setScheduleTimezone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
@@ -33,16 +31,6 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
   const createPayload = (): CreateScheduleInput | null => {
     const objective = scheduleObjective.trim();
     if (!objective) { toastWarning('Task goal required', 'Describe what you want this schedule to do.'); return null; }
-
-    if (scheduleType === 'cron') {
-      const cron = scheduleCron.trim();
-      if (!cron) { toastWarning('Schedule required', 'Enter a schedule expression.'); return null; }
-      return {
-        objective, schedule_type: 'cron', cron_expression: cron,
-        timezone: scheduleTimezone.trim() || 'UTC', overlap_policy: scheduleOverlapPolicy,
-        ...(scheduleWorkingDirectory.trim() ? { working_directory: scheduleWorkingDirectory.trim() } : {}),
-      };
-    }
 
     const intervalValue = Number(scheduleIntervalValue);
     if (!Number.isFinite(intervalValue) || intervalValue <= 0) { toastWarning('Interval required', 'Set a positive interval value.'); return null; }
@@ -141,36 +129,18 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
             <CalendarClock size={18} className="text-muted" />
           </ModalHeader>
           <ModalBody>
-            <div className="mb-4">
-              <Segmented
-                value={scheduleType}
-                options={[
-                  { label: 'Custom schedule', value: 'cron' as ScheduleType },
-                  { label: 'Repeating', value: 'interval' as ScheduleType },
-                ]}
-                onChange={(val) => setScheduleType(val as ScheduleType)}
-                size="small"
-              />
-            </div>
             <div className="grid gap-3">
-              {scheduleType === 'cron' ? (
+              <div className="grid grid-cols-[140px_1fr] gap-3">
+                <Input value={scheduleIntervalValue} onChange={(e) => setScheduleIntervalValue(e.target.value)} placeholder="6" label="Interval" />
                 <div>
-                  <Input value={scheduleCron} onChange={(e) => setScheduleCron(e.target.value)} placeholder="0 * * * *" label="Schedule expression" />
-                  <p className="text-xs text-muted mt-1">Examples: <code className="text-xs">0 * * * *</code> = every hour, <code className="text-xs">0 9 * * *</code> = daily at 9 AM</p>
+                  <Select
+                    label="Unit"
+                    value={scheduleIntervalUnit}
+                    onChange={(e) => setScheduleIntervalUnit(e.target.value as IntervalUnit)}
+                    options={intervalUnits.map((unit) => ({ value: unit, label: unit }))}
+                  />
                 </div>
-              ) : (
-                <div className="grid grid-cols-[140px_1fr] gap-3">
-                  <Input value={scheduleIntervalValue} onChange={(e) => setScheduleIntervalValue(e.target.value)} placeholder="6" label="Interval" />
-                  <div>
-                    <Select
-                      label="Unit"
-                      value={scheduleIntervalUnit}
-                      onChange={(e) => setScheduleIntervalUnit(e.target.value as IntervalUnit)}
-                      options={intervalUnits.map((unit) => ({ value: unit, label: unit }))}
-                    />
-                  </div>
-                </div>
-              )}
+              </div>
               <Input value={scheduleObjective} onChange={(e) => setScheduleObjective(e.target.value)} placeholder="Summarize open GitHub issues and Linear blockers" label="Goal" />
               <Input value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} placeholder="UTC" label="Timezone" />
               <Input value={scheduleWorkingDirectory} onChange={(e) => setScheduleWorkingDirectory(e.target.value)} placeholder="/Users/you/projects/app" label="Working directory" />

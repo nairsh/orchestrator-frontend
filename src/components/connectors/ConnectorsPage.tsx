@@ -6,7 +6,6 @@ import {
   listMemories,
   listSchedules,
   listTeams,
-  listTemplates,
 } from '../../api/client';
 import type {
   ConnectorProvider,
@@ -14,14 +13,12 @@ import type {
   ConnectorRecord,
   Memory,
   ScheduledWorkflow,
-  WorkflowTemplate,
 } from '../../api/types';
 import { toastApiError } from '../../lib/toast';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import type { Tab } from './connectorsHelpers';
 import { ConnectorsTab } from './ConnectorsTab';
 import { SchedulesTab } from './SchedulesTab';
-import { TemplatesTab } from './TemplatesTab';
 import { MemoryTab } from './MemoryTab';
 import { TeamsTab } from './TeamsTab';
 
@@ -39,10 +36,6 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
   const [connectorsLoading, setConnectorsLoading] = useState(false);
   const [connectorBusyId, setConnectorBusyId] = useState<string | null>(null);
   const [connectorBusyProvider, setConnectorBusyProvider] = useState<ConnectorProvider | null>(null);
-
-  /* ─── Templates state ─── */
-  const [templates, setTemplates] = useState<WorkflowTemplate[]>([]);
-  const [templatesLoading, setTemplatesLoading] = useState(false);
 
   /* ─── Schedules state ─── */
   const [schedules, setSchedules] = useState<ScheduledWorkflow[]>([]);
@@ -69,14 +62,6 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
       setConnectors(connectorRes.connectors ?? []);
     } catch (err) { toastApiError(err, 'Couldn\'t load your connections'); }
     finally { setConnectorsLoading(false); }
-  };
-
-  const refreshTemplates = async () => {
-    if (!canUseApi) return;
-    setTemplatesLoading(true);
-    try { const res = await listTemplates(config); setTemplates(res.templates ?? []); }
-    catch (err) { toastApiError(err, 'Couldn\'t load templates'); }
-    finally { setTemplatesLoading(false); }
   };
 
   const refreshSchedules = async () => {
@@ -117,7 +102,6 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
   useEffect(() => {
     if (!canUseApi) return;
     if (tab === 'connectors') void refreshConnectors();
-    if (tab === 'templates') void refreshTemplates();
     if (tab === 'schedules') void refreshSchedules();
     if (tab === 'memory') void refreshMemories();
     if (tab === 'teams') void refreshTeams();
@@ -137,7 +121,6 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
   const TAB_HEADINGS: Record<Tab, { title: string; description: string }> = {
     connectors: { title: 'Connectors', description: 'Connect your apps and services so your AI can access and act on your data.' },
     schedules: { title: 'Schedules', description: 'Automate recurring tasks on a fixed schedule or repeating interval.' },
-    templates: { title: 'Templates', description: 'Save and reuse task configurations as starting points.' },
     memory: { title: 'Memory', description: 'Save context your AI can recall across tasks — preferences, facts, or instructions.' },
     teams: { title: 'Teams', description: 'Collaborate with team members and share context across your organization.' },
   };
@@ -160,7 +143,6 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
             options={[
               { label: 'Connectors', value: 'connectors' as Tab },
               { label: 'Schedules', value: 'schedules' as Tab },
-              { label: 'Templates', value: 'templates' as Tab },
               { label: 'Memory', value: 'memory' as Tab },
               { label: 'Teams', value: 'teams' as Tab },
             ]}
@@ -174,7 +156,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
           <div className="max-w-lg rounded-[28px] border border-border-light bg-surface p-8 text-center shadow-sm">
             <div className="text-lg font-semibold text-primary">Sign in to continue.</div>
             <div className="mt-2 text-sm leading-6 text-secondary">
-              Connectors, schedules, memory, templates, and teams all require you to be signed in.
+              Connectors, schedules, memory, and teams all require you to be signed in.
             </div>
           </div>
         </div>
@@ -187,9 +169,6 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
               setConnectorBusyId={setConnectorBusyId} setConnectorBusyProvider={setConnectorBusyProvider}
               onRefresh={refreshConnectors} config={config}
             />
-          )}
-          {tab === 'templates' && (
-            <TemplatesTab templates={templates} templatesLoading={templatesLoading} config={config} onRefresh={refreshTemplates} onWorkflowStarted={onWorkflowStarted} />
           )}
           {tab === 'schedules' && (
             <SchedulesTab schedules={schedules} schedulesLoading={schedulesLoading} config={config} onRefresh={refreshSchedules} />

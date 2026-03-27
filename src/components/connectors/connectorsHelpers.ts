@@ -3,8 +3,8 @@ import { IconGitHub, IconLinear, IconNotion } from '../icons/CustomIcons';
 
 /* ─── Types ─── */
 
-export type Tab = 'connectors' | 'schedules' | 'templates' | 'memory' | 'teams';
-export type ScheduleType = 'cron' | 'interval';
+export type Tab = 'connectors' | 'schedules' | 'memory' | 'teams';
+export type ScheduleType = 'interval';
 export type IntervalUnit = 'minutes' | 'hours' | 'days' | 'weeks' | 'months';
 
 export const intervalUnits: IntervalUnit[] = ['minutes', 'hours', 'days', 'weeks', 'months'];

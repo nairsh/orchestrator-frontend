@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileSearch, ImageIcon, Loader2, ScanSearch, Trash2 } from 'lucide-react';
+import { FileSearch, ImageIcon, Loader2, ScanSearch, Trash2, UploadCloud } from 'lucide-react';
 import { Highlighter } from '@lobehub/ui';
 import type { KnowledgeDocument, KnowledgeSearchMatch } from '../../api/types';
 import { formatBytes } from './helpers';
@@ -12,6 +12,8 @@ interface KnowledgeSectionProps {
   selectedDocument: KnowledgeDocument | null;
   documentContent: string;
   documentLoading: boolean;
+  uploading?: boolean;
+  onUpload?: (files: FileList | null) => void;
   onSelectDocument: (id: string | null) => void;
   onDeleteDocument: (id: string) => void;
   onClearSearchMatches: () => void;
@@ -25,6 +27,8 @@ export function KnowledgeSection({
   selectedDocument,
   documentContent,
   documentLoading,
+  uploading,
+  onUpload,
   onSelectDocument,
   onDeleteDocument,
   onClearSearchMatches,
@@ -33,7 +37,27 @@ export function KnowledgeSection({
 
   return (
     <div>
-      {fileTab === 'all' && <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted">Knowledge library</h2>}
+      {fileTab === 'all' && (
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">Knowledge library</h2>
+          {onUpload && (
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
+              {uploading ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />}
+              Upload
+              <input type="file" multiple className="hidden" onChange={(event) => onUpload(event.target.files)} />
+            </label>
+          )}
+        </div>
+      )}
+      {fileTab === 'knowledge' && onUpload && (
+        <div className="mb-4 flex justify-end">
+          <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
+            {uploading ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />}
+            Upload
+            <input type="file" multiple className="hidden" onChange={(event) => onUpload(event.target.files)} />
+          </label>
+        </div>
+      )}
 
       {/* Search matches */}
       {searchMatches.length > 0 && (

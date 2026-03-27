@@ -1,4 +1,4 @@
-import { Loader2, Search, UploadCloud } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { Button, Input } from '../ui';
 import { SegmentedControl } from '../ui/SegmentedControl';
 import { FILE_TABS } from './helpers';
@@ -17,18 +17,9 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
     <div className="flex h-full flex-1 overflow-hidden bg-surface-warm">
       <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
         {/* Header */}
-        <div className="mb-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-primary">Files</h1>
-            <p className="mt-1 text-sm text-secondary">Browse task outputs and manage your knowledge library.</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-light bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
-              {state.uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
-              Upload
-              <input type="file" multiple className="hidden" onChange={(event) => void state.handleUploadDocuments(event.target.files)} />
-            </label>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-primary">Files</h1>
+          <p className="mt-1 text-sm text-secondary">Browse task outputs and manage your knowledge library.</p>
         </div>
 
         {/* Search bar */}
@@ -87,6 +78,8 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             selectedDocument={state.selectedDocument}
             documentContent={state.documentContent}
             documentLoading={state.documentLoading}
+            uploading={state.uploading}
+            onUpload={(files) => void state.handleUploadDocuments(files)}
             onSelectDocument={state.setSelectedDocumentId}
             onDeleteDocument={(id) => state.setDeleteDocConfirmId(id)}
             onClearSearchMatches={() => state.setSearchMatches([])}
