@@ -192,13 +192,13 @@
   input[type="email"],
   input[type="search"],
   textarea {
-    @apply outline-none transition-colors duration-150;
+    @apply outline-none transition-colors duration-200;
   }
 
   /* Button base: no outline, pointer */
   button {
     @apply outline-none;
-    transition: background-color 150ms ease, color 150ms ease, opacity 150ms ease, transform 150ms ease;
+    transition: background-color 200ms ease, color 200ms ease, opacity 200ms ease, transform 200ms ease;
   }
 }
 
