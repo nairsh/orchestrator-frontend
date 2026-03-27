@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ChevronDown, Loader2, ArrowUp, X } from 'lucide-react';
+import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
@@ -216,18 +216,19 @@ interface ChatHeaderProps {
   onClose: () => void;
   children?: ReactNode;
   tone?: 'surface' | 'warm';
+  variant?: 'modal' | 'fullscreen';
 }
 
-export function ChatHeader({ title = 'AI Chat', onClose, children, tone = 'surface' }: ChatHeaderProps) {
+export function ChatHeader({ title = 'AI Chat', onClose, children, tone = 'surface', variant = 'modal' }: ChatHeaderProps) {
   return (
-    <div className={`flex items-center justify-between px-5 py-4 border-b border-border-light flex-shrink-0 ${tone === 'warm' ? 'bg-surface-warm' : 'bg-surface'}`}>
-      <div className="flex items-center gap-3">
-        <h2 className="text-sm font-semibold text-primary">{title}</h2>
+    <div className={`flex items-center justify-between px-5 py-3 border-b border-border-light flex-shrink-0 ${tone === 'warm' ? 'bg-surface-warm' : 'bg-surface'}`}>
+      <div className="flex items-center gap-3 min-w-0">
+        <IconButton onClick={onClose} size="md" label={variant === 'fullscreen' ? 'Back' : 'Close'}>
+          {variant === 'fullscreen' ? <ArrowLeft size={18} /> : <X size={16} />}
+        </IconButton>
+        <h2 className="text-sm font-semibold text-primary truncate">{title}</h2>
         {children}
       </div>
-      <IconButton onClick={onClose} size="md" label="Close">
-        <X size={16} />
-      </IconButton>
     </div>
   );
 }
