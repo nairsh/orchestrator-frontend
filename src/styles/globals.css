@@ -390,25 +390,45 @@
   overflow: hidden;
 }
 
+/* ─── Sileo toast overrides ─── */
+
 [data-sileo-viewport] {
-  --sileo-width: 360px;
+  --sileo-width: 340px;
+  --sileo-state-success: oklch(0.52 0.14 155);
+  --sileo-state-error: oklch(0.52 0.16 22);
+  --sileo-state-warning: oklch(0.58 0.13 65);
+  --sileo-state-info: oklch(0.48 0.10 250);
+  --sileo-state-action: oklch(0.48 0.12 260);
 }
 
 [data-sileo-toast] {
-  filter: drop-shadow(0 12px 28px rgba(12, 12, 12, 0.08));
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.10)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.06));
+}
+
+[data-sileo-svg] path {
+  stroke: var(--relay-border-light);
+  stroke-width: 1;
 }
 
 [data-sileo-title].relay-toast-title {
   font-family: Inter, -apple-system, sans-serif;
   font-size: 13px;
+  font-weight: 550;
   letter-spacing: -0.01em;
+  text-transform: none;
 }
 
 [data-sileo-description].relay-toast-description {
   font-family: Inter, sans-serif;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--relay-secondary);
+  padding: 0.75rem 1rem 1rem;
+}
+
+[data-sileo-badge] {
+  width: 22px;
+  height: 22px;
 }
 
 /* ─── Font stacks ─── */

@@ -5,58 +5,58 @@ const SUCCESS_DURATION_MS = 2200;
 const WARNING_DURATION_MS = 3200;
 const ERROR_DURATION_MS = 4200;
 
+function isDarkMode(): boolean {
+  return document.documentElement.getAttribute('data-theme') !== 'light';
+}
+
+function toastFill(lightFill: string, darkFill: string): string {
+  return isDarkMode() ? darkFill : lightFill;
+}
+
+const TOAST_BASE = {
+  roundness: 20,
+  styles: {
+    title: 'relay-toast-title',
+    description: 'relay-toast-description',
+  },
+};
+
 export function toastInfo(title: string, description?: string) {
   sileo.info({
+    ...TOAST_BASE,
     title,
     duration: INFO_DURATION_MS,
-    fill: '#f6f1e7',
-    roundness: 22,
-    styles: {
-      title: 'relay-toast-title',
-      description: 'relay-toast-description',
-    },
+    fill: toastFill('#ffffff', '#282624'),
     ...(description ? { description } : {}),
   });
 }
 
 export function toastSuccess(title: string, description?: string) {
   sileo.success({
+    ...TOAST_BASE,
     title,
     duration: SUCCESS_DURATION_MS,
-    fill: '#edf7ef',
-    roundness: 22,
-    styles: {
-      title: 'relay-toast-title',
-      description: 'relay-toast-description',
-    },
+    fill: toastFill('#ffffff', '#282624'),
     ...(description ? { description } : {}),
   });
 }
 
 export function toastWarning(title: string, description?: string) {
   sileo.warning({
+    ...TOAST_BASE,
     title,
     duration: WARNING_DURATION_MS,
-    fill: '#fbf2df',
-    roundness: 22,
-    styles: {
-      title: 'relay-toast-title',
-      description: 'relay-toast-description',
-    },
+    fill: toastFill('#ffffff', '#282624'),
     ...(description ? { description } : {}),
   });
 }
 
 export function toastError(title: string, description?: string) {
   sileo.error({
+    ...TOAST_BASE,
     title,
     duration: ERROR_DURATION_MS,
-    fill: '#fbe9e7',
-    roundness: 22,
-    styles: {
-      title: 'relay-toast-title',
-      description: 'relay-toast-description',
-    },
+    fill: toastFill('#ffffff', '#282624'),
     ...(description ? { description } : {}),
   });
 }
@@ -79,4 +79,9 @@ function normalizeAuthError(message: string): string {
     return 'Sign in with Clerk to continue.';
   }
   return message;
+}
+
+// Debug: expose toast functions for browser console testing
+if (import.meta.env.DEV) {
+  (window as any).__toast = { toastInfo, toastSuccess, toastWarning, toastError, sileo };
 }

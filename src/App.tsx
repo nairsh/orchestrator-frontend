@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useConfig } from './hooks/useConfig';
 import { LandingPage } from './components/landing/LandingPage';
@@ -58,6 +58,26 @@ export default function App({
   const [openTaskInFullView, setOpenTaskInFullView] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [showTaskSearch, setShowTaskSearch] = useState(false);
+
+  // Track theme for Toaster
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  });
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setThemeMode(document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
+  const toasterOptions = useMemo(() => ({
+    roundness: 20,
+    fill: themeMode === 'dark' ? '#282624' : '#ffffff',
+    styles: {
+      title: 'relay-toast-title',
+      description: 'relay-toast-description',
+    },
+  }), [themeMode]);
   const [showOnboarding, setShowOnboarding] = useState(() => !hasCompletedOnboarding());
   const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false);
 
@@ -256,15 +276,8 @@ export default function App({
       <Toaster
         position="top-right"
         offset={{ top: 18, right: 18 }}
-        theme="light"
-        options={{
-          roundness: 22,
-          fill: '#f7f3ec',
-          styles: {
-            title: 'relay-toast-title',
-            description: 'relay-toast-description',
-          },
-        }}
+        theme={themeMode}
+        options={toasterOptions}
       />
       {screen === 'landing' ? (
         <LandingPage
