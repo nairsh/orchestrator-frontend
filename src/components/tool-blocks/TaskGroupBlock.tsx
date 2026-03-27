@@ -1,5 +1,6 @@
 import { Tag, Tooltip } from '@lobehub/ui';
 import type { LiveTask } from '../../api/types';
+import { agentDisplayName } from '../tasks/feed/feedHelpers';
 
 interface TaskGroupBlockProps {
   tasks: LiveTask[];
@@ -54,8 +55,8 @@ export function TaskGroupBlock({ tasks }: TaskGroupBlockProps) {
             <div className="flex-1 min-w-0">
               <div className="text-primary text-xs leading-relaxed">{task.description}</div>
               {task.agent_type && task.agent_type !== 'task' && (
-                <Tag color={agentTagColor(task.agent_type)} size="small" className="mt-0.5 capitalize">
-                  {task.agent_type} agent
+                <Tag color={agentTagColor(task.agent_type)} size="small" className="mt-0.5">
+                  {agentDisplayName(task.agent_type)}
                 </Tag>
               )}
             </div>

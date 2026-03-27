@@ -26,3 +26,4 @@ c01a3f9	settings	low	keep	"Agent Health" → "Model Health" in settings panel
 506e641	connectors	high	keep	inline delete confirmation for schedules/memories; fix "Sub Agent" → "AI" fallback label
 7e1bbb4	connectors	medium	keep	OAuth toast clarity: "validate" → "Test connection"; guide user through refresh step after sign-in
 489a1d3	skills	low	keep	humanize tool slug tags in skill detail; skill editor jargon cleanup
+9a227f5	settings	low	keep	remove orchestrator/subagents jargon from routing panel, hide raw agent IDs

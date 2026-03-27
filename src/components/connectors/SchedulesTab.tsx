@@ -87,7 +87,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                     <div className="mt-3 text-xs leading-5 text-muted">
                       Next: {formatWhen(schedule.next_run_at)}<br />
                       Timezone: {schedule.timezone} • {schedule.overlap_policy === 'skip' ? 'Skip if already running' : 'Queue overlapping run'}<br />
-                      {schedule.status.charAt(0).toUpperCase() + schedule.status.slice(1)}{schedule.last_run_status ? ` • Last run: ${schedule.last_run_status}` : ''}
+                      {schedule.status.charAt(0).toUpperCase() + schedule.status.slice(1)}{schedule.last_run_status ? ` • Last: ${schedule.last_run_status.charAt(0).toUpperCase() + schedule.last_run_status.slice(1)}` : ''}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
