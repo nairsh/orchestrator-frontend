@@ -44,6 +44,7 @@ export function TaskFilesSection({
         <div className="flex items-center gap-3">
           <select
             value={selectedWorkflowId ?? ''}
+            aria-label="Select workflow"
             onChange={(e) => {
               onSelectWorkflow(e.target.value || null);
               const wf = workflows.find((w) => w.id === e.target.value);

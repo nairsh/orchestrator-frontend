@@ -152,6 +152,7 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
                   setSelectedOption(customOptionIndex);
                 }}
                 placeholder="Tell Relay what to do differently"
+                aria-label="Custom response"
                 disabled={isSubmitting}
                 className="w-full px-3 py-2 rounded-md border border-border-light bg-surface text-[13px] placeholder:text-muted focus:outline-none focus:border-border focus:ring-1 focus:ring-border/50"
               />

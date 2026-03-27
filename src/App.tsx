@@ -90,7 +90,7 @@ export default function App(props: AppProps) {
 
   return (
     <ErrorBoundary>
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col" role="main">
       <Toaster
         position="top-right"
         offset={{ top: 18, right: 18 }}

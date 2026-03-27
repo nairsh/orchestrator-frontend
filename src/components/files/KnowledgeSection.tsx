@@ -45,7 +45,7 @@ export function KnowledgeSection({
             <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
               {uploading ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />}
               Upload
-              <input type="file" multiple className="hidden" onChange={(event) => onUpload(event.target.files)} />
+              <input type="file" multiple className="hidden" aria-label="Upload files" onChange={(event) => onUpload(event.target.files)} />
             </label>
           )}
         </div>
@@ -55,7 +55,7 @@ export function KnowledgeSection({
           <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
             {uploading ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />}
             Upload
-            <input type="file" multiple className="hidden" onChange={(event) => onUpload(event.target.files)} />
+            <input type="file" multiple className="hidden" aria-label="Upload files" onChange={(event) => onUpload(event.target.files)} />
           </label>
         </div>
       )}
