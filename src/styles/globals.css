@@ -72,6 +72,7 @@
 @font-face {
   font-family: "Styrene A Web";
   font-weight: 400;
+  font-display: swap;
   src: url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.eot");
   src: url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.eot?#iefix")format("embedded-opentype"),
   url("https://db.onlinewebfonts.com/t/42131fc81afb12c7fca10b4586565737.woff2")format("woff2"),
@@ -83,6 +84,7 @@
 @font-face {
   font-family: "Styrene A Web";
   font-weight: 500;
+  font-display: swap;
   src: url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.eot");
   src: url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.eot?#iefix")format("embedded-opentype"),
   url("https://db.onlinewebfonts.com/t/7aec0c3c3c4c0ea2d2c94e4b389dbb1e.woff2")format("woff2"),
@@ -93,6 +95,7 @@
 
 @font-face {
   font-family: "Styrene B Thin Trial";
+  font-display: swap;
   src: url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.eot");
   src: url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.eot?#iefix")format("embedded-opentype"),
   url("https://db.onlinewebfonts.com/t/2e2847d4a8bd4c763cde953706e7434e.woff2")format("woff2"),

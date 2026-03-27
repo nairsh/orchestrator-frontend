@@ -29,6 +29,7 @@ export function useWorkflowStream(
     feed: objective ? [{ kind: 'prompt', text: objective }] : [],
     liveTasks: [],
     isTerminal: false,
+    hydrated: false,
     currentActivity: 'Initializing…',
     thinkingText: '',
     isStale: false,
@@ -177,6 +178,7 @@ export function useWorkflowStream(
           feed: withCompletion,
           liveTasks,
           isTerminal,
+          hydrated: true,
           currentActivity:
             details.workflow.status === 'paused'
               ? 'Waiting for your reply…'
@@ -198,8 +200,20 @@ export function useWorkflowStream(
         if (!isTerminal) {
           connect();
         }
-      } catch {
-        // ignore hydration errors
+      } catch (err) {
+        if (!cancelled) {
+          const msg = err instanceof Error ? err.message : 'Unknown error';
+          setState((prev) => ({
+            ...prev,
+            isTerminal: true,
+            currentActivity: 'Connection failed',
+            workflowStatus: 'failed',
+            feed: [
+              ...prev.feed,
+              { kind: 'ai_message', text: `Failed to load workflow: ${msg}` } as FeedEntry,
+            ],
+          }));
+        }
       }
     })();
 

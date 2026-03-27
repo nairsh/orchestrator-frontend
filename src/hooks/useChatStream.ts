@@ -31,8 +31,7 @@ interface UseChatStreamOptions {
 }
 
 /**
- * Shared hook that encapsulates the SSE streaming logic duplicated
- * across ChatModal and FullPageChat.
+ * Shared hook that encapsulates the SSE chat streaming logic.
  */
 export function useChatStream({ config, model }: UseChatStreamOptions) {
   const [messages, setMessages] = useState<ChatMessage[]>(loadPersistedMessages);

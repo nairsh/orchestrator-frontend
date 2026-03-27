@@ -10,6 +10,8 @@ export interface WorkflowStreamState {
   feed: FeedEntry[];
   liveTasks: LiveTask[];
   isTerminal: boolean;
+  /** True once REST hydration has completed (initial state loaded from server). */
+  hydrated: boolean;
   currentActivity: string;
   thinkingText: string;
   isStale: boolean;

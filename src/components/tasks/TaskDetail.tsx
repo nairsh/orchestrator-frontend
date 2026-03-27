@@ -55,7 +55,7 @@ export function TaskDetail({
   modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
@@ -67,11 +67,21 @@ export function TaskDetail({
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const { addNotification } = useNotifications();
   const notifiedRef = useRef(false);
-  const wasTerminalOnMountRef = useRef(isTerminal);
+  // Captures the terminal state at the moment hydration completes
+  const terminalAtHydrationRef = useRef<boolean | null>(null);
 
-  // Emit notification when workflow reaches terminal state (only for live transitions)
+  // Record the terminal state when hydration first completes
   useEffect(() => {
-    if (!isTerminal || notifiedRef.current || wasTerminalOnMountRef.current) return;
+    if (hydrated && terminalAtHydrationRef.current === null) {
+      terminalAtHydrationRef.current = isTerminal;
+    }
+  }, [hydrated, isTerminal]);
+
+  // Only notify for live transitions: task was non-terminal after hydration, then became terminal
+  useEffect(() => {
+    if (!hydrated || terminalAtHydrationRef.current === null) return;
+    if (terminalAtHydrationRef.current) return; // Was already terminal at hydration
+    if (!isTerminal || notifiedRef.current) return;
     notifiedRef.current = true;
     const truncatedObjective = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
     if (workflowStatus === 'completed') {

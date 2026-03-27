@@ -34,6 +34,12 @@ export function SettingsIconsInlinePanel({
         <h2 className="text-[15px] font-medium text-primary mb-1">AI icons</h2>
         <p className="text-[13px] text-secondary mb-5">Choose a custom icon for each AI option.</p>
 
+        {modelsStatus === 'error' && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-[13px] text-red-500">
+            Could not load models. Check your server URL and try again.
+          </div>
+        )}
+
         {sortedModels.length === 0 && modelsStatus !== 'error' && (
           <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-muted">
             No AI options available yet.

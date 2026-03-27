@@ -104,6 +104,7 @@ export function SettingsGeneralPanel({
             <span className="text-secondary">options available</span>
           </div>
           {modelsStatus === 'loading' && <Loader2 size={14} className="animate-spin text-muted" />}
+          {modelsStatus === 'error' && <span className="text-[12px] text-red-500">Failed to load</span>}
         </div>
       </section>
 

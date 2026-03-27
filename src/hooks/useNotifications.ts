@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface Notification {
   id: string;
@@ -8,6 +8,15 @@ export interface Notification {
   workflowId?: string;
   read: boolean;
   timestamp: number;
+}
+
+export interface NotificationState {
+  notifications: Notification[];
+  addNotification: (notif: Omit<Notification, 'id' | 'read' | 'timestamp'>) => Notification;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  clearAll: () => void;
+  unreadCount: number;
 }
 
 const STORAGE_KEY = 'relay:notifications';
@@ -26,7 +35,19 @@ function saveNotifications(notifications: Notification[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications.slice(0, MAX_NOTIFICATIONS)));
 }
 
-export function useNotifications() {
+const NotificationContext = createContext<NotificationState | null>(null);
+
+export const NotificationProvider = NotificationContext.Provider;
+
+/** Must be called inside a NotificationProvider tree. */
+export function useNotifications(): NotificationState {
+  const ctx = useContext(NotificationContext);
+  if (!ctx) throw new Error('useNotifications must be used within NotificationProvider');
+  return ctx;
+}
+
+/** Creates the single notification state instance — call once at the app root. */
+export function useNotificationStore(): NotificationState {
   const [notifications, setNotifications] = useState<Notification[]>(loadNotifications);
   const notifRef = useRef(notifications);
   notifRef.current = notifications;
@@ -60,5 +81,7 @@ export function useNotifications() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  return { notifications, addNotification, markAsRead, markAllAsRead, clearAll, unreadCount };
+  return useMemo(() => ({
+    notifications, addNotification, markAsRead, markAllAsRead, clearAll, unreadCount,
+  }), [notifications, addNotification, markAsRead, markAllAsRead, clearAll, unreadCount]);
 }

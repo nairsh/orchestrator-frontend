@@ -8,6 +8,7 @@ import { Toaster } from 'sileo';
 import { BrandMark, BrandWordmark } from './components/branding/Brand';
 import { useAppState } from './hooks/useAppState';
 import { AppModals } from './AppModals';
+import { NotificationProvider, useNotificationStore } from './hooks/useNotifications';
 import type { AppProps, TaskNav } from './appTypes';
 
 export default function App(props: AppProps) {
@@ -25,6 +26,7 @@ export default function App(props: AppProps) {
   } = props;
 
   const state = useAppState(props);
+  const notificationStore = useNotificationStore();
 
   if (clerkEnabled && !authLoaded) {
     return (
@@ -89,6 +91,7 @@ export default function App(props: AppProps) {
   }
 
   return (
+    <NotificationProvider value={notificationStore}>
     <ErrorBoundary>
     <div className="h-screen flex flex-col" role="main">
       <Toaster
@@ -167,5 +170,6 @@ export default function App(props: AppProps) {
       <AppModals state={state} appProps={props} />
     </div>
     </ErrorBoundary>
+    </NotificationProvider>
   );
 }
