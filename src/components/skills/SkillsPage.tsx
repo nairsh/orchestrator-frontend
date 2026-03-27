@@ -197,7 +197,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
     setSaving(true);
     try {
       const response = await importSkill(config, { skill_id: id, markdown: importMarkdown });
-      toastSuccess('Skill imported', response.skill.id);
+      toastSuccess('Skill imported', formatSkillName(response.skill.id));
       setEditorOpen(false);
       await loadSkills(response.skill.id);
     } catch (error) {

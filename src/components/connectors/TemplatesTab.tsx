@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, Loader2 } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { createWorkflow, useTemplate } from '../../api/client';
 import type { WorkflowTemplate } from '../../api/types';
@@ -23,10 +23,11 @@ export function TemplatesTab({ templates, templatesLoading, config, onRefresh, o
     <div className="space-y-4">
       <div className="flex items-end gap-2.5">
         <div className="flex-1">
-          <Input label="Objective" value={objective} onChange={(e) => setObjective(e.target.value)} placeholder="What should this template do?" />
+          <Input label="Goal" value={objective} onChange={(e) => setObjective(e.target.value)} placeholder="Describe what you want to accomplish…" />
         </div>
-        <Button variant="secondary" onClick={() => void onRefresh()}>
-          {templatesLoading ? 'Loading...' : 'Refresh'}
+        <Button variant="secondary" disabled={templatesLoading} onClick={() => void onRefresh()} className="gap-1.5">
+          {templatesLoading ? <Loader2 size={13} className="animate-spin" /> : null}
+          {templatesLoading ? 'Loading…' : 'Refresh'}
         </Button>
       </div>
 
@@ -48,7 +49,7 @@ export function TemplatesTab({ templates, templatesLoading, config, onRefresh, o
                 </div>
                 <Button disabled={!!startingId} onClick={async () => {
                   const obj = objective.trim();
-                  if (!obj) { toastWarning('Objective required', 'Enter an objective to use a template.'); return; }
+                  if (!obj) { toastWarning('Goal required', 'Enter a goal to start from this template.'); return; }
                   setStartingId(tpl.id);
                   try {
                     const res = await useTemplate(config, tpl.id, obj);
