@@ -65,8 +65,7 @@ export function TaskStartInput({
             onClick={onStart}
             disabled={!value.trim() || starting}
             aria-label="Start task"
-            className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity duration-200 ${value.trim() && !starting ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'}`}
-            style={{ backgroundColor: 'var(--relay-primary, #1a1a1a)', color: 'var(--relay-surface, white)' }}
+            className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity duration-200 bg-primary text-surface ${value.trim() && !starting ? 'opacity-100 cursor-pointer' : 'opacity-30 cursor-not-allowed'}`}
           >
             {starting ? <Loader2 size={14} className="animate-spin" /> : <ArrowUp size={15} />}
           </button>

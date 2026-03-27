@@ -73,7 +73,8 @@ export function TaskListHeader({
                   return;
                 }
                 const total = billingCredits + periodCreditsUsed;
-                const pct = total > 0 ? Math.round((billingCredits / total) * 100) : 0;
+                const pct = total > 0 ? Math.round((billingCredits / total) * 100) : 100;
+                const hasUsageData = periodCreditsUsed > 0;
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
                 sileo.info({
@@ -83,13 +84,19 @@ export function TaskListHeader({
                   fill: isDark ? '#282624' : '#ffffff',
                   styles: { title: 'relay-toast-title', description: 'relay-toast-description' },
                   description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' } },
-                    createElement('div', { style: { width: '100%', height: '6px', borderRadius: '3px', background: isDark ? '#3a3836' : '#e8e5e0', overflow: 'hidden' } },
-                      createElement('div', { style: { width: `${pct}%`, height: '100%', borderRadius: '3px', background: pct > 20 ? '#6b8f71' : '#c4573a', transition: 'width 0.4s ease' } })
-                    ),
-                    createElement('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#b0aca6' : '#706b64' } },
-                      createElement('span', null, `${pct}% remaining`),
-                      createElement('span', null, `${periodCreditsUsed.toFixed(0)} used`)
-                    ),
+                    hasUsageData
+                      ? createElement('div', { style: { width: '100%', height: '6px', borderRadius: '3px', background: isDark ? '#3a3836' : '#e8e5e0', overflow: 'hidden' } },
+                          createElement('div', { style: { width: `${pct}%`, height: '100%', borderRadius: '3px', background: pct > 20 ? '#6b8f71' : '#c4573a', transition: 'width 0.4s ease' } })
+                        )
+                      : null,
+                    hasUsageData
+                      ? createElement('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#b0aca6' : '#706b64' } },
+                          createElement('span', null, `${pct}% remaining`),
+                          createElement('span', null, `${periodCreditsUsed.toFixed(0)} used`)
+                        )
+                      : createElement('div', { style: { fontSize: '12px', color: isDark ? '#b0aca6' : '#706b64' } },
+                          `${billingCredits.toFixed(0)} credits available`
+                        ),
                     createElement('div', { style: { fontSize: '11px', color: isDark ? '#8a8580' : '#918b84', marginTop: '2px' } },
                       `Plan: ${billing.data.tier}`
                     )

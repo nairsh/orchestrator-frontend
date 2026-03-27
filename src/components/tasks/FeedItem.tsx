@@ -1,5 +1,6 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Alert, Highlighter } from '@lobehub/ui';
+import { ChevronDown } from 'lucide-react';
 import type { FeedEntry } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { CitationCard } from '../CitationCard';
@@ -12,14 +13,30 @@ import { FeedToolCall } from './feed/FeedToolCall';
 import { parseCitationsFromText } from './feed/feedHelpers';
 import { ApprovalGate } from '../ApprovalGate';
 
+const USER_BUBBLE_TRUNCATE_CHARS = 600;
 
 function UserBubble({ text, fullView = false }: { text: string; fullView?: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const shouldTruncate = text.length > USER_BUBBLE_TRUNCATE_CHARS;
+  const displayText = shouldTruncate && !expanded ? `${text.slice(0, USER_BUBBLE_TRUNCATE_CHARS)}…` : text;
+
   return (
     <div className="w-full flex justify-end">
-      <div className={`inline-flex rounded-2xl px-3.5 py-2.5 max-w-[72%] min-h-[38px] items-center ${fullView ? 'bg-surface-hover border border-border-subtle/50' : 'bg-userbubble border border-border-subtle/40 shadow-[0_1px_0_rgba(0,0,0,0.03)]'}`}>
+      <div className={`inline-flex flex-col rounded-2xl px-3.5 py-2.5 max-w-[72%] min-h-[38px] ${fullView ? 'bg-surface-hover border border-border-subtle/50' : 'bg-userbubble border border-border-subtle/40 shadow-[0_1px_0_rgba(0,0,0,0.03)]'}`}>
         <span className="font-sans text-md leading-relaxed text-primary whitespace-pre-wrap break-all">
-          {text}
+          {displayText}
         </span>
+        {shouldTruncate && (
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="mt-1 flex items-center gap-0.5 text-xs text-muted hover:text-primary bg-transparent border-none p-0 cursor-pointer font-sans self-start"
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Show less' : 'Show more'}
+            <ChevronDown size={12} className="transition-transform duration-slow" style={{ transform: expanded ? 'rotate(180deg)' : 'none' }} />
+          </button>
+        )}
       </div>
     </div>
   );
