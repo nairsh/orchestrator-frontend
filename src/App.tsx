@@ -199,7 +199,7 @@ export default function App({
         <div className="w-full max-w-md rounded-2xl border border-border bg-surface p-6 shadow-sm">
           <div className="font-sans text-xl font-semibold text-primary">Sign in required</div>
           <p className="mt-2 font-sans text-sm text-secondary">
-            Sign in with Clerk to unlock authenticated API features. You can still inspect the app shell and configure the server URL in Settings.
+            Sign in to unlock all features. You can still configure the server URL in Settings.
           </p>
           <div className="mt-5 flex gap-2">
             <button
@@ -207,7 +207,7 @@ export default function App({
               onClick={() => void onSignIn?.()}
               className="flex-1 rounded-lg border border-border bg-surface-tertiary px-3 py-2 text-sm font-medium text-primary hover:bg-surface-hover"
             >
-              Sign in with Clerk
+              Sign in
             </button>
             <button
               type="button"
