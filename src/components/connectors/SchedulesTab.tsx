@@ -19,6 +19,8 @@ interface SchedulesTabProps {
 export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }: SchedulesTabProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const [scheduleType, setScheduleType] = useState<ScheduleType>('cron');
   const [scheduleCron, setScheduleCron] = useState('0 * * * *');
   const [scheduleIntervalValue, setScheduleIntervalValue] = useState('6');
@@ -91,15 +93,19 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="secondary" onClick={async () => {
+                    <Button variant="secondary" disabled={busyId === schedule.id} onClick={async () => {
+                      setBusyId(schedule.id);
                       try { const { triggerSchedule } = await import('../../api/client'); await triggerSchedule(config, schedule.id); toastSuccess('Triggered'); void onRefresh(); }
                       catch (err) { toastApiError(err, 'Failed to trigger schedule'); }
-                    }}>Run now</Button>
-                    <Button variant="secondary" onClick={async () => {
+                      finally { setBusyId(null); }
+                    }}>{busyId === schedule.id ? 'Running…' : 'Run now'}</Button>
+                    <Button variant="secondary" disabled={busyId === schedule.id} onClick={async () => {
+                      setBusyId(schedule.id);
                       try { await updateSchedule(config, schedule.id, { status: schedule.status === 'paused' ? 'active' : 'paused' }); toastSuccess('Updated'); void onRefresh(); }
                       catch (err) { toastApiError(err, 'Failed to update schedule'); }
+                      finally { setBusyId(null); }
                     }}>{schedule.status === 'paused' ? 'Resume' : 'Pause'}</Button>
-                    <Button variant="danger" onClick={() => setDeleteConfirmId(schedule.id)}>Delete</Button>
+                    <Button variant="danger" disabled={busyId === schedule.id} onClick={() => setDeleteConfirmId(schedule.id)}>Delete</Button>
                   </div>
                 </div>
                 {schedule.last_error && <Alert className="mt-3" type="error" title={schedule.last_error} variant="outlined" />}
@@ -176,12 +182,14 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
           </ModalBody>
           <ModalFooter className="justify-end gap-2">
             <Button variant="secondary" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={async () => {
+            <Button disabled={creating} onClick={async () => {
               const payload = createPayload();
               if (!payload) return;
+              setCreating(true);
               try { await createSchedule(config, payload); toastSuccess('Schedule created'); setScheduleObjective(''); setShowDialog(false); void onRefresh(); }
               catch (err) { toastApiError(err, 'Failed to create schedule'); }
-            }}>Create schedule</Button>
+              finally { setCreating(false); }
+            }}>{creating ? 'Creating…' : 'Create schedule'}</Button>
           </ModalFooter>
         </Modal>
       )}

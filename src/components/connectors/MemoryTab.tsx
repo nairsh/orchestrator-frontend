@@ -17,6 +17,8 @@ interface MemoryTabProps {
 export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: MemoryTabProps) {
   const [showDialog, setShowDialog] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [memoryKey, setMemoryKey] = useState('');
   const [memoryCategory, setMemoryCategory] = useState('general');
   const [memoryContent, setMemoryContent] = useState('');
@@ -65,13 +67,14 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
             <p className="text-sm text-secondary">This will permanently remove the memory. This cannot be undone.</p>
           </ModalBody>
           <ModalFooter className="justify-end gap-2">
-            <Button variant="ghost" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
-            <Button variant="danger" onClick={async () => {
+            <Button variant="ghost" disabled={deleting} onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button variant="danger" disabled={deleting} onClick={async () => {
               const id = deleteConfirmId;
-              setDeleteConfirmId(null);
-              try { await deleteMemory(config, id); toastSuccess('Memory deleted'); void onRefresh(); }
+              setDeleting(true);
+              try { await deleteMemory(config, id); setDeleteConfirmId(null); toastSuccess('Memory deleted'); void onRefresh(); }
               catch (err) { toastApiError(err, 'Failed to delete memory'); }
-            }}>Delete</Button>
+              finally { setDeleting(false); }
+            }}>{deleting ? 'Deleting…' : 'Delete'}</Button>
           </ModalFooter>
         </Modal>
       )}
@@ -93,16 +96,18 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
             </div>
           </ModalBody>
           <ModalFooter className="justify-end gap-2">
-            <Button variant="secondary" onClick={() => setShowDialog(false)}>Cancel</Button>
-            <Button onClick={async () => {
+            <Button variant="secondary" disabled={saving} onClick={() => setShowDialog(false)}>Cancel</Button>
+            <Button disabled={saving} onClick={async () => {
               const key = memoryKey.trim();
               const content = memoryContent.trim();
               if (!key || !content) { toastWarning('Missing fields', 'Key and content are required.'); return; }
+              setSaving(true);
               try {
                 await saveMemory(config, { key, content, category: memoryCategory.trim() || undefined });
                 toastSuccess('Saved'); setMemoryKey(''); setMemoryContent(''); setShowDialog(false); void onRefresh();
               } catch (err) { toastApiError(err, 'Failed to save memory'); }
-            }}>Save memory</Button>
+              finally { setSaving(false); }
+            }}>{saving ? 'Saving…' : 'Save memory'}</Button>
           </ModalFooter>
         </Modal>
       )}

@@ -17,6 +17,7 @@ interface TemplatesTabProps {
 
 export function TemplatesTab({ templates, templatesLoading, config, onRefresh, onWorkflowStarted }: TemplatesTabProps) {
   const [objective, setObjective] = useState('');
+  const [startingId, setStartingId] = useState<string | null>(null);
 
   return (
     <div className="space-y-4">
@@ -45,16 +46,18 @@ export function TemplatesTab({ templates, templatesLoading, config, onRefresh, o
                   <div className="mt-2 text-sm leading-6 text-muted">{tpl.description}</div>
                   <div className="mt-3 text-xs text-placeholder">Uses: {tpl.usage_count} • {tpl.is_public ? 'Public' : 'Private'}</div>
                 </div>
-                <Button onClick={async () => {
+                <Button disabled={!!startingId} onClick={async () => {
                   const obj = objective.trim();
                   if (!obj) { toastWarning('Objective required', 'Enter an objective to use a template.'); return; }
+                  setStartingId(tpl.id);
                   try {
                     const res = await useTemplate(config, tpl.id, obj);
                     const started = await createWorkflow(config, res.config);
                     toastSuccess('Task started', 'Your task is now running.');
                     onWorkflowStarted?.(started.workflow_id, obj);
                   } catch (err) { toastApiError(err, 'Failed to start task'); }
-                }}>Use</Button>
+                  finally { setStartingId(null); }
+                }}>{startingId === tpl.id ? 'Starting…' : 'Use'}</Button>
               </div>
             </Card>
           ))}
