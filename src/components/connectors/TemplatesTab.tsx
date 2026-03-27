@@ -33,7 +33,7 @@ export function TemplatesTab({ templates, templatesLoading, config, onRefresh, o
         <RelayEmpty
           icon={<FileText size={26} className="text-muted" />}
           title="No templates"
-          description="Templates let you save and reuse workflow configurations as starting points."
+          description="Templates let you save and reuse task configurations as starting points."
         />
       ) : (
         <div className="grid gap-3 lg:grid-cols-2">

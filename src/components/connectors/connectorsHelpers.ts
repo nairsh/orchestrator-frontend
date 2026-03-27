@@ -18,7 +18,7 @@ export const providerCopy: Record<
   github: {
     title: 'GitHub',
     eyebrow: 'Engineering context',
-    description: 'Repos, organizations, and account metadata become available to connected workflows.',
+    description: 'Repos, organizations, and account metadata become available to AI during tasks.',
     accent: 'from-[#d8f2e5] to-[#effaf4]',
     icon: IconGitHub,
   },

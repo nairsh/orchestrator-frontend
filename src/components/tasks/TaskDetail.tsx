@@ -46,36 +46,36 @@ export function TaskDetail({
     try {
       await sendMessage(text);
     } catch (err) {
-      toastApiError(err, 'Failed to continue workflow');
+      toastApiError(err, 'Failed to send message');
     }
   };
 
   const handleRetry = async () => {
     try {
       await retryWorkflow(config, workflowId);
-      toastSuccess('Workflow retrying');
+      toastSuccess('Retrying task');
       onRefreshList?.();
     } catch (err) {
-      toastApiError(err, 'Failed to retry workflow');
+      toastApiError(err, 'Failed to retry task');
     }
   };
 
   const handlePause = async () => {
     try {
       await pauseWorkflow(config, workflowId);
-      toastSuccess('Workflow paused');
+      toastSuccess('Task paused');
     } catch (err) {
-      toastApiError(err, 'Failed to pause workflow');
+      toastApiError(err, 'Failed to pause task');
     }
   };
 
   const handleCancel = async () => {
     try {
       await cancelWorkflow(config, workflowId);
-      toastSuccess('Workflow cancelled');
+      toastSuccess('Task cancelled');
       onRefreshList?.();
     } catch (err) {
-      toastApiError(err, 'Failed to cancel workflow');
+      toastApiError(err, 'Failed to cancel task');
     }
   };
 

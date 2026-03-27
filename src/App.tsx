@@ -89,7 +89,7 @@ export default function App({
         setScreen('landing');
         window.dispatchEvent(new CustomEvent('relay:focus-input'));
       },
-      description: 'New workflow',
+      description: 'New task',
     },
     {
       key: '?',
@@ -145,7 +145,7 @@ export default function App({
       setOpenTaskInFullView(true);
       setScreen('tasks');
     } catch (err) {
-      toastApiError(err, 'Failed to start workflow');
+      toastApiError(err, 'Failed to start task');
     }
   };
 
@@ -172,7 +172,7 @@ export default function App({
         setOpenTaskInFullView(true);
         setScreen('tasks');
       } catch (err) {
-        toastApiError(err, 'Failed to start workflow');
+        toastApiError(err, 'Failed to start task');
       }
       setPendingObjective('');
       setPendingContextFiles([]);

@@ -31,13 +31,13 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
             <RelayEmpty
               icon={<Users size={26} className="text-muted" />}
               title="No teams"
-              description="Teams share context and coordinate across workflows and members."
+              description="Teams share context and coordinate across members."
             />
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
               {teams.map((team) => (
                 <Card key={String(team.id ?? Math.random())} padding="lg" className="rounded-[22px] border-border-light bg-surface">
-                  <span className="text-sm text-primary">{String(team.name ?? team.id)}</span>
+                  <span className="text-sm text-primary">{String(team.name ?? 'Unnamed team')}</span>
                 </Card>
               ))}
             </div>
@@ -48,7 +48,7 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
       <Card padding="lg" className="rounded-[24px] border-border-light bg-surface">
         <div className="text-sm font-semibold text-primary">Shared team context</div>
         <div className="mt-2 text-sm leading-6 text-secondary">
-          Verify team membership and shared context before running team tasks.
+          Your team's shared context is available to AI during tasks.
         </div>
       </Card>
     </div>
