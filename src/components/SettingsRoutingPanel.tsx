@@ -38,10 +38,10 @@ export function SettingsRoutingPanel({
       <section className="rounded-[28px] border border-border-light bg-surface p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Agent control plane</div>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Map each agent to the model that fits it best.</h3>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Model routing</div>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Map each task type to the model that fits it best.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
-              These preferences are stored server-side and are used by the orchestrator when it dispatches specialized subagents.
+              Choose which model handles each kind of work. These preferences are saved to your account and applied automatically.
             </p>
           </div>
           <div className="flex gap-2">
@@ -53,7 +53,7 @@ export function SettingsRoutingPanel({
               Reset
             </Button>
             <Button variant="primary" onClick={onSave} disabled={!routingDirty || preferencesStatus === 'saving'}>
-              {preferencesStatus === 'saving' ? 'Saving...' : 'Save routing'}
+              {preferencesStatus === 'saving' ? 'Saving…' : 'Save'}
             </Button>
           </div>
         </div>
@@ -67,11 +67,11 @@ export function SettingsRoutingPanel({
         {isSignedIn && modelPreferences && (
           <div className="mt-6 space-y-5">
             <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
-              <div className="text-xs uppercase tracking-[0.18em] text-muted">Default orchestrator model</div>
+              <div className="text-xs uppercase tracking-[0.18em] text-muted">Default model</div>
               <Select
                   value={modelPreferences.default_orchestrator_model}
                   onChange={(e) => onDefaultModelChange(e.target.value)}
-                  aria-label="Default orchestrator model"
+                  aria-label="Default model"
                   options={modelOptions}
                   className="mt-3 rounded-2xl border-border px-4 py-3"
                 />
@@ -86,7 +86,6 @@ export function SettingsRoutingPanel({
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <div className="text-sm font-medium text-primary">{AGENT_LABELS[agent]}</div>
-                        <div className="mt-1 text-xs text-muted">{agent}</div>
                       </div>
                       {assigned && (
                         <Tag size="small">override</Tag>
@@ -96,7 +95,7 @@ export function SettingsRoutingPanel({
                       value={assigned}
                       onChange={(e) => onRoutingChange(agent, e.target.value)}
                       aria-label={`Model for ${AGENT_LABELS[agent]}`}
-                      placeholder="Use default orchestrator model"
+                      placeholder="Use default model"
                       options={modelOptions}
                       className="mt-4 rounded-2xl border-border px-4 py-3"
                     />
