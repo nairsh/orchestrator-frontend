@@ -143,11 +143,11 @@ export function SkillsPage({ config }: SkillsPageProps) {
 
   const validateId = (value: string): boolean => {
     if (!value) {
-      toastWarning('Missing skill id', 'Skill id is required.');
+      toastWarning('Skill ID required', 'Enter an ID to continue.');
       return false;
     }
     if (!SKILL_ID_REGEX.test(value)) {
-      toastWarning('Invalid skill id', 'Use lowercase letters, numbers, and dashes only (max 64 characters).');
+      toastWarning('Invalid skill ID', 'Use lowercase letters, numbers, and hyphens only (max 64 characters).');
       return false;
     }
     return true;

@@ -101,7 +101,8 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
             <Button disabled={saving} onClick={async () => {
               const key = memoryKey.trim();
               const content = memoryContent.trim();
-              if (!key || !content) { toastWarning('Missing fields', 'Key and content are required.'); return; }
+              if (!key) { toastWarning('Name required', 'Enter a name for this memory.'); return; }
+              if (!content) { toastWarning('Content required', 'Enter the content to remember.'); return; }
               setSaving(true);
               try {
                 await saveMemory(config, { key, content, category: memoryCategory.trim() || undefined });
