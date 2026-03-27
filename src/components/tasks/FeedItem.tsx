@@ -46,7 +46,7 @@ function AiMessage({ text }: { text: string }) {
       <Alert
         type="error"
         variant="outlined"
-        message="Workflow Failed"
+        message="Task Failed"
         description={text.replace(/^workflow failed:\s*/i, '')}
       />
     );
