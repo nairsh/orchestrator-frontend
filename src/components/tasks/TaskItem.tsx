@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
@@ -7,6 +8,7 @@ import { TaskContextMenu } from '../dropdowns/TaskContextMenu';
 import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
 import { parseApiTimestampMs } from '../../lib/time';
 import { StatusDot } from '../shared/StatusDot';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from '../ui';
 
 interface TaskItemProps {
   workflow: WorkflowSummary;
@@ -77,7 +79,10 @@ function formatRelativeRunTime(timestamp: string | null | undefined, nowTs: numb
 }
 
 export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+
   const handleDelete = async () => {
+    setDeleteConfirm(false);
     try {
       const result = await cancelWorkflow(config, workflow.id);
 
@@ -102,6 +107,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
   const runDateMs = parseApiTimestampMs(runTimestamp);
 
   return (
+    <>
     <div
       className={[
         'group relative flex items-center cursor-pointer rounded-md px-3 py-2.5 gap-2 transition-colors duration-fast justify-between',
@@ -139,8 +145,22 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
             </span>
           </Tooltip>
         )}
-        <TaskContextMenu onDelete={() => void handleDelete()} onPin={onPin} onRename={onRename} />
+        <TaskContextMenu onDelete={() => setDeleteConfirm(true)} onPin={onPin} onRename={onRename} />
       </div>
     </div>
+
+    {deleteConfirm && (
+      <Modal onClose={() => setDeleteConfirm(false)} maxWidth="max-w-sm">
+        <ModalHeader title="Delete task?" onClose={() => setDeleteConfirm(false)} />
+        <ModalBody>
+          <p className="text-sm text-secondary">This will permanently delete the task and its history. This cannot be undone.</p>
+        </ModalBody>
+        <ModalFooter className="justify-end gap-2">
+          <Button variant="ghost" onClick={() => setDeleteConfirm(false)}>Cancel</Button>
+          <Button variant="danger" onClick={() => void handleDelete()}>Delete</Button>
+        </ModalFooter>
+      </Modal>
+    )}
+    </>
   );
 }
