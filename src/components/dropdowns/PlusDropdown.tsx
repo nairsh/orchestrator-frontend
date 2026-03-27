@@ -76,12 +76,12 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         aria-expanded={open}
         aria-haspopup="menu"
         className={[
-          'flex items-center justify-center flex-shrink-0 transition-colors duration-200 cursor-pointer',
+          'flex items-center justify-center flex-shrink-0 transition-[background-color,transform,opacity] duration-150 ease-out cursor-pointer',
           ghost
-            ? 'h-8 rounded-full aspect-[9/8] text-secondary hover:text-primary'
+            ? 'h-8 rounded-lg aspect-[9/8] text-secondary hover:text-primary'
             : useOutlinedStyle
-              ? `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full border border-border-light ${open ? 'bg-surface-tertiary' : 'bg-transparent hover:bg-surface-hover'}`
-              : `${size === 'sm' ? 'w-7 h-7' : 'w-9 h-9'} rounded-full bg-ink`,
+              ? `${size === 'sm' ? 'w-7 h-7 rounded-md' : 'w-9 h-9 rounded-lg'} border border-border-light ${open ? 'bg-surface-tertiary' : 'bg-transparent hover:bg-surface-hover'}`
+              : `${size === 'sm' ? 'w-7 h-7 rounded-md' : 'w-9 h-9 rounded-lg'} bg-ink`,
         ].join(' ')}
       >
         <Plus size={ghost ? 20 : size === 'sm' ? 14 : useOutlinedStyle ? 18 : 14} className={ghost ? '' : useOutlinedStyle ? 'text-secondary' : 'text-primary'} />
@@ -90,14 +90,14 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
       <div
         ref={menuRef}
         className={[
-          'absolute left-0 w-56 bg-surface border border-border-light rounded-xl shadow-dropdown py-1 z-50',
+          'absolute left-0 w-56 bg-surface border border-border-light rounded-lg shadow-dropdown py-1 z-50',
           menuDirection === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
         ].join(' ')}
         style={{
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          transition: 'opacity 200ms ease, transform 200ms ease',
+          transition: 'opacity 140ms ease, transform 140ms ease',
           opacity: open ? 1 : 0,
-          transform: open ? 'translateY(0)' : menuDirection === 'up' ? 'translateY(4px)' : 'translateY(-4px)',
+          transform: open ? 'translateY(0)' : menuDirection === 'up' ? 'translateY(3px)' : 'translateY(-3px)',
           pointerEvents: open ? 'auto' : 'none',
         }}
         role="menu"
@@ -105,7 +105,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         <button
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer font-sans"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-150 cursor-pointer font-sans"
           onClick={() => {
             if (!onUploadFiles) {
               setOpen(false);
@@ -120,7 +120,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         <button
           type="button"
           role="menuitem"
-          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer font-sans"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-sm text-primary hover:bg-surface-hover transition-colors duration-150 cursor-pointer font-sans"
           onClick={() => {
             setOpen(false);
             onOpenConnectors?.();

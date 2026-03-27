@@ -90,14 +90,14 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
               </span>
             )}
             <IconButton
-              size={compactSendButton ? 'sm' : 'lg'}
+              size={compactSendButton ? 'md' : 'lg'}
               filled
               onClick={handleSubmit}
               disabled={!value.trim() || disabled}
               label="Send"
-              className={[compactSendButton ? 'w-8 h-8' : '', value.trim() ? '' : '!bg-placeholder'].join(' ')}
+              className={[compactSendButton ? 'w-9 h-9' : '', value.trim() ? '' : '!bg-placeholder'].join(' ')}
             >
-              <ArrowUp size={compactSendButton ? 14 : 16} />
+              <ArrowUp size={compactSendButton ? 15 : 16} />
             </IconButton>
           </div>
         </div>

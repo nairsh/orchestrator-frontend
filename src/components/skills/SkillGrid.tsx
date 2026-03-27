@@ -34,7 +34,7 @@ export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSk
           type="button"
           onClick={() => onSelectSkill(skill.id)}
           className={[
-            'rounded-xl border px-5 py-4 text-left transition-colors duration-200 flex items-start justify-between gap-3',
+            'rounded-xl border px-5 py-4 text-left transition-colors duration-200 flex items-start justify-between gap-3 active:shadow-sm',
             selectedId === skill.id
               ? 'border-border-light bg-surface shadow-sm'
               : 'border-border-light bg-surface hover:border-border hover:shadow-xs',

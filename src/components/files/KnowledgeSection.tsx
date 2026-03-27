@@ -107,7 +107,7 @@ export function KnowledgeSection({
               <div className="text-sm font-medium text-primary">{selectedDocument.filename}</div>
               <div className="text-xs text-muted capitalize">{selectedDocument.extraction_mode === 'ocr' ? 'Scanned (OCR)' : selectedDocument.extraction_mode === 'document' ? 'Text extracted' : selectedDocument.extraction_mode} • {selectedDocument.status}</div>
             </div>
-            <button type="button" onClick={() => onSelectDocument(null)} className="text-xs text-muted hover:text-primary">Close</button>
+            <button type="button" onClick={() => onSelectDocument(null)} className="text-xs text-muted hover:text-primary transition-colors duration-200">Close</button>
           </div>
           <div className="max-h-[400px] overflow-y-auto p-5">
             {documentLoading ? (

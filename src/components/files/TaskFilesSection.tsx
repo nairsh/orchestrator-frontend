@@ -101,7 +101,7 @@ export function TaskFilesSection({
             <span className="text-sm font-medium text-primary">
               {'path' in preview ? preview.path : 'Preview'}
             </span>
-            <button type="button" onClick={onClosePreview} className="text-xs text-muted hover:text-primary">Close</button>
+            <button type="button" onClick={onClosePreview} className="text-xs text-muted hover:text-primary transition-colors duration-200">Close</button>
           </div>
           <div className="max-h-[400px] overflow-y-auto p-5">
             {preview.kind === 'loading' && (

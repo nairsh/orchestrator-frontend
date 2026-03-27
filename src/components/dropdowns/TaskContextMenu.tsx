@@ -43,7 +43,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           type="button"
           role="menuitem"
           onClick={(e) => { e.stopPropagation(); onPin?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Pin size={13} className="text-muted flex-shrink-0 mt-0.5" />
           <span className="break-words">Pin task</span>
@@ -52,7 +52,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           type="button"
           role="menuitem"
           onClick={(e) => { e.stopPropagation(); onRename?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Pencil size={13} className="text-muted flex-shrink-0 mt-0.5" />
           <span className="break-words">Rename task</span>
@@ -62,7 +62,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           type="button"
           role="menuitem"
           onClick={(e) => { e.stopPropagation(); onDelete?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-danger hover:bg-danger/10 transition-colors duration-200 cursor-pointer text-left"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-danger hover:bg-danger/10 transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Trash2 size={13} className="flex-shrink-0 mt-0.5" />
           <span className="break-words">Delete task</span>

@@ -33,7 +33,7 @@ export function SidebarWorkflows({ workflows, pinnedIds, onSelectWorkflow, getDi
                 key={w.id}
                 type="button"
                 onClick={() => onSelectWorkflow?.(w.id, w.objective)}
-                className="w-full flex items-center gap-2 px-2 py-[5px] rounded-md border-none bg-transparent cursor-pointer hover:bg-surface-hover transition-colors duration-200 text-left"
+                className="w-full flex items-center gap-2 px-2 py-[5px] rounded-md border-none bg-transparent cursor-pointer hover:bg-surface-hover transition-colors duration-200 text-left active:bg-surface-tertiary"
               >
                 <IconFolder size={14} className="text-secondary flex-shrink-0" />
                 <span className="text-[13px] text-primary truncate">{(getDisplayName?.(w.id) ?? w.objective) || 'Untitled task'}</span>
@@ -58,7 +58,7 @@ export function SidebarWorkflows({ workflows, pinnedIds, onSelectWorkflow, getDi
                 key={w.id}
                 type="button"
                 onClick={() => onSelectWorkflow?.(w.id, w.objective)}
-                className="w-full flex items-center px-2 py-[5px] rounded-md border-none bg-transparent cursor-pointer hover:bg-surface-hover transition-colors duration-200 text-left"
+                className="w-full flex items-center px-2 py-[5px] rounded-md border-none bg-transparent cursor-pointer hover:bg-surface-hover transition-colors duration-200 text-left active:bg-surface-tertiary"
               >
                 <span className="text-[13px] text-secondary truncate">{(getDisplayName?.(w.id) ?? w.objective) || 'Untitled task'}</span>
               </button>
