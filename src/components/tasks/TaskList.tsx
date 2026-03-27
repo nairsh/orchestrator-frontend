@@ -9,7 +9,7 @@ import { useWorkflowMeta } from '../../hooks/useWorkflowMeta';
 import type { WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { useBillingBalance } from '../../hooks/useBillingBalance';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
-import { parseApiTimestampMs } from '../../lib/time';
+import { parseApiTimestampMs, groupByDate } from '../../lib/time';
 import { SkeletonTaskItem } from '../ui/Skeleton';
 import { TaskListHeader } from './TaskListHeader';
 import { TaskStartInput } from './TaskStartInput';
@@ -75,6 +75,16 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     });
     return arr;
   }, [workflows, sortKey, searchQuery, getDisplayName]);
+
+  const groupedWorkflows = useMemo(
+    () => groupByDate(
+      sortedWorkflows,
+      (wf) => parseApiTimestampMs(wf.created_at),
+      (wf) => isPinned(wf.id),
+      nowTs,
+    ),
+    [sortedWorkflows, isPinned, nowTs],
+  );
 
   useEffect(() => {
     if (!renameId) return;
@@ -177,23 +187,28 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               <Empty description="Start a task using the input above" emoji="📋" />
             </div>
           )}
-          {sortedWorkflows.map((wf) => (
-            <TaskItem
-              key={wf.id}
-              workflow={wf}
-              nowTs={nowTs}
-              isSelected={selectedId === wf.id}
-              onClick={() => onSelect(wf.id, wf.objective)}
-              config={config}
-              onDeleted={onRefresh}
-              title={getDisplayName(wf.id) ?? wf.objective}
-              onPin={() => {
-                const wasPinned = isPinned(wf.id);
-                togglePin(wf.id);
-                toastSuccess(wasPinned ? 'Unpinned' : 'Pinned');
-              }}
-              onRename={() => openRename(wf)}
-            />
+          {groupedWorkflows.map((group) => (
+            <div key={group.label}>
+              <p className="text-xs font-medium text-muted uppercase tracking-wide px-2 pt-3 pb-1">{group.label}</p>
+              {group.items.map((wf) => (
+                <TaskItem
+                  key={wf.id}
+                  workflow={wf}
+                  nowTs={nowTs}
+                  isSelected={selectedId === wf.id}
+                  onClick={() => onSelect(wf.id, wf.objective)}
+                  config={config}
+                  onDeleted={onRefresh}
+                  title={getDisplayName(wf.id) ?? wf.objective}
+                  onPin={() => {
+                    const wasPinned = isPinned(wf.id);
+                    togglePin(wf.id);
+                    toastSuccess(wasPinned ? 'Unpinned' : 'Pinned');
+                  }}
+                  onRename={() => openRename(wf)}
+                />
+              ))}
+            </div>
           ))}
         </div>
       </div>
