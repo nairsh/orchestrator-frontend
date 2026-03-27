@@ -1,0 +1,121 @@
+import type {
+  ClarificationRequestedData,
+  FeedEntry,
+  LiveTask,
+} from '../../api/types';
+
+/** Mutable context passed into the reducer so the caller can read back side-effects. */
+export interface EventReducerContext {
+  seq: () => number;
+  pendingEnvironmentSetup: boolean;
+}
+
+export const appendEnvironmentReadyIfPending = (feed: FeedEntry[], ctx: EventReducerContext): FeedEntry[] => {
+  if (!ctx.pendingEnvironmentSetup) return feed;
+  ctx.pendingEnvironmentSetup = false;
+
+  const last = feed[feed.length - 1];
+  if (
+    last?.kind === 'system_status' &&
+    (last.text === 'Environment started' || last.text === 'Environment ready')
+  ) {
+    return feed;
+  }
+
+  return [...feed, { kind: 'system_status', text: 'Environment started' }];
+};
+
+export const upsertActiveTaskGroup = (
+  feed: FeedEntry[],
+  liveTasks: LiveTask[],
+  ctx: EventReducerContext,
+): FeedEntry[] => {
+  let lastTaskGroupIndex = -1;
+  let lastConversationIndex = -1;
+
+  for (let i = feed.length - 1; i >= 0; i -= 1) {
+    const entry = feed[i];
+    if (lastTaskGroupIndex < 0 && entry.kind === 'task_group') {
+      lastTaskGroupIndex = i;
+    }
+    if (lastConversationIndex < 0 && (entry.kind === 'prompt' || entry.kind === 'user_message')) {
+      lastConversationIndex = i;
+    }
+    if (lastTaskGroupIndex >= 0 && lastConversationIndex >= 0) break;
+  }
+
+  if (lastTaskGroupIndex < 0 || lastTaskGroupIndex < lastConversationIndex) {
+    const nextTaskGroup: FeedEntry = { kind: 'task_group', taskId: `tg:${ctx.seq()}`, tasks: [...liveTasks] };
+    const terminalEntryIndex = feed.findIndex(
+      (entry) =>
+        entry.kind === 'completion' ||
+        (entry.kind === 'ai_message' && /^workflow failed:/i.test(entry.text.trim()))
+    );
+
+    if (terminalEntryIndex >= 0) {
+      return [...feed.slice(0, terminalEntryIndex), nextTaskGroup, ...feed.slice(terminalEntryIndex)];
+    }
+
+    return [...feed, nextTaskGroup];
+  }
+
+  return feed.map((entry, idx) =>
+    idx === lastTaskGroupIndex && entry.kind === 'task_group'
+      ? { ...entry, tasks: [...liveTasks] }
+      : entry
+  );
+};
+
+export const upsertClarificationToolCall = (
+  feed: FeedEntry[],
+  data: ClarificationRequestedData,
+  ctx: EventReducerContext,
+  timestamp?: string,
+): FeedEntry[] => {
+  const clarificationOutput = {
+    clarification_question: data.question,
+    options: data.options,
+    allow_custom: data.allow_custom,
+  };
+
+  let updated = false;
+  const nextFeed = [...feed]
+    .reverse()
+    .map((entry) => {
+      if (
+        !updated &&
+        entry.kind === 'tool_call' &&
+        entry.toolName === 'request_clarification' &&
+        entry.status === 'running'
+      ) {
+        updated = true;
+        return {
+          ...entry,
+          status: 'done' as const,
+          output: clarificationOutput,
+        };
+      }
+      return entry;
+    })
+    .reverse();
+
+  if (updated) return nextFeed;
+
+  return [
+    ...nextFeed,
+    {
+      kind: 'tool_call',
+      id: `tc:clarification:${ctx.seq()}`,
+      toolName: 'request_clarification',
+      input: {
+        question: data.question,
+        options: data.options,
+        allow_custom: data.allow_custom,
+      },
+      output: clarificationOutput,
+      taskId: 'orchestrator',
+      status: 'done',
+      at: timestamp,
+    } satisfies FeedEntry,
+  ];
+};
