@@ -69,9 +69,48 @@ export function getConnectorSummary(connector: ConnectorRecord): string {
   return connector.display_name;
 }
 
+/**
+ * Translate common cron expressions into plain language.
+ * Falls back to "Custom schedule (expression)" for uncommon patterns.
+ */
+function humanizeCron(expr: string): string {
+  const parts = expr.trim().split(/\s+/);
+  if (parts.length !== 5) return `Custom schedule (${expr})`;
+  const [min, hour, dom, mon, dow] = parts;
+
+  // Every minute
+  if (min === '*' && hour === '*' && dom === '*' && mon === '*' && dow === '*')
+    return 'Every minute';
+
+  // Every N minutes  (*/N * * * *)
+  const everyNMin = min.match(/^\*\/(\d+)$/);
+  if (everyNMin && hour === '*' && dom === '*' && mon === '*' && dow === '*')
+    return `Every ${everyNMin[1]} minutes`;
+
+  // Every hour at :MM  (MM * * * *)
+  if (/^\d+$/.test(min) && hour === '*' && dom === '*' && mon === '*' && dow === '*')
+    return Number(min) === 0 ? 'Every hour' : `Every hour at :${min.padStart(2, '0')}`;
+
+  // Every N hours  (0 */N * * *)
+  const everyNHour = hour.match(/^\*\/(\d+)$/);
+  if (min === '0' && everyNHour && dom === '*' && mon === '*' && dow === '*')
+    return `Every ${everyNHour[1]} hours`;
+
+  // Daily at HH:MM  (MM HH * * *)
+  if (/^\d+$/.test(min) && /^\d+$/.test(hour) && dom === '*' && mon === '*' && dow === '*') {
+    const h = Number(hour);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `Daily at ${h12}:${min.padStart(2, '0')} ${ampm}`;
+  }
+
+  return `Custom schedule (${expr})`;
+}
+
 export function getScheduleLabel(schedule: ScheduledWorkflow): string {
   if (schedule.schedule_type === 'interval') {
     return `Every ${schedule.interval_value} ${schedule.interval_unit}`;
   }
-  return schedule.cron_expression ?? 'Custom schedule';
+  if (schedule.cron_expression) return humanizeCron(schedule.cron_expression);
+  return 'Custom schedule';
 }
