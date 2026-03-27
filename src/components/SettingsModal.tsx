@@ -66,7 +66,7 @@ export function SettingsModal({
   return (
     <Modal onClose={onClose} maxWidth="max-w-6xl" className="border border-border-light bg-surface shadow-modal">
       <ModalHeader title="Workspace Settings" onClose={onClose}>
-        <Tag size="small">Relay Control Room</Tag>
+        <Tag size="small">Settings</Tag>
       </ModalHeader>
 
       <ModalBody className="p-0">
