@@ -123,7 +123,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
         <StatusDot status={workflow.status} />
 
         {/* Title */}
-        <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0">
+        <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0" title={displayTitle.length > 30 ? displayTitle : undefined}>
           {displayTitle.slice(0, 55)}{displayTitle.length > 55 ? '...' : ''}
         </span>
 
