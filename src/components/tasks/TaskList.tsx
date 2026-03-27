@@ -176,8 +176,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
                 return;
               }
               toastInfo(
-                `${billingCredits.toFixed(2)} credits`,
-                `Tier: ${billing.data.tier} • Period usage: ${periodCreditsUsed.toFixed(2)} credits (${periodRequestCount} requests)`
+                `${billingCredits.toFixed(2)} credits remaining`,
+                `Plan: ${billing.data.tier} • Used this period: ${periodCreditsUsed.toFixed(2)} credits`
               );
             }}
           >

@@ -32,7 +32,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
 
   const createPayload = (): CreateScheduleInput | null => {
     const objective = scheduleObjective.trim();
-    if (!objective) { toastWarning('Objective required', 'Describe what the schedule should do.'); return null; }
+    if (!objective) { toastWarning('Task goal required', 'Describe what you want this schedule to do.'); return null; }
 
     if (scheduleType === 'cron') {
       const cron = scheduleCron.trim();
