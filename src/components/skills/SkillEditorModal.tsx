@@ -79,7 +79,7 @@ export function SkillEditorModal({
                 value={draftDescription}
                 onChange={(event) => onDraftDescriptionChange(event.target.value)}
                 maxHeight={120}
-                placeholder="Generate weekly status reports from recent work..."
+                placeholder="Generate weekly status reports from recent work…"
                 className="rounded-lg border border-border-light bg-surface px-3 py-2"
               />
             </div>
@@ -90,7 +90,7 @@ export function SkillEditorModal({
                 value={draftInstructions}
                 onChange={(event) => onDraftInstructionsChange(event.target.value)}
                 maxHeight={300}
-                placeholder="Summarize recent work in three sections: wins, blockers, and next steps..."
+                placeholder="Summarize recent work in three sections: wins, blockers, and next steps…"
                 className="rounded-lg border border-border-light bg-surface px-3 py-2"
               />
             </div>

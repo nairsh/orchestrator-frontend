@@ -90,7 +90,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
               <Textarea
                 value={memoryContent}
                 onChange={(e) => setMemoryContent(e.target.value)}
-                placeholder="Content to remember..."
+                placeholder="Content to remember…"
                 maxHeight={200}
                 className="rounded-lg border border-border-light bg-surface px-3 py-2"
               />

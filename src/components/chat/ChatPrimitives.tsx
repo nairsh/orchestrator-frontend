@@ -29,7 +29,7 @@ export function MessageBubble({ content, role }: { content: string; role: 'user'
   const [expanded, setExpanded] = useState(false);
   const shouldTruncate = content.length > MESSAGE_TRUNCATE_LENGTH;
   const displayContent = shouldTruncate && !expanded
-    ? content.slice(0, MESSAGE_TRUNCATE_LENGTH) + '...'
+    ? content.slice(0, MESSAGE_TRUNCATE_LENGTH) + '…'
     : content;
 
   return (
@@ -187,7 +187,7 @@ export function ChatInput({
   onChange,
   onSend,
   canSend,
-  placeholder = 'Send a message...',
+  placeholder = 'Send a message…',
   tone = 'surface',
 }: ChatInputProps) {
 

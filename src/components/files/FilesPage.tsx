@@ -39,7 +39,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
               value={state.fileTab === 'knowledge' ? state.searchQuery : state.filter}
               onChange={(e) => state.fileTab === 'knowledge' ? state.setSearchQuery(e.target.value) : state.setFilter(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && state.fileTab === 'knowledge') void state.handleSearch(); }}
-              placeholder={state.fileTab === 'knowledge' ? 'Search knowledge base...' : 'Filter files...'}
+              placeholder={state.fileTab === 'knowledge' ? 'Search knowledge base…' : 'Filter files…'}
               className="pl-9"
             />
           </div>

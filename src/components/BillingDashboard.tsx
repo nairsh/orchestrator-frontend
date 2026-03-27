@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart3, CreditCard, ArrowDownCircle, ArrowUpCircle, Loader2, RefreshCw } from 'lucide-react';
+import { BarChart3, CreditCard, ArrowDownCircle, ArrowUpCircle, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { Empty, Tooltip, Tabs } from '@lobehub/ui';
 import type { ApiConfig } from '../api/client';
 import type { BillingUsageEntry, BillingTransaction } from '../api/types';
@@ -28,10 +28,12 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
   const [transactions, setTransactions] = useState<BillingTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState('');
   const [tab, setTab] = useState<'usage' | 'transactions'>('usage');
 
   const fetchAll = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true); else setLoading(true);
+    setError('');
     try {
       const [balRes, usageRes, txRes] = await Promise.allSettled([
         getBillingBalance(config),
@@ -44,6 +46,10 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
       }
       if (usageRes.status === 'fulfilled') setUsage(usageRes.value.usage ?? []);
       if (txRes.status === 'fulfilled') setTransactions(txRes.value.transactions ?? []);
+      const allFailed = balRes.status === 'rejected' && usageRes.status === 'rejected' && txRes.status === 'rejected';
+      if (allFailed) setError('Couldn\u2019t load billing data. Check your server connection and try again.');
+    } catch {
+      setError('Couldn\u2019t load billing data. Check your server connection and try again.');
     } finally {
       if (isRefresh) setRefreshing(false); else setLoading(false);
     }
@@ -55,6 +61,18 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 size={20} className="animate-spin text-muted" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
+        <AlertTriangle size={24} className="text-warning" />
+        <p className="text-sm text-muted">{error}</p>
+        <Button variant="secondary" size="sm" onClick={() => void fetchAll()} className="gap-1.5">
+          <RefreshCw size={12} /> Try again
+        </Button>
       </div>
     );
   }

@@ -134,7 +134,7 @@ export function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search tasks, actions, pages..."
+            placeholder="Search tasks, actions, pages…"
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-placeholder outline-none font-sans"
           />
           <kbd className="text-2xs text-muted bg-surface-tertiary rounded px-1.5 py-0.5 border border-border-light font-mono">
@@ -160,7 +160,7 @@ export function CommandPalette({
                     key={item.id}
                     type="button"
                     onClick={item.action}
-                    className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
+                    className={`w-full group flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
                     }`}
                   >

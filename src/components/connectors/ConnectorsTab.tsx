@@ -80,7 +80,7 @@ export function ConnectorsTab({
                   } catch (err) { toastApiError(err, `Couldn't connect to ${copy.title}`); }
                   finally { setConnectorBusyProvider(null); }
                 }}>
-                  {busy && connectorBusyProvider === provider.provider ? 'Opening...' : connector ? 'Reconnect' : 'Connect'}
+                  {busy && connectorBusyProvider === provider.provider ? 'Signing in…' : connector ? 'Reconnect' : 'Connect'}
                 </Button>
 
                 {connector && (

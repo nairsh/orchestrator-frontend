@@ -27,14 +27,14 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
   executing: 'text-warning',
   completed: 'text-muted',
   failed: 'text-danger',
-  cancelled: 'text-placeholder',
+  cancelled: 'text-muted',
   paused: 'text-status-paused',
 };
 
 function getSubtitle(workflow: WorkflowSummary): string {
   if (typeof workflow.output === 'string' && workflow.output.length > 0) return workflow.output.slice(0, 40);
   if (workflow.status === 'completed') return 'Completed';
-  if (workflow.status === 'executing') return 'Running...';
+  if (workflow.status === 'executing') return 'Running…';
   if (workflow.status === 'failed') return 'Failed';
   return '';
 }
@@ -124,7 +124,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
 
         {/* Title */}
         <span className="truncate font-sans text-sm font-medium text-primary flex-shrink min-w-0" title={displayTitle.length > 30 ? displayTitle : undefined}>
-          {displayTitle.slice(0, 55)}{displayTitle.length > 55 ? '...' : ''}
+          {displayTitle.slice(0, 55)}{displayTitle.length > 55 ? '…' : ''}
         </span>
 
         {/* Chevron + subtitle */}

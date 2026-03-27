@@ -214,7 +214,7 @@ export function SettingsModal({
         <div className="flex gap-2">
           <Button variant="ghost" onClick={onClose} className="rounded-2xl">Cancel</Button>
           <Button variant="primary" onClick={() => void handleSave()} disabled={saving || !baseUrl.trim()} className="rounded-2xl">
-            {saving ? 'Saving...' : 'Save settings'}
+            {saving ? 'Saving…' : 'Save settings'}
           </Button>
         </div>
       </ModalFooter>
