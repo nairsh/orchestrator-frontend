@@ -187,7 +187,7 @@ export function ChatInput({
   onChange,
   onSend,
   canSend,
-  placeholder = 'Message the agent...',
+  placeholder = 'Send a message...',
   tone = 'surface',
 }: ChatInputProps) {
 
@@ -236,7 +236,7 @@ interface ChatHeaderProps {
   tone?: 'surface' | 'warm';
 }
 
-export function ChatHeader({ title = 'Agent chat', onClose, children, tone = 'surface' }: ChatHeaderProps) {
+export function ChatHeader({ title = 'AI Chat', onClose, children, tone = 'surface' }: ChatHeaderProps) {
   return (
     <div className={`flex items-center justify-between px-5 py-4 border-b border-border-light flex-shrink-0 ${tone === 'warm' ? 'bg-surface-warm' : 'bg-surface'}`}>
       <div className="flex items-center gap-3">
