@@ -175,7 +175,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
 
   const openFile = async (path: string) => {
     if (!sessionId) {
-      toastInfo('Workspace inactive', 'No active sandbox session for this workflow yet.');
+      toastInfo('No active session', 'Start a task to create a file workspace.');
       return;
     }
 
@@ -338,7 +338,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                   ))}
                 </select>
                 {loading && <Loader2 size={14} className="animate-spin text-muted" />}
-                <span className="text-xs text-muted">{sessionId ? 'Session active' : 'Session inactive'}</span>
+                <span className="text-xs text-muted">{sessionId ? 'Workspace ready' : 'No active workspace'}</span>
               </div>
             </div>
 
