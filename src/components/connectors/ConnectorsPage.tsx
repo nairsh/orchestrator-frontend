@@ -133,15 +133,26 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
     [providers, connectors],
   );
 
+  /* ─── Tab-contextual headings ─── */
+  const TAB_HEADINGS: Record<Tab, { title: string; description: string }> = {
+    connectors: { title: 'Connectors', description: 'Connect your apps and services so your AI can access and act on your data.' },
+    schedules: { title: 'Schedules', description: 'Automate recurring tasks on a cron or interval basis.' },
+    templates: { title: 'Templates', description: 'Save and reuse task configurations as starting points.' },
+    memory: { title: 'Memory', description: 'Save context your AI can recall across tasks — preferences, facts, or instructions.' },
+    teams: { title: 'Teams', description: 'Collaborate with team members and share context across your organization.' },
+  };
+
+  const heading = TAB_HEADINGS[tab];
+
   /* ─── Render ─── */
 
   return (
     <div className="flex h-full flex-1 flex-col overflow-hidden bg-surface-warm font-sans">
       {/* Header + tabs */}
       <div className="bg-surface-warm px-8 pt-8 pb-2">
-        <h1 className="text-xl font-semibold text-primary">Connectors</h1>
+        <h1 className="text-xl font-semibold text-primary">{heading.title}</h1>
         <p className="mt-2 text-sm text-secondary leading-relaxed">
-          Connect your apps and services so your AI can access and act on your data.
+          {heading.description}
         </p>
         <div className="flex items-center justify-between mt-5">
           <SegmentedControl
