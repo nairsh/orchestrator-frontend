@@ -85,7 +85,7 @@ export function SettingsModal({
                 { id: 'connectors', title: 'Connectors', note: 'GitHub, Linear, Notion' },
                 { id: 'icons', title: 'Visual System', note: 'Per-model icon curation' },
                 { id: 'billing', title: 'Billing', note: 'Usage, credits, transactions' },
-                { id: 'health', title: 'Agent Health', note: 'Model status and latency' },
+                { id: 'health', title: 'Model Health', note: 'Model status and latency' },
               ] as const).map((item) => {
                 const active = panel === item.id;
                 return (

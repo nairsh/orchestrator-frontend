@@ -92,7 +92,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-muted" />
-          <span className="text-sm font-medium text-primary">Agent Health</span>
+          <span className="text-sm font-medium text-primary">Model Health</span>
         </div>
         <Button variant="ghost" size="sm" onClick={() => void fetchHealth()} className="gap-1.5">
           <RefreshCw size={12} />
@@ -102,7 +102,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
 
       {agents.length === 0 ? (
         <div className="py-4">
-          <Empty description="No agent health data available" />
+          <Empty description="No health data available" />
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-2">
