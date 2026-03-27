@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2, Clock } from 'lucide-react';
+import { ArrowLeftToLine, RefreshCw, Pause, Play, XCircle, Loader2, Clock, Download } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
@@ -10,6 +10,7 @@ import { CommandInput } from '../input/CommandInput';
 import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
 import { toastApiError, toastSuccess } from '../../lib/toast';
+import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 function formatDuration(startedAt?: string | null, endedAt?: string | null): string | null {
@@ -129,7 +130,23 @@ export function TaskDetail({
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Task control buttons */}
+          {/* Export conversation */}
+          {feed.length > 0 && (
+            <Tooltip title="Export conversation">
+              <IconButton
+                size="sm"
+                label="Export conversation"
+                onClick={() => {
+                  const md = feedToMarkdown(objective, feed);
+                  const slug = objective.slice(0, 40).replace(/[^a-zA-Z0-9]+/g, '-').replace(/-$/, '');
+                  downloadFile(md, `${slug}.md`);
+                  toastSuccess('Conversation exported');
+                }}
+              >
+                <Download size={14} />
+              </IconButton>
+            </Tooltip>
+          )}
           {isFailed && (
             <Tooltip title="Retry task">
               <Button
