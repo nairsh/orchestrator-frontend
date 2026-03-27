@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Coins, MessageSquare, ArrowUp, Search } from 'lucide-react';
+import { Coins, MessageSquare, ArrowUp, Search, Loader2 } from 'lucide-react';
 import { Empty } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
@@ -44,6 +44,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [startValue, setStartValue] = useState('');
+  const [starting, setStarting] = useState(false);
   const renameInputRef = useRef<HTMLInputElement>(null);
   const startInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -110,6 +111,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       return;
     }
 
+    setStarting(true);
     try {
       const result = await createWorkflow(config, {
         objective,
@@ -119,6 +121,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       onSelect(result.workflow_id, objective);
     } catch (err) {
       toastApiError(err, 'Failed to start task');
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -230,12 +234,12 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               <button
                 type="button"
                 onClick={handleStartClick}
-                disabled={!startValue.trim()}
+                disabled={!startValue.trim() || starting}
                 aria-label="Start task"
-                className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity ${startValue.trim() ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
+                className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center transition-opacity ${startValue.trim() && !starting ? 'opacity-100 cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
                 style={{ backgroundColor: 'var(--relay-primary, #0A0A0A)', color: 'white' }}
               >
-                <ArrowUp size={15} />
+                {starting ? <Loader2 size={14} className="animate-spin" /> : <ArrowUp size={15} />}
               </button>
             </div>
           </div>

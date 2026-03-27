@@ -543,7 +543,7 @@ export function SettingsPage({
               {panel === 'health' && (
                 <div className="space-y-8">
                   <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Agent health</h2>
+                    <h2 className="text-[15px] font-medium text-primary mb-1">Model health</h2>
                     <p className="text-[13px] text-secondary mb-5">Model availability, latency, and status.</p>
                     <div className="rounded-lg border border-border bg-surface p-4">
                       <HealthInline config={{ baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn }} />

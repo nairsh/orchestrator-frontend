@@ -35,3 +35,4 @@ deab430	tasks	high	keep	add delete confirmation modal to TaskItem — replace im
 ea3f8eb	tasks	medium	keep	add Failed/Paused status pill badge in TaskDetail header next to task title
 12e29db	connectors	medium	keep	add loading states to SchedulesTab/MemoryTab/TemplatesTab — prevent double-submit and show feedback
 4216e3e	ux	low	keep	copy polish: "tool calls" → "actions", "Start Agent Task" → "Start Parallel Task", "override" → "custom"
+292b7a6	ux	low	keep	align agent label style — noun form (Analysis/Writing/Coding) across AgentHealthPanel
