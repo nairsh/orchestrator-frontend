@@ -48,10 +48,7 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
       <Card padding="lg" className="rounded-[24px] border-border-light bg-surface">
         <div className="text-sm font-semibold text-primary">Shared team context</div>
         <div className="mt-2 text-sm leading-6 text-secondary">
-          Teams data is live from the API. Use this surface to verify membership and shared context availability before rolling out team workflows.
-        </div>
-        <div className="mt-4 text-xs text-muted">
-          The server already owns full team context APIs; this screen now exposes the current team inventory instead of a placeholder action.
+          Verify team membership and shared context before running team tasks.
         </div>
       </Card>
     </div>

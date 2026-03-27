@@ -82,7 +82,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                       {schedule.schedule_type === 'interval' ? <Clock3 size={15} /> : <CalendarClock size={15} />}
                       {getScheduleLabel(schedule)}
                     </div>
-                    <div className="mt-2 text-sm text-secondary">{schedule.workflow_config ? JSON.parse(schedule.workflow_config).objective ?? 'Scheduled workflow' : 'Scheduled workflow'}</div>
+                    <div className="mt-2 text-sm text-secondary">{schedule.workflow_config ? JSON.parse(schedule.workflow_config).objective ?? 'Scheduled task' : 'Scheduled task'}</div>
                     <div className="mt-3 text-xs leading-5 text-muted">
                       Next: {formatWhen(schedule.next_run_at)}<br />
                       Timezone: {schedule.timezone} • Overlap: {schedule.overlap_policy}<br />
