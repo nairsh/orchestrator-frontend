@@ -27,7 +27,7 @@ interface ConnectorsPageProps {
   onWorkflowStarted?: (workflowId: string, objective: string) => void;
 }
 
-export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProps) {
+export function ConnectorsPage({ config, onWorkflowStarted: _onWorkflowStarted }: ConnectorsPageProps) {
   const [tab, setTab] = useState<Tab>('connectors');
 
   /* ─── Connectors state ─── */

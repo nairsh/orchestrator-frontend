@@ -39,7 +39,7 @@ const steps = [
   },
 ];
 
-export function OnboardingModal({ onClose, onStartWorkflow, onOpenSettings }: OnboardingModalProps) {
+export function OnboardingModal({ onClose, onStartWorkflow: _onStartWorkflow, onOpenSettings: _onOpenSettings }: OnboardingModalProps) {
   const [step, setStep] = useState(0);
 
   const handleNext = () => {

@@ -153,7 +153,7 @@ export function CommandPalette({
           {grouped.actions.length > 0 && (
             <>
               <div className="px-4 py-1.5 text-2xs font-medium text-muted uppercase tracking-wider">Actions</div>
-              {grouped.actions.map((item, i) => {
+              {grouped.actions.map((item) => {
                 const globalIdx = filtered.indexOf(item);
                 return (
                   <button
