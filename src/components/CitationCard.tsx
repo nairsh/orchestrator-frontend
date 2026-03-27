@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Globe } from 'lucide-react';
 
 interface CitationCardProps {
@@ -18,50 +18,41 @@ function extractDomain(url: string): string {
 
 function getFaviconUrl(url: string): string {
   try {
-    const domain = new URL(url).origin;
-    return `${domain}/favicon.ico`;
+    return `https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(url)}`;
   } catch {
     return '';
   }
 }
 
-export const CitationCard = memo(function CitationCard({ index, url, title, snippet }: CitationCardProps) {
+export const CitationCard = memo(function CitationCard({ index, url, title }: CitationCardProps) {
   const domain = extractDomain(url);
   const favicon = getFaviconUrl(url);
+  const [imgError, setImgError] = useState(false);
 
   return (
     <a
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-start gap-2.5 px-3 py-2 rounded-lg border border-border-light bg-surface-secondary/50 hover:bg-surface-hover hover:border-border transition-colors duration-200 no-underline group"
+      className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full border border-border-light bg-surface-secondary/50 hover:bg-surface-hover hover:border-border transition-colors duration-200 no-underline group max-w-[240px]"
     >
-      <span className="flex items-center justify-center w-5 h-5 rounded bg-surface-tertiary text-2xs font-bold text-muted flex-shrink-0 mt-0.5">
+      <span className="flex items-center justify-center w-4 h-4 rounded-full bg-surface-tertiary text-[10px] font-bold text-muted flex-shrink-0">
         {index}
       </span>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          {favicon ? (
-            <img
-              src={favicon}
-              alt=""
-              className="w-3.5 h-3.5 rounded-sm"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-          ) : (
-            <Globe size={12} className="text-muted" />
-          )}
-          <span className="text-2xs text-muted truncate">{domain}</span>
-        </div>
-        {title && (
-          <div className="text-sm font-medium text-primary mt-0.5 truncate group-hover:text-info transition-colors duration-200">
-            {title}
-          </div>
-        )}
-        {snippet && (
-          <p className="text-xs text-muted mt-0.5 line-clamp-2">{snippet}</p>
-        )}
-      </div>
+      {!imgError ? (
+        <img
+          src={favicon}
+          alt=""
+          className="w-3.5 h-3.5 rounded-full flex-shrink-0"
+          loading="lazy"
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <Globe size={12} className="text-muted flex-shrink-0" />
+      )}
+      <span className="text-xs text-primary truncate group-hover:text-info transition-colors duration-200">
+        {title || domain}
+      </span>
     </a>
   );
 });
