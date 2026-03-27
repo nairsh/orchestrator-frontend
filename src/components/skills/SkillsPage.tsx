@@ -378,7 +378,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                 />
                 {draftName.trim() && (
                   <div className="mt-1.5 text-xs text-muted">
-                    ID: <span className="font-mono">{nameToSlug(draftName)}</span>
+                    Saved as: <span className="font-mono">{nameToSlug(draftName)}</span>
                   </div>
                 )}
               </div>

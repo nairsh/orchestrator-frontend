@@ -197,7 +197,7 @@ export function CommandPalette({
 
           {grouped.recent.length > 0 && (
             <>
-              <div className="px-4 py-1.5 text-2xs font-medium text-muted uppercase tracking-wider mt-1">Recent Workflows</div>
+              <div className="px-4 py-1.5 text-2xs font-medium text-muted uppercase tracking-wider mt-1">Recent Tasks</div>
               {grouped.recent.map((item) => {
                 const globalIdx = filtered.indexOf(item);
                 return (

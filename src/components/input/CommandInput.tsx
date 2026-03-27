@@ -71,7 +71,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           <PlusDropdown
             outlined
             onUploadFiles={() => {
-              toastWarning('Not supported here', 'Attachments can only be added when starting a new task.');
+              toastWarning('Not supported here', 'Files can only be attached when starting a new task.');
             }}
             onOpenConnectors={() => {
               toastWarning('Not available here', 'Open Connectors from the sidebar.');
