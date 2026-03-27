@@ -279,7 +279,7 @@ export function Sidebar({
                 className="w-full flex items-center gap-2 px-2 py-[5px] rounded-md border-none bg-transparent cursor-pointer hover:bg-surface-hover transition-colors text-left"
               >
                 <IconFolder size={14} className="text-secondary flex-shrink-0" />
-                <span className="text-[13px] text-primary truncate">{w.objective || w.id}</span>
+                <span className="text-[13px] text-primary truncate">{w.objective || 'Untitled task'}</span>
               </button>
             ))}
           </div>
@@ -303,7 +303,7 @@ export function Sidebar({
                 onClick={() => onSelectWorkflow?.(w.id, w.objective)}
                 className="w-full flex items-center px-2 py-[5px] rounded-md border-none bg-transparent cursor-pointer hover:bg-surface-hover transition-colors text-left"
               >
-                <span className="text-[13px] text-secondary truncate">{w.objective || w.id}</span>
+                <span className="text-[13px] text-secondary truncate">{w.objective || 'Untitled task'}</span>
               </button>
             ))}
           </div>
