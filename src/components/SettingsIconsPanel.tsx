@@ -35,7 +35,7 @@ export function SettingsIconsPanel({ sortedModels, modelsStatus, iconOverrides, 
 
         {sortedModels.length === 0 && modelsStatus !== 'error' && (
           <div className="mt-5 rounded-2xl border border-border-light bg-surface-secondary px-4 py-4 text-sm text-muted">
-            No models available yet for icon mapping.
+            No AI options available yet for icon customization.
           </div>
         )}
 

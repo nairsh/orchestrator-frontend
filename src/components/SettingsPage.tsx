@@ -260,10 +260,10 @@ export function SettingsPage({
                 <div className="space-y-8">
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Connection</h2>
-                    <p className="text-[13px] text-secondary mb-5">URL of your AI server.</p>
+                    <p className="text-[13px] text-secondary mb-5">Where your AI is running.</p>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-[12.5px] font-medium text-secondary mb-1.5">Base URL</label>
+                        <label className="block text-[12.5px] font-medium text-secondary mb-1.5">Server address</label>
                         <div className="flex gap-2">
                           <Input
                             value={baseUrl}
@@ -291,14 +291,14 @@ export function SettingsPage({
 
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Account</h2>
-                    <p className="text-[13px] text-secondary mb-5">Authentication and session status.</p>
+                    <p className="text-[13px] text-secondary mb-5">Your sign-in status.</p>
                     <div className="flex items-center justify-between py-2">
                       <div>
                         <div className="text-[13.5px] text-primary font-medium">
                           {isSignedIn ? `Signed in${userLabel ? ` as ${userLabel}` : ''}` : 'Not signed in'}
                         </div>
                         <div className="text-[12px] text-muted mt-0.5">
-                          {clerkEnabled ? 'Authenticated session' : 'Local mode'}
+                          {clerkEnabled ? 'Online account' : 'Using without an account'}
                         </div>
                       </div>
                       {clerkEnabled && (
@@ -312,12 +312,12 @@ export function SettingsPage({
                   <div className="h-px bg-border" />
 
                   <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Models</h2>
-                    <p className="text-[13px] text-secondary mb-5">AI models available on your server.</p>
+                    <h2 className="text-[15px] font-medium text-primary mb-1">AI Options</h2>
+                    <p className="text-[13px] text-secondary mb-5">AI assistants you can choose from.</p>
                     <div className="flex items-center justify-between py-2">
                       <div className="text-[13.5px] text-primary">
                         <span className="font-medium text-[20px] mr-1.5">{models.length}</span>
-                        <span className="text-secondary">models available</span>
+                        <span className="text-secondary">options available</span>
                       </div>
                       {modelsStatus === 'loading' && <Loader2 size={14} className="animate-spin text-muted" />}
                     </div>
@@ -487,12 +487,12 @@ export function SettingsPage({
               {panel === 'icons' && (
                 <div className="space-y-8">
                   <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Model icons</h2>
-                    <p className="text-[13px] text-secondary mb-5">Override the auto-detected icon for each model.</p>
+                    <h2 className="text-[15px] font-medium text-primary mb-1">AI icons</h2>
+                    <p className="text-[13px] text-secondary mb-5">Choose a custom icon for each AI option.</p>
 
                     {sortedModels.length === 0 && modelsStatus !== 'error' && (
                       <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-muted">
-                        No models available yet.
+                        No AI options available yet.
                       </div>
                     )}
 

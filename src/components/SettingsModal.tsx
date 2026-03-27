@@ -118,12 +118,12 @@ export function SettingsModal({
                     <div className="rounded-2xl border border-border-light bg-surface-secondary px-4 py-3 text-right">
                       <div className="text-[11px] uppercase tracking-[0.18em] text-muted">Session</div>
                       <div className="mt-2 text-sm font-medium text-primary">{isSignedIn ? `Signed in${userLabel ? ` as ${userLabel}` : ''}` : 'Signed out'}</div>
-                      <div className="mt-1 text-xs text-muted">{clerkEnabled ? 'Authenticated session' : 'Local mode'}</div>
+                      <div className="mt-1 text-xs text-muted">{clerkEnabled ? 'Online account' : 'Using without an account'}</div>
                     </div>
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
-                    <Input label="Base URL" type="text" value={baseUrl} onChange={(e) => { setBaseUrl(e.target.value); setStatus('idle'); }} placeholder="http://localhost:8080" autoFocus className="rounded-2xl border-border-light bg-surface-secondary px-4 py-3" />
+                    <Input label="Server address" type="text" value={baseUrl} onChange={(e) => { setBaseUrl(e.target.value); setStatus('idle'); }} placeholder="http://localhost:8080" autoFocus className="rounded-2xl border-border-light bg-surface-secondary px-4 py-3" />
                     <div className="flex items-end gap-2">
                       <Button variant="secondary" onClick={() => void handleTest()} disabled={status === 'checking' || saving || !baseUrl.trim()} className="h-[46px] rounded-2xl px-4">
                         {status === 'checking' ? <Loader2 size={14} className="animate-spin" /> : null}
@@ -144,9 +144,9 @@ export function SettingsModal({
                       </div>
                     )}
                     <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
-                      <div className="text-xs uppercase tracking-[0.18em] text-muted">Available models</div>
+                      <div className="text-xs uppercase tracking-[0.18em] text-muted">AI Options</div>
                       <div className="mt-2 text-3xl font-semibold tracking-tight text-primary">{settings.models.length}</div>
-                      <div className="mt-1 text-sm text-secondary">models available on your server</div>
+                      <div className="mt-1 text-sm text-secondary">AI options available</div>
                     </div>
                   </div>
 
