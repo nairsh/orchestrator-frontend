@@ -6,6 +6,7 @@ import type { ApiProvider, ProviderPreset } from '../api/types';
 import { toastApiError, toastSuccess } from '../lib/toast';
 import { Button } from './ui';
 import { ProviderDialog } from './providers/ProviderDialog';
+import { DeleteProviderModal } from './providers/DeleteProviderModal';
 import { ProviderList } from './providers/ProviderList';
 import {
   DEFAULT_PRESETS,
@@ -24,6 +25,8 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
   const [loading, setLoading] = useState(true);
   const [dialogState, setDialogState] = useState<ProviderDialogState | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchProviders = useCallback(async () => {
     if (!isSignedIn) { setLoading(false); return; }
@@ -89,13 +92,23 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteRequest = (id: string) => {
+    const provider = providers.find((p) => p.id === id);
+    setDeleteTarget({ id, name: provider?.display_name ?? 'this service' });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
     try {
-      await deleteProvider(config, id);
+      await deleteProvider(config, deleteTarget.id);
       toastSuccess('Provider removed');
+      setDeleteTarget(null);
       await fetchProviders();
     } catch (err) {
       toastApiError(err, 'Couldn\'t remove AI service');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -141,7 +154,7 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
           loading={loading}
           onAdd={openCreateDialog}
           onEdit={openEditDialog}
-          onDelete={(id) => void handleDelete(id)}
+          onDelete={handleDeleteRequest}
         />
       </div>
 
@@ -153,6 +166,15 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
           onClose={closeDialog}
           onStateChange={setDialogState}
           onSubmit={() => void handleSave()}
+        />
+      )}
+
+      {deleteTarget && (
+        <DeleteProviderModal
+          providerName={deleteTarget.name}
+          deleting={deleting}
+          onConfirm={() => void handleDeleteConfirm()}
+          onClose={() => setDeleteTarget(null)}
         />
       )}
     </>

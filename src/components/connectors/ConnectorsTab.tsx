@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Loader2, RefreshCcw } from 'lucide-react';
+import { Loader2, RefreshCcw, Unplug } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { disconnectConnector, startConnectorOAuth, validateConnector } from '../../api/client';
 import type { ConnectorProvider, ConnectorProviderInfo, ConnectorRecord } from '../../api/types';
 import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
 import { Button } from '../ui';
+import { RelayEmpty } from '../shared/RelayEmpty';
 import { providerCopy, getConnectorSummary } from './connectorsHelpers';
 
 interface ConnectorsTabProps {
@@ -34,6 +35,13 @@ export function ConnectorsTab({
         </Button>
       </div>
 
+      {connectorCards.length === 0 ? (
+        <RelayEmpty
+          icon={<Unplug size={26} className="text-muted" />}
+          title="No services available"
+          description="Connect tools like GitHub, Linear, and Notion to let your AI work with your existing workflow."
+        />
+      ) : (
       <div className="grid gap-4 xl:grid-cols-3">
         {connectorCards.map(({ provider, connector }) => {
           const copy = providerCopy[provider.provider];
@@ -69,7 +77,7 @@ export function ConnectorsTab({
                     const { authorize_url } = await startConnectorOAuth(config, provider.provider, { frontend_origin: window.location.origin });
                     window.open(authorize_url, '_blank', 'noopener,noreferrer,width=620,height=760');
                     toastInfo(`${copy.title} sign-in opened`, 'Sign in to complete the connection, then click Refresh.');
-                  } catch (err) { toastApiError(err, `Failed to start ${copy.title} connection`); }
+                  } catch (err) { toastApiError(err, `Couldn't connect to ${copy.title}`); }
                   finally { setConnectorBusyProvider(null); }
                 }}>
                   {busy && connectorBusyProvider === provider.provider ? 'Opening...' : connector ? 'Reconnect' : 'Connect'}
@@ -105,6 +113,7 @@ export function ConnectorsTab({
           );
         })}
       </div>
+      )}
     </div>
   );
 }
