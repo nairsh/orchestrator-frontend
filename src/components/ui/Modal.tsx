@@ -1,9 +1,9 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 /* ─── Modal ───
  * Shared primitive for dialogs / modal overlays.
- * Handles backdrop, enter/exit animation, Escape to close.
+ * Handles backdrop, enter/exit animation, Escape to close, focus trap.
  */
 
 interface ModalProps {
@@ -17,10 +17,51 @@ interface ModalProps {
 
 export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '' }: ModalProps) {
   const [visible, setVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<Element | null>(null);
 
   useEffect(() => {
+    previousFocusRef.current = document.activeElement;
     const t = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(t);
+  }, []);
+
+  // Focus trap: keep Tab within modal and restore focus on close
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    // Auto-focus first focusable element
+    const focusable = card.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length > 0) focusable[0].focus();
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const items = card.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => {
+      document.removeEventListener('keydown', handleTab);
+      // Restore focus to previously focused element
+      if (previousFocusRef.current instanceof HTMLElement) {
+        previousFocusRef.current.focus();
+      }
+    };
   }, []);
 
   useEscapeKey(handleClose);
@@ -42,6 +83,9 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
       onClick={handleBackdropClick}
     >
       <div
+        ref={cardRef}
+        role="dialog"
+        aria-modal="true"
         className={[
           'bg-surface rounded-2xl shadow-modal border border-border-subtle w-full overflow-hidden transition-all duration-200',
           maxWidth,
