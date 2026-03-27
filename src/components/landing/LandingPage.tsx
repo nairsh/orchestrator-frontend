@@ -149,15 +149,15 @@ export function LandingPage({
 
       {/* Main content */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <BrandMark size={22} className="text-primary mb-4" />
+        <BrandMark size={22} className="text-primary mb-4 fade-in-up-soft" />
 
         {/* Heading */}
-        <h1 className="font-display text-[40px] font-medium text-primary tracking-tight mb-10 text-center" style={{ lineHeight: 1.15 }}>
+        <h1 className="font-display text-[40px] font-medium text-primary tracking-tight mb-10 text-center fade-in-up-soft" style={{ lineHeight: 1.15, animationDelay: '40ms' }}>
           Computer works for you.
         </h1>
 
         {/* Search box */}
-        <div className="w-full max-w-2xl px-4">
+        <div className="w-full max-w-2xl px-4 fade-in-up-soft" style={{ animationDelay: '80ms' }}>
           <div className="rounded-2xl border border-border-light shadow-sm font-sans bg-surface">
             <div className="grid grid-cols-[1fr_auto] px-3.5 pt-3.5 pb-3">
               {/* Attachments - span both columns */}
@@ -254,12 +254,13 @@ export function LandingPage({
         {value === '' && attachments.length === 0 && (
           <div className="w-full max-w-2xl px-4 mt-5 mx-auto">
             <div className="flex flex-wrap gap-2">
-              {SAMPLE_PROMPTS.map((prompt) => (
+              {SAMPLE_PROMPTS.map((prompt, i) => (
                 <button
                   key={prompt}
                   type="button"
                   onClick={() => handleSampleClick(prompt)}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs transition-all duration-200 cursor-pointer font-sans"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs transition-all duration-200 cursor-pointer font-sans opacity-0"
+                  style={{ animation: `fadeInUpSoft 250ms ease-out ${80 + i * 50}ms both` }}
                 >
                   <span>{prompt}</span>
                   <ArrowUpRight size={13} className="text-placeholder group-hover:text-muted transition-colors duration-200 flex-shrink-0" />
