@@ -1,53 +1,17 @@
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { checkHealth } from '../api/client';
-import type { AgentType, ConnectorProvider, ConnectorRecord } from '../api/types';
 import { toastApiError, toastSuccess } from '../lib/toast';
-import { humanizeModelName } from '../lib/modelNames';
-import {
-  MODEL_ICON_DEFINITIONS,
-  ModelIcon,
-  type ModelIconOverrides,
-  inferModelIconKey,
-  resolveModelIconKey,
-} from '../lib/modelIcons';
+import type { ModelIconOverrides } from '../lib/modelIcons';
 import { useSettingsState } from '../hooks/useSettingsState';
 import { ProvidersSettingsPanel } from './ProvidersSettingsPanel';
-import { Button, Input, Select } from './ui';
+import { BillingDashboard } from './BillingDashboard';
+import { AgentHealthPanel } from './AgentHealthPanel';
+import { Button } from './ui';
 import { Sidebar } from './layout/Sidebar';
-import { IconGitHub, IconLinear, IconNotion, IconCheck } from './icons/CustomIcons';
-
-const INFERRED_ICON_VALUE = '__inferred__';
-const AGENT_ORDER: AgentType[] = ['research', 'deep_research', 'analyze', 'write', 'code', 'file'];
-const AGENT_LABELS: Record<AgentType, string> = {
-  research: 'Research',
-  deep_research: 'Deep Research',
-  analyze: 'Analysis',
-  write: 'Writing',
-  code: 'Coding',
-  file: 'File tasks',
-};
-
-const CONNECTOR_COPY: Record<
-  ConnectorProvider,
-  { label: string; description: string; icon: React.ReactNode }
-> = {
-  github: {
-    label: 'GitHub',
-    description: 'Connect repos and organizations for code context.',
-    icon: <IconGitHub size={20} />,
-  },
-  linear: {
-    label: 'Linear',
-    description: 'Bring issues, cycles, and team data into tasks.',
-    icon: <IconLinear size={20} />,
-  },
-  notion: {
-    label: 'Notion',
-    description: 'Pull workspace docs and specs into prompts.',
-    icon: <IconNotion size={20} />,
-  },
-};
+import { SettingsGeneralPanel } from './settings/SettingsGeneralPanel';
+import { SettingsRoutingInlinePanel } from './settings/SettingsRoutingInlinePanel';
+import { SettingsConnectorsPanel } from './settings/SettingsConnectorsPanel';
+import { SettingsIconsInlinePanel } from './settings/SettingsIconsInlinePanel';
 
 type Panel = 'general' | 'providers' | 'routing' | 'connectors' | 'icons' | 'billing' | 'health';
 
@@ -82,60 +46,6 @@ interface SettingsPageProps {
   onOpenSearch?: () => void;
 }
 
-const formatProviderName = (provider: ConnectorProvider): string => CONNECTOR_COPY[provider].label;
-
-const getProviderMetaValue = (metadata: Record<string, unknown>, key: string): string | null => {
-  const value = metadata[key];
-  if (typeof value === 'string' && value.trim()) return value;
-  if (typeof value === 'number') return String(value);
-  return null;
-};
-
-const getConnectorSummary = (connector: ConnectorRecord): string => {
-  if (connector.provider === 'github') {
-    const login = getProviderMetaValue(connector.metadata, 'login');
-    const orgs = Array.isArray(connector.metadata['organizations']) ? connector.metadata['organizations'].length : 0;
-    const repos = Array.isArray(connector.metadata['repositories']) ? connector.metadata['repositories'].length : 0;
-    return [login, orgs ? `${orgs} orgs` : null, repos ? `${repos} repos` : null].filter(Boolean).join(' · ');
-  }
-  if (connector.provider === 'linear') {
-    const viewer = connector.metadata['viewer'];
-    const viewerRec = viewer && typeof viewer === 'object' && !Array.isArray(viewer) ? (viewer as Record<string, unknown>) : {};
-    const email = typeof viewerRec['email'] === 'string' ? viewerRec['email'] : null;
-    const teams = Array.isArray(connector.metadata['teams']) ? connector.metadata['teams'].length : 0;
-    return [email, teams ? `${teams} teams` : null].filter(Boolean).join(' · ');
-  }
-  if (connector.provider === 'notion') {
-    const name = getProviderMetaValue(connector.metadata, 'workspace_name');
-    return name ?? connector.display_name;
-  }
-  return connector.display_name;
-};
-
-/* ─── Toggle Switch ─── */
-function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-label={label}
-      onClick={() => onChange(!checked)}
-      className={[
-        'relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-none transition-colors duration-200',
-        checked ? 'bg-primary' : 'bg-border',
-      ].join(' ')}
-    >
-      <span
-        className={[
-          'pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 mt-0.5',
-          checked ? 'translate-x-[18px] ml-0' : 'translate-x-0.5',
-        ].join(' ')}
-      />
-    </button>
-  );
-}
-
 /* ─── Settings Page ─── */
 
 export function SettingsPage({
@@ -165,14 +75,7 @@ export function SettingsPage({
   const [saving, setSaving] = useState(false);
 
   const settings = useSettingsState({ baseUrl, isSignedIn, getAuthToken, initialModelIconOverrides });
-
-  // Destructure for template readability
-  const {
-    modelsStatus, models, sortedModels, modelOptions, availableModelIds,
-    preferencesStatus, modelPreferences, routingDirty,
-    connectorsLoading, connectorBusyProvider, connectorBusyId, providerCards,
-    iconOverrides,
-  } = settings;
+  const apiConfig = { baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn };
 
   /* ─── Handlers ─── */
 
@@ -189,7 +92,7 @@ export function SettingsPage({
     setSaving(true);
     try {
       await onSave(baseUrl.trim());
-      if (onSaveModelIconOverrides) await onSaveModelIconOverrides(iconOverrides);
+      if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides);
       toastSuccess('Settings saved');
     } catch (err) { toastApiError(err, 'Failed to save'); }
     finally { setSaving(false); }
@@ -217,7 +120,6 @@ export function SettingsPage({
 
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-8 py-10">
-          {/* Back + Title */}
           <button
             type="button"
             onClick={onBack}
@@ -233,109 +135,43 @@ export function SettingsPage({
             {/* Left nav */}
             <nav className="w-[160px] flex-shrink-0">
               <div className="flex flex-col gap-[2px]">
-                {NAV_ITEMS.map((item) => {
-                  const active = panel === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setPanel(item.id)}
-                      className={[
-                        'text-left px-3 py-[7px] rounded-lg text-[13.5px] border-none cursor-pointer transition-colors duration-200',
-                        active
-                          ? 'bg-surface-hover font-medium text-primary'
-                          : 'bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
-                      ].join(' ')}
-                    >
-                      {item.label}
-                    </button>
-                  );
-                })}
+                {NAV_ITEMS.map((item) => (
+                  <button
+                    key={item.id} type="button" onClick={() => setPanel(item.id)}
+                    className={[
+                      'text-left px-3 py-[7px] rounded-lg text-[13.5px] border-none cursor-pointer transition-colors duration-200',
+                      panel === item.id ? 'bg-surface-hover font-medium text-primary' : 'bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
+                    ].join(' ')}
+                  >
+                    {item.label}
+                  </button>
+                ))}
               </div>
             </nav>
 
             {/* Right content */}
             <div className="flex-1 min-w-0">
-              {/* ── General ── */}
               {panel === 'general' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Connection</h2>
-                    <p className="text-[13px] text-secondary mb-5">Where your AI is running.</p>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-[12.5px] font-medium text-secondary mb-1.5">Server address</label>
-                        <div className="flex gap-2">
-                          <Input
-                            value={baseUrl}
-                            onChange={(e) => { setBaseUrl(e.target.value); setStatus('idle'); }}
-                            placeholder="http://localhost:8080"
-                            className="flex-1"
-                          />
-                          <Button variant="secondary" size="sm" onClick={() => void handleTest()} disabled={status === 'checking' || !baseUrl.trim()}>
-                            {status === 'checking' ? <Loader2 size={13} className="animate-spin" /> : 'Test'}
-                          </Button>
-                        </div>
-                        {status === 'ok' && (
-                          <div className="flex items-center gap-1.5 mt-2 text-[12.5px] text-accent">
-                            <IconCheck size={14} /> Connected successfully
-                          </div>
-                        )}
-                        {status === 'error' && (
-                          <div className="mt-2 text-[12.5px] text-danger">{errorMsg || 'Connection failed'}</div>
-                        )}
-                      </div>
-                    </div>
-                  </section>
-
-                  <div className="h-px bg-border" />
-
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Account</h2>
-                    <p className="text-[13px] text-secondary mb-5">Your sign-in status.</p>
-                    <div className="flex items-center justify-between py-2">
-                      <div>
-                        <div className="text-[13.5px] text-primary font-medium">
-                          {isSignedIn ? `Signed in${userLabel ? ` as ${userLabel}` : ''}` : 'Not signed in'}
-                        </div>
-                        <div className="text-[12px] text-muted mt-0.5">
-                          {clerkEnabled ? 'Online account' : 'Using without an account'}
-                        </div>
-                      </div>
-                      {clerkEnabled && (
-                        <Button variant="secondary" size="sm" onClick={() => void (isSignedIn ? onSignOut?.() : onSignIn?.())}>
-                          {isSignedIn ? 'Sign out' : 'Sign in'}
-                        </Button>
-                      )}
-                    </div>
-                  </section>
-
-                  <div className="h-px bg-border" />
-
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">AI Options</h2>
-                    <p className="text-[13px] text-secondary mb-5">AI assistants you can choose from.</p>
-                    <div className="flex items-center justify-between py-2">
-                      <div className="text-[13.5px] text-primary">
-                        <span className="font-medium text-[20px] mr-1.5">{models.length}</span>
-                        <span className="text-secondary">options available</span>
-                      </div>
-                      {modelsStatus === 'loading' && <Loader2 size={14} className="animate-spin text-muted" />}
-                    </div>
-                  </section>
-
-                  <div className="h-px bg-border" />
-
-                  <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="ghost" size="sm" onClick={onBack}>Cancel</Button>
-                    <Button variant="primary" size="sm" onClick={() => void handleSave()} disabled={saving || !baseUrl.trim()}>
-                      {saving ? 'Saving…' : 'Save settings'}
-                    </Button>
-                  </div>
-                </div>
+                <SettingsGeneralPanel
+                  baseUrl={baseUrl}
+                  setBaseUrl={setBaseUrl}
+                  status={status}
+                  setStatus={setStatus}
+                  errorMsg={errorMsg}
+                  saving={saving}
+                  isSignedIn={isSignedIn}
+                  userLabel={userLabel}
+                  clerkEnabled={clerkEnabled}
+                  models={settings.models}
+                  modelsStatus={settings.modelsStatus}
+                  onSignIn={onSignIn}
+                  onSignOut={onSignOut}
+                  onBack={onBack}
+                  handleTest={() => void handleTest()}
+                  handleSave={() => void handleSave()}
+                />
               )}
 
-              {/* ── API Providers ── */}
               {panel === 'providers' && (
                 <ProvidersSettingsPanel
                   config={{ baseUrl: baseUrl.trim(), getAuthToken }}
@@ -343,227 +179,63 @@ export function SettingsPage({
                 />
               )}
 
-              {/* ── Model Routing ── */}
               {panel === 'routing' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">AI Preferences</h2>
-                    <p className="text-[13px] text-secondary mb-5">Choose which AI to use for each type of work.</p>
-
-                    {!isSignedIn && (
-                      <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
-                        Sign in to manage your AI preferences.
-                      </div>
-                    )}
-
-                    {isSignedIn && modelPreferences && (
-                      <div className="space-y-6">
-                        <div>
-                          <Select
-                            label="Default AI"
-                            value={modelPreferences.default_orchestrator_model}
-                            onChange={(e) => settings.handleDefaultModelChange(e.target.value)}
-                            options={modelOptions}
-                            className="text-[13.5px]"
-                          />
-                        </div>
-
-                        <div className="h-px bg-border" />
-
-                        <div className="space-y-4">
-                          {AGENT_ORDER.map((agent) => {
-                            const assigned = modelPreferences.agent_models[agent] ?? '';
-                            const invalid = assigned && !availableModelIds.has(assigned);
-                            return (
-                              <div key={agent} className="flex items-center justify-between gap-4">
-                                <div>
-                                  <div className="text-[13.5px] font-medium text-primary">{AGENT_LABELS[agent]}</div>
-                                </div>
-                                <Select
-                                  value={assigned}
-                                  onChange={(e) => settings.handleRoutingChange(agent, e.target.value)}
-                                  aria-label={`Model for ${AGENT_LABELS[agent]}`}
-                                  placeholder="Default"
-                                  options={modelOptions}
-                                  className="w-[260px] text-[13px]"
-                                />
-                                {invalid && <span className="text-[11px] text-warning">Unavailable</span>}
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        <div className="h-px bg-border" />
-
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm" onClick={() => void settings.handleResetRouting()} disabled={preferencesStatus === 'saving'}>
-                            Reset
-                          </Button>
-                          <Button variant="primary" size="sm" onClick={() => void settings.handleSaveRouting()} disabled={!routingDirty || preferencesStatus === 'saving'}>
-                            {preferencesStatus === 'saving' ? 'Saving…' : 'Save preferences'}
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </section>
-                </div>
+                <SettingsRoutingInlinePanel
+                  isSignedIn={isSignedIn}
+                  modelPreferences={settings.modelPreferences}
+                  modelOptions={settings.modelOptions}
+                  availableModelIds={settings.availableModelIds}
+                  preferencesStatus={settings.preferencesStatus}
+                  routingDirty={settings.routingDirty}
+                  handleDefaultModelChange={settings.handleDefaultModelChange}
+                  handleRoutingChange={settings.handleRoutingChange}
+                  handleResetRouting={settings.handleResetRouting}
+                  handleSaveRouting={settings.handleSaveRouting}
+                />
               )}
 
-              {/* ── Connectors ── */}
               {panel === 'connectors' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Connectors</h2>
-                    <p className="text-[13px] text-secondary mb-5">Connect GitHub, Linear, Notion, and more.</p>
-
-                    {!isSignedIn && (
-                      <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
-                        Sign in to manage connectors.
-                      </div>
-                    )}
-
-                    {isSignedIn && (
-                      <div className="space-y-3">
-                        {providerCards.map(({ provider, connector }) => {
-                          const copy = CONNECTOR_COPY[provider.provider];
-                          const busy = connectorBusyProvider === provider.provider || connectorBusyId === connector?.id;
-                          const connected = connector?.status === 'connected';
-                          return (
-                            <div
-                              key={provider.provider}
-                              className="flex items-center justify-between gap-4 rounded-lg border border-border-light bg-surface px-4 py-3.5"
-                            >
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-surface-secondary flex-shrink-0">
-                                  {copy.icon}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="text-[13.5px] font-medium text-primary">{copy.label}</div>
-                                  {connector ? (
-                                    <div className="text-[12px] text-muted truncate">{getConnectorSummary(connector)}</div>
-                                  ) : (
-                                    <div className="text-[12px] text-muted">{copy.description}</div>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                {connected && (
-                                  <span className="text-[11.5px] text-accent font-medium mr-1">Connected</span>
-                                )}
-                                {connector && (
-                                  <>
-                                    <Button variant="ghost" size="sm" onClick={() => void settings.handleValidateConnector(connector.id)} disabled={busy}>
-                                      Test connection
-                                    </Button>
-                                    <Button variant="ghost" size="sm" onClick={() => void settings.handleDisconnectConnector(connector.id)} disabled={busy}>
-                                      Disconnect
-                                    </Button>
-                                  </>
-                                )}
-                                <Button
-                                  variant={connected ? 'secondary' : 'primary'}
-                                  size="sm"
-                                  onClick={() => void settings.handleConnectProvider(provider.provider)}
-                                  disabled={!provider.configured || busy}
-                                >
-                                  {busy && connectorBusyProvider === provider.provider ? 'Opening…' : connected ? 'Reconnect' : 'Connect'}
-                                </Button>
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                        {connectorsLoading && (
-                          <div className="flex items-center justify-center py-8">
-                            <Loader2 size={18} className="animate-spin text-muted" />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </section>
-                </div>
+                <SettingsConnectorsPanel
+                  isSignedIn={isSignedIn}
+                  providerCards={settings.providerCards}
+                  connectorsLoading={settings.connectorsLoading}
+                  connectorBusyProvider={settings.connectorBusyProvider}
+                  connectorBusyId={settings.connectorBusyId}
+                  handleConnectProvider={settings.handleConnectProvider}
+                  handleValidateConnector={settings.handleValidateConnector}
+                  handleDisconnectConnector={settings.handleDisconnectConnector}
+                />
               )}
 
-              {/* ── Icons ── */}
               {panel === 'icons' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">AI icons</h2>
-                    <p className="text-[13px] text-secondary mb-5">Choose a custom icon for each AI option.</p>
-
-                    {sortedModels.length === 0 && modelsStatus !== 'error' && (
-                      <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-muted">
-                        No AI options available yet.
-                      </div>
-                    )}
-
-                    {sortedModels.length > 0 && (
-                      <div className="space-y-2">
-                        {sortedModels.map((model) => {
-                          const autoIcon = inferModelIconKey(model.id, model.provider);
-                          const selectedIcon = resolveModelIconKey(model.id, model.provider, iconOverrides);
-                          const override = iconOverrides[model.id] ?? INFERRED_ICON_VALUE;
-                          return (
-                            <div key={model.id} className="flex items-center justify-between gap-3 rounded-lg border border-border-light bg-surface px-4 py-3">
-                              <div className="flex items-center gap-3 min-w-0">
-                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-secondary flex-shrink-0">
-                                  <ModelIcon iconKey={selectedIcon} size={16} />
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="text-[13.5px] font-medium text-primary truncate">{humanizeModelName(model.display_name)}</div>
-                                  <div className="text-[11.5px] text-muted truncate">{humanizeModelName(model.id)}</div>
-                                </div>
-                              </div>
-                              <Select
-                                value={override}
-                                onChange={(e) => settings.handleIconSelection(model.id, e.target.value)}
-                                aria-label={`Icon for ${model.display_name}`}
-                                options={[
-                                  { value: INFERRED_ICON_VALUE, label: `Auto (${autoIcon})` },
-                                  ...MODEL_ICON_DEFINITIONS.map((def) => ({ value: def.key, label: def.label })),
-                                ]}
-                                className="w-[200px] py-1.5 text-[12.5px] flex-shrink-0"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    <div className="flex justify-end gap-2 pt-4">
-                      <Button variant="primary" size="sm" onClick={() => void handleSave()} disabled={saving}>
-                        {saving ? 'Saving…' : 'Save icons'}
-                      </Button>
-                    </div>
-                  </section>
-                </div>
+                <SettingsIconsInlinePanel
+                  sortedModels={settings.sortedModels}
+                  modelsStatus={settings.modelsStatus}
+                  iconOverrides={settings.iconOverrides}
+                  saving={saving}
+                  handleIconSelection={settings.handleIconSelection}
+                  handleSave={() => void handleSave()}
+                />
               )}
 
-              {/* ── Billing ── */}
               {panel === 'billing' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Billing</h2>
-                    <p className="text-[13px] text-secondary mb-5">Usage credits and transaction history.</p>
-                    <div className="rounded-lg border border-border-light bg-surface p-4">
-                      {/* Inline the billing dashboard */}
-                      <BillingInline config={{ baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn }} />
-                    </div>
-                  </section>
-                </div>
+                <div className="space-y-8"><section>
+                  <h2 className="text-[15px] font-medium text-primary mb-1">Billing</h2>
+                  <p className="text-[13px] text-secondary mb-5">Usage credits and transaction history.</p>
+                  <div className="rounded-lg border border-border-light bg-surface p-4">
+                    <BillingDashboard config={apiConfig} />
+                  </div>
+                </section></div>
               )}
 
-              {/* ── Health ── */}
               {panel === 'health' && (
-                <div className="space-y-8">
-                  <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">System Status</h2>
-                    <p className="text-[13px] text-secondary mb-5">Check whether your AI services are running and responding.</p>
-                    <div className="rounded-lg border border-border-light bg-surface p-4">
-                      <HealthInline config={{ baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn }} />
-                    </div>
-                  </section>
-                </div>
+                <div className="space-y-8"><section>
+                  <h2 className="text-[15px] font-medium text-primary mb-1">System Status</h2>
+                  <p className="text-[13px] text-secondary mb-5">Check whether your AI services are running and responding.</p>
+                  <div className="rounded-lg border border-border-light bg-surface p-4">
+                    <AgentHealthPanel config={apiConfig} />
+                  </div>
+                </section></div>
               )}
             </div>
           </div>
@@ -571,18 +243,4 @@ export function SettingsPage({
       </div>
     </div>
   );
-}
-
-/* ─── Billing & Health wrappers (lazy import originals) ─── */
-
-import { BillingDashboard } from './BillingDashboard';
-import { AgentHealthPanel } from './AgentHealthPanel';
-import type { ApiConfig } from '../api/client';
-
-function BillingInline({ config }: { config: ApiConfig }) {
-  return <BillingDashboard config={config} />;
-}
-
-function HealthInline({ config }: { config: ApiConfig }) {
-  return <AgentHealthPanel config={config} />;
 }
