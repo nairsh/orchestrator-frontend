@@ -24,7 +24,7 @@ const AGENT_LABELS: Record<AgentType, string> = {
   analyze: 'Analysis',
   write: 'Writing',
   code: 'Coding',
-  file: 'File Ops',
+  file: 'File tasks',
 };
 
 const CONNECTOR_COPY: Record<
@@ -351,7 +351,7 @@ export function SettingsPage({
 
                     {!isSignedIn && (
                       <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
-                        Sign in to manage routing preferences.
+                        Sign in to manage your AI preferences.
                       </div>
                     )}
 
@@ -359,7 +359,7 @@ export function SettingsPage({
                       <div className="space-y-6">
                         <div>
                           <Select
-                            label="Default model"
+                            label="Default AI"
                             value={modelPreferences.default_orchestrator_model}
                             onChange={(e) => settings.handleDefaultModelChange(e.target.value)}
                             options={modelOptions}
@@ -399,7 +399,7 @@ export function SettingsPage({
                             Reset
                           </Button>
                           <Button variant="primary" size="sm" onClick={() => void settings.handleSaveRouting()} disabled={!routingDirty || preferencesStatus === 'saving'}>
-                            {preferencesStatus === 'saving' ? 'Saving…' : 'Save routing'}
+                            {preferencesStatus === 'saving' ? 'Saving…' : 'Save preferences'}
                           </Button>
                         </div>
                       </div>

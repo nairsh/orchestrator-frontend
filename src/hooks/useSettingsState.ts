@@ -1,3 +1,4 @@
+import { humanizeModelName, humanizeProviderName } from '../lib/modelNames';
 import { useEffect, useMemo, useState } from 'react';
 import {
   disconnectConnector,
@@ -63,7 +64,7 @@ export function useSettingsState({
   );
 
   const sortedModels = useMemo(() => [...models].sort((a, b) => a.display_name.localeCompare(b.display_name)), [models]);
-  const modelOptions = useMemo(() => sortedModels.map((m) => ({ value: m.id, label: `${m.display_name} (${m.provider})` })), [sortedModels]);
+  const modelOptions = useMemo(() => sortedModels.map((m) => ({ value: m.id, label: `${humanizeModelName(m.display_name)} (${humanizeProviderName(m.provider)})` })), [sortedModels]);
   const availableModelIds = useMemo(() => new Set(models.map((m) => m.id)), [models]);
 
   const providerCards = useMemo(

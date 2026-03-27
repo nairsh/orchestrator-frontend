@@ -11,7 +11,7 @@ const AGENT_LABELS: Record<AgentType, string> = {
   analyze: 'Analysis',
   write: 'Writing',
   code: 'Coding',
-  file: 'File Ops',
+  file: 'File tasks',
 };
 
 interface SettingsRoutingPanelProps {
@@ -38,10 +38,10 @@ export function SettingsRoutingPanel({
       <section className="rounded-[28px] border border-border-light bg-surface p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Model routing</div>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Map each task type to the model that fits it best.</h3>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">AI Preferences</div>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Choose which AI to use for each type of work.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
-              Choose which model handles each kind of work. These preferences are saved to your account and applied automatically.
+              Pick the best AI for each kind of task. Your preferences are saved automatically.
             </p>
           </div>
           <div className="flex gap-2">
@@ -60,18 +60,18 @@ export function SettingsRoutingPanel({
 
         {!isSignedIn && (
           <div className="mt-5 rounded-2xl border border-border-light bg-surface-secondary px-4 py-4 text-sm text-secondary">
-            Sign in to manage per-user routing preferences.
+            Sign in to manage your AI preferences.
           </div>
         )}
 
         {isSignedIn && modelPreferences && (
           <div className="mt-6 space-y-5">
             <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
-              <div className="text-xs uppercase tracking-[0.18em] text-muted">Default model</div>
+              <div className="text-xs uppercase tracking-[0.18em] text-muted">Default AI</div>
               <Select
                   value={modelPreferences.default_orchestrator_model}
                   onChange={(e) => onDefaultModelChange(e.target.value)}
-                  aria-label="Default model"
+                  aria-label="Default AI"
                   options={modelOptions}
                   className="mt-3 rounded-2xl border-border-light px-4 py-3"
                 />
@@ -95,12 +95,12 @@ export function SettingsRoutingPanel({
                       value={assigned}
                       onChange={(e) => onRoutingChange(agent, e.target.value)}
                       aria-label={`Model for ${AGENT_LABELS[agent]}`}
-                      placeholder="Use default model"
+                      placeholder="Use default AI"
                       options={modelOptions}
                       className="mt-4 rounded-2xl border-border-light px-4 py-3"
                     />
                     {invalidAssignment && (
-                      <div className="mt-3 text-xs text-warning">This model is no longer available on your server.</div>
+                      <div className="mt-3 text-xs text-warning">This AI is no longer available.</div>
                     )}
                   </div>
                 );
