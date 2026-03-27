@@ -1,9 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, CircleAlert, FileText, GitBranch, Globe, ListChecks, ScanSearch, Terminal, Wrench } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
-
+import { ThinkingIndicator } from './feed/ThinkingIndicator';
+import { TimelineMarker } from './feed/TimelineMarker';
+import {
+  type ToolEntry,
+  type RenderRow,
+  TIMELINE_RAIL_X,
+  TIMELINE_ROW_PADDING_LEFT,
+  markerKindForRow,
+  markerIconForRow,
+} from './feed/feedHelpers';
 import type { ApiConfig } from '../../api/client';
 
 interface TaskFeedProps {
@@ -17,24 +26,6 @@ interface TaskFeedProps {
   workflowId?: string;
   config?: ApiConfig;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
-}
-
-type ToolEntry = Extract<FeedEntry, { kind: 'tool_call' }>;
-type RenderRow =
-  | { kind: 'entry'; key: string; entry: FeedEntry }
-  | { kind: 'tool_parallel'; key: string; entries: ToolEntry[] };
-
-const TIMELINE_RAIL_X = 16;
-const TIMELINE_ROW_PADDING_LEFT = 46;
-const TIMELINE_MARKER_SIZE = 24;
-
-function toolIconForName(toolName: string) {
-  if (['write_todo', 'edit_todo', 'list_todos', 'spawn_subagent', 'await_subagents'].includes(toolName)) return ListChecks;
-  if (['file_read', 'file_write', 'file_edit'].includes(toolName)) return FileText;
-  if (['web_search', 'fetch_url', 'browse', 'screenshot'].includes(toolName)) return Globe;
-  if (['glob', 'grep'].includes(toolName)) return ScanSearch;
-  if (toolName === 'bash') return Terminal;
-  return Wrench;
 }
 
 function ParallelToolCalls({
@@ -131,16 +122,6 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
     return rows;
   }, [feed]);
 
-  const markerKindForRow = (row: RenderRow): 'none' | 'dot' | 'tool' | 'warning' => {
-    if (row.kind === 'tool_parallel') return 'tool';
-    if (row.entry.kind === 'ai_message') return 'dot';
-    if (row.entry.kind === 'system_status') return 'dot';
-    if (row.entry.kind === 'task_group') return 'tool';
-    if (row.entry.kind === 'tool_call') return 'tool';
-    if (row.entry.kind === 'bash_approval') return 'warning';
-    return 'none';
-  };
-
   const markerIndices = renderRows
     .map((row, idx) => (markerKindForRow(row) === 'none' ? -1 : idx))
     .filter((idx) => idx >= 0);
@@ -224,19 +205,8 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
           const mt = idx === 0 ? 0 : bothTools ? 8 : messageToTool ? 18 : toolToMessage ? 22 : 28;
 
           const markerKind = markerKindForRow(row);
-          const showMarker = markerKind !== 'none';
           const rowIsUser = row.kind === 'entry' && (row.entry.kind === 'prompt' || row.entry.kind === 'user_message');
-
-          let MarkerIcon = Terminal;
-          if (row.kind === 'tool_parallel') {
-            MarkerIcon = GitBranch;
-          } else if (row.kind === 'entry' && row.entry.kind === 'task_group') {
-            MarkerIcon = GitBranch;
-          } else if (row.kind === 'entry' && row.entry.kind === 'tool_call') {
-            MarkerIcon = toolIconForName(row.entry.toolName);
-          } else if (row.kind === 'entry' && row.entry.kind === 'bash_approval') {
-            MarkerIcon = CircleAlert;
-          }
+          const MarkerIcon = markerIconForRow(row);
 
           return (
             <div
@@ -248,36 +218,16 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
                 paddingLeft: TIMELINE_ROW_PADDING_LEFT,
               }}
             >
-              {showMarker && (
-                <div
-                  ref={(el) => {
+              {markerKind !== 'none' && (
+                <TimelineMarker
+                  markerKind={markerKind}
+                  MarkerIcon={MarkerIcon}
+                  isLastUserDot={idx === lastUserDotIndex}
+                  markerRef={(el) => {
                     if (idx === firstMarkerIndex) firstMarkerRef.current = el;
                     if (idx === lastMarkerIndex) lastMarkerRef.current = el;
                   }}
-                  className="absolute"
-                  style={{
-                    left: `${TIMELINE_RAIL_X}px`,
-                    top: 0,
-                    width: TIMELINE_MARKER_SIZE,
-                    height: TIMELINE_MARKER_SIZE,
-                    transform: 'translateX(-50%)',
-                  }}
-                >
-                  {markerKind === 'dot' ? (
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      <div
-                        className={[
-                          'w-3 h-3 rounded-full border-2 border-surface',
-                          idx === lastUserDotIndex ? 'bg-ink' : 'bg-muted',
-                        ].join(' ')}
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-surface flex items-center justify-center border-2 border-surface shadow-sm">
-                      <MarkerIcon size={14} className={markerKind === 'warning' ? 'text-amber-700' : 'text-muted'} />
-                    </div>
-                  )}
-                </div>
+                />
               )}
 
               <div className="min-w-0 w-full">
@@ -291,23 +241,8 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
           );
         })}
 
-        {/* Thinking shimmer */}
         {!isTerminal && currentActivity && (
-          <div className="relative pl-8 mt-4">
-            <div className="min-w-0 flex flex-col gap-1.5">
-              <span className="font-sans text-base font-medium text-muted shimmer-text">
-                {currentActivity}
-              </span>
-              {isStale && (
-                <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 mt-1">
-                  <CircleAlert size={14} className="text-warning mt-0.5 shrink-0" />
-                  <span className="font-sans text-sm text-secondary">
-                    No updates received for 30 seconds. The AI may be slow or unreachable. Check your connection or try a different AI.
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
+          <ThinkingIndicator currentActivity={currentActivity} isStale={isStale} />
         )}
       </div>
     </div>
