@@ -43,7 +43,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
     <div
       className="flex-shrink-0 flex flex-col items-center gap-4 px-16 pb-6"
       style={{
-        transition: 'transform 170ms ease-out, opacity 170ms ease-out',
+        transition: 'transform 200ms ease-out, opacity 200ms ease-out',
         transform: entered ? 'translateY(0)' : 'translateY(-22px)',
         opacity: entered ? 1 : 0.96,
       }}
