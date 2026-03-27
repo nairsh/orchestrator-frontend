@@ -18,9 +18,9 @@ interface StatusFilterDropdownProps {
 
 const OPTIONS: Array<{ id: WorkflowStatusFilter; label: string }> = [
   { id: undefined, label: 'All statuses' },
-  { id: 'executing', label: 'Executing' },
+  { id: 'executing', label: 'In progress' },
   { id: 'paused', label: 'Paused' },
-  { id: 'completed', label: 'Completed' },
+  { id: 'completed', label: 'Done' },
   { id: 'failed', label: 'Failed' },
   { id: 'cancelled', label: 'Cancelled' },
 ];

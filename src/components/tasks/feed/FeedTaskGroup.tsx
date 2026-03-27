@@ -23,7 +23,13 @@ export function FeedTaskGroup({
 }) {
   const [open, setOpen] = useState(true);
   const taskCount = tasks.length;
-  const headerLabel = taskCount <= 1 ? 'Running task' : 'Running tasks in parallel';
+  const allCompleted = tasks.every((t) => normalizeStatus(t.status) === 'completed' || normalizeStatus(t.status) === 'skipped');
+  const anyFailed = tasks.some((t) => normalizeStatus(t.status) === 'failed');
+  const headerLabel = allCompleted
+    ? (taskCount <= 1 ? 'Completed task' : 'Completed tasks')
+    : anyFailed
+      ? (taskCount <= 1 ? 'Task failed' : 'Some tasks failed')
+      : (taskCount <= 1 ? 'Running task' : 'Running tasks in parallel');
   const isParallel = taskCount > 1;
 
   return (
@@ -90,7 +96,7 @@ export function FeedTaskGroup({
                     {(task.tool_calls ?? 0) > 0 && (
                       <span className="ml-auto flex-shrink-0 inline-flex items-center gap-1 rounded-full bg-surface-warm border border-border-light px-2 py-0.5 font-mono text-2xs text-placeholder">
                         <Zap size={10} />
-                        {task.tool_calls} {task.tool_calls === 1 ? 'tool' : 'tools'}
+                        {task.tool_calls} {task.tool_calls === 1 ? 'action' : 'actions'}
                       </span>
                     )}
                   </div>

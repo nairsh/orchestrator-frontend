@@ -30,9 +30,9 @@ const checkColor: Record<string, string> = {
 const terminalStatuses = new Set(['completed', 'cancelled']);
 
 const statusLabel: Record<string, string> = {
-  pending: 'Pending',
-  executing: 'Executing',
-  completed: 'Completed',
+  pending: 'Waiting to start',
+  executing: 'Working on it',
+  completed: 'Done',
   failed: 'Failed',
   cancelled: 'Cancelled',
   paused: 'Paused',
