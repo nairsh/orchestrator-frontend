@@ -1,17 +1,13 @@
-import { CircleAlert, Terminal, Search, Globe, FileText, GitBranch, ListChecks, ScanSearch, Wrench, Zap } from 'lucide-react';
+import { Terminal, Search, Globe, FileText, ListChecks, ScanSearch, Wrench, Zap } from 'lucide-react';
 import type { ElementType } from 'react';
 import type { FeedEntry } from '../../../api/types';
 
-/* ── Timeline types & constants ──────────────────────────────── */
+/* ── Feed types ──────────────────────────────────────────────── */
 
 export type ToolEntry = Extract<FeedEntry, { kind: 'tool_call' }>;
 export type RenderRow =
   | { kind: 'entry'; key: string; entry: FeedEntry }
   | { kind: 'tool_parallel'; key: string; entries: ToolEntry[] };
-
-export const TIMELINE_RAIL_X = 16;
-export const TIMELINE_ROW_PADDING_LEFT = 46;
-export const TIMELINE_MARKER_SIZE = 24;
 
 export function toolIconForName(toolName: string) {
   if (['write_todo', 'edit_todo', 'list_todos', 'spawn_subagent', 'await_subagents'].includes(toolName)) return ListChecks;
@@ -20,24 +16,6 @@ export function toolIconForName(toolName: string) {
   if (['glob', 'grep'].includes(toolName)) return ScanSearch;
   if (toolName === 'bash') return Terminal;
   return Wrench;
-}
-
-export function markerKindForRow(row: RenderRow): 'none' | 'dot' | 'tool' | 'warning' {
-  if (row.kind === 'tool_parallel') return 'tool';
-  if (row.entry.kind === 'ai_message') return 'dot';
-  if (row.entry.kind === 'system_status') return 'dot';
-  if (row.entry.kind === 'task_group') return 'tool';
-  if (row.entry.kind === 'tool_call') return 'tool';
-  if (row.entry.kind === 'bash_approval') return 'warning';
-  return 'none';
-}
-
-export function markerIconForRow(row: RenderRow) {
-  if (row.kind === 'tool_parallel') return GitBranch;
-  if (row.kind === 'entry' && row.entry.kind === 'task_group') return GitBranch;
-  if (row.kind === 'entry' && row.entry.kind === 'tool_call') return toolIconForName(row.entry.toolName);
-  if (row.kind === 'entry' && row.entry.kind === 'bash_approval') return CircleAlert;
-  return Terminal;
 }
 
 /* ── FeedItem helpers ────────────────────────────────────────── */

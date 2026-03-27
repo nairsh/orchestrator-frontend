@@ -79,12 +79,10 @@ function BashApprovalBlock({
   toolName,
   command,
   reason,
-  showIcon = true,
 }: {
   toolName: string;
   command: string;
   reason?: string;
-  showIcon?: boolean;
 }) {
   return (
     <Alert
@@ -104,7 +102,6 @@ function BashApprovalBlock({
 
 interface FeedItemProps {
   entry: FeedEntry;
-  inTimeline?: boolean;
   modelIconOverrides?: ModelIconOverrides;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   fullView?: boolean;
@@ -112,7 +109,6 @@ interface FeedItemProps {
 
 export const FeedItem = memo(function FeedItem({
   entry,
-  inTimeline = false,
   modelIconOverrides,
   onApproval,
   fullView = false,
@@ -125,7 +121,7 @@ export const FeedItem = memo(function FeedItem({
     case 'task_group':
       return <FeedTaskGroup tasks={entry.tasks} modelIconOverrides={modelIconOverrides} />;
     case 'tool_call':
-      return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} showLeadingIcon={!inTimeline} />;
+      return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} />;
     case 'bash_approval':
       if (onApproval && entry.taskId) {
         return (
@@ -140,7 +136,7 @@ export const FeedItem = memo(function FeedItem({
           />
         );
       }
-      return <BashApprovalBlock toolName={entry.toolName} command={entry.command} reason={entry.reason} showIcon={!inTimeline} />;
+      return <BashApprovalBlock toolName={entry.toolName} command={entry.command} reason={entry.reason} />;
     case 'user_message':
       return <UserBubble text={entry.text} fullView={fullView} />;
     case 'ai_message':

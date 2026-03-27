@@ -4,14 +4,9 @@ import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { ThinkingIndicator } from './feed/ThinkingIndicator';
-import { TimelineMarker } from './feed/TimelineMarker';
 import {
   type ToolEntry,
   type RenderRow,
-  TIMELINE_RAIL_X,
-  TIMELINE_ROW_PADDING_LEFT,
-  markerKindForRow,
-  markerIconForRow,
 } from './feed/feedHelpers';
 import type { ApiConfig } from '../../api/client';
 
@@ -66,7 +61,6 @@ function ParallelToolCalls({
             <FeedItem
               key={`${entry.id}:${idx}`}
               entry={entry}
-              inTimeline
               modelIconOverrides={modelIconOverrides}
             />
           ))}
@@ -78,17 +72,22 @@ function ParallelToolCalls({
 
 export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId, config, onApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const railContainerRef = useRef<HTMLDivElement>(null);
-  const firstMarkerRef = useRef<HTMLDivElement | null>(null);
-  const lastMarkerRef = useRef<HTMLDivElement | null>(null);
-  const [railTopOffset, setRailTopOffset] = useState(0);
-  const [railBottomOffset, setRailBottomOffset] = useState(0);
 
   const renderRows = useMemo<RenderRow[]>(() => {
     const rows: RenderRow[] = [];
 
     for (let i = 0; i < feed.length; ) {
       const entry = feed[i];
+
+      // Filter out environment status entries
+      if (entry.kind === 'system_status' && (
+        entry.text === 'Starting environment…' ||
+        entry.text === 'Environment started'
+      )) {
+        i += 1;
+        continue;
+      }
+
       if (entry.kind !== 'tool_call') {
         rows.push({ kind: 'entry', key: `entry:${i}`, entry });
         i += 1;
@@ -123,22 +122,6 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
     return rows;
   }, [feed]);
-
-  const markerIndices = renderRows
-    .map((row, idx) => (markerKindForRow(row) === 'none' ? -1 : idx))
-    .filter((idx) => idx >= 0);
-
-  const firstMarkerIndex = markerIndices.length > 0 ? markerIndices[0] : -1;
-  const lastMarkerIndex = markerIndices.length > 0 ? markerIndices[markerIndices.length - 1] : -1;
-  const lastUserDotIndex = (() => {
-    for (let i = renderRows.length - 1; i >= 0; i -= 1) {
-      const row = renderRows[i];
-      if (row.kind === 'entry' && (row.entry.kind === 'prompt' || row.entry.kind === 'user_message')) return i;
-    }
-    return -1;
-  })();
-
-  const hasTimeline = markerIndices.length > 0;
 
   // Track whether user is near the bottom of the scroll container
   const [isNearBottom, setIsNearBottom] = useState(true);
@@ -182,55 +165,9 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
     }
   }, [renderRows.length, isNearBottom, scrollToBottom]);
 
-  useEffect(() => {
-    if (!hasTimeline) {
-      firstMarkerRef.current = null;
-      lastMarkerRef.current = null;
-      setRailTopOffset(0);
-      setRailBottomOffset(0);
-      return;
-    }
-
-    const updateRailSpan = () => {
-      const container = railContainerRef.current;
-      const firstMarker = firstMarkerRef.current;
-      const lastMarker = lastMarkerRef.current;
-      if (!container || !firstMarker || !lastMarker) {
-        setRailTopOffset(0);
-        setRailBottomOffset(0);
-        return;
-      }
-
-      const cRect = container.getBoundingClientRect();
-      const fRect = firstMarker.getBoundingClientRect();
-      const lRect = lastMarker.getBoundingClientRect();
-      const firstCenter = fRect.top - cRect.top + fRect.height / 2;
-      const lastCenter = lRect.top - cRect.top + lRect.height / 2;
-      setRailTopOffset(Math.max(0, firstCenter));
-      setRailBottomOffset(Math.max(0, container.scrollHeight - lastCenter));
-    };
-
-    updateRailSpan();
-    const ro = new ResizeObserver(() => updateRailSpan());
-    if (railContainerRef.current) ro.observe(railContainerRef.current);
-    return () => ro.disconnect();
-  }, [renderRows, hasTimeline]);
-
   return (
-    <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>
-      <div ref={railContainerRef} className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: hasTimeline ? 0 : 32 }}>
-        {/* Timeline rail - solid line connecting all markers */}
-        {hasTimeline && (
-          <div
-            className="absolute pointer-events-none bg-border-light"
-            style={{
-              left: `${TIMELINE_RAIL_X - 1}px`,
-              top: railTopOffset,
-              bottom: railBottomOffset,
-              width: '2px',
-            }}
-          />
-        )}
+    <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-4 md:px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>
+      <div className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: 32 }}>
 
         {renderRows.map((row, idx) => {
           const prev = renderRows[idx - 1];
@@ -239,11 +176,9 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
           const bothTools = prevIsTool && rowIsTool;
           const messageToTool = prev && !prevIsTool && rowIsTool;
           const toolToMessage = prev && prevIsTool && !rowIsTool;
-          const mt = idx === 0 ? 0 : bothTools ? 8 : messageToTool ? 18 : toolToMessage ? 22 : 28;
+          const mt = idx === 0 ? 0 : bothTools ? 4 : messageToTool ? 12 : toolToMessage ? 16 : 24;
 
-          const markerKind = markerKindForRow(row);
           const rowIsUser = row.kind === 'entry' && (row.entry.kind === 'prompt' || row.entry.kind === 'user_message');
-          const MarkerIcon = markerIconForRow(row);
 
           return (
             <div
@@ -251,27 +186,14 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
               className="relative"
               style={{
                 marginTop: mt,
-                marginBottom: !fullView && rowIsUser ? 10 : 0,
-                paddingLeft: TIMELINE_ROW_PADDING_LEFT,
+                marginBottom: !fullView && rowIsUser ? 8 : 0,
               }}
             >
-              {markerKind !== 'none' && (
-                <TimelineMarker
-                  markerKind={markerKind}
-                  MarkerIcon={MarkerIcon}
-                  isLastUserDot={idx === lastUserDotIndex}
-                  markerRef={(el) => {
-                    if (idx === firstMarkerIndex) firstMarkerRef.current = el;
-                    if (idx === lastMarkerIndex) lastMarkerRef.current = el;
-                  }}
-                />
-              )}
-
               <div className="min-w-0 w-full">
                 {row.kind === 'tool_parallel' ? (
                   <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
                 ) : (
-                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} onApproval={onApproval} fullView={fullView} />
+                  <FeedItem entry={row.entry} modelIconOverrides={modelIconOverrides} onApproval={onApproval} fullView={fullView} />
                 )}
               </div>
             </div>

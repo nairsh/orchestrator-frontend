@@ -7,7 +7,7 @@ interface ThinkingIndicatorProps {
 
 export function ThinkingIndicator({ currentActivity, isStale }: ThinkingIndicatorProps) {
   return (
-    <div className="relative pl-8 mt-4">
+    <div className="relative mt-4">
       <div className="min-w-0 flex flex-col gap-1.5">
         <span className="font-sans text-base font-medium text-muted shimmer-text">
           {currentActivity}
