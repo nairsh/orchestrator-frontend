@@ -27,7 +27,7 @@ const steps = [
   },
   {
     icon: <Zap size={32} className="text-warning" />,
-    title: 'Start Your First Workflow',
+    title: 'Start Your First Task',
     description: 'Type any goal in the input field and Relay Pro will figure out the rest. Try "Research the latest trends in AI" or "Create a project plan for a mobile app".',
     cta: 'Next',
   },
