@@ -41,7 +41,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
           <RelayEmpty
             icon={<Brain size={26} className="text-muted" />}
             title="No memories"
-            description="Save key-value memories so your AI can recall context across tasks."
+            description="Save context your AI can recall across tasks — preferences, facts, or instructions."
           />
         ) : (
           <div className="flex flex-col gap-3">
@@ -50,7 +50,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-primary">{memory.key}</div>
-                    <div className="mt-1 text-xs text-placeholder">{memory.category}</div>
+                    {memory.category && <div className="mt-1 text-xs text-placeholder">{memory.category}</div>}
                   </div>
                   <Button variant="danger" onClick={() => setDeleteConfirmId(memory.id)}>Delete</Button>
                 </div>
