@@ -59,8 +59,8 @@ export function OnboardingModal({ onClose, onStartWorkflow, onOpenSettings }: On
   const current = steps[step];
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) handleSkip(); }}>
-      <div className="w-full max-w-md bg-surface rounded-2xl shadow-2xl border border-border overflow-hidden">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/30" onClick={(e) => { if (e.target === e.currentTarget) handleSkip(); }}>
+      <div className="w-full max-w-md bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden">
         {/* Close button */}
         <div className="flex justify-end px-4 pt-4">
           <button type="button" onClick={handleSkip} className="text-muted hover:text-primary transition-colors cursor-pointer" aria-label="Close onboarding">

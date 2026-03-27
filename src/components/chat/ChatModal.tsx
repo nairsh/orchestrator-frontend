@@ -112,7 +112,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-150 chat-ui ${
-        visible ? 'bg-black/40' : 'bg-black/0'
+        visible ? 'bg-black/30' : 'bg-black/0'
       }`}
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >

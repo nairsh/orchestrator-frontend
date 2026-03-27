@@ -123,7 +123,7 @@ export function SettingsModal({
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-[minmax(0,1fr)_auto]">
-                    <Input label="Base URL" type="text" value={baseUrl} onChange={(e) => { setBaseUrl(e.target.value); setStatus('idle'); }} placeholder="http://localhost:8080" autoFocus className="rounded-2xl border-border bg-surface-secondary px-4 py-3" />
+                    <Input label="Base URL" type="text" value={baseUrl} onChange={(e) => { setBaseUrl(e.target.value); setStatus('idle'); }} placeholder="http://localhost:8080" autoFocus className="rounded-2xl border-border-light bg-surface-secondary px-4 py-3" />
                     <div className="flex items-end gap-2">
                       <Button variant="secondary" onClick={() => void handleTest()} disabled={status === 'checking' || saving || !baseUrl.trim()} className="h-[46px] rounded-2xl px-4">
                         {status === 'checking' ? <Loader2 size={14} className="animate-spin" /> : null}

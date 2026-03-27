@@ -285,7 +285,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                     className={[
                       'rounded-xl border px-5 py-4 text-left transition-colors duration-150 flex items-start justify-between gap-3',
                       selectedId === skill.id
-                        ? 'border-border bg-surface shadow-sm'
+                        ? 'border-border-light bg-surface shadow-sm'
                         : 'border-border-light bg-surface hover:border-border hover:shadow-xs',
                     ].join(' ')}
                   >
@@ -324,7 +324,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
           {/* Skill detail panel (shown when a skill is selected) */}
           {selectedSkill && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" role="button" tabIndex={0} aria-label="Close skill details" onClick={() => setSelectedId(null)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedId(null); }}>
-              <div className="bg-surface rounded-2xl border border-border shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="bg-surface rounded-2xl border border-border-light shadow-modal w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
                 <div className="px-6 py-5 border-b border-border-light">
                   <div className="flex items-start justify-between gap-4">
                     <div>

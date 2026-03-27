@@ -279,7 +279,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             <p className="mt-1 text-sm text-secondary">Browse task outputs and manage your knowledge library.</p>
           </div>
           <div className="flex items-center gap-2">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border-light bg-surface px-3 py-1.5 text-sm font-medium text-primary hover:bg-surface-hover transition-colors">
               {uploading ? <Loader2 size={14} className="animate-spin" /> : <UploadCloud size={14} />}
               Upload
               <input type="file" multiple className="hidden" onChange={(event) => void handleUploadDocuments(event.target.files)} />

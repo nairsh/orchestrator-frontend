@@ -59,7 +59,7 @@ export function FeedTaskGroup({
             return (
               <div key={task.id} className="relative">
                 {isParallel && (
-                  <div className="absolute -left-[22px] top-0.5 w-4 h-3.5 border-l-[1.5px] border-b-[1.5px] border-border rounded-bl-[10px]" />
+                  <div className="absolute -left-[22px] top-0.5 w-4 h-3.5 border-l-[1.5px] border-b-[1.5px] border-border-light rounded-bl-[10px]" />
                 )}
                 <div className="rounded-xl border border-border-light bg-surface overflow-hidden">
                   <div className="flex items-center justify-between px-4 py-2.5 border-b border-border-light/70 bg-surface-tertiary">
@@ -69,7 +69,7 @@ export function FeedTaskGroup({
                         {agentName} - {task.description}
                       </span>
                       {modelBadge && (
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 font-sans text-2xs text-secondary bg-surface-warm flex-shrink-0">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border-light px-2 py-0.5 font-sans text-2xs text-secondary bg-surface-warm flex-shrink-0">
                           {iconKey ? <ModelIcon iconKey={iconKey} size={12} /> : null}
                           <span>{modelBadge}</span>
                         </span>

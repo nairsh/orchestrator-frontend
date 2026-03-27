@@ -115,12 +115,12 @@ export function TaskSearchDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[18vh] bg-black/40"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[18vh] bg-black/30"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-xl bg-surface rounded-xl shadow-2xl border border-border overflow-hidden animate-scale-in">
+      <div className="w-full max-w-xl bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden animate-scale-in">
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
           <Search size={18} className="text-muted flex-shrink-0" />

@@ -81,7 +81,7 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
   };
 
   return (
-    <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-surface border border-border font-sans text-sm text-muted">
+    <div className="flex-1 flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-surface border border-border-light font-sans text-sm text-muted">
       <span>{getIcon()}</span>
       <span>{tool.name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}</span>
       {tool.status === 'running' && (
@@ -109,9 +109,9 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
           <div key={idx} className="flex gap-4">
             {/* Timeline line and node */}
             <div className="flex flex-col items-center w-6 flex-shrink-0">
-              {!isFirst ? <div className="w-0.5 flex-1 bg-border" /> : <div className="flex-1" />}
+              {!isFirst ? <div className="w-0.5 flex-1 bg-border-subtle" /> : <div className="flex-1" />}
               <div className={`w-2.5 h-2.5 rounded-full ${dotColor} flex-shrink-0 my-2`} />
-              {!isLast ? <div className="w-0.5 flex-1 bg-border" /> : <div className="flex-1" />}
+              {!isLast ? <div className="w-0.5 flex-1 bg-border-subtle" /> : <div className="flex-1" />}
             </div>
 
             {/* Content */}
@@ -201,8 +201,7 @@ export function ChatInput({
   return (
     <div className={`border-t border-border-light flex-shrink-0 p-4 ${tone === 'warm' ? 'bg-surface-warm' : 'bg-surface'}`}>
       <div
-        className="flex items-end gap-2 rounded-lg border border-border shadow-xs px-3 py-2 max-w-chat mx-auto"
-        style={{ backgroundColor: '#FDFBFA' }}
+        className="flex items-end gap-2 rounded-xl border border-border-light shadow-xs px-3 py-2 max-w-chat mx-auto bg-surface"
       >
         <Textarea
           value={value}

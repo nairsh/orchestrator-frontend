@@ -73,7 +73,7 @@ export function SettingsRoutingPanel({
                   onChange={(e) => onDefaultModelChange(e.target.value)}
                   aria-label="Default model"
                   options={modelOptions}
-                  className="mt-3 rounded-2xl border-border px-4 py-3"
+                  className="mt-3 rounded-2xl border-border-light px-4 py-3"
                 />
             </div>
 
@@ -97,7 +97,7 @@ export function SettingsRoutingPanel({
                       aria-label={`Model for ${AGENT_LABELS[agent]}`}
                       placeholder="Use default model"
                       options={modelOptions}
-                      className="mt-4 rounded-2xl border-border px-4 py-3"
+                      className="mt-4 rounded-2xl border-border-light px-4 py-3"
                     />
                     {invalidAssignment && (
                       <div className="mt-3 text-xs text-warning">This model is no longer available on your server.</div>

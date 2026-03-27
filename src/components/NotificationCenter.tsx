@@ -66,7 +66,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
       </Tooltip>
 
       {open && (
-        <div className="absolute right-0 top-10 w-80 bg-surface rounded-xl shadow-2xl border border-border z-50 overflow-hidden animate-scale-in">
+        <div className="absolute right-0 top-10 w-80 bg-surface rounded-xl shadow-modal border border-border-light z-50 overflow-hidden animate-scale-in">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border-light">
             <span className="text-sm font-semibold text-primary">Notifications</span>

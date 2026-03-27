@@ -136,8 +136,8 @@ function ProviderDialog({
                     className={[
                       'flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] cursor-pointer',
                       active
-                        ? 'border-border bg-surface-hover text-primary font-medium'
-                        : 'border-border bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
+                        ? 'border-border-light bg-surface-hover text-primary font-medium'
+                        : 'border-border-light bg-transparent text-secondary hover:text-primary hover:bg-surface-hover',
                     ].join(' ')}
                   >
                     {getProviderIcon(option.value, 14)}
@@ -187,7 +187,7 @@ function ProviderDialog({
         </div>
 
         {/* Embeddings */}
-        <div className="border-t border-border pt-4">
+        <div className="border-t border-border-light pt-4">
           <div className="mb-3 flex items-center gap-1.5 text-[12px] font-medium text-secondary">
             <Zap size={13} />
             Embeddings <span className="font-normal text-muted">(optional)</span>
@@ -206,7 +206,7 @@ function ProviderDialog({
                 type="checkbox"
                 checked={state.isDefaultEmbedding}
                 onChange={(e) => update({ isDefaultEmbedding: e.target.checked })}
-                className="rounded border-border"
+                className="rounded border-border-light"
               />
               <span className="text-[13px] text-secondary">Default for search</span>
             </label>
@@ -365,7 +365,7 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
             {providers.map((provider) => (
               <div key={provider.id} className="flex items-center gap-3 py-3 group">
                 {/* Icon */}
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-secondary text-primary">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border-light bg-surface-secondary text-primary">
                   {getProviderIcon(provider.provider_type, 15)}
                 </div>
 

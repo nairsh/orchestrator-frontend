@@ -85,10 +85,10 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-md bg-surface rounded-xl shadow-2xl border border-border overflow-hidden">
+      <div className="w-full max-w-md bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border-light">
           <h2 className="text-sm font-semibold text-primary">Keyboard Shortcuts</h2>
           <ActionIcon onClick={onClose} size="small" icon={X} title="Close shortcuts" />

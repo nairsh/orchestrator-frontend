@@ -67,7 +67,7 @@ export function SettingsIconsPanel({ sortedModels, modelsStatus, iconOverrides, 
                         { value: INFERRED_ICON_VALUE, label: `Use inferred icon (${autoIcon})` },
                         ...MODEL_ICON_DEFINITIONS.map((definition) => ({ value: definition.key, label: definition.label })),
                       ]}
-                      className="rounded-2xl border-border px-4 py-3"
+                      className="rounded-2xl border-border-light px-4 py-3"
                     />
                   </div>
                 );

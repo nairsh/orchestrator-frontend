@@ -350,7 +350,7 @@ export function SettingsPage({
                     <p className="text-[13px] text-secondary mb-5">Choose which model to use for each task type.</p>
 
                     {!isSignedIn && (
-                      <div className="rounded-lg border border-border bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
+                      <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
                         Sign in to manage routing preferences.
                       </div>
                     )}
@@ -416,7 +416,7 @@ export function SettingsPage({
                     <p className="text-[13px] text-secondary mb-5">Connect GitHub, Linear, Notion, and more.</p>
 
                     {!isSignedIn && (
-                      <div className="rounded-lg border border-border bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
+                      <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
                         Sign in to manage connectors.
                       </div>
                     )}
@@ -430,7 +430,7 @@ export function SettingsPage({
                           return (
                             <div
                               key={provider.provider}
-                              className="flex items-center justify-between gap-4 rounded-lg border border-border bg-surface px-4 py-3.5"
+                              className="flex items-center justify-between gap-4 rounded-lg border border-border-light bg-surface px-4 py-3.5"
                             >
                               <div className="flex items-center gap-3 min-w-0">
                                 <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-surface-secondary flex-shrink-0">
@@ -491,7 +491,7 @@ export function SettingsPage({
                     <p className="text-[13px] text-secondary mb-5">Override the auto-detected icon for each model.</p>
 
                     {sortedModels.length === 0 && modelsStatus !== 'error' && (
-                      <div className="rounded-lg border border-border bg-surface-secondary px-4 py-3 text-[13px] text-muted">
+                      <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-muted">
                         No models available yet.
                       </div>
                     )}
@@ -503,7 +503,7 @@ export function SettingsPage({
                           const selectedIcon = resolveModelIconKey(model.id, model.provider, iconOverrides);
                           const override = iconOverrides[model.id] ?? INFERRED_ICON_VALUE;
                           return (
-                            <div key={model.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-4 py-3">
+                            <div key={model.id} className="flex items-center justify-between gap-3 rounded-lg border border-border-light bg-surface px-4 py-3">
                               <div className="flex items-center gap-3 min-w-0">
                                 <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-surface-secondary flex-shrink-0">
                                   <ModelIcon iconKey={selectedIcon} size={16} />
@@ -544,7 +544,7 @@ export function SettingsPage({
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Billing</h2>
                     <p className="text-[13px] text-secondary mb-5">Usage credits and transaction history.</p>
-                    <div className="rounded-lg border border-border bg-surface p-4">
+                    <div className="rounded-lg border border-border-light bg-surface p-4">
                       {/* Inline the billing dashboard */}
                       <BillingInline config={{ baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn }} />
                     </div>
@@ -558,7 +558,7 @@ export function SettingsPage({
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Model health</h2>
                     <p className="text-[13px] text-secondary mb-5">Model availability, latency, and status.</p>
-                    <div className="rounded-lg border border-border bg-surface p-4">
+                    <div className="rounded-lg border border-border-light bg-surface p-4">
                       <HealthInline config={{ baseUrl: baseUrl.trim(), getAuthToken, hasAuth: isSignedIn }} />
                     </div>
                   </section>
