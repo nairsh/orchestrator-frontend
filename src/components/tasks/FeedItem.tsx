@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { CircleAlert } from 'lucide-react';
 import { Alert, Highlighter } from '@lobehub/ui';
 import type { FeedEntry } from '../../api/types';
@@ -119,19 +120,21 @@ function BashApprovalBlock({
   );
 }
 
-export function FeedItem({
-  entry,
-  inTimeline = false,
-  modelIconOverrides,
-  onApproval,
-  fullView = false,
-}: {
+interface FeedItemProps {
   entry: FeedEntry;
   inTimeline?: boolean;
   modelIconOverrides?: ModelIconOverrides;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   fullView?: boolean;
-}) {
+}
+
+export const FeedItem = memo(function FeedItem({
+  entry,
+  inTimeline = false,
+  modelIconOverrides,
+  onApproval,
+  fullView = false,
+}: FeedItemProps) {
   switch (entry.kind) {
     case 'prompt':
       return <UserBubble text={entry.text} fullView={fullView} />;
@@ -167,4 +170,4 @@ export function FeedItem({
     default:
       return null;
   }
-}
+});

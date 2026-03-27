@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
@@ -78,7 +78,7 @@ function formatRelativeRunTime(timestamp: string | null | undefined, nowTs: numb
   return `${years} year${years === 1 ? '' : 's'} ago`;
 }
 
-export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
+export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -165,4 +165,4 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
     )}
     </>
   );
-}
+});

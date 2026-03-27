@@ -24,7 +24,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
         </div>
       ) : (
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between flex-shrink-0 px-4 md:px-8 pt-6 md:pt-8 pb-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 flex-shrink-0 px-4 md:px-8 pt-6 md:pt-8 pb-2">
             <h1 className="text-xl font-semibold text-primary">Skills</h1>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -34,7 +34,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                   value={state.searchQuery}
                   onChange={(e) => state.setSearchQuery(e.target.value)}
                   placeholder="Search skills"
-                  className="pl-9 pr-3 py-2 rounded-lg border border-border-light bg-surface text-sm text-primary placeholder:text-placeholder outline-none w-[200px]"
+                  className="pl-9 pr-3 py-2 rounded-lg border border-border-light bg-surface text-sm text-primary placeholder:text-placeholder outline-none w-[140px] md:w-[200px]"
                 />
               </div>
               <Button onClick={state.openCreateEditor}>
