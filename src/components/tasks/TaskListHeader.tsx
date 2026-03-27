@@ -71,14 +71,14 @@ export function TaskListHeader({
                   return;
                 }
                 toastInfo(
-                  `${billingCredits.toFixed(2)} credits remaining`,
-                  `Your plan: ${billing.data.tier} • Used this period: ${periodCreditsUsed.toFixed(2)} credits`
+                  `${billingCredits.toFixed(0)} credits remaining`,
+                  `Plan: ${billing.data.tier} • Used this period: ${periodCreditsUsed.toFixed(0)} credits`
                 );
               }}
             >
               <Coins size={14} className="text-muted" />
               <span className="font-sans text-sm font-medium text-primary">
-                {billing.data ? billingCredits.toFixed(2) : '—'}
+                {billing.data ? `${billingCredits.toFixed(0)} credits` : '—'}
               </span>
             </Button>
 
