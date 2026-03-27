@@ -29,3 +29,4 @@ c01a3f9	settings	low	keep	"Agent Health" → "Model Health" in settings panel
 9a227f5	settings	low	keep	remove orchestrator/subagents jargon from routing panel, hide raw agent IDs
 2d94336	feed+schedules	medium	keep	humanize agent type tags in TaskGroupBlock and last-run status in SchedulesTab
 6686cd7	ux	low	keep	sidebar shows "Untitled task" instead of raw UUID when task has no objective
+5980ce3	ux	medium	keep	replace "workflow" with "task" in toasts, connectors copy, teams tab, and App.tsx

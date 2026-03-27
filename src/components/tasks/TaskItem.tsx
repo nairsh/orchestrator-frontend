@@ -82,14 +82,14 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
       const result = await cancelWorkflow(config, workflow.id);
 
       if (result.status === 'cancelled') {
-        toastSuccess('Workflow stopped', 'It will no longer appear once you refresh.');
+        toastSuccess('Task stopped', 'It will no longer appear once you refresh.');
       } else {
-        toastSuccess('Workflow deleted');
+        toastSuccess('Task deleted');
       }
 
       onDeleted();
     } catch (err) {
-      toastApiError(err, 'Failed to delete workflow');
+      toastApiError(err, 'Failed to delete task');
     }
   };
 

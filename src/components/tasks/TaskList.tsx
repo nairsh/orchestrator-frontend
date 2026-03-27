@@ -157,7 +157,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
               {loading && <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse" />}
 
               {/* Search button */}
-              <IconButton size="md" label="Search workflows" onClick={() => setShowSearch(true)}>
+              <IconButton size="md" label="Search tasks" onClick={() => setShowSearch(true)}>
                 <Search size={16} className="text-muted" />
               </IconButton>
 
