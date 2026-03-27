@@ -88,7 +88,7 @@ export function useSettingsState({
     if (!trimmedBase || !isSignedIn) { setModelPreferences(null); return; }
     setPreferencesStatus('loading');
     try { const p = await getModelPreferences(apiConfig); setModelPreferences(p); setRoutingDirty(false); setPreferencesStatus('idle'); }
-    catch (err) { setPreferencesStatus('error'); setModelPreferences(null); toastApiError(err, 'Failed to load routing'); }
+    catch (err) { setPreferencesStatus('error'); setModelPreferences(null); toastApiError(err, 'Couldn\'t load your AI preferences'); }
   };
 
   const refreshConnectors = async () => {
@@ -97,7 +97,7 @@ export function useSettingsState({
     try {
       const [pRes, cRes] = await Promise.all([listConnectorProviders(apiConfig), listConnectors(apiConfig)]);
       setProviders(pRes.providers ?? []); setConnectors(cRes.connectors ?? []);
-    } catch (err) { toastApiError(err, 'Failed to load connectors'); }
+    } catch (err) { toastApiError(err, 'Couldn\'t load your connected services'); }
     finally { setConnectorsLoading(false); }
   };
 
@@ -134,14 +134,14 @@ export function useSettingsState({
         subagent_models: modelPreferences.subagent_models,
       });
       setModelPreferences(saved); setRoutingDirty(false); setPreferencesStatus('idle');
-      toastSuccess('Routing updated');
-    } catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Failed to save routing'); }
+      toastSuccess('AI preferences saved');
+    } catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Couldn\'t save your AI preferences'); }
   };
 
   const handleResetRouting = async () => {
     setPreferencesStatus('saving');
-    try { const reset = await resetModelPreferences(apiConfig); setModelPreferences(reset); setRoutingDirty(false); setPreferencesStatus('idle'); toastInfo('Routing reset'); }
-    catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Failed to reset routing'); }
+    try { const reset = await resetModelPreferences(apiConfig); setModelPreferences(reset); setRoutingDirty(false); setPreferencesStatus('idle'); toastInfo('AI preferences reset to defaults'); }
+    catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Couldn\'t reset your AI preferences'); }
   };
 
   /* ─── Connector Handlers ─── */
@@ -152,21 +152,21 @@ export function useSettingsState({
       const { authorize_url } = await startConnectorOAuth(apiConfig, provider, { frontend_origin: window.location.origin });
       window.open(authorize_url, '_blank', 'noopener,noreferrer,width=620,height=760');
       toastInfo(`${FORMAT_PROVIDER_NAME[provider]} authorization opened`);
-    } catch (err) { toastApiError(err, `Failed to start ${FORMAT_PROVIDER_NAME[provider]}`); }
+    } catch (err) { toastApiError(err, `Couldn't connect to ${FORMAT_PROVIDER_NAME[provider]}`); }
     finally { setConnectorBusyProvider(null); }
   };
 
   const handleValidateConnector = async (connectorId: string) => {
     setConnectorBusyId(connectorId);
-    try { await validateConnector(apiConfig, connectorId); toastSuccess('Connector refreshed'); await refreshConnectors(); }
-    catch (err) { toastApiError(err, 'Failed to validate connector'); }
+    try { await validateConnector(apiConfig, connectorId); toastSuccess('Connection refreshed'); await refreshConnectors(); }
+    catch (err) { toastApiError(err, 'Couldn\'t refresh this connection'); }
     finally { setConnectorBusyId(null); }
   };
 
   const handleDisconnectConnector = async (connectorId: string) => {
     setConnectorBusyId(connectorId);
     try { await disconnectConnector(apiConfig, connectorId); toastSuccess('Disconnected'); await refreshConnectors(); }
-    catch (err) { toastApiError(err, 'Failed to disconnect'); }
+    catch (err) { toastApiError(err, 'Couldn\'t disconnect'); }
     finally { setConnectorBusyId(null); }
   };
 

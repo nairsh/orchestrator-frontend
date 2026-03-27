@@ -61,7 +61,7 @@ export function toastError(title: string, description?: string) {
   });
 }
 
-export function toastApiError(err: unknown, title = 'Request failed') {
+export function toastApiError(err: unknown, title = 'Something went wrong') {
   const raw = err instanceof Error ? err.message : String(err);
   const normalized = normalizeAuthError(raw);
   toastError(title, normalized);
@@ -76,7 +76,7 @@ function normalizeAuthError(message: string): string {
     lowered.includes('invalid auth token') ||
     lowered.includes('missing authentication token')
   ) {
-    return 'Sign in with Clerk to continue.';
+    return 'Please sign in to continue.';
   }
   return message;
 }

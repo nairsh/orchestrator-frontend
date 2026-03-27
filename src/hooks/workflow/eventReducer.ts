@@ -1,3 +1,4 @@
+import { humanizeError } from '../../lib/humanizeError';
 import type {
   WorkflowEvent,
   WorkflowTask,
@@ -451,10 +452,11 @@ export function reduceWorkflowEvent(
       const data = event.data as WorkflowFailedData;
       ctx.pendingEnvironmentSetup = false;
       const feed = prev.feed.filter((e) => e.kind !== 'planning');
-      const errorText =
+      const rawError =
         typeof data.error === 'string' && data.error.trim().length > 0
           ? data.error.trim()
-          : 'No failure details from backend';
+          : '';
+      const errorText = humanizeError(rawError);
       return {
         ...prev,
         feed: [...feed, { kind: 'ai_message', text: `Workflow failed: ${errorText}` }],

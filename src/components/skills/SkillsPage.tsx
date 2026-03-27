@@ -53,7 +53,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
 
           <div className="flex-1 overflow-y-auto px-8 pb-8">
             {state.unsupportedApi && (
-              <Alert className="mb-4" type="warning" title="Skills are not available on this server. Check that your server supports the skills API." variant="outlined" />
+              <Alert className="mb-4" type="warning" title="Skills aren't available on this server yet. Contact your administrator to enable them." variant="outlined" />
             )}
             <SkillGrid
               skills={state.filteredSkills}

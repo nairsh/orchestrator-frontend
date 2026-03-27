@@ -113,7 +113,7 @@ export function SettingsModal({
                     <div className="max-w-xl">
                       <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-muted"><Sparkles size={12} />Server connection</div>
                       <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Connect to your AI server.</h3>
-                      <p className="mt-2 text-sm leading-6 text-secondary">This URL powers all models, tasks, connectors, and file tools in the app.</p>
+                      <p className="mt-2 text-sm leading-6 text-secondary">This is the address of the server that runs everything in the app.</p>
                     </div>
                     <div className="rounded-2xl border border-border-light bg-surface-secondary px-4 py-3 text-right">
                       <div className="text-[11px] uppercase tracking-[0.18em] text-muted">Session</div>
@@ -150,7 +150,7 @@ export function SettingsModal({
                     </div>
                   </div>
 
-                  {requiresAuth && <Alert className="mt-4" type="warning" title="Sign in required to use this server. API key access is not enabled." variant="outlined" />}
+                  {requiresAuth && <Alert className="mt-4" type="warning" title="You need to sign in to use this server." variant="outlined" />}
                   {status === 'ok' && <Alert className="mt-4" type="success" title="Connected successfully." variant="outlined" />}
                   {status === 'error' && <Alert className="mt-4" type="error" title={errorMsg || 'Connection failed'} variant="outlined" />}
                 </section>

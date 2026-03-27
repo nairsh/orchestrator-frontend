@@ -3,6 +3,7 @@ import { Alert, Highlighter } from '@lobehub/ui';
 import type { FeedEntry } from '../../api/types';
 import { Markdown } from '../markdown/Markdown';
 import { CitationCard } from '../CitationCard';
+import { humanizeErrorDescription } from '../../lib/humanizeError';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { FeedTaskGroup } from './feed/FeedTaskGroup';
 import { FeedToolCall } from './feed/FeedToolCall';
@@ -48,7 +49,7 @@ function AiMessage({ text }: { text: string }) {
         type="error"
         variant="outlined"
         message="Task Failed"
-        description={text.replace(/^workflow failed:\s*/i, '')}
+        description={humanizeErrorDescription(text.replace(/^workflow failed:\s*/i, ''))}
       />
     );
   }
