@@ -19,3 +19,10 @@ e3fde05	connectors	low	keep	remove "surface/team context APIs/placeholder" dev j
 7724e7b	task-input	medium	keep	task input send button proper disabled state; "workflow" copy cleanup in CommandInput and TaskList
 932e98b	feed	low	keep	"Workflow Failed" error alert → "Task Failed"
 7acdf9a	schedules	low	keep	humanize overlap policy display, capitalize status, "workflows" → "tasks" in empty state
+b0a97bf	cleanup	low	keep	remove dead TaskStartInput component
+93f85c5	cleanup	low	keep	remove dead TemplatesGallery component (129 lines of dead code)
+c01a3f9	settings	low	keep	"Agent Health" → "Model Health" in settings panel
+698ab57	connectors	low	keep	minor copy polish in Memory tab and connector descriptions
+506e641	connectors	high	keep	inline delete confirmation for schedules/memories; fix "Sub Agent" → "AI" fallback label
+7e1bbb4	connectors	medium	keep	OAuth toast clarity: "validate" → "Test connection"; guide user through refresh step after sign-in
+489a1d3	skills	low	keep	humanize tool slug tags in skill detail; skill editor jargon cleanup

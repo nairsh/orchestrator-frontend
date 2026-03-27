@@ -37,7 +37,7 @@ const CONNECTOR_COPY: Record<
   },
   linear: {
     label: 'Linear',
-    description: 'Bring issues, cycles, and team data into workflows.',
+    description: 'Bring issues, cycles, and team data into tasks.',
     icon: <IconLinear size={20} />,
   },
   notion: {
@@ -55,7 +55,7 @@ const NAV_ITEMS: { id: Panel; label: string }[] = [
   { id: 'connectors', label: 'Connectors' },
   { id: 'icons', label: 'Visual system' },
   { id: 'billing', label: 'Billing' },
-  { id: 'health', label: 'Agent health' },
+  { id: 'health', label: 'Model health' },
 ];
 
 interface SettingsPageProps {
@@ -255,7 +255,7 @@ export function SettingsPage({
                 <div className="space-y-8">
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Connection</h2>
-                    <p className="text-[13px] text-secondary mb-5">Server endpoint for all API calls.</p>
+                    <p className="text-[13px] text-secondary mb-5">URL of your AI server.</p>
                     <div className="space-y-4">
                       <div>
                         <label className="block text-[12.5px] font-medium text-secondary mb-1.5">Base URL</label>
@@ -293,7 +293,7 @@ export function SettingsPage({
                           {isSignedIn ? `Signed in${userLabel ? ` as ${userLabel}` : ''}` : 'Not signed in'}
                         </div>
                         <div className="text-[12px] text-muted mt-0.5">
-                          {clerkEnabled ? 'Clerk authentication' : 'Local mode'}
+                          {clerkEnabled ? 'Authenticated session' : 'Local mode'}
                         </div>
                       </div>
                       {clerkEnabled && (
@@ -308,7 +308,7 @@ export function SettingsPage({
 
                   <section>
                     <h2 className="text-[15px] font-medium text-primary mb-1">Models</h2>
-                    <p className="text-[13px] text-secondary mb-5">Models discovered from the endpoint.</p>
+                    <p className="text-[13px] text-secondary mb-5">AI models available on your server.</p>
                     <div className="flex items-center justify-between py-2">
                       <div className="text-[13.5px] text-primary">
                         <span className="font-medium text-[20px] mr-1.5">{models.length}</span>
@@ -333,8 +333,8 @@ export function SettingsPage({
               {panel === 'routing' && (
                 <div className="space-y-8">
                   <section>
-                    <h2 className="text-[15px] font-medium text-primary mb-1">Agent routing</h2>
-                    <p className="text-[13px] text-secondary mb-5">Map each agent type to its preferred model.</p>
+                    <h2 className="text-[15px] font-medium text-primary mb-1">Model routing</h2>
+                    <p className="text-[13px] text-secondary mb-5">Choose which model to use for each task type.</p>
 
                     {!isSignedIn && (
                       <div className="rounded-lg border border-border bg-surface-secondary px-4 py-3 text-[13px] text-secondary">
@@ -364,7 +364,6 @@ export function SettingsPage({
                               <div key={agent} className="flex items-center justify-between gap-4">
                                 <div>
                                   <div className="text-[13.5px] font-medium text-primary">{AGENT_LABELS[agent]}</div>
-                                  <div className="text-[11.5px] text-muted">{agent}</div>
                                 </div>
                                 <Select
                                   value={assigned}
