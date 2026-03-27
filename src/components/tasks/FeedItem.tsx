@@ -7,6 +7,7 @@ import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { FeedTaskGroup } from './feed/FeedTaskGroup';
 import { FeedToolCall } from './feed/FeedToolCall';
 import { parseCitationsFromText } from './feed/feedHelpers';
+import { ApprovalGate } from '../ApprovalGate';
 
 const TOOL_LABELS: Record<string, string> = {
   bash: 'Run Command',
@@ -113,10 +114,12 @@ export function FeedItem({
   entry,
   inTimeline = false,
   modelIconOverrides,
+  onApproval,
 }: {
   entry: FeedEntry;
   inTimeline?: boolean;
   modelIconOverrides?: ModelIconOverrides;
+  onApproval?: (taskId: string, approved: boolean) => Promise<void>;
 }) {
   switch (entry.kind) {
     case 'prompt':
@@ -128,6 +131,19 @@ export function FeedItem({
     case 'tool_call':
       return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} showLeadingIcon={!inTimeline} />;
     case 'bash_approval':
+      if (onApproval && entry.taskId) {
+        return (
+          <ApprovalGate
+            taskId={entry.taskId}
+            toolName={entry.toolName}
+            command={entry.command}
+            reason={entry.reason}
+            status={entry.status}
+            onApprove={(id) => void onApproval(id, true)}
+            onReject={(id) => void onApproval(id, false)}
+          />
+        );
+      }
       return <BashApprovalBlock toolName={entry.toolName} command={entry.command} reason={entry.reason} showIcon={!inTimeline} />;
     case 'user_message':
       return <UserBubble text={entry.text} />;

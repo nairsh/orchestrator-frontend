@@ -265,7 +265,7 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
                 {row.kind === 'tool_parallel' ? (
                   <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
                 ) : (
-                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} />
+                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} onApproval={onApproval} />
                 )}
               </div>
             </div>
