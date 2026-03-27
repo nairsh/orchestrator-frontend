@@ -453,7 +453,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                       </div>
                       <div className="truncate text-sm font-medium text-primary">{document.filename}</div>
                       <div className="mt-0.5 text-xs text-muted">
-                        {ext && `${ext} • `}{document.chunk_count} chunks • {formatBytes(document.byte_size)}
+                        {ext && `${ext} • `}{formatBytes(document.byte_size)}
                       </div>
                       <button
                         type="button"
@@ -484,7 +484,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
                 <div className="flex items-center justify-between border-b border-border-light px-5 py-3">
                   <div>
                     <div className="text-sm font-medium text-primary">{selectedDocument.filename}</div>
-                    <div className="text-xs text-muted">{selectedDocument.extraction_mode} • {selectedDocument.status}</div>
+                    <div className="text-xs text-muted capitalize">{selectedDocument.extraction_mode === 'ocr' ? 'Scanned (OCR)' : selectedDocument.extraction_mode === 'document' ? 'Text extracted' : selectedDocument.extraction_mode} • {selectedDocument.status}</div>
                   </div>
                   <button type="button" onClick={() => setSelectedDocumentId(null)} className="text-xs text-muted hover:text-primary">Close</button>
                 </div>

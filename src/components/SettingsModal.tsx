@@ -144,11 +144,11 @@ export function SettingsModal({
                     <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
                       <div className="text-xs uppercase tracking-[0.18em] text-muted">Capabilities discovered</div>
                       <div className="mt-2 text-3xl font-semibold tracking-tight text-primary">{settings.models.length}</div>
-                      <div className="mt-1 text-sm text-secondary">models available from the current endpoint</div>
+                      <div className="mt-1 text-sm text-secondary">models available on your server</div>
                     </div>
                   </div>
 
-                  {requiresAuth && <Alert className="mt-4" type="warning" title="Sign in with Clerk to call the API. This app no longer accepts local API keys." variant="outlined" />}
+                  {requiresAuth && <Alert className="mt-4" type="warning" title="Sign in required to use this server. API key access is not enabled." variant="outlined" />}
                   {status === 'ok' && <Alert className="mt-4" type="success" title="Connected successfully." variant="outlined" />}
                   {status === 'error' && <Alert className="mt-4" type="error" title={errorMsg || 'Connection failed'} variant="outlined" />}
                 </section>

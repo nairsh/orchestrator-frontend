@@ -37,3 +37,4 @@ ea3f8eb	tasks	medium	keep	add Failed/Paused status pill badge in TaskDetail head
 4216e3e	ux	low	keep	copy polish: "tool calls" → "actions", "Start Agent Task" → "Start Parallel Task", "override" → "custom"
 292b7a6	ux	low	keep	align agent label style — noun form (Analysis/Writing/Coding) across AgentHealthPanel
 f0bf694	task-input	medium	keep	send button shows spinner during task creation; fix last "Agent health" heading
+af24016	ux	low	keep	remove "Clerk" from auth gate button and description
