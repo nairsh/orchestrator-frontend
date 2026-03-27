@@ -80,7 +80,7 @@ export function ConnectorsTab({
                     <Button variant="secondary" size="sm" disabled={busy} onClick={async () => {
                       setConnectorBusyId(connector.id);
                       try { await validateConnector(config, connector.id); toastSuccess('Connection verified'); await onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to verify connection'); }
+                      catch (err) { toastApiError(err, 'Couldn\'t verify this connection'); }
                       finally { setConnectorBusyId(null); }
                     }}>{busy && connectorBusyId === connector.id ? 'Testing…' : 'Test connection'}</Button>
                     {disconnectConfirmId === connector.id ? (
@@ -90,7 +90,7 @@ export function ConnectorsTab({
                           setDisconnectConfirmId(null);
                           setConnectorBusyId(connector.id);
                           try { await disconnectConnector(config, connector.id); toastSuccess('Disconnected'); await onRefresh(); }
-                          catch (err) { toastApiError(err, 'Failed to disconnect'); }
+                          catch (err) { toastApiError(err, 'Couldn\'t disconnect'); }
                           finally { setConnectorBusyId(null); }
                         }} className="h-5 px-2 text-[11px]">Yes</Button>
                         <button type="button" onClick={() => setDisconnectConfirmId(null)} className="text-xs text-muted hover:text-primary">✕</button>

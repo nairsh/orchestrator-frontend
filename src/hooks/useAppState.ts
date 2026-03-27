@@ -135,7 +135,7 @@ export function useAppState(props: AppProps) {
       setOpenTaskInFullView(true);
       setScreen('tasks');
     } catch (err) {
-      toastApiError(err, 'Failed to start task');
+      toastApiError(err, 'Couldn\'t start task');
     }
   };
 
@@ -162,7 +162,7 @@ export function useAppState(props: AppProps) {
         setOpenTaskInFullView(true);
         setScreen('tasks');
       } catch (err) {
-        toastApiError(err, 'Failed to start task');
+        toastApiError(err, 'Couldn\'t start task');
       }
       setPendingObjective('');
       setPendingContextFiles([]);

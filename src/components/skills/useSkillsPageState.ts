@@ -61,7 +61,7 @@ export function useSkillsPageState(config: ApiConfig) {
         setSelectedId(null);
         return;
       }
-      toastApiError(error, 'Failed to load skills');
+      toastApiError(error, 'Couldn\'t load skills');
     } finally {
       setLoading(false);
     }
@@ -132,7 +132,7 @@ export function useSkillsPageState(config: ApiConfig) {
       setEditorOpen(false);
       await loadSkills(response.skill.id);
     } catch (error) {
-      toastApiError(error, 'Failed to save skill');
+      toastApiError(error, 'Couldn\'t save skill');
     } finally {
       setSaving(false);
     }
@@ -152,7 +152,7 @@ export function useSkillsPageState(config: ApiConfig) {
       setEditorOpen(false);
       await loadSkills(response.skill.id);
     } catch (error) {
-      toastApiError(error, 'Failed to import skill');
+      toastApiError(error, 'Couldn\'t import skill');
     } finally {
       setSaving(false);
     }
@@ -167,7 +167,7 @@ export function useSkillsPageState(config: ApiConfig) {
       if (selectedId === id) setSelectedId(null);
       await loadSkills();
     } catch (error) {
-      toastApiError(error, 'Failed to delete skill');
+      toastApiError(error, 'Couldn\'t delete skill');
     } finally {
       setDeleting(false);
     }

@@ -49,7 +49,7 @@ export function TaskDetail({
     try {
       await sendMessage(text);
     } catch (err) {
-      toastApiError(err, 'Failed to send message');
+      toastApiError(err, 'Couldn\'t send your message');
     }
   };
 
@@ -60,7 +60,7 @@ export function TaskDetail({
       toastSuccess('Retrying task');
       onRefreshList?.();
     } catch (err) {
-      toastApiError(err, 'Failed to retry task');
+      toastApiError(err, 'Couldn\'t retry this task');
     } finally { setActionBusy(null); }
   };
 
@@ -70,7 +70,7 @@ export function TaskDetail({
       await pauseWorkflow(config, workflowId);
       toastSuccess('Task paused');
     } catch (err) {
-      toastApiError(err, 'Failed to pause task');
+      toastApiError(err, 'Couldn\'t pause this task');
     } finally { setActionBusy(null); }
   };
 
@@ -81,7 +81,7 @@ export function TaskDetail({
       toastSuccess('Task cancelled');
       onRefreshList?.();
     } catch (err) {
-      toastApiError(err, 'Failed to cancel task');
+      toastApiError(err, 'Couldn\'t cancel this task');
     } finally { setActionBusy(null); }
   };
 

@@ -94,7 +94,7 @@ export function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDelet
       setDeleteConfirm(false);
       onDeleted();
     } catch (err) {
-      toastApiError(err, 'Failed to delete task');
+      toastApiError(err, 'Couldn\'t delete this task');
     } finally {
       setDeleting(false);
     }

@@ -36,7 +36,7 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
       setProviders(providerList);
       setPresets(presetMap);
     } catch (err) {
-      toastApiError(err, 'Failed to load providers');
+      toastApiError(err, 'Couldn\'t load AI services');
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
       setDialogState(null);
       await fetchProviders();
     } catch (err) {
-      toastApiError(err, 'Failed to save provider');
+      toastApiError(err, 'Couldn\'t save AI service');
     } finally {
       setSaving(false);
     }
@@ -95,7 +95,7 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
       toastSuccess('Provider removed');
       await fetchProviders();
     } catch (err) {
-      toastApiError(err, 'Failed to delete provider');
+      toastApiError(err, 'Couldn\'t remove AI service');
     }
   };
 

@@ -97,13 +97,13 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                     <Button variant="secondary" disabled={busyId === schedule.id} onClick={async () => {
                       setBusyId(schedule.id);
                       try { const { triggerSchedule } = await import('../../api/client'); await triggerSchedule(config, schedule.id); toastSuccess('Triggered'); void onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to trigger schedule'); }
+                      catch (err) { toastApiError(err, 'Couldn\'t run this schedule'); }
                       finally { setBusyId(null); }
                     }}>{busyId === schedule.id ? 'Running…' : 'Run now'}</Button>
                     <Button variant="secondary" disabled={busyId === schedule.id} onClick={async () => {
                       setBusyId(schedule.id);
                       try { await updateSchedule(config, schedule.id, { status: schedule.status === 'paused' ? 'active' : 'paused' }); toastSuccess('Updated'); void onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to update schedule'); }
+                      catch (err) { toastApiError(err, 'Couldn\'t update schedule'); }
                       finally { setBusyId(null); }
                     }}>{schedule.status === 'paused' ? 'Resume' : 'Pause'}</Button>
                     <Button variant="danger" disabled={busyId === schedule.id} onClick={() => setDeleteConfirmId(schedule.id)}>Delete</Button>
@@ -128,7 +128,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
               const id = deleteConfirmId;
               setBusyId(id);
               try { await deleteSchedule(config, id); toastSuccess('Schedule deleted'); setDeleteConfirmId(null); void onRefresh(); }
-              catch (err) { toastApiError(err, 'Failed to delete schedule'); }
+              catch (err) { toastApiError(err, 'Couldn\'t delete schedule'); }
               finally { setBusyId(null); }
             }}>{busyId === deleteConfirmId ? 'Deleting…' : 'Delete'}</Button>
           </ModalFooter>
@@ -189,7 +189,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
               if (!payload) return;
               setCreating(true);
               try { await createSchedule(config, payload); toastSuccess('Schedule created'); setScheduleObjective(''); setShowDialog(false); void onRefresh(); }
-              catch (err) { toastApiError(err, 'Failed to create schedule'); }
+              catch (err) { toastApiError(err, 'Couldn\'t create schedule'); }
               finally { setCreating(false); }
             }}>{creating ? 'Creating…' : 'Create schedule'}</Button>
           </ModalFooter>

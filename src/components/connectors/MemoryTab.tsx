@@ -73,7 +73,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
               const id = deleteConfirmId;
               setDeleting(true);
               try { await deleteMemory(config, id); setDeleteConfirmId(null); toastSuccess('Memory deleted'); void onRefresh(); }
-              catch (err) { toastApiError(err, 'Failed to delete memory'); }
+              catch (err) { toastApiError(err, 'Couldn\'t delete this memory'); }
               finally { setDeleting(false); }
             }}>{deleting ? 'Deleting…' : 'Delete'}</Button>
           </ModalFooter>
@@ -107,7 +107,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
               try {
                 await saveMemory(config, { key, content, category: memoryCategory.trim() || undefined });
                 toastSuccess('Saved'); setMemoryKey(''); setMemoryContent(''); setShowDialog(false); void onRefresh();
-              } catch (err) { toastApiError(err, 'Failed to save memory'); }
+              } catch (err) { toastApiError(err, 'Couldn\'t save memory'); }
               finally { setSaving(false); }
             }}>{saving ? 'Saving…' : 'Save memory'}</Button>
           </ModalFooter>

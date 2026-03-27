@@ -61,7 +61,7 @@ export function useFilesPageState(
       setDocuments(nextDocuments);
       setSelectedDocumentId((current) => (current && nextDocuments.some((document) => document.id === current) ? current : nextDocuments[0]?.id ?? null));
     } catch (err) {
-      toastApiError(err, 'Failed to load knowledge library');
+      toastApiError(err, 'Couldn\'t load your knowledge library');
     } finally {
       setDocumentsLoading(false);
     }
@@ -90,7 +90,7 @@ export function useFilesPageState(
         if (cancelled) return;
         setWorkspace(null);
         setFiles([]);
-        toastApiError(err, 'Failed to load workspace');
+        toastApiError(err, 'Couldn\'t load workspace files');
       })
       .finally(() => {
         if (cancelled) return;
@@ -130,7 +130,7 @@ export function useFilesPageState(
       .catch((err) => {
         if (cancelled) return;
         setDocumentContent('');
-        toastApiError(err, 'Failed to load document');
+        toastApiError(err, 'Couldn\'t load this document');
       })
       .finally(() => {
         if (!cancelled) setDocumentLoading(false);
@@ -186,7 +186,7 @@ export function useFilesPageState(
       setPreview({ kind: 'text', path, text: text.slice(0, 200_000), contentType });
     } catch (err) {
       setPreview({ kind: 'error', path, message: err instanceof Error ? err.message : String(err) });
-      toastApiError(err, 'Failed to open file');
+      toastApiError(err, 'Couldn\'t open this file');
     }
   };
 
@@ -205,7 +205,7 @@ export function useFilesPageState(
       toastSuccess('Knowledge library updated');
       await refreshKnowledgeDocuments();
     } catch (err) {
-      toastApiError(err, 'Failed to upload knowledge document');
+      toastApiError(err, 'Couldn\'t upload document');
     } finally {
       setUploading(false);
     }
@@ -222,7 +222,7 @@ export function useFilesPageState(
       const response = await searchKnowledge(config, { query, limit: 8 });
       setSearchMatches(response.matches ?? []);
     } catch (err) {
-      toastApiError(err, 'Failed to search knowledge');
+      toastApiError(err, 'Couldn\'t search your library');
     } finally {
       setSearching(false);
     }
@@ -238,7 +238,7 @@ export function useFilesPageState(
       setDeleteDocConfirmId(null);
       await refreshKnowledgeDocuments();
     } catch (err) {
-      toastApiError(err, 'Failed to delete document');
+      toastApiError(err, 'Couldn\'t delete document');
     } finally {
       setDeletingDoc(false);
     }

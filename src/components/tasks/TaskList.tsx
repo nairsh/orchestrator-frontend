@@ -110,7 +110,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       onRefresh();
       onSelect(result.workflow_id, objective);
     } catch (err) {
-      toastApiError(err, 'Failed to start task');
+      toastApiError(err, 'Couldn\'t start task');
     } finally {
       setStarting(false);
     }

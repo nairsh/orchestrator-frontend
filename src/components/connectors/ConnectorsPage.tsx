@@ -67,7 +67,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
       const [providerRes, connectorRes] = await Promise.all([listConnectorProviders(config), listConnectors(config)]);
       setProviders(providerRes.providers ?? []);
       setConnectors(connectorRes.connectors ?? []);
-    } catch (err) { toastApiError(err, 'Failed to load connectors'); }
+    } catch (err) { toastApiError(err, 'Couldn\'t load your connections'); }
     finally { setConnectorsLoading(false); }
   };
 
@@ -75,7 +75,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
     if (!canUseApi) return;
     setTemplatesLoading(true);
     try { const res = await listTemplates(config); setTemplates(res.templates ?? []); }
-    catch (err) { toastApiError(err, 'Failed to load templates'); }
+    catch (err) { toastApiError(err, 'Couldn\'t load templates'); }
     finally { setTemplatesLoading(false); }
   };
 
@@ -83,7 +83,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
     if (!canUseApi) return;
     setSchedulesLoading(true);
     try { const res = await listSchedules(config); setSchedules(res.schedules ?? []); }
-    catch (err) { toastApiError(err, 'Failed to load schedules'); }
+    catch (err) { toastApiError(err, 'Couldn\'t load schedules'); }
     finally { setSchedulesLoading(false); }
   };
 
@@ -91,7 +91,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
     if (!canUseApi) return;
     setMemoriesLoading(true);
     try { const res = await listMemories(config); setMemories(res.memories ?? []); }
-    catch (err) { toastApiError(err, 'Failed to load memory'); }
+    catch (err) { toastApiError(err, 'Couldn\'t load saved memory'); }
     finally { setMemoriesLoading(false); }
   };
 
@@ -108,7 +108,7 @@ export function ConnectorsPage({ config, onWorkflowStarted }: ConnectorsPageProp
         setTeamsStatus('disabled'); return;
       }
       setTeamsStatus('idle');
-      toastApiError(err, 'Failed to load teams');
+      toastApiError(err, 'Couldn\'t load team info');
     }
   };
 

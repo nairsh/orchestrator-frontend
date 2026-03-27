@@ -94,7 +94,7 @@ export function SettingsPage({
       await onSave(baseUrl.trim());
       if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides);
       toastSuccess('Settings saved');
-    } catch (err) { toastApiError(err, 'Failed to save'); }
+    } catch (err) { toastApiError(err, 'Couldn\'t save settings'); }
     finally { setSaving(false); }
   };
 
