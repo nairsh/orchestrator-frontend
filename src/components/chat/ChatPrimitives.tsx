@@ -137,7 +137,7 @@ export function StreamingIndicator() {
   return (
     <div className="flex items-center gap-2 text-muted font-sans text-sm ml-10">
       <Loader2 size={14} className="animate-spin" />
-      Thinking...
+      Thinking…
     </div>
   );
 }
