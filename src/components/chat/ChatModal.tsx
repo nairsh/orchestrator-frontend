@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ApiConfig } from '../../api/client';
-import { getModels } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
 import { useChatStream } from '../../hooks/useChatStream';
+import { useChatModel } from '../../hooks/useChatModel';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { ChatHeader, ChatMessageArea, ChatInput } from './ChatPrimitives';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
@@ -16,7 +16,7 @@ interface ChatModalProps {
 
 export function ChatModal({ config, onClose, fullscreen = false, modelIconOverrides }: ChatModalProps) {
   const [visible, setVisible] = useState(false);
-  const [model, setModel] = useState<string>('openai/gpt-4o');
+  const [model, setModel] = useChatModel(config);
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
   const { messages, streaming, draftAssistant, canSend, send, abort } = useChatStream({ config, model });
@@ -25,26 +25,6 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
     const t = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(t);
   }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    getModels(config)
-      .then((res) => {
-        if (cancelled) return;
-        const ids = new Set(res.models.map((m) => m.id));
-        const preferred =
-          (res.default_orchestrator_model && ids.has(res.default_orchestrator_model)
-            ? res.default_orchestrator_model
-            : res.models[0]?.id) ?? model;
-        if (!ids.has(model) && preferred) {
-          setModel(preferred);
-        }
-      })
-      .catch(() => {
-        // Model list unavailable — keep current selection
-      });
-    return () => { cancelled = true; };
-  }, [config.baseUrl]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
