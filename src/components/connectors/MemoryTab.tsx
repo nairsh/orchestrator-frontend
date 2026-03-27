@@ -85,8 +85,8 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
           <ModalHeader title="Save memory" onClose={() => setShowDialog(false)} />
           <ModalBody>
             <div className="grid gap-3">
-              <Input value={memoryKey} onChange={(e) => setMemoryKey(e.target.value)} placeholder="key" label="Key" />
-              <Input value={memoryCategory} onChange={(e) => setMemoryCategory(e.target.value)} placeholder="category" label="Category" />
+              <Input value={memoryKey} onChange={(e) => setMemoryKey(e.target.value)} placeholder="e.g. preferred-language" label="Name" />
+              <Input value={memoryCategory} onChange={(e) => setMemoryCategory(e.target.value)} placeholder="e.g. preferences" label="Category" />
               <Textarea
                 value={memoryContent}
                 onChange={(e) => setMemoryContent(e.target.value)}
