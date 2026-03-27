@@ -400,7 +400,7 @@ export function SkillsPage({ config }: SkillsPageProps) {
                 />
                 <div className="mt-2 flex items-start gap-2 rounded-2xl border border-border-light bg-surface-secondary px-3 py-3 text-xs text-muted">
                   <FileUp size={14} className="mt-0.5 flex-shrink-0" />
-                  Include YAML frontmatter with at least `description`, and optionally `tools`.
+                  Include a header section with at least a description.
                 </div>
               </div>
             ) : (
@@ -427,7 +427,8 @@ export function SkillsPage({ config }: SkillsPageProps) {
                   />
                 </div>
 
-                <Input label="Tools" value={draftTools} onChange={(event) => setDraftTools(event.target.value)} placeholder="bash, file_read, grep (comma-separated)" />
+                <Input label="Tools" value={draftTools} onChange={(event) => setDraftTools(event.target.value)} placeholder="web_search, file_read, bash (comma-separated)" />
+                <div className="text-xs text-muted -mt-1">Optional — limit which capabilities this skill can use.</div>
               </>
             )}
           </ModalBody>
