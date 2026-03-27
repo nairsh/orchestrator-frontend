@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ChevronDown, Zap, Brain, CircleDollarSign } from 'lucide-react';
+import { ChevronDown, Zap, Brain, CircleDollarSign, Loader2 } from 'lucide-react';
 import { getModels } from '../../api/client';
 import { DropdownMenu, DropdownMenuItem } from '../ui/DropdownMenu';
 import type { ApiConfig } from '../../api/client';
@@ -51,11 +51,14 @@ export function ModelDropdown({
   direction = 'down',
 }: ModelDropdownProps) {
   const [data, setData] = useState<ModelsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     getModels(config)
       .then((res) => setData(res))
-      .catch(() => setData(null));
+      .catch(() => setData(null))
+      .finally(() => setLoading(false));
   }, [config]);
 
   const modelById = useMemo(() => {
@@ -130,8 +133,8 @@ export function ModelDropdown({
             isLarge ? 'gap-2.5 text-lg px-4 py-2.5' : isSmall ? 'h-8 gap-1.5 text-sm px-3' : 'h-8 gap-2 text-sm px-3'
           } ${open ? 'bg-surface-secondary' : 'bg-surface-tertiary hover:bg-surface-secondary'}`}
         >
-          <ModelIcon iconKey={selectedIconKey} size={isLarge ? 18 : 14} />
-          <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : 'text-sm max-w-[200px]'}`}>{triggerLabel}</span>
+          {loading ? <Loader2 size={isLarge ? 18 : 14} className="text-subtle animate-spin" /> : <ModelIcon iconKey={selectedIconKey} size={isLarge ? 18 : 14} />}
+          <span className={`font-sans font-medium text-primary truncate ${isLarge ? 'text-lg max-w-[300px]' : 'text-sm max-w-[200px]'}`}>{loading ? 'Loading…' : triggerLabel}</span>
           <ChevronDown
             size={isLarge ? 18 : 14}
             className="text-subtle transition-transform duration-200"

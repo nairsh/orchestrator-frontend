@@ -56,9 +56,9 @@ export function TemplatesTab({ templates, templatesLoading, config, onRefresh, o
                     const started = await createWorkflow(config, res.config);
                     toastSuccess('Task started', 'Your task is now running.');
                     onWorkflowStarted?.(started.workflow_id, obj);
-                  } catch (err) { toastApiError(err, 'Failed to start task'); }
+                  } catch (err) { toastApiError(err, 'Couldn\'t start task'); }
                   finally { setStartingId(null); }
-                }}>{startingId === tpl.id ? 'Starting…' : 'Use'}</Button>
+                }}>{startingId === tpl.id ? <><Loader2 size={14} className="animate-spin inline mr-1" />Starting…</> : 'Use'}</Button>
               </div>
             </Card>
           ))}
