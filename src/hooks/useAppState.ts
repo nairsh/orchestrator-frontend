@@ -93,7 +93,7 @@ export function useAppState(props: AppProps) {
   const gPrefixRef = useRef(false);
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
-    const NAV_MAP: Record<string, TaskNav> = { t: 'tasks', f: 'files', c: 'connectors', s: 'skills' };
+    const NAV_MAP: Record<string, TaskNav> = { f: 'files', c: 'connectors', s: 'skills' };
 
     const handler = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement;
@@ -123,6 +123,24 @@ export function useAppState(props: AppProps) {
 
     document.addEventListener('keydown', handler);
     return () => { document.removeEventListener('keydown', handler); clearTimeout(timer); };
+  }, []);
+
+  // ⌘+Shift+O → Go to Tasks
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
+
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'o') {
+        e.preventDefault();
+        setScreen('tasks');
+        setRequestedTaskNav('tasks');
+        setShowShortcutsOverlay(false);
+      }
+    };
+
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, []);
 
   useEffect(() => {

@@ -260,7 +260,6 @@ export function TaskDetail({
         maxWidth={contentMaxWidth}
         modelLabel={fullView ? modelLabel : undefined}
         animateEntry={animateInputEntry}
-        compactSendButton={fullView}
       />
     </div>
   );

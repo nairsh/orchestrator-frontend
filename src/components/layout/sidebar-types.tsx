@@ -17,7 +17,7 @@ export interface NavItem {
 export const navHotkeys: Partial<Record<NavId, string>> = {
   new: 'n',
   search: 'mod+k',
-  tasks: 'g+t',
+  tasks: '⌘⇧O',
   files: 'g+f',
   connectors: 'g+c',
   skills: 'g+s',
