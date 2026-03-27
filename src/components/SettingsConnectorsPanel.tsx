@@ -50,8 +50,7 @@ const getConnectorSummary = (connector: ConnectorRecord): string => {
   }
   if (connector.provider === 'notion') {
     const workspaceName = getProviderMetaValue(connector.metadata, 'workspace_name');
-    const workspaceId = getProviderMetaValue(connector.metadata, 'workspace_id');
-    return [workspaceName, workspaceId].filter(Boolean).join(' • ');
+    return workspaceName ?? '';
   }
   return connector.display_name;
 };
