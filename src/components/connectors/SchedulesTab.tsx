@@ -70,7 +70,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
           <RelayEmpty
             icon={<CalendarClock size={26} className="text-muted" />}
             title="No schedules"
-            description="Create a schedule to automate recurring workflows on a cron or interval basis."
+            description="Create a schedule to automate recurring tasks on a cron or interval basis."
           />
         ) : (
           <div className="grid gap-3 lg:grid-cols-2">
@@ -85,8 +85,8 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                     <div className="mt-2 text-sm text-secondary">{schedule.workflow_config ? JSON.parse(schedule.workflow_config).objective ?? 'Scheduled task' : 'Scheduled task'}</div>
                     <div className="mt-3 text-xs leading-5 text-muted">
                       Next: {formatWhen(schedule.next_run_at)}<br />
-                      Timezone: {schedule.timezone} • Overlap: {schedule.overlap_policy}<br />
-                      Status: {schedule.status}{schedule.last_run_status ? ` • Last run ${schedule.last_run_status}` : ''}
+                      Timezone: {schedule.timezone} • {schedule.overlap_policy === 'skip' ? 'Skip if already running' : 'Queue overlapping run'}<br />
+                      {schedule.status.charAt(0).toUpperCase() + schedule.status.slice(1)}{schedule.last_run_status ? ` • Last run: ${schedule.last_run_status}` : ''}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
