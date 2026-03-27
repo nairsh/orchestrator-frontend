@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowDown, ChevronDown } from 'lucide-react';
 import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
@@ -139,11 +139,47 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
   const hasTimeline = markerIndices.length > 0;
   const totalRows = renderRows.length + (hasThinkingRow ? 1 : 0);
 
-  useEffect(() => {
+  // Track whether user is near the bottom of the scroll container
+  const [isNearBottom, setIsNearBottom] = useState(true);
+  const [hasNewContent, setHasNewContent] = useState(false);
+  const prevRowCount = useRef(renderRows.length);
+
+  const checkIfNearBottom = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return true;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  }, [renderRows.length]);
+    setHasNewContent(false);
+  }, []);
+
+  // Listen for scroll events to track position
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const near = checkIfNearBottom();
+      setIsNearBottom(near);
+      if (near) setHasNewContent(false);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [checkIfNearBottom]);
+
+  // Auto-scroll only when user is at bottom; otherwise mark new content
+  useEffect(() => {
+    if (renderRows.length === prevRowCount.current) return;
+    prevRowCount.current = renderRows.length;
+    if (isNearBottom) {
+      scrollToBottom();
+    } else {
+      setHasNewContent(true);
+    }
+  }, [renderRows.length, isNearBottom, scrollToBottom]);
 
   useEffect(() => {
     if (!hasTimeline) {
@@ -245,6 +281,25 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
           <ThinkingIndicator currentActivity={currentActivity} isStale={isStale} />
         )}
       </div>
+
+      {/* Scroll-to-bottom floating button */}
+      {!isNearBottom && (
+        <div className="sticky bottom-6 z-10 flex justify-center pointer-events-none">
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            className="pointer-events-auto flex items-center gap-1.5 px-4 py-2 rounded-full
+              bg-primary text-white shadow-lg
+              text-xs font-semibold
+              transition-all duration-200 hover:shadow-xl hover:brightness-110 active:scale-95
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+            aria-label="Scroll to bottom"
+          >
+            <ArrowDown size={14} />
+            {hasNewContent ? 'New activity below' : 'Jump to bottom'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
