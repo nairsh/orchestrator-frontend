@@ -39,3 +39,4 @@ ea3f8eb	tasks	medium	keep	add Failed/Paused status pill badge in TaskDetail head
 f0bf694	task-input	medium	keep	send button shows spinner during task creation; fix last "Agent health" heading
 af24016	ux	low	keep	remove "Clerk" from auth gate button and description
 77b0164	files+settings	medium	keep	humanize "chunks"/"extraction_mode" in FilesPage; remove "endpoint"/"Clerk" from SettingsModal
+8f49571	settings	low	keep	connector panel jargon cleanup: metadata/credentials/provider-defined

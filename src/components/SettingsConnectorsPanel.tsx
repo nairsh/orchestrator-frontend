@@ -91,10 +91,10 @@ export function SettingsConnectorsPanel({
       <section className="rounded-[28px] border border-border-light bg-surface p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Context bridges</div>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Manage production connectors without leaving settings.</h3>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-muted">Connected services</div>
+            <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Connect your tools and services.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
-              Start auth, validate token health, and disconnect providers from one place. OAuth testing is intentionally skipped, but the rest of the management surface is wired.
+              Sign in to GitHub, Notion, Linear, and more so your AI can access the context it needs to do great work.
             </p>
           </div>
           <Button variant="ghost" onClick={onRefresh} disabled={!isSignedIn || connectorsLoading}>
