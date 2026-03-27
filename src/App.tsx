@@ -1,212 +1,30 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useConfig } from './hooks/useConfig';
 import { LandingPage } from './components/landing/LandingPage';
 import { TasksPage } from './components/tasks/TasksPage';
-import { createWorkflow, getModels } from './api/client';
-import type { ContextFileUpload } from './api/client';
 import { SettingsModal } from './components/SettingsModal';
 import { SettingsPage } from './components/SettingsPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Toaster } from 'sileo';
-import { toastApiError } from './lib/toast';
-import type { ApiConfig } from './api/client';
-import type { ModelIconOverrides } from './lib/modelIcons';
-import { CommandPalette } from './components/CommandPalette';
-import { TaskSearchDialog } from './components/TaskSearchDialog';
-import { OnboardingModal, hasCompletedOnboarding } from './components/OnboardingModal';
-import { KeyboardShortcutsOverlay, useKeyboardShortcuts } from './components/KeyboardShortcuts';
 import { BrandMark, BrandWordmark } from './components/branding/Brand';
+import { useAppState } from './hooks/useAppState';
+import { AppModals } from './AppModals';
+import type { AppProps, TaskNav } from './appTypes';
 
-type Screen = 'landing' | 'tasks' | 'settings';
-type TaskNav = 'tasks' | 'files' | 'connectors' | 'skills';
-
-interface AppProps {
-  clerkEnabled?: boolean;
-  authLoaded?: boolean;
-  getAuthToken?: () => Promise<string | null>;
-  hasSessionAuth?: boolean;
-  userLabel?: string | null;
-  userAvatarUrl?: string | null;
-  onSignIn?: () => Promise<void>;
-  onSignOut?: () => Promise<void>;
-  modelIconOverrides?: ModelIconOverrides;
-  onSaveModelIconOverrides?: (overrides: ModelIconOverrides) => Promise<void>;
-}
-
-export default function App({
-  clerkEnabled = false,
-  authLoaded = true,
-  getAuthToken,
-  hasSessionAuth = false,
-  userLabel,
-  userAvatarUrl,
-  onSignIn,
-  onSignOut,
-  modelIconOverrides = {},
-  onSaveModelIconOverrides,
-}: AppProps) {
-  const { config, saveConfig } = useConfig();
-  const [screen, setScreen] = useState<Screen>('landing');
-  const [activeWorkflow, setActiveWorkflow] = useState<{ id: string; objective: string } | null>(null);
-  const [selectedModel, setSelectedModel] = useState('');
-  const [showSettings, setShowSettings] = useState(false);
-  const [pendingObjective, setPendingObjective] = useState('');
-  const [pendingContextFiles, setPendingContextFiles] = useState<ContextFileUpload[]>([]);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [requestedTaskNav, setRequestedTaskNav] = useState<TaskNav>('tasks');
-  const [openTaskInFullView, setOpenTaskInFullView] = useState(false);
-  const [showCommandPalette, setShowCommandPalette] = useState(false);
-  const [showTaskSearch, setShowTaskSearch] = useState(false);
-
-  // Track theme for Toaster
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(() => {
-    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
-  });
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setThemeMode(document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => observer.disconnect();
-  }, []);
-  const toasterOptions = useMemo(() => ({
-    roundness: 20,
-    fill: themeMode === 'dark' ? '#282624' : '#ffffff',
-    styles: {
-      title: 'relay-toast-title',
-      description: 'relay-toast-description',
-    },
-  }), [themeMode]);
-  const [showOnboarding, setShowOnboarding] = useState(() => !hasCompletedOnboarding());
-  const [showShortcutsOverlay, setShowShortcutsOverlay] = useState(false);
-
-  // In local mode (no Clerk), treat as authenticated since the backend
-  // accepts unauthenticated requests when DISABLE_AUTH=true.
-  const effectiveAuth = clerkEnabled ? hasSessionAuth : true;
-
-  const runtimeConfig: ApiConfig = {
-    ...config,
+export default function App(props: AppProps) {
+  const {
+    clerkEnabled = false,
+    authLoaded = true,
+    hasSessionAuth = false,
     getAuthToken,
-    hasAuth: effectiveAuth,
-  };
-  const isConfigured = config.baseUrl.trim().length > 0;
+    userLabel,
+    userAvatarUrl,
+    onSignIn,
+    onSignOut,
+    modelIconOverrides = {},
+    onSaveModelIconOverrides,
+  } = props;
 
-  // Cmd+K / Ctrl+K: Open command palette
-  useEffect(() => {
-    const handleCmdK = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setShowCommandPalette(true);
-      }
-    };
-    document.addEventListener('keydown', handleCmdK);
-    return () => document.removeEventListener('keydown', handleCmdK);
-  }, []);
-
-  // Keyboard shortcuts
-  useKeyboardShortcuts([
-    {
-      key: 'n',
-      action: () => {
-        setScreen('landing');
-        window.dispatchEvent(new CustomEvent('relay:focus-input'));
-      },
-      description: 'New task',
-    },
-    {
-      key: '?',
-      shift: true,
-      action: () => setShowShortcutsOverlay(true),
-      description: 'Show keyboard shortcuts',
-    },
-  ]);
-
-  useEffect(() => {
-    if (!isConfigured) return;
-
-    let cancelled = false;
-    getModels(runtimeConfig)
-      .then((res) => {
-        if (cancelled) return;
-        const ids = new Set(res.models.map((m) => m.id));
-        const preferred =
-          (res.default_orchestrator_model && ids.has(res.default_orchestrator_model)
-            ? res.default_orchestrator_model
-            : res.models[0]?.id) ??
-          '';
-        setSelectedModel((current) => {
-          if (current && ids.has(current)) return current;
-          return preferred;
-        });
-      })
-      .catch(() => {});
-
-    return () => {
-      cancelled = true;
-    };
-  }, [config.baseUrl, hasSessionAuth]);
-
-  const handleLandingSubmit = async (objective: string, model: string, contextFiles: ContextFileUpload[] = []) => {
-    setSelectedModel(model);
-
-    if (!isConfigured) {
-      setPendingObjective(objective);
-      setPendingContextFiles(contextFiles);
-      setShowSettings(true);
-      return;
-    }
-
-    try {
-        const result = await createWorkflow(runtimeConfig, {
-          objective,
-          orchestrator_model: model,
-          ...(contextFiles.length > 0 ? { context_files: contextFiles } : {}),
-        });
-      setActiveWorkflow({ id: result.workflow_id, objective });
-      setRequestedTaskNav('tasks');
-      setOpenTaskInFullView(true);
-      setScreen('tasks');
-    } catch (err) {
-      toastApiError(err, 'Failed to start task');
-    }
-  };
-
-  const handleSaveSettings = async (baseUrl: string) => {
-    const newConfig = { baseUrl: baseUrl.trim() };
-    const runtimeNewConfig: ApiConfig = {
-      ...newConfig,
-      getAuthToken,
-      hasAuth: hasSessionAuth,
-    };
-    saveConfig(newConfig);
-    setShowSettings(false);
-
-    // If there was a pending objective, create the workflow now
-    if (pendingObjective) {
-      try {
-        const result = await createWorkflow(runtimeNewConfig, {
-          objective: pendingObjective,
-          orchestrator_model: selectedModel,
-          ...(pendingContextFiles.length > 0 ? { context_files: pendingContextFiles } : {}),
-        });
-        setActiveWorkflow({ id: result.workflow_id, objective: pendingObjective });
-        setRequestedTaskNav('tasks');
-        setOpenTaskInFullView(true);
-        setScreen('tasks');
-      } catch (err) {
-        toastApiError(err, 'Failed to start task');
-      }
-      setPendingObjective('');
-      setPendingContextFiles([]);
-    }
-  };
-
-  const openTasks = (nav: TaskNav = 'tasks') => {
-    setRequestedTaskNav(nav);
-    setOpenTaskInFullView(false);
-    setScreen('tasks');
-  };
+  const state = useAppState(props);
 
   if (clerkEnabled && !authLoaded) {
     return (
@@ -243,16 +61,16 @@ export default function App({
             </button>
             <button
               type="button"
-              onClick={() => setShowSettings(true)}
+              onClick={() => state.setShowSettings(true)}
               className="rounded-lg border border-border bg-transparent px-3 py-2 text-sm text-secondary hover:bg-surface-hover"
             >
               Settings
             </button>
           </div>
         </div>
-        {showSettings && (
+        {state.showSettings && (
           <SettingsModal
-            initialBaseUrl={config.baseUrl}
+            initialBaseUrl={state.config.baseUrl}
             requiresAuth
             clerkEnabled={clerkEnabled}
             isSignedIn={hasSessionAuth}
@@ -262,8 +80,8 @@ export default function App({
             userLabel={userLabel}
             initialModelIconOverrides={modelIconOverrides}
             onSaveModelIconOverrides={onSaveModelIconOverrides}
-            onSave={(baseUrl) => void handleSaveSettings(baseUrl)}
-            onClose={() => setShowSettings(false)}
+            onSave={(baseUrl) => void state.handleSaveSettings(baseUrl)}
+            onClose={() => state.setShowSettings(false)}
           />
         )}
       </div>
@@ -276,30 +94,30 @@ export default function App({
       <Toaster
         position="top-right"
         offset={{ top: 18, right: 18 }}
-        theme={themeMode}
-        options={toasterOptions}
+        theme={state.themeMode}
+        options={state.toasterOptions}
       />
-      {screen === 'landing' ? (
+      {state.screen === 'landing' ? (
         <LandingPage
-          config={runtimeConfig}
-          onSubmit={(objective, model, contextFiles) => void handleLandingSubmit(objective, model, contextFiles)}
-          onOpenSettings={() => setScreen('settings')}
-          onOpenTasks={openTasks}
-          onOpenSearch={() => setShowTaskSearch(true)}
+          config={state.runtimeConfig}
+          onSubmit={(objective, model, contextFiles) => void state.handleLandingSubmit(objective, model, contextFiles)}
+          onOpenSettings={() => state.setScreen('settings')}
+          onOpenTasks={state.openTasks}
+          onOpenSearch={() => state.setShowTaskSearch(true)}
           onSignOut={onSignOut}
-          isSignedIn={effectiveAuth}
+          isSignedIn={state.effectiveAuth}
           userLabel={userLabel}
           userAvatarUrl={userAvatarUrl}
-          sidebarCollapsed={sidebarCollapsed}
-          onSidebarCollapsedChange={setSidebarCollapsed}
+          sidebarCollapsed={state.sidebarCollapsed}
+          onSidebarCollapsedChange={state.setSidebarCollapsed}
           modelIconOverrides={modelIconOverrides}
         />
-      ) : screen === 'settings' ? (
+      ) : state.screen === 'settings' ? (
         <SettingsPage
-          initialBaseUrl={config.baseUrl}
+          initialBaseUrl={state.config.baseUrl}
           clerkEnabled={clerkEnabled}
-          requiresAuth={!effectiveAuth}
-          isSignedIn={effectiveAuth}
+          requiresAuth={!state.effectiveAuth}
+          isSignedIn={state.effectiveAuth}
           getAuthToken={getAuthToken}
           onSignIn={onSignIn}
           onSignOut={onSignOut}
@@ -307,108 +125,37 @@ export default function App({
           userAvatarUrl={userAvatarUrl}
           initialModelIconOverrides={modelIconOverrides}
           onSaveModelIconOverrides={onSaveModelIconOverrides}
-          onSave={(baseUrl) => void handleSaveSettings(baseUrl)}
-          onBack={() => setScreen('tasks')}
-          sidebarCollapsed={sidebarCollapsed}
-          onSidebarCollapsedChange={setSidebarCollapsed}
-          onNavigateToLanding={() => setScreen('landing')}
-          onOpenTasks={(nav) => openTasks(nav as TaskNav)}
-          onOpenSearch={() => setShowTaskSearch(true)}
+          onSave={(baseUrl) => void state.handleSaveSettings(baseUrl)}
+          onBack={() => state.setScreen('tasks')}
+          sidebarCollapsed={state.sidebarCollapsed}
+          onSidebarCollapsedChange={state.setSidebarCollapsed}
+          onNavigateToLanding={() => state.setScreen('landing')}
+          onOpenTasks={(nav) => state.openTasks(nav as TaskNav)}
+          onOpenSearch={() => state.setShowTaskSearch(true)}
         />
       ) : (
         <TasksPage
-          config={runtimeConfig}
-          initialWorkflowId={activeWorkflow?.id}
-          initialObjective={activeWorkflow?.objective}
-          selectedModel={selectedModel}
-          onSelectedModelChange={setSelectedModel}
-          onNavigateToLanding={() => setScreen('landing')}
-          onOpenSettings={() => setScreen('settings')}
-          onOpenSearch={() => setShowTaskSearch(true)}
+          config={state.runtimeConfig}
+          initialWorkflowId={state.activeWorkflow?.id}
+          initialObjective={state.activeWorkflow?.objective}
+          selectedModel={state.selectedModel}
+          onSelectedModelChange={state.setSelectedModel}
+          onNavigateToLanding={() => state.setScreen('landing')}
+          onOpenSettings={() => state.setScreen('settings')}
+          onOpenSearch={() => state.setShowTaskSearch(true)}
           onSignOut={onSignOut}
-          isSignedIn={effectiveAuth}
+          isSignedIn={state.effectiveAuth}
           userLabel={userLabel}
           userAvatarUrl={userAvatarUrl}
-          sidebarCollapsed={sidebarCollapsed}
-          onSidebarCollapsedChange={setSidebarCollapsed}
-          requestedNav={requestedTaskNav}
-          initialTaskFullView={openTaskInFullView}
+          sidebarCollapsed={state.sidebarCollapsed}
+          onSidebarCollapsedChange={state.setSidebarCollapsed}
+          requestedNav={state.requestedTaskNav}
+          initialTaskFullView={state.openTaskInFullView}
           modelIconOverrides={modelIconOverrides}
         />
       )}
 
-      {showSettings && (
-        <SettingsModal
-          initialBaseUrl={config.baseUrl}
-          clerkEnabled={clerkEnabled}
-          requiresAuth={!effectiveAuth}
-          isSignedIn={effectiveAuth}
-          getAuthToken={getAuthToken}
-          onSignIn={onSignIn}
-          onSignOut={onSignOut}
-          userLabel={userLabel}
-          initialModelIconOverrides={modelIconOverrides}
-          onSaveModelIconOverrides={onSaveModelIconOverrides}
-          onSave={(baseUrl) => void handleSaveSettings(baseUrl)}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
-
-      {/* Command Palette */}
-      {showCommandPalette && (
-        <CommandPalette
-          open={showCommandPalette}
-          onClose={() => setShowCommandPalette(false)}
-          workflows={[]}
-          onNavigate={(target) => {
-            setShowCommandPalette(false);
-            if (target === 'landing') setScreen('landing');
-            else openTasks(target as TaskNav);
-          }}
-          onSelectWorkflow={(id, objective) => {
-            setShowCommandPalette(false);
-            setActiveWorkflow({ id, objective });
-            setRequestedTaskNav('tasks');
-            setOpenTaskInFullView(true);
-            setScreen('tasks');
-          }}
-          onOpenSettings={() => {
-            setShowCommandPalette(false);
-            setScreen('settings');
-          }}
-          onNewWorkflow={() => {
-            setShowCommandPalette(false);
-            setScreen('landing');
-            window.dispatchEvent(new CustomEvent('relay:focus-input'));
-          }}
-        />
-      )}
-
-      {/* Task Search Dialog (Raycast-style) */}
-      {showTaskSearch && (
-        <TaskSearchDialog
-          open={showTaskSearch}
-          onClose={() => setShowTaskSearch(false)}
-          config={runtimeConfig}
-          onSelectWorkflow={(id, objective) => {
-            setShowTaskSearch(false);
-            setActiveWorkflow({ id, objective });
-            setRequestedTaskNav('tasks');
-            setOpenTaskInFullView(true);
-            setScreen('tasks');
-          }}
-        />
-      )}
-
-      {/* Keyboard Shortcuts Overlay */}
-      {showShortcutsOverlay && (
-        <KeyboardShortcutsOverlay open={showShortcutsOverlay} onClose={() => setShowShortcutsOverlay(false)} />
-      )}
-
-      {/* Onboarding Modal */}
-      {showOnboarding && (
-        <OnboardingModal onClose={() => setShowOnboarding(false)} />
-      )}
+      <AppModals state={state} appProps={props} />
     </div>
     </ErrorBoundary>
   );
