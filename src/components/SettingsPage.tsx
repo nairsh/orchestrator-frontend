@@ -127,7 +127,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
     >
       <span
         className={[
-          'pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform mt-0.5',
+          'pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 mt-0.5',
           checked ? 'translate-x-[18px] ml-0' : 'translate-x-0.5',
         ].join(' ')}
       />
