@@ -33,3 +33,4 @@ c01a3f9	settings	low	keep	"Agent Health" → "Model Health" in settings panel
 f9e1f8a	ux	low	keep	workflow → task in TaskItem delete toasts and TaskList search aria-label
 deab430	tasks	high	keep	add delete confirmation modal to TaskItem — replace immediate-fire delete
 ea3f8eb	tasks	medium	keep	add Failed/Paused status pill badge in TaskDetail header next to task title
+12e29db	connectors	medium	keep	add loading states to SchedulesTab/MemoryTab/TemplatesTab — prevent double-submit and show feedback

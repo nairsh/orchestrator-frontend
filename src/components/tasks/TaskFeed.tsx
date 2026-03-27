@@ -43,7 +43,7 @@ function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry
         onClick={() => setOpen((v) => !v)}
       >
         <span className="font-sans text-sm text-muted">
-          Running {entries.length} tool calls in parallel
+          Running {entries.length} actions in parallel
         </span>
         <ChevronDown
           size={14}

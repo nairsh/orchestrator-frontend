@@ -88,7 +88,7 @@ export function SettingsRoutingPanel({
                         <div className="text-sm font-medium text-primary">{AGENT_LABELS[agent]}</div>
                       </div>
                       {assigned && (
-                        <Tag size="small">override</Tag>
+                        <Tag size="small">custom</Tag>
                       )}
                     </div>
                     <Select

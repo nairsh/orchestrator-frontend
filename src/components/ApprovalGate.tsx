@@ -14,7 +14,7 @@ const TOOL_LABELS: Record<string, string> = {
   web_search: 'Search Web',
   fetch_url: 'Fetch URL',
   code_execution: 'Execute Code',
-  spawn_subagent: 'Start Agent Task',
+  spawn_subagent: 'Start Parallel Task',
 };
 
 function humanizeToolName(name: string): string {
