@@ -408,7 +408,7 @@
   font-family: Inter, sans-serif;
   font-size: 12px;
   line-height: 1.45;
-  color: rgba(17, 17, 17, 0.74);
+  color: var(--relay-secondary);
 }
 
 /* ─── Font stacks ─── */
