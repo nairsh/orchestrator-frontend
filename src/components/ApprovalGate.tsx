@@ -1,4 +1,5 @@
-import { Check, X, ShieldAlert, Server } from 'lucide-react';
+import { useState } from 'react';
+import { Check, X, ShieldAlert, Server, Loader2 } from 'lucide-react';
 import { Highlighter, Tag } from '@lobehub/ui';
 import { Button } from './ui/Button';
 
@@ -33,6 +34,7 @@ interface ApprovalGateProps {
 
 export function ApprovalGate({ taskId, toolName, command, reason, status, onApprove, onReject }: ApprovalGateProps) {
   const isPending = status === 'pending';
+  const [approving, setApproving] = useState<'approve' | 'reject' | null>(null);
 
   return (
     <div className={`rounded-lg border px-4 py-3 ${
@@ -77,19 +79,27 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => onApprove(taskId)}
+                disabled={!!approving}
+                onClick={() => {
+                  setApproving('approve');
+                  void Promise.resolve(onApprove(taskId)).finally(() => setApproving(null));
+                }}
                 className="gap-1.5 !bg-success-muted hover:!bg-success"
               >
-                <Check size={14} />
+                {approving === 'approve' ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
                 Approve
               </Button>
               <Button
                 variant="danger"
                 size="sm"
-                onClick={() => onReject(taskId)}
+                disabled={!!approving}
+                onClick={() => {
+                  setApproving('reject');
+                  void Promise.resolve(onReject(taskId)).finally(() => setApproving(null));
+                }}
                 className="gap-1.5"
               >
-                <X size={14} />
+                {approving === 'reject' ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}
                 Reject
               </Button>
             </div>
