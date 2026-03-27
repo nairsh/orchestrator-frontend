@@ -17,7 +17,8 @@ export type WorkflowEventType =
   | 'credit_update'
   | 'subagent_tool_call'
   | 'subagent_tool_result'
-  | 'bash_approval_requested';
+  | 'bash_approval_requested'
+  | 'clarification_requested';
 
 export interface WorkflowEvent {
   type: WorkflowEventType;
@@ -87,6 +88,19 @@ export interface WorkflowSummary {
   updated_at: string;
   completed_at: string | null;
   output?: string | null;
+  pause_reason?: string | null;
+  pending_clarification?: string | null;
+}
+
+export interface ClarificationOption {
+  label: string;
+  description?: string;
+}
+
+export interface ClarificationRequestedData {
+  question: string;
+  options?: ClarificationOption[];
+  allow_custom?: boolean;
 }
 
 export interface TaskSummary {

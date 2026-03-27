@@ -16,6 +16,7 @@ interface TaskFeedProps {
   workflowId?: string;
   config?: ApiConfig;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
+  onClarificationSubmit?: (text: string) => Promise<void>;
 }
 
 type ToolEntry = Extract<FeedEntry, { kind: 'tool_call' }>;
@@ -32,7 +33,15 @@ function toolIconForName(toolName: string) {
   return Wrench;
 }
 
-function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry[]; modelIconOverrides?: ModelIconOverrides }) {
+function ParallelToolCalls({
+  entries,
+  modelIconOverrides,
+  onClarificationSubmit,
+}: {
+  entries: ToolEntry[];
+  modelIconOverrides?: ModelIconOverrides;
+  onClarificationSubmit?: (text: string) => Promise<void>;
+}) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -58,7 +67,13 @@ function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry
       >
         <div className="flex flex-col gap-3 ml-[22px]">
           {entries.map((entry, idx) => (
-            <FeedItem key={`${entry.id}:${idx}`} entry={entry} inTimeline modelIconOverrides={modelIconOverrides} />
+            <FeedItem
+              key={`${entry.id}:${idx}`}
+              entry={entry}
+              inTimeline
+              modelIconOverrides={modelIconOverrides}
+              onClarificationSubmit={onClarificationSubmit}
+            />
           ))}
         </div>
       </div>
@@ -66,7 +81,7 @@ function ParallelToolCalls({ entries, modelIconOverrides }: { entries: ToolEntry
   );
 }
 
-export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, modelIconOverrides, workflowId, config, onApproval }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth = 600, modelIconOverrides, workflowId, config, onApproval, onClarificationSubmit }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const railContainerRef = useRef<HTMLDivElement>(null);
   const firstMarkerRef = useRef<HTMLDivElement | null>(null);
@@ -263,9 +278,9 @@ export function TaskFeed({ feed, currentActivity, isTerminal, isStale, maxWidth 
 
               <div className="min-w-0 w-full">
                 {row.kind === 'tool_parallel' ? (
-                  <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
+                  <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} onClarificationSubmit={onClarificationSubmit} />
                 ) : (
-                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} onApproval={onApproval} />
+                  <FeedItem entry={row.entry} inTimeline modelIconOverrides={modelIconOverrides} onApproval={onApproval} onClarificationSubmit={onClarificationSubmit} />
                 )}
               </div>
             </div>

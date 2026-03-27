@@ -10,9 +10,10 @@ interface CommandInputProps {
   maxWidth?: number;
   modelLabel?: string;
   animateEntry?: boolean;
+  placeholder?: string;
 }
 
-export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, animateEntry = false }: CommandInputProps) {
+export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, animateEntry = false, placeholder }: CommandInputProps) {
   const [value, setValue] = useState('');
   const [entered, setEntered] = useState(!animateEntry);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -39,6 +40,8 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
   };
 
+  const resolvedPlaceholder = placeholder ?? (disabled ? 'Task in progress…' : 'Ask a follow-up or give instructions…');
+
   return (
     <div
       className="flex-shrink-0 flex flex-col items-center gap-4 px-16 pb-6"
@@ -54,16 +57,16 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
         style={{ maxWidth }}
       >
         {/* Text */}
-        <Textarea
-          ref={textareaRef}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={disabled ? 'Task in progress…' : 'Ask a follow-up or give instructions…'}
-          disabled={disabled}
-          maxHeight={160}
-          className={disabled ? 'opacity-50' : ''}
-        />
+          <Textarea
+            ref={textareaRef}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={resolvedPlaceholder}
+            disabled={disabled}
+            maxHeight={160}
+            className={disabled ? 'opacity-50' : ''}
+          />
 
         {/* Bottom row */}
         <div className="flex items-center justify-between pt-2">

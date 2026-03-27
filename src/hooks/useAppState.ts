@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useConfig } from './useConfig';
 import { createWorkflow, getModels } from '../api/client';
 import type { ContextFileUpload, ApiConfig } from '../api/client';
@@ -88,6 +88,42 @@ export function useAppState(props: AppProps) {
       description: 'Show keyboard shortcuts',
     },
   ]);
+
+  // G+key two-key navigation sequences (e.g., G then T → Go to Tasks)
+  const gPrefixRef = useRef(false);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const NAV_MAP: Record<string, TaskNav> = { t: 'tasks', f: 'files', c: 'connectors', s: 'skills' };
+
+    const handler = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const key = e.key.toLowerCase();
+      if (key === 'g' && !e.shiftKey) {
+        gPrefixRef.current = true;
+        clearTimeout(timer);
+        timer = setTimeout(() => { gPrefixRef.current = false; }, 600);
+        return;
+      }
+
+      if (gPrefixRef.current) {
+        gPrefixRef.current = false;
+        clearTimeout(timer);
+        const nav = NAV_MAP[key];
+        if (nav) {
+          e.preventDefault();
+          setScreen('tasks');
+          setRequestedTaskNav(nav);
+          setShowShortcutsOverlay(false);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handler);
+    return () => { document.removeEventListener('keydown', handler); clearTimeout(timer); };
+  }, []);
 
   useEffect(() => {
     if (!isConfigured) return;

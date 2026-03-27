@@ -8,6 +8,7 @@ import type {
   TasksInitializedData,
   WorkflowCompletedData,
   WorkflowFailedData,
+  ClarificationRequestedData,
   FeedEntry,
   LiveTask,
 } from '../../api/types';
@@ -81,6 +82,60 @@ const upsertActiveTaskGroup = (
   );
 };
 
+const upsertClarificationToolCall = (
+  feed: FeedEntry[],
+  data: ClarificationRequestedData,
+  ctx: EventReducerContext,
+  timestamp?: string,
+): FeedEntry[] => {
+  const clarificationOutput = {
+    clarification_question: data.question,
+    options: data.options,
+    allow_custom: data.allow_custom,
+  };
+
+  let updated = false;
+  const nextFeed = [...feed]
+    .reverse()
+    .map((entry) => {
+      if (
+        !updated &&
+        entry.kind === 'tool_call' &&
+        entry.toolName === 'request_clarification' &&
+        entry.status === 'running'
+      ) {
+        updated = true;
+        return {
+          ...entry,
+          status: 'done' as const,
+          output: clarificationOutput,
+        };
+      }
+      return entry;
+    })
+    .reverse();
+
+  if (updated) return nextFeed;
+
+  return [
+    ...nextFeed,
+    {
+      kind: 'tool_call',
+      id: `tc:clarification:${ctx.seq()}`,
+      toolName: 'request_clarification',
+      input: {
+        question: data.question,
+        options: data.options,
+        allow_custom: data.allow_custom,
+      },
+      output: clarificationOutput,
+      taskId: 'orchestrator',
+      status: 'done',
+      at: timestamp,
+    } satisfies FeedEntry,
+  ];
+};
+
 // ── reducer ─────────────────────────────────────────────────────────────
 
 export function reduceWorkflowEvent(
@@ -108,7 +163,14 @@ export function reduceWorkflowEvent(
 
       const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
 
-      return { ...prev, liveTasks, feed, currentActivity: 'Planning complete, starting tasks…' };
+      return {
+        ...prev,
+        liveTasks,
+        feed,
+        currentActivity: 'Planning complete, starting tasks…',
+        workflowStatus: 'executing',
+        pendingClarification: undefined,
+      };
     }
 
     case 'task_added': {
@@ -124,7 +186,7 @@ export function reduceWorkflowEvent(
         tool_calls: 0,
       });
       const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
-      return { ...prev, liveTasks, feed, isTerminal: false };
+      return { ...prev, liveTasks, feed, isTerminal: false, workflowStatus: 'executing', pendingClarification: undefined };
     }
 
     case 'task_dispatched': {
@@ -141,7 +203,7 @@ export function reduceWorkflowEvent(
             tool_calls: 0,
           });
       const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
-      return { ...prev, liveTasks, feed, isTerminal: false };
+      return { ...prev, liveTasks, feed, isTerminal: false, workflowStatus: 'executing', pendingClarification: undefined };
     }
 
     case 'task_started': {
@@ -167,7 +229,7 @@ export function reduceWorkflowEvent(
             })
           : prev.liveTasks;
         const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
-        return { ...prev, liveTasks, feed, isTerminal: false };
+        return { ...prev, liveTasks, feed, isTerminal: false, workflowStatus: 'executing', pendingClarification: undefined };
       }
 
       if (data.type === 'environment') {
@@ -207,6 +269,8 @@ export function reduceWorkflowEvent(
           feed,
           currentActivity: activity,
           isTerminal: false,
+          workflowStatus: 'executing',
+          pendingClarification: undefined,
         };
       }
 
@@ -229,6 +293,8 @@ export function reduceWorkflowEvent(
         feed: appendEnvironmentReadyIfPending(feed, ctx),
         currentActivity: description,
         isTerminal: false,
+        workflowStatus: 'executing',
+        pendingClarification: undefined,
       };
     }
 
@@ -246,7 +312,7 @@ export function reduceWorkflowEvent(
         tool_calls: existing?.tool_calls ?? 0,
       });
       const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
-      return { ...prev, liveTasks, feed, isTerminal: false };
+      return { ...prev, liveTasks, feed, isTerminal: false, workflowStatus: 'executing' };
     }
 
     case 'task_failed': {
@@ -263,7 +329,7 @@ export function reduceWorkflowEvent(
         tool_calls: existing?.tool_calls ?? 0,
       });
       const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
-      return { ...prev, liveTasks, feed, isTerminal: false };
+      return { ...prev, liveTasks, feed, isTerminal: false, workflowStatus: 'executing' };
     }
 
     case 'task_skipped': {
@@ -280,7 +346,7 @@ export function reduceWorkflowEvent(
         tool_calls: existing?.tool_calls ?? 0,
       });
       const feed = upsertActiveTaskGroup(prev.feed, liveTasks, ctx);
-      return { ...prev, liveTasks, feed, isTerminal: false };
+      return { ...prev, liveTasks, feed, isTerminal: false, workflowStatus: 'executing' };
     }
 
     case 'tool_call': {
@@ -296,10 +362,12 @@ export function reduceWorkflowEvent(
           feed: nextFeed,
           currentActivity: 'Starting environment…',
           isTerminal: false,
+          workflowStatus: 'executing',
+          pendingClarification: undefined,
         };
       }
       if (isInternalPlannerTool(data.tool_name)) {
-        return { ...prev, isTerminal: false };
+        return { ...prev, isTerminal: false, workflowStatus: 'executing' };
       }
       const taskId = 'orchestrator';
       const id = `tc:${taskId}:${ctx.seq()}`;
@@ -320,6 +388,8 @@ export function reduceWorkflowEvent(
         feed: [...withEnvironmentReady, toolEntry],
         currentActivity: data.tool_name ?? 'tool',
         isTerminal: false,
+        workflowStatus: 'executing',
+        pendingClarification: undefined,
       };
     }
 
@@ -337,10 +407,12 @@ export function reduceWorkflowEvent(
           feed: nextFeed,
           currentActivity: 'Environment started',
           isTerminal: false,
+          workflowStatus: 'executing',
+          pendingClarification: undefined,
         };
       }
       if (isInternalPlannerTool(data.tool_name)) {
-        return { ...prev, isTerminal: false };
+        return { ...prev, isTerminal: false, workflowStatus: 'executing' };
       }
       const taskId = 'orchestrator';
       let marked = false;
@@ -357,7 +429,7 @@ export function reduceWorkflowEvent(
       const withEnvironmentReady = isEnvironmentSetupTool(data.tool_name)
         ? appendEnvironmentReadyIfPending(feed, ctx)
         : feed;
-      return { ...prev, feed: withEnvironmentReady, isTerminal: false };
+      return { ...prev, feed: withEnvironmentReady, isTerminal: false, workflowStatus: 'executing' };
     }
 
     case 'subagent_tool_call': {
@@ -382,12 +454,14 @@ export function reduceWorkflowEvent(
         liveTasks,
         currentActivity: formatToolActivity(data.tool_name),
         isTerminal: false,
+        workflowStatus: 'executing',
+        pendingClarification: undefined,
       };
     }
 
     case 'subagent_tool_result': {
       const feed = upsertActiveTaskGroup(prev.feed, prev.liveTasks, ctx);
-      return { ...prev, feed: appendEnvironmentReadyIfPending(feed, ctx), isTerminal: false };
+      return { ...prev, feed: appendEnvironmentReadyIfPending(feed, ctx), isTerminal: false, workflowStatus: 'executing' };
     }
 
     case 'orchestrator_thinking': {
@@ -396,6 +470,29 @@ export function reduceWorkflowEvent(
         feed: appendEnvironmentReadyIfPending(prev.feed, ctx),
         currentActivity: 'Thinking…',
         isTerminal: false,
+        workflowStatus: 'executing',
+        pendingClarification: undefined,
+      };
+    }
+
+    case 'clarification_requested': {
+      const data = event.data as ClarificationRequestedData;
+      const question = typeof data.question === 'string' ? data.question.trim() : '';
+      if (!question) return prev;
+
+      const feed = upsertClarificationToolCall(appendEnvironmentReadyIfPending(prev.feed, ctx), data, ctx, event.timestamp);
+
+      return {
+        ...prev,
+        feed,
+        currentActivity: 'Waiting for your reply…',
+        isTerminal: false,
+        workflowStatus: 'paused',
+        pendingClarification: {
+          question,
+          options: data.options,
+          allowCustom: data.allow_custom !== false,
+        },
       };
     }
 
@@ -426,6 +523,7 @@ export function reduceWorkflowEvent(
         feed: [...prev.feed, entry],
         currentActivity: 'Approval required',
         isTerminal: false,
+        workflowStatus: 'executing',
       };
     }
 
@@ -445,6 +543,7 @@ export function reduceWorkflowEvent(
         isTerminal: true,
         currentActivity: 'Completed',
         workflowStatus: 'completed',
+        pendingClarification: undefined,
       };
     }
 
@@ -464,6 +563,7 @@ export function reduceWorkflowEvent(
         currentActivity: 'Failed',
         workflowStatus: 'failed',
         error: data.error,
+        pendingClarification: undefined,
       };
     }
 

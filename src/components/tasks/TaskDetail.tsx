@@ -36,7 +36,7 @@ export function TaskDetail({
   modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, currentActivity, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, pendingClarification } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel || 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
@@ -197,6 +197,7 @@ export function TaskDetail({
         workflowId={workflowId}
         config={config}
         onApproval={handleApproval}
+        onClarificationSubmit={(text) => void handleCommand(text)}
       />
 
       {/* Input — enabled when terminal for follow-up */}
@@ -206,6 +207,7 @@ export function TaskDetail({
         maxWidth={contentMaxWidth}
         modelLabel={fullView ? modelLabel : undefined}
         animateEntry={animateInputEntry}
+        placeholder={isPaused ? pendingClarification?.question ?? 'Reply to continue…' : undefined}
       />
     </div>
   );

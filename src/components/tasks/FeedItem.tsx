@@ -117,11 +117,13 @@ export function FeedItem({
   inTimeline = false,
   modelIconOverrides,
   onApproval,
+  onClarificationSubmit,
 }: {
   entry: FeedEntry;
   inTimeline?: boolean;
   modelIconOverrides?: ModelIconOverrides;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
+  onClarificationSubmit?: (text: string) => Promise<void>;
 }) {
   switch (entry.kind) {
     case 'prompt':
@@ -131,7 +133,16 @@ export function FeedItem({
     case 'task_group':
       return <FeedTaskGroup tasks={entry.tasks} modelIconOverrides={modelIconOverrides} />;
     case 'tool_call':
-      return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} showLeadingIcon={!inTimeline} />;
+      return (
+        <FeedToolCall
+          toolName={entry.toolName}
+          input={entry.input}
+          output={entry.output}
+          status={entry.status}
+          showLeadingIcon={!inTimeline}
+          onClarificationSubmit={onClarificationSubmit}
+        />
+      );
     case 'bash_approval':
       if (onApproval && entry.taskId) {
         return (
@@ -159,4 +170,3 @@ export function FeedItem({
       return null;
   }
 }
-

@@ -164,7 +164,20 @@ export function useWorkflowStream(
           feed: withCompletion,
           liveTasks,
           isTerminal,
-          currentActivity: isTerminal ? 'Completed' : 'Executing…',
+          currentActivity:
+            details.workflow.status === 'paused'
+              ? details.workflow.pending_clarification ?? details.workflow.pause_reason ?? 'Waiting for your reply…'
+              : isTerminal
+                ? 'Completed'
+                : 'Executing…',
+          workflowStatus: details.workflow.status,
+          pendingClarification:
+            details.workflow.status === 'paused'
+              ? {
+                  question: details.workflow.pending_clarification ?? details.workflow.pause_reason ?? 'Waiting for your reply…',
+                  allowCustom: true,
+                }
+              : undefined,
         }));
 
         if (!isTerminal) {
@@ -220,6 +233,7 @@ export function useWorkflowStream(
         isTerminal: false,
         currentActivity: 'Starting environment…',
         workflowStatus: 'executing',
+        pendingClarification: undefined,
       }));
 
       try {

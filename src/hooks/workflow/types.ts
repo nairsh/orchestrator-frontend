@@ -1,4 +1,10 @@
-import type { FeedEntry, LiveTask } from '../../api/types';
+import type { ClarificationOption, FeedEntry, LiveTask } from '../../api/types';
+
+export interface PendingClarification {
+  question: string;
+  options?: ClarificationOption[];
+  allowCustom: boolean;
+}
 
 export interface WorkflowStreamState {
   feed: FeedEntry[];
@@ -8,6 +14,7 @@ export interface WorkflowStreamState {
   isStale: boolean;
   workflowStatus: string;
   error?: string;
+  pendingClarification?: PendingClarification;
   sendMessage: (text: string) => Promise<void>;
   handleApproval: (taskId: string, approved: boolean) => Promise<void>;
 }
