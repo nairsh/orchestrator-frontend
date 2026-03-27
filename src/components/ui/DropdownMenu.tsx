@@ -56,7 +56,7 @@ export function DropdownMenu({
           width,
           maxHeight,
           overflowY: 'auto',
-          transition: 'opacity 150ms ease, transform 150ms ease',
+          transition: 'opacity 200ms ease, transform 200ms ease',
           opacity: open ? 1 : 0,
           transform: open
             ? 'translateY(0)'

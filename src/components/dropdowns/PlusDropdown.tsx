@@ -95,7 +95,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         ].join(' ')}
         style={{
           fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          transition: 'opacity 150ms ease, transform 150ms ease',
+          transition: 'opacity 200ms ease, transform 200ms ease',
           opacity: open ? 1 : 0,
           transform: open ? 'translateY(0)' : menuDirection === 'up' ? 'translateY(4px)' : 'translateY(-4px)',
           pointerEvents: open ? 'auto' : 'none',
