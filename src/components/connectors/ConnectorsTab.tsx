@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Loader2, RefreshCcw } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { disconnectConnector, startConnectorOAuth, validateConnector } from '../../api/client';
@@ -21,6 +22,8 @@ export function ConnectorsTab({
   connectorCards, connectorsLoading, connectorBusyId, connectorBusyProvider,
   setConnectorBusyId, setConnectorBusyProvider, onRefresh, config,
 }: ConnectorsTabProps) {
+  const [disconnectConfirmId, setDisconnectConfirmId] = useState<string | null>(null);
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -80,12 +83,21 @@ export function ConnectorsTab({
                       catch (err) { toastApiError(err, 'Failed to verify connection'); }
                       finally { setConnectorBusyId(null); }
                     }}>Test connection</Button>
-                    <Button variant="ghost" size="sm" disabled={busy} onClick={async () => {
-                      setConnectorBusyId(connector.id);
-                      try { await disconnectConnector(config, connector.id); toastSuccess('Disconnected'); await onRefresh(); }
-                      catch (err) { toastApiError(err, 'Failed to disconnect'); }
-                      finally { setConnectorBusyId(null); }
-                    }}>Disconnect</Button>
+                    {disconnectConfirmId === connector.id ? (
+                      <div className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20">
+                        <span className="text-xs text-danger font-medium">Disconnect?</span>
+                        <Button variant="danger" size="sm" disabled={busy} onClick={async () => {
+                          setDisconnectConfirmId(null);
+                          setConnectorBusyId(connector.id);
+                          try { await disconnectConnector(config, connector.id); toastSuccess('Disconnected'); await onRefresh(); }
+                          catch (err) { toastApiError(err, 'Failed to disconnect'); }
+                          finally { setConnectorBusyId(null); }
+                        }} className="h-5 px-2 text-[11px]">Yes</Button>
+                        <button type="button" onClick={() => setDisconnectConfirmId(null)} className="text-xs text-muted hover:text-primary">✕</button>
+                      </div>
+                    ) : (
+                      <Button variant="ghost" size="sm" disabled={busy} onClick={() => setDisconnectConfirmId(connector.id)}>Disconnect</Button>
+                    )}
                   </>
                 )}
               </div>
