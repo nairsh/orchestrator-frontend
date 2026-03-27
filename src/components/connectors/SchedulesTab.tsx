@@ -167,7 +167,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                   </div>
                 </div>
               )}
-              <Input value={scheduleObjective} onChange={(e) => setScheduleObjective(e.target.value)} placeholder="Summarize open GitHub issues and Linear blockers" label="Objective" />
+              <Input value={scheduleObjective} onChange={(e) => setScheduleObjective(e.target.value)} placeholder="Summarize open GitHub issues and Linear blockers" label="Goal" />
               <Input value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} placeholder="UTC" label="Timezone" />
               <Input value={scheduleWorkingDirectory} onChange={(e) => setScheduleWorkingDirectory(e.target.value)} placeholder="/Users/you/projects/app" label="Working directory" />
               <Select
