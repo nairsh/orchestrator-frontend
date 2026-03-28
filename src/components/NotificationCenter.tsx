@@ -4,7 +4,6 @@ import { Bell, CheckCheck, Trash2 } from 'lucide-react';
 import { ActionIcon, Empty, Tooltip } from '@lobehub/ui';
 import type { Notification } from '../hooks/useNotifications';
 import { useNotifications } from '../hooks/useNotifications';
-import { useClickOutside } from '../hooks/useClickOutside';
 import { relativeTimeAgo } from '../lib/time';
 
 export interface NotificationCenterProps {
@@ -39,11 +38,6 @@ export function NotificationCenter(props: NotificationCenterProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
-  useClickOutside(ref, () => {
-    // Also check if the click was inside the portal dropdown
-    if (dropdownRef.current) return;
-    setOpen(false);
-  });
 
   // Close dropdown when clicking outside both the button and the portal dropdown
   useEffect(() => {

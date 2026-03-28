@@ -28,8 +28,9 @@ export function FeedToolCall({
   at?: string;
   showLeadingIcon?: boolean;
 }) {
-  const inp = asRecord(input);
-  const out = asRecord(output);
+  // Memoize asRecord calls so downstream useMemos aren't defeated by new object refs
+  const inp = useMemo(() => asRecord(input), [input]);
+  const out = useMemo(() => asRecord(output), [output]);
   const isRunning = status === 'running';
 
   const isBrowser = ['web_search', 'fetch_url', 'screenshot', 'browse'].includes(toolName);

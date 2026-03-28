@@ -42,6 +42,27 @@ function UserBubble({ text, fullView = false }: { text: string; fullView?: boole
   );
 }
 
+/* ─── Shared markdown + citation block used by AiMessage and CompletionBlock ─── */
+
+function MarkdownWithCitations({ content }: { content: string }) {
+  const citations = parseCitationsFromText(content);
+  return (
+    <div className="group/msg relative">
+      <div className="absolute -top-1 right-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200">
+        <CopyButton text={content} />
+      </div>
+      <Markdown content={content} />
+      {citations.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {citations.map((citation, idx) => (
+            <CitationCard key={`${citation.url}-${idx}`} url={citation.url} title={citation.title} index={idx + 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AiMessage({ text }: { text: string }) {
   const isError = /^workflow failed:/i.test(text.trim());
   if (isError) {
@@ -54,42 +75,12 @@ function AiMessage({ text }: { text: string }) {
       />
     );
   }
-  const citations = parseCitationsFromText(text);
-  return (
-    <div className="group/msg relative">
-      <div className="absolute -top-1 right-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200">
-        <CopyButton text={text} />
-      </div>
-      <Markdown content={text} />
-      {citations.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {citations.map((citation, idx) => (
-            <CitationCard key={`${citation.url}-${idx}`} url={citation.url} title={citation.title} index={idx + 1} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return <MarkdownWithCitations content={text} />;
 }
 
 function CompletionBlock({ output }: { output?: string }) {
   if (!output) return null;
-  const citations = parseCitationsFromText(output);
-  return (
-    <div className="group/msg relative">
-      <div className="absolute -top-1 right-0 opacity-0 group-hover/msg:opacity-100 transition-opacity duration-200">
-        <CopyButton text={output} />
-      </div>
-      <Markdown content={output} />
-      {citations.length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {citations.map((citation, idx) => (
-            <CitationCard key={`${citation.url}-${idx}`} url={citation.url} title={citation.title} index={idx + 1} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
+  return <MarkdownWithCitations content={output} />;
 }
 
 function BashApprovalBlock({

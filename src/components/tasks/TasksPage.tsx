@@ -147,13 +147,21 @@ export function TasksPage({
   }, [requestedNav]);
 
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
     const updateCompactLayout = () => {
       setIsCompactTaskLayout(window.innerWidth < COMPACT_TASK_LAYOUT_BREAKPOINT);
     };
+    const debouncedUpdate = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateCompactLayout, 150);
+    };
 
     updateCompactLayout();
-    window.addEventListener('resize', updateCompactLayout);
-    return () => window.removeEventListener('resize', updateCompactLayout);
+    window.addEventListener('resize', debouncedUpdate);
+    return () => {
+      window.removeEventListener('resize', debouncedUpdate);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   return (
@@ -303,12 +311,25 @@ export function TasksPage({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-surface-tertiary border border-border-subtle flex items-center justify-center">
-                  <span className="text-xl">⚡</span>
+                  <span className="text-xl">{workflows.length === 0 ? '🚀' : '⚡'}</span>
                 </div>
-                <div className="font-sans text-sm font-medium text-muted text-center">Select a task to view details</div>
+                <div className="font-sans text-sm font-medium text-muted text-center">
+                  {workflows.length === 0 ? 'No tasks yet' : 'Select a task to view details'}
+                </div>
                 <div className="font-sans text-sm text-placeholder text-center max-w-[220px] leading-relaxed">
-                  Choose from the list or start a new task above
+                  {workflows.length === 0
+                    ? 'Describe what you want to accomplish and Relay Pro will get it done.'
+                    : 'Choose from the list or start a new task above'}
                 </div>
+                {workflows.length === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('relay:focus-input'))}
+                    className="mt-2 px-4 py-2 rounded-lg bg-primary text-surface text-sm font-medium font-sans cursor-pointer border-none hover:opacity-90 transition-opacity"
+                  >
+                    Start your first task
+                  </button>
+                )}
               </div>
             )}
           </div>
