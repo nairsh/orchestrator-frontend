@@ -5,7 +5,7 @@ import { humanizeError } from '../lib/humanizeError';
 import type { ApiConfig } from '../api/client';
 import type { StreamChunk } from '../api/types';
 
-export type ChatMessage = { role: 'user' | 'assistant'; content: string; timestamp?: number; error?: boolean };
+export type ChatMessage = { role: 'user' | 'assistant'; content: string; timestamp?: number; error?: boolean; model?: string };
 
 const STORAGE_KEY = 'relay-chat-history';
 
@@ -111,7 +111,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
             setStreaming(false);
             const finalText = assistantBufferRef.current;
             if (finalText) {
-              setMessages((prev) => [...prev, { role: 'assistant', content: finalText, timestamp: Date.now() }]);
+              setMessages((prev) => [...prev, { role: 'assistant', content: finalText, timestamp: Date.now(), model }]);
             }
             assistantBufferRef.current = '';
             setDraftAssistant('');
@@ -138,7 +138,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
           const partial = assistantBufferRef.current;
           // Preserve any partial assistant text, then show the error
           if (partial) {
-            setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now() }]);
+            setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now(), model }]);
           }
           setMessages((prev) => [...prev, { role: 'assistant', content: humanizeError(err.message || 'Connection error'), timestamp: Date.now(), error: true }]);
           assistantBufferRef.current = '';
@@ -159,20 +159,20 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
     setStreaming(false);
     const partial = assistantBufferRef.current;
     if (persistPartial && partial) {
-      setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now() }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now(), model }]);
     }
     assistantBufferRef.current = '';
     setDraftAssistant('');
   }, []);
 
   const clearHistory = useCallback(() => {
-    // Abort any active stream before clearing
     abortRef.current?.close();
     abortRef.current = null;
     setStreaming(false);
     assistantBufferRef.current = '';
     setDraftAssistant('');
     setMessages([]);
+    localStorage.removeItem(STORAGE_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
   }, []);
 

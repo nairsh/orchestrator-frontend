@@ -21,6 +21,7 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
     setEntered(false);
     setSelectedOption(null);
     setCustomValue('');
+    setIsSubmitting(false);
     const id = requestAnimationFrame(() => setEntered(true));
     return () => cancelAnimationFrame(id);
   }, [clarification.question]);

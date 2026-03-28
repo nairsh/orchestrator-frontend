@@ -16,7 +16,7 @@ export type ToolCall = {
 };
 
 export type TimelineItem =
-  | { type: 'message'; role: 'user' | 'assistant'; content: string }
+  | { type: 'message'; role: 'user' | 'assistant'; content: string; model?: string }
   | { type: 'tool'; tool: ToolCall };
 
 /* ─── Constants ─── */
@@ -64,7 +64,7 @@ export function UserBubble({ content, timestamp }: { content: string; timestamp?
 
 /* ─── AssistantMessage ─── */
 
-export function AssistantMessage({ content, timestamp }: { content: string; timestamp?: number }) {
+export function AssistantMessage({ content, timestamp, model }: { content: string; timestamp?: number; model?: string }) {
   return (
     <div className="flex flex-col items-start">
       <div className="relative group max-w-[90%]">
@@ -73,6 +73,7 @@ export function AssistantMessage({ content, timestamp }: { content: string; time
         </div>
         <div className="flex items-center gap-2 mt-1">
           {timestamp ? <span className="text-[10px] text-muted/60 font-sans">{formatTime(timestamp)}</span> : null}
+          {model && <span className="text-[10px] text-muted/40 font-sans">{model}</span>}
           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <CopyButton content={content} size="small" />
           </div>
@@ -149,7 +150,7 @@ export function MessageList({ items }: { items: (TimelineItem & { timestamp?: nu
               ) : item.role === 'user' ? (
                 <UserBubble content={item.content} timestamp={item.timestamp} />
               ) : (
-                <AssistantMessage content={item.content} timestamp={item.timestamp} />
+                <AssistantMessage content={item.content} timestamp={item.timestamp} model={item.model} />
               )}
             </div>
           ) : (
@@ -223,7 +224,7 @@ export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth 
           </div>
         )}
         {messages.length > 0 && (
-          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp, error: m.error }))} />
+          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp, error: m.error, model: m.model }))} />
         )}
         {draftAssistant && (
           <div className="fade-in-soft mt-6">

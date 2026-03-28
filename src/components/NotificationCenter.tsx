@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, CheckCheck, Trash2 } from 'lucide-react';
 import { ActionIcon, Empty, Tooltip } from '@lobehub/ui';
@@ -69,7 +69,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
     });
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!open) return;
     updatePosition();
     window.addEventListener('resize', updatePosition);
@@ -134,6 +134,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
                   onClick={() => {
                     onMarkAsRead(notif.id);
                     onClickNotification?.(notif);
+                    setOpen(false);
                   }}
                   className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-surface-hover border-b border-border-light/50 cursor-pointer ${
                     !notif.read ? 'bg-surface-tertiary/50' : ''

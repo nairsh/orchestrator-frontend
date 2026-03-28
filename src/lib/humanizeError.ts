@@ -5,6 +5,11 @@
 
 const ERROR_PATTERNS: [RegExp, string][] = [
   [/failed to fetch/i, 'Couldn\'t reach the server — please check your connection and try again'],
+  [/networkerror|network request failed/i, 'Couldn\'t reach the server — please check your connection and try again'],
+  [/the network connection was lost/i, 'Connection lost — please check your internet and try again'],
+  [/the internet connection appears to be offline/i, 'You appear to be offline — please check your connection'],
+  [/a server with the specified hostname could not be found/i, 'Couldn\'t find the server — please check your connection'],
+  [/SSE stream ended unexpectedly/i, 'Connection to the server dropped — reconnecting…'],
   [/all models failed/i, 'We couldn\'t reach any AI service right now'],
   [/connection error/i, 'There was a connection problem — please check your internet and try again'],
   [/connection refused/i, 'Couldn\'t connect to the server — it may be offline or restarting'],
@@ -18,6 +23,7 @@ const ERROR_PATTERNS: [RegExp, string][] = [
   [/500|internal server error/i, 'Something went wrong on our end — please try again'],
   [/bad gateway|502/i, 'The AI service is temporarily unavailable — please try again in a moment'],
   [/service unavailable|503/i, 'The AI service is temporarily down — please try again shortly'],
+  [/load failed/i, 'Couldn\'t reach the server — please check your connection and try again'],
 ];
 
 export function humanizeError(raw: string): string {

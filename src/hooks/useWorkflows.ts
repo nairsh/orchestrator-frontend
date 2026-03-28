@@ -34,6 +34,8 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
   useEffect(() => {
     if (!enabled || !config.hasAuth) {
       setLoading(false);
+      setWorkflows([]);
+      setError(null);
       return;
     }
     setLoading(true);

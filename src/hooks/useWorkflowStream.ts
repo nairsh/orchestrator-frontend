@@ -237,6 +237,8 @@ export function useWorkflowStream(
         clearTimeout(reconnectTimerRef.current);
         reconnectTimerRef.current = null;
       }
+      // Reset pending environment setup so it doesn't leak into the next workflow
+      pendingEnvironmentSetupRef.current = false;
     };
   }, [config, workflowId, isActive, objective, connect]);
 

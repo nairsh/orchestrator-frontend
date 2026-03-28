@@ -54,11 +54,16 @@ export function connectWorkflowStream(
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      let receivedTerminal = false;
+
       const parser = createParser({
         onEvent(evt) {
           if (evt.data) {
             try {
               const parsed = JSON.parse(evt.data) as WorkflowEvent;
+              if (parsed.type === 'workflow_completed' || parsed.type === 'workflow_failed') {
+                receivedTerminal = true;
+              }
               onEvent(parsed);
             } catch {
               // ignore malformed JSON
@@ -71,6 +76,12 @@ export function connectWorkflowStream(
         const { done, value } = await reader.read();
         if (done) break;
         parser.feed(decoder.decode(value, { stream: true }));
+      }
+
+      // If the stream closed without a terminal event and wasn't
+      // user-aborted, treat it as an unexpected disconnect so reconnect fires.
+      if (!receivedTerminal && !abortController.signal.aborted) {
+        onError(new Error('SSE stream ended unexpectedly'));
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
