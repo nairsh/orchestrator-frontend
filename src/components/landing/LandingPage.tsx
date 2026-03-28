@@ -51,6 +51,7 @@ export function LandingPage({
   const [selectedModel, setSelectedModel] = useState('');
   const { attachments, contextFiles, handleUploadFiles, removeAttachment, clearAttachments } = useFileAttachments();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const apiConfig: ApiConfig = config;
 
@@ -107,13 +108,15 @@ export function LandingPage({
     const text = value.trim();
     if (!text) return;
     if (!selectedModel.trim()) return;
-    if (isSubmitting) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setIsSubmitting(true);
     try {
       await onSubmit(text, selectedModel, contextFiles);
       setValue('');
       clearAttachments();
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };

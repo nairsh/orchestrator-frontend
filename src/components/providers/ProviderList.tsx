@@ -1,4 +1,4 @@
-import { KeyRound, Loader2, Pencil, Plus, Trash2, Zap } from 'lucide-react';
+import { KeyRound, Pencil, Plus, Trash2, Zap } from 'lucide-react';
 import type { ApiProvider } from '../../api/types';
 import { Button, Skeleton } from '../ui';
 import { getProviderIcon } from './providerConstants';

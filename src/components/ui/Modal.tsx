@@ -1,10 +1,12 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 /* ─── Modal ───
  * Shared primitive for dialogs / modal overlays.
  * Handles backdrop, enter/exit animation, Escape to close, focus trap.
  */
+
+const ModalHeadingIdContext = createContext<string | undefined>(undefined);
 
 interface ModalProps {
   children: ReactNode;
@@ -17,14 +19,12 @@ interface ModalProps {
   ariaTitle?: string;
 }
 
-export const MODAL_HEADING_ID = 'modal-heading';
-
 export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '', ariaTitle }: ModalProps) {
   const [visible, setVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<Element | null>(null);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const titleId = useId();
+  const headingId = useId();
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement;
@@ -95,7 +95,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
         ref={cardRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={ariaTitle ? titleId : MODAL_HEADING_ID}
+        aria-labelledby={headingId}
         className={[
           'bg-surface rounded-2xl shadow-modal border border-border-subtle w-full overflow-hidden transition-all duration-200',
           maxWidth,
@@ -105,8 +105,10 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
           className,
         ].join(' ')}
       >
-        {ariaTitle && <span id={titleId} className="sr-only">{ariaTitle}</span>}
-        {children}
+        {ariaTitle && <span id={headingId} className="sr-only">{ariaTitle}</span>}
+        <ModalHeadingIdContext.Provider value={headingId}>
+          {children}
+        </ModalHeadingIdContext.Provider>
       </div>
     </div>
   );
@@ -121,10 +123,11 @@ interface ModalHeaderProps {
 }
 
 export function ModalHeader({ title, onClose, children }: ModalHeaderProps) {
+  const headingId = useContext(ModalHeadingIdContext);
   return (
     <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
       <div className="flex items-center gap-3">
-        <h2 id={MODAL_HEADING_ID} className="text-base font-semibold text-primary">{title}</h2>
+        <h2 id={headingId} className="text-base font-semibold text-primary">{title}</h2>
         {children}
       </div>
       <button

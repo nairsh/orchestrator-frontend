@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Tooltip, Highlighter } from '@lobehub/ui';
 
@@ -17,6 +17,11 @@ export const BashRenderer = memo(function BashRenderer({
 }) {
   // Auto-expand output on failure (non-zero exit code)
   const [showBashOutput, setShowBashOutput] = useState(exitCode !== undefined && exitCode !== 0);
+
+  // Expand output when a running command finishes with non-zero exit
+  useEffect(() => {
+    if (exitCode !== undefined && exitCode !== 0) setShowBashOutput(true);
+  }, [exitCode]);
 
   return (
     <div className="flex flex-col gap-2">

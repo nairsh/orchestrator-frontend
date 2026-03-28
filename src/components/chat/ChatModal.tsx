@@ -134,6 +134,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
       <div
         ref={dialogRef}
         role="dialog"
+        aria-modal="true"
         aria-label="AI Chat"
         className={`flex-1 flex flex-col h-full overflow-hidden chat-ui bg-surface-warm transition-all duration-200 ${
           visible ? 'opacity-100' : 'opacity-0'
