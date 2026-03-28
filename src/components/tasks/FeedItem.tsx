@@ -7,7 +7,6 @@ import { CitationCard } from '../CitationCard';
 import { CopyButton } from '../ui/CopyButton';
 import { humanizeErrorDescription } from '../../lib/humanizeError';
 import { humanizeToolName } from '../../lib/toolLabels';
-import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { FeedTaskGroup } from './feed/FeedTaskGroup';
 import { FeedToolCall } from './feed/FeedToolCall';
 import { parseCitationsFromText } from './feed/feedHelpers';
@@ -110,7 +109,6 @@ function BashApprovalBlock({
 
 interface FeedItemProps {
   entry: FeedEntry;
-  modelIconOverrides?: ModelIconOverrides;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
   fullView?: boolean;
@@ -118,7 +116,6 @@ interface FeedItemProps {
 
 export const FeedItem = memo(function FeedItem({
   entry,
-  modelIconOverrides,
   onApproval,
   onBashApproval,
   fullView = false,
@@ -129,7 +126,7 @@ export const FeedItem = memo(function FeedItem({
     case 'system_status':
       return <span className="font-sans text-sm text-muted">{entry.text}</span>;
     case 'task_group':
-      return <FeedTaskGroup tasks={entry.tasks} modelIconOverrides={modelIconOverrides} />;
+      return <FeedTaskGroup tasks={entry.tasks} />;
     case 'tool_call':
       return <FeedToolCall toolName={entry.toolName} input={entry.input} output={entry.output} status={entry.status} at={entry.at} />;
     case 'bash_approval':

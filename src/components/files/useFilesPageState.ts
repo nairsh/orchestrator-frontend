@@ -28,6 +28,7 @@ export function useFilesPageState(
   const [searchMatches, setSearchMatches] = useState<KnowledgeSearchMatch[]>([]);
   const [searching, setSearching] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null);
   const [deleteDocConfirmId, setDeleteDocConfirmId] = useState<string | null>(null);
   const [deletingDoc, setDeletingDoc] = useState(false);
   const [fileTab, setFileTab] = useState<FileTab>('all');
@@ -195,22 +196,28 @@ export function useFilesPageState(
 
   const handleUploadDocuments = async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
+    const files = Array.from(fileList);
     setUploading(true);
+    setUploadProgress(files.length > 1 ? { done: 0, total: files.length } : null);
+    let uploaded = 0;
     try {
-      for (const file of Array.from(fileList)) {
+      for (const file of files) {
         if (file.size > MAX_CONTEXT_FILE_BYTES) {
           toastWarning('File too large', `${file.name} exceeds ${Math.round(MAX_CONTEXT_FILE_BYTES / (1024 * 1024))}MB.`);
           continue;
         }
         const upload = await fileToContextUpload(file);
         await uploadKnowledgeDocument(config, upload);
+        uploaded++;
+        if (files.length > 1) setUploadProgress({ done: uploaded, total: files.length });
       }
-      toastSuccess('Knowledge library updated');
+      toastSuccess(uploaded > 1 ? `${uploaded} documents uploaded` : 'Knowledge library updated');
       await refreshKnowledgeDocuments();
     } catch (err) {
       toastApiError(err, 'Couldn\'t upload document');
     } finally {
       setUploading(false);
+      setUploadProgress(null);
     }
   };
 
@@ -257,7 +264,7 @@ export function useFilesPageState(
     documents, selectedDocumentId, setSelectedDocumentId, selectedDocument,
     documentContent, documentLoading,
     searchQuery, setSearchQuery, searchMatches, setSearchMatches, searching,
-    uploading, deletingDoc,
+    uploading, uploadProgress, deletingDoc,
     deleteDocConfirmId, setDeleteDocConfirmId,
     openFile, handleUploadDocuments, handleSearch, handleDeleteDocument,
   };

@@ -280,7 +280,6 @@
 /* ─── Shimmer animation (thinking indicator) ─── */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
-  50% { background-position: -200% 0; }
   100% { background-position: -200% 0; }
 }
 
@@ -290,7 +289,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: shimmer 2s ease-in-out infinite;
+  animation: shimmer 2.5s linear infinite;
 }
 
 @keyframes fadeInSoft {

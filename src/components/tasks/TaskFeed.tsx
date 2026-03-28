@@ -30,10 +30,8 @@ interface TaskFeedProps {
 
 function ParallelToolCalls({
   entries,
-  modelIconOverrides,
 }: {
   entries: ToolEntry[];
-  modelIconOverrides?: ModelIconOverrides;
 }) {
   const [open, setOpen] = useState(true);
 
@@ -65,7 +63,6 @@ function ParallelToolCalls({
             <FeedItem
               key={`${entry.id}:${idx}`}
               entry={entry}
-              modelIconOverrides={modelIconOverrides}
             />
           ))}
         </div>
@@ -74,7 +71,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, modelIconOverrides, workflowId: _workflowId, config: _config, onApproval, onBashApproval }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, workflowId: _workflowId, config: _config, onApproval, onBashApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const renderRows = useMemo<RenderRow[]>(() => {
@@ -195,9 +192,9 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
             >
               <div className="min-w-0 w-full">
                 {row.kind === 'tool_parallel' ? (
-                  <ParallelToolCalls entries={row.entries} modelIconOverrides={modelIconOverrides} />
+                  <ParallelToolCalls entries={row.entries} />
                 ) : (
-                  <FeedItem entry={row.entry} modelIconOverrides={modelIconOverrides} onApproval={onApproval} onBashApproval={onBashApproval} fullView={fullView} />
+                  <FeedItem entry={row.entry} onApproval={onApproval} onBashApproval={onBashApproval} fullView={fullView} />
                 )}
               </div>
             </div>
