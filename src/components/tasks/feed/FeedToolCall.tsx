@@ -81,7 +81,7 @@ export function FeedToolCall({
   }, [command, fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;
-  const todos = extractTodoDisplay(toolName, input, output, status);
+  const todos = useMemo(() => extractTodoDisplay(toolName, input, output, status), [toolName, input, output, status]);
   const searchResults = useMemo(() => (isWebSearch ? extractSearchResults(output) : []), [isWebSearch, output]);
   const fetchedSource = useMemo(() => (isFetchUrl ? extractFetchedSource(input, output) : null), [isFetchUrl, input, output]);
 

@@ -74,6 +74,12 @@ export function useWorkflowStream(
     if (!isActive) return;
     if (!config.baseUrl) return;
 
+    // Clear any pending reconnect timer to avoid stale reconnects
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
+    }
+
     connectionRef.current?.close();
     connectionRef.current = connectWorkflowStream(
       {
@@ -253,7 +259,11 @@ export function useWorkflowStream(
       const msg = text.trim();
       if (!msg) return;
 
+      // Snapshot state before optimistic update so we can restore on failure
+      let snapshotState: WorkflowStreamState | null = null;
+
       setState((prev) => {
+        snapshotState = prev;
         const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
         pendingEnvironmentSetupRef.current = !isClarificationReply;
 
@@ -274,15 +284,16 @@ export function useWorkflowStream(
         await continueWorkflow(config, workflowId, msg);
       } catch (error) {
         pendingEnvironmentSetupRef.current = false;
-        // Roll back optimistic UI state on failure
+        // Restore to pre-optimistic state so paused/clarification workflows don't appear failed
         setState((prev) => ({
           ...prev,
-          feed: prev.feed.filter(
+          feed: snapshotState?.feed ?? prev.feed.filter(
             (e) => !(e.kind === 'system_status' && e.text === 'Starting environment…')
           ),
-          isTerminal: true,
-          currentActivity: '',
-          workflowStatus: prev.workflowStatus === 'executing' ? 'failed' : prev.workflowStatus,
+          isTerminal: snapshotState?.isTerminal ?? prev.isTerminal,
+          currentActivity: snapshotState?.currentActivity ?? '',
+          workflowStatus: snapshotState?.workflowStatus ?? prev.workflowStatus,
+          pendingClarification: snapshotState?.pendingClarification,
         }));
         throw error;
       }

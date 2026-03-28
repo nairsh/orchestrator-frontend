@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { streamAgentResponse } from '../api/sse';
 import { toastApiError } from '../lib/toast';
+import { humanizeError } from '../lib/humanizeError';
 import type { ApiConfig } from '../api/client';
 import type { StreamChunk } from '../api/types';
 
@@ -50,6 +51,14 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   useEffect(() => {
     persistMessages(messages);
   }, [messages]);
+
+  // Clean up SSE stream on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.close();
+      abortRef.current = null;
+    };
+  }, []);
 
   const canSend = useCallback(
     (input: string) => input.trim().length > 0 && !streaming,
@@ -104,12 +113,11 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
 
           if (chunk.type === 'error') {
             setStreaming(false);
-            const message =
+            const rawMessage =
               chunk.data && typeof chunk.data === 'object' && 'message' in (chunk.data as Record<string, unknown>)
                 ? String((chunk.data as { message?: unknown }).message ?? 'Unknown error')
                 : 'Unknown error';
-            // Show error inline in chat instead of just a toast
-            setMessages((prev) => [...prev, { role: 'assistant', content: message, timestamp: Date.now(), error: true }]);
+            setMessages((prev) => [...prev, { role: 'assistant', content: humanizeError(rawMessage), timestamp: Date.now(), error: true }]);
             assistantBufferRef.current = '';
             setDraftAssistant('');
             abortRef.current?.close();
@@ -118,8 +126,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
         },
         (err: Error) => {
           setStreaming(false);
-          // Show connection error inline in chat
-          setMessages((prev) => [...prev, { role: 'assistant', content: err.message || 'Connection error', timestamp: Date.now(), error: true }]);
+          setMessages((prev) => [...prev, { role: 'assistant', content: humanizeError(err.message || 'Connection error'), timestamp: Date.now(), error: true }]);
           assistantBufferRef.current = '';
           setDraftAssistant('');
           abortRef.current?.close();
@@ -146,6 +153,12 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   }, []);
 
   const clearHistory = useCallback(() => {
+    // Abort any active stream before clearing
+    abortRef.current?.close();
+    abortRef.current = null;
+    setStreaming(false);
+    assistantBufferRef.current = '';
+    setDraftAssistant('');
     setMessages([]);
     sessionStorage.removeItem(STORAGE_KEY);
   }, []);

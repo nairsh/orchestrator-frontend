@@ -1,5 +1,6 @@
 import { createElement, type ReactNode } from 'react';
 import { sileo } from 'sileo';
+import { humanizeError } from './humanizeError';
 
 const INFO_DURATION_MS = 2200;
 const SUCCESS_DURATION_MS = 2200;
@@ -129,22 +130,8 @@ export function toastCredits(billing: {
 
 export function toastApiError(err: unknown, title = 'Something went wrong') {
   const raw = err instanceof Error ? err.message : String(err);
-  const normalized = normalizeAuthError(raw);
+  const normalized = humanizeError(raw);
   toastError(title, normalized);
-}
-
-function normalizeAuthError(message: string): string {
-  const lowered = message.toLowerCase();
-  if (
-    lowered.includes('invalid api key') ||
-    lowered.includes('invalid or missing api key') ||
-    lowered.includes('invalid or expired clerk token') ||
-    lowered.includes('invalid auth token') ||
-    lowered.includes('missing authentication token')
-  ) {
-    return 'Please sign in to continue.';
-  }
-  return message;
 }
 
 // Debug: expose toast functions for browser console testing

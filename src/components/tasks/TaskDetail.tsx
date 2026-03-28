@@ -9,7 +9,7 @@ import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
 import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
-import { toastApiError, toastSuccess, toastRich } from '../../lib/toast';
+import { toastApiError, toastSuccess } from '../../lib/toast';
 import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import { humanizeModelName } from '../../lib/modelNames';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -257,9 +257,6 @@ export function TaskDetail({
         isStale={isStale}
         maxWidth={contentMaxWidth}
         fullView={fullView}
-        modelIconOverrides={modelIconOverrides}
-        workflowId={workflowId}
-        config={config}
         onApproval={handleApproval}
         onBashApproval={handleBashApproval}
       />

@@ -2,13 +2,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, ChevronDown } from 'lucide-react';
 import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
-import type { ModelIconOverrides } from '../../lib/modelIcons';
 import { ThinkingIndicator } from './feed/ThinkingIndicator';
 import {
   type ToolEntry,
   type RenderRow,
 } from './feed/feedHelpers';
-import type { ApiConfig } from '../../api/client';
 
 /** Max ms between tool calls to collapse them into a parallel group */
 const PARALLEL_TOOL_WINDOW_MS = 1400;
@@ -21,9 +19,6 @@ interface TaskFeedProps {
   isStale?: boolean;
   maxWidth?: number;
   fullView?: boolean;
-  modelIconOverrides?: ModelIconOverrides;
-  workflowId?: string;
-  config?: ApiConfig;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
 }
@@ -71,7 +66,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, workflowId: _workflowId, config: _config, onApproval, onBashApproval }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, onApproval, onBashApproval }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const renderRows = useMemo<RenderRow[]>(() => {

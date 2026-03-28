@@ -137,7 +137,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
                   <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(notif.type)}</span>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium truncate ${notif.read ? 'text-secondary' : 'text-primary'}`}>
+                      <span className={`text-sm font-medium line-clamp-2 ${notif.read ? 'text-secondary' : 'text-primary'}`}>
                         {notif.title}
                       </span>
                       {!notif.read && <div className="w-1.5 h-1.5 rounded-full bg-info flex-shrink-0" />}

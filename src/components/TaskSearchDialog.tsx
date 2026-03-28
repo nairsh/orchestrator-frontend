@@ -41,6 +41,7 @@ export function TaskSearchDialog({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -49,10 +50,11 @@ export function TaskSearchDialog({
     if (!open) return;
     setQuery('');
     setSelectedIndex(0);
+    setFetchError(false);
     setLoading(true);
     listWorkflows(config, { limit: 50 })
       .then((res) => setWorkflows(res.workflows ?? []))
-      .catch(() => setWorkflows([]))
+      .catch(() => { setWorkflows([]); setFetchError(true); })
       .finally(() => setLoading(false));
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [open, config]);
@@ -75,10 +77,10 @@ export function TaskSearchDialog({
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedIndex((prev) => Math.min(prev + 1, filtered.length - 1));
+        if (filtered.length > 0) setSelectedIndex((prev) => Math.min(prev + 1, filtered.length - 1));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+        if (filtered.length > 0) setSelectedIndex((prev) => Math.max(prev - 1, 0));
       } else if (e.key === 'Enter' && filtered[selectedIndex]) {
         e.preventDefault();
         const wf = filtered[selectedIndex];
@@ -106,7 +108,12 @@ export function TaskSearchDialog({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-xl bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden animate-scale-in">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Search tasks"
+        className="w-full max-w-xl bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden animate-scale-in"
+      >
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
           <Search size={18} className="text-muted flex-shrink-0" />
@@ -118,6 +125,10 @@ export function TaskSearchDialog({
             onKeyDown={handleKeyDown}
             placeholder="Search tasks by name, status, or ID…"
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-placeholder outline-none font-sans"
+            role="combobox"
+            aria-expanded={filtered.length > 0}
+            aria-controls="task-search-listbox"
+            aria-activedescendant={filtered.length > 0 ? `task-search-option-${selectedIndex}` : undefined}
           />
           {loading && <Loader2 size={14} className="animate-spin text-muted flex-shrink-0" />}
           <kbd className="text-2xs text-muted bg-surface-tertiary rounded px-1.5 py-0.5 border border-border-light font-mono">
@@ -126,8 +137,17 @@ export function TaskSearchDialog({
         </div>
 
         {/* Results */}
-        <div ref={listRef} className="max-h-[380px] overflow-y-auto py-1">
-          {!loading && filtered.length === 0 && (
+        <div ref={listRef} id="task-search-listbox" role="listbox" className="max-h-[380px] overflow-y-auto py-1">
+          {!loading && fetchError && (
+            <div className="py-10 text-center">
+              <AlertTriangle size={20} className="mx-auto text-danger mb-2" />
+              <div className="text-sm text-muted">
+                Couldn't load tasks — check your connection and try again
+              </div>
+            </div>
+          )}
+
+          {!loading && !fetchError && filtered.length === 0 && (
             <div className="py-10 text-center">
               <AlertTriangle size={20} className="mx-auto text-muted mb-2" />
               <div className="text-sm text-muted">
@@ -145,7 +165,10 @@ export function TaskSearchDialog({
             return (
               <button
                 key={wf.id}
+                id={`task-search-option-${i}`}
                 type="button"
+                role="option"
+                aria-selected={isSelected}
                 onClick={() => {
                   onSelectWorkflow(wf.id, wf.objective);
                   onClose();
