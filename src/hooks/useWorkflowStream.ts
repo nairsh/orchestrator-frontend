@@ -270,20 +270,20 @@ export function useWorkflowStream(
 
   const handleEvent = useCallback((event: WorkflowEvent) => {
     lastEventTimeRef.current = Date.now();
-    // Snapshot ref outside setState updater to avoid concurrent mutation
     const pendingEnv = pendingEnvironmentSetupRef.current;
+    const seq = seqRef.current;
+
+    const ctx: EventReducerContext = {
+      seq: () => seqRef.current++,
+      pendingEnvironmentSetup: pendingEnv,
+    };
+
     setState((prev) => {
       if (prev.isStale) prev = { ...prev, isStale: false };
-
-      const ctx: EventReducerContext = {
-        seq: () => seqRef.current++,
-        pendingEnvironmentSetup: pendingEnv,
-      };
-
-      const next = reduceWorkflowEvent(prev, event, ctx);
-      pendingEnvironmentSetupRef.current = ctx.pendingEnvironmentSetup;
-      return next;
+      return reduceWorkflowEvent(prev, event, ctx);
     });
+
+    pendingEnvironmentSetupRef.current = ctx.pendingEnvironmentSetup;
   }, []);
 
   handleEventRef.current = handleEvent;
