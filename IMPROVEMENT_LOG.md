@@ -857,3 +857,28 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - Created lib/strings.ts with `truncate(text, maxLen)` helper
 - Replaced 9 inline truncation patterns across 7 files:
   toast.ts (3), WorkflowProgress, CommandPalette, TaskDetail, TaskItem, feedHelpers, ChatPrimitives
+
+## Batch 160 — Deep Audit: useCallback + Constants (10-batch checkpoint)
+- ApprovalGate: wrapped approve/reject handlers in useCallback (stable refs)
+- SettingsIconsInlinePanel: hoisted MODEL_ICON_DEFINITIONS.map to module constant
+
+## Batch 161 — Deep Audit Fixes: Favicons, Promises, A11y, Dead Props
+- FetchUrlRenderer: safe URL parsing for favicon (no render crash on bad URLs)
+- WebSearchRenderer: safe favicon URLs, key errors by URL not index, reset on change
+- ApprovalGate: typed callbacks as Promise<void>|void for proper loading state
+- FeedItem: propagate real approval promise (was void-discarding it)
+- NotificationCenter: semantic <ul>/<li> markup (was div role=list + button role=listitem)
+- TaskFeed: removed dead onApproval prop (never forwarded)
+- useWorkflowStream: added jitter to SSE reconnect backoff (±20%)
+
+## Batch 162 — Focus Management
+- CommandPalette: moved onKeyDown to dialog container (Tab trapped everywhere)
+- TaskDetail: cancel confirm auto-focuses 'Yes' button for keyboard users
+
+## Batch 163 — Layout Resilience
+- TasksPage: ResizeObserver for split-pane width init (handles 0-width start)
+- TaskFeed: raised parallel group maxHeight 1400→9999 (no content clipping)
+- FeedToolCall: maxHeight 'none'→9999 (enables smooth transition animation)
+
+## Batch 164 — SSE Event Handler Safety
+- useWorkflowStream: moved pendingEnvironmentSetupRef write outside setState updater
