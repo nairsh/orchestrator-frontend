@@ -14,6 +14,11 @@ export function useFilesPageState(
   initialWorkflowId?: string | null,
 ) {
   const [selectedWorkflowId, setSelectedWorkflowId] = useState<string | null>(initialWorkflowId ?? workflows[0]?.id ?? null);
+
+  // Sync selected workflow when external navigation changes
+  useEffect(() => {
+    if (initialWorkflowId) setSelectedWorkflowId(initialWorkflowId);
+  }, [initialWorkflowId]);
   const [workspace, setWorkspace] = useState<Record<string, unknown> | null>(null);
   const [files, setFiles] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
