@@ -40,17 +40,15 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
     const card = cardRef.current;
     if (!card) return;
 
+    const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
     // Auto-focus first focusable element
-    const focusable = card.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    );
+    const focusable = card.querySelectorAll<HTMLElement>(focusableSelector);
     if (focusable.length > 0) focusable[0].focus();
 
     const handleTab = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-      const items = card.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
+      const items = card.querySelectorAll<HTMLElement>(focusableSelector);
       if (items.length === 0) return;
       const first = items[0];
       const last = items[items.length - 1];
