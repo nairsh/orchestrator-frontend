@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeftToLine, RefreshCw, Play, XCircle, Loader2, Clock, Download } from 'lucide-react';
+import { ArrowLeftToLine, RefreshCw, Play, XCircle, Loader2, Clock, Download, Copy } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
@@ -165,6 +165,18 @@ export function TaskDetail({
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Copy objective */}
+          <Tooltip title="Copy objective">
+            <IconButton
+              size="sm"
+              label="Copy objective"
+              onClick={() => {
+                navigator.clipboard.writeText(objective).then(() => toastSuccess('Copied to clipboard'));
+              }}
+            >
+              <Copy size={14} />
+            </IconButton>
+          </Tooltip>
           {/* Export conversation */}
           {feed.length > 0 && (
             <Tooltip title="Export conversation">
@@ -199,7 +211,10 @@ export function TaskDetail({
           {isExecuting && (
             <>
               {cancelConfirm ? (
-                <div className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20">
+                <div
+                  className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20"
+                  onKeyDown={(e) => { if (e.key === 'Escape') setCancelConfirm(false); }}
+                >
                   <span className="text-xs text-danger font-medium">Cancel task?</span>
                   <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => { setCancelConfirm(false); void handleCancel(); }} className="h-5 px-2 text-[11px]">
                     {actionBusy === 'cancel' ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
