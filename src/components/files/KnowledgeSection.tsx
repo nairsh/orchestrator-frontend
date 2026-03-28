@@ -94,7 +94,7 @@ export function KnowledgeSection({
 
       {/* Document cards */}
       {loading && documents.length === 0 ? (
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
@@ -104,7 +104,7 @@ export function KnowledgeSection({
           No documents added yet. Upload text, PDF, or image files to build your knowledge library.
         </div>
       ) : (
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {documents.map((document) => {
             const ext = getFileExtension(document.filename);
             const isActive = selectedDocumentId === document.id;

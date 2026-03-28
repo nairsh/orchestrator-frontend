@@ -66,10 +66,14 @@ export function TaskFilesSection({
       {/* File cards */}
       {filteredFiles.length === 0 ? (
         <div className="rounded-xl border border-border-light bg-surface p-8 text-center text-sm text-muted">
-          {files.length === 0 ? 'No files created yet.' : 'No files match your filter.'}
+          {files.length === 0
+            ? selectedWorkflowId
+              ? 'This task hasn\'t created any files yet. Run the task to see outputs here.'
+              : 'Select a task above to view its files.'
+            : 'No files match your filter.'}
         </div>
       ) : (
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredFiles.map((path) => {
             const fileName = getFileName(path, path);
             const ext = getFileExtension(fileName);

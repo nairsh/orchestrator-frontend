@@ -42,6 +42,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
             icon={<Brain size={26} className="text-muted" />}
             title="No memories"
             description="Save context your AI can recall across tasks — preferences, facts, or instructions."
+            action={<Button onClick={() => setShowDialog(true)}>Save your first memory</Button>}
           />
         ) : (
           <div className="flex flex-col gap-3">
@@ -52,7 +53,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
                     <div className="text-sm font-semibold text-primary">{memory.key.replace(/[_-]/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</div>
                     {memory.category && <div className="mt-1 text-xs text-placeholder">{memory.category}</div>}
                   </div>
-                  <Button variant="danger" onClick={() => setDeleteConfirmId(memory.id)}>Delete</Button>
+                  <Button variant="danger" aria-label="Delete this memory" onClick={() => setDeleteConfirmId(memory.id)}>Delete</Button>
                 </div>
                 <div className="mt-2.5 whitespace-pre-wrap text-sm text-muted">{memory.content}</div>
               </Card>

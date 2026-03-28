@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { connectWorkflowStream } from '../api/sse';
-import { continueWorkflow, getWorkflow, getWorkflowTrace } from '../api/client';
+import { continueWorkflow, getWorkflow, getWorkflowTrace, getPendingApprovals } from '../api/client';
 import type { ApiConfig } from '../api/client';
 import { toastApiError } from '../lib/toast';
 import { humanizeError } from '../lib/humanizeError';
@@ -208,6 +208,33 @@ export function useWorkflowStream(
         }));
 
         if (!isTerminal) {
+          // Recover any pending bash approvals that were lost on refresh
+          try {
+            const { approvals } = await getPendingApprovals(config, workflowId);
+            if (!cancelled && approvals.length > 0) {
+              setState((prev) => {
+                const existingIds = new Set(
+                  prev.feed
+                    .filter((e): e is Extract<FeedEntry, { kind: 'bash_approval' }> => e.kind === 'bash_approval')
+                    .map((e) => e.id)
+                );
+                const newApprovals: FeedEntry[] = approvals
+                  .filter((a) => !existingIds.has(a.task_id))
+                  .map((a) => ({
+                    kind: 'bash_approval' as const,
+                    id: a.task_id,
+                    toolName: a.tool_name ?? 'bash',
+                    command: typeof a.tool_input === 'string' ? a.tool_input : JSON.stringify(a.tool_input),
+                    reason: a.reason,
+                    status: 'pending' as const,
+                  }));
+                if (newApprovals.length === 0) return prev;
+                return { ...prev, feed: [...prev.feed, ...newApprovals] };
+              });
+            }
+          } catch {
+            // Non-critical — approvals will appear via SSE if available
+          }
           connect();
         }
       } catch (err) {

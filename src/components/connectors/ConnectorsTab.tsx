@@ -39,10 +39,10 @@ export function ConnectorsTab({
         <RelayEmpty
           icon={<Unplug size={26} className="text-muted" />}
           title="No services available"
-          description="Connect tools like GitHub, Linear, and Notion to let your AI work with your existing workflow."
+          description="Connect tools like GitHub, Linear, and Notion to let your AI work with your existing workflow. If no providers appear, check your API configuration."
         />
       ) : (
-      <div className="grid gap-4 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {connectorCards.map(({ provider, connector }) => {
           const copy = providerCopy[provider.provider];
           const Icon = copy.icon;
