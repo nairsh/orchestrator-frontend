@@ -1,5 +1,4 @@
 import type {
-  ClarificationRequestedData,
   FeedEntry,
   LiveTask,
 } from '../../api/types';
@@ -75,58 +74,4 @@ export const upsertActiveTaskGroup = (
       ? { ...entry, tasks: [...liveTasks] }
       : entry
   );
-};
-
-export const upsertClarificationToolCall = (
-  feed: FeedEntry[],
-  data: ClarificationRequestedData,
-  ctx: EventReducerContext,
-  timestamp?: string,
-): FeedEntry[] => {
-  const clarificationOutput = {
-    clarification_question: data.question,
-    options: data.options,
-    allow_custom: data.allow_custom,
-  };
-
-  let updated = false;
-  const nextFeed = [...feed]
-    .reverse()
-    .map((entry) => {
-      if (
-        !updated &&
-        entry.kind === 'tool_call' &&
-        entry.toolName === 'request_clarification' &&
-        entry.status === 'running'
-      ) {
-        updated = true;
-        return {
-          ...entry,
-          status: 'done' as const,
-          output: clarificationOutput,
-        };
-      }
-      return entry;
-    })
-    .reverse();
-
-  if (updated) return nextFeed;
-
-  return [
-    ...nextFeed,
-    {
-      kind: 'tool_call',
-      id: `tc:clarification:${ctx.seq()}`,
-      toolName: 'request_clarification',
-      input: {
-        question: data.question,
-        options: data.options,
-        allow_custom: data.allow_custom,
-      },
-      output: clarificationOutput,
-      taskId: 'orchestrator',
-      status: 'done',
-      at: timestamp,
-    } satisfies FeedEntry,
-  ];
 };

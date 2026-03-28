@@ -543,3 +543,140 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 ## Batch 107 — Chat Abort/Close Split + Accessibility
 - Chat abort: add persistPartial param — stop button preserves partial text, closing modal discards it
 - Server address input: link label to input with htmlFor/id for screen reader accessibility
+
+## Batch 108 — ChatModal Focus Trap
+- Port Tab key focus trapping from shared Modal to ChatModal
+- Save/restore focus on mount/unmount
+
+## Batch 109 — Vendor Chunk Splitting
+- Split @lobehub/ui and markdown into separate vendor chunks
+- Main bundle: 1,979 kB → 498 kB (75% reduction)
+
+## Batch 110 — Status Filter + A11y + Notifications
+- TaskList: apply statusFilter to sortedWorkflows (was being ignored)
+- TaskList: add role=alert to error section
+- NotificationCenter: aria-expanded, aria-haspopup, badge count up to 99+
+
+## Batch 111 — P1/P2 Audit Fixes
+- TaskItem: simplify delete toast to always show 'Task deleted'
+- TasksPage: wire onRefreshList to all TaskDetail render sites
+- TaskFeed: add role=log + aria-live=polite for screen readers
+- ClarificationPanel: fix Escape/Cmd+Enter from any focus position
+
+## Batch 112 — A11y Labels + Conversation Export
+- Add aria-label to all textarea inputs (TaskStartInput, LandingPage, CommandInput)
+- Conversation export: include tool call inputs/outputs with collapsible sections
+
+## Batch 113 — Rich Workflow Toasts + Page Transitions
+- Add toastWorkflowComplete/Failed with duration and model info
+- Fade-in-soft transition between App screens
+- ThinkingIndicator expanded content gets fade animation
+- TodoList: smooth status transition colors
+- Input component: error/success props with border color + aria-invalid
+
+## Batch 114 — P1/P2 Audit Fixes
+- P1: Remove broken ClarificationPanel onDismiss (was noop)
+- P1: useWorkflows requestIdRef to prevent stale poll overwrites
+- P2: Fix feed auto-scroll jitter (only scroll on new rows)
+- P2: CommandPalette combobox a11y (role, aria-controls, aria-activedescendant)
+- P2: Rich retry/cancel toasts, BashRenderer auto-expand on error
+
+## Batch 115 — Keyboard A11y
+- TaskContextMenu: Arrow key navigation, Escape close, auto-focus
+- ResizableDivider: role=separator, Arrow/Home/End keyboard resize
+- NotificationCenter: dropdown position clamped to viewport
+
+## Batch 116 — Silent Resume + Scrollable Tool Outputs
+- Resume sends 'continue' silently (no user bubble)
+- sendMessage opts.silent to suppress user_message in feed
+- Tool blocks: increased max height to 500-600px with scroll
+
+## Batch 117 — Remove Duplicate activeModel State
+- Removed redundant useState + useEffect sync for activeModel in TasksPage
+- Use selectedModel prop directly, eliminating one render cycle flicker
+
+## Batch 118 — File Content Previews in Tool Calls
+- file_read: syntax-highlighted content preview (first 80 lines)
+- file_edit: shows 'Changes' label with diff/content preview
+- file_write: shows 'Written' label with content preview
+- Language detection from file extension
+
+## Batch 119 — Reconnect Button for Stale SSE
+- ThinkingIndicator: added 'Reconnect' button in stale warning
+- retryConnection() resets attempt counter, clears stale, reconnects SSE
+
+## Batch 120 — Scroll-to-Selected Task
+- TaskList: scroll selected task into view on navigation
+- Uses data-task-id attributes for DOM lookup
+
+## Batch 121 — Copy Objective + Cancel Confirm Escape
+- TaskDetail: copy objective to clipboard button
+- Cancel confirmation: Escape key dismisses inline
+
+## Batch 122 — Chat Persistence + Partial Response Preservation
+- Chat history: sessionStorage → localStorage (survives refresh)
+- Automatic migration from sessionStorage
+- Modal close: abort(true) preserves partial AI response
+
+## Batches 123-126 — SSE Safety, Optimistic Updates, Performance, UX Polish
+- SSE: track terminal events, trigger onError on unexpected EOF
+- useWorkflows: clear list on auth loss
+- useWorkflowStream: reset pendingEnvironmentSetup on workflow switch
+- ClarificationPanel: reset isSubmitting on new clarification
+- NotificationCenter: close on click, useLayoutEffect for position
+- humanizeError: Firefox/Safari network patterns + SSE disconnect
+- Safe optimistic rollback: only remove optimistic entries (preserves SSE events)
+- CommandPalette: Tab key focus trap
+- Remove dead tool-blocks/ directory (6 files, 355 lines)
+- RAF-batched chat streaming: re-renders from ~50/s to ~16/s
+- ResizeObserver feed auto-scroll for streaming content
+- Pending approvals hydration (survive refresh)
+- Mobile-first grids for files, knowledge, connectors
+- MemoryTab: action CTA in empty state
+
+## Batch 127 — FilesPage + useWorkflows Race Fix
+- Close max-w-6xl wrapper div left unclosed
+- useWorkflows: increment requestIdRef on auth loss clear
+
+## Batch 128 — Deep Audit Fixes (A11y, Memory Leaks, Dead Code)
+### Accessibility (8 components):
+- SkillGrid: Fix nested button → div with role=button
+- SkillGrid: aria-label on overflow menu
+- SkillDetailPanel: Proper dialog semantics (role=dialog, aria-modal)
+- OnboardingModal: Dialog semantics
+- ChatModal fullscreen: Dialog semantics + focus trap
+- ProviderList: group-focus-within on hover-only actions
+- KnowledgeSection: focus-visible on delete button
+- ChatPrimitives: group-focus-within on copy button
+
+### Memory Leaks (3):
+- useChatStream: Cancel RAF on unmount, reset draftDirtyRef
+- useChatStream: Fix stale model closure via modelRef
+- ConnectorsTab: Track OAuth poll/timeout in ref, cleanup on unmount
+
+### Dead Code (3 imports):
+- ChatPrimitives: unused useEffect
+- TaskContextMenu: unused PinOff
+- useSettingsState: unused toastSuccess
+
+### UX Polish (4):
+- useChatModel: Toast warning on model fetch failure
+- TaskDetail: Catch clipboard copy failure
+- SettingsRoutingPanel: Fix misleading 'saved automatically' text
+- ProviderList: Skeleton loading state
+
+## Batch 129 — Loading States + Billing UX
+- TaskListHeader: Spinner in credits pill while loading
+- BillingDashboard: Toast warning on partial data failure
+- SettingsRoutingInlinePanel: Loading skeleton for preferences
+- SettingsIconsInlinePanel: Loading skeleton for model icons
+- SchedulesTab: Skeleton cards during initial load
+- TeamsTab: Skeleton cards during initial load
+
+## Batch 130 — Performance + A11y + UX Polish
+- TaskList: useCallback for onClick/onPin/onRename (preserves TaskItem memo())
+- TaskItem: Callback-with-id pattern to eliminate inline closures
+- SettingsModal: Pulse skeleton for AI options count while loading
+- ProvidersSettingsPanel: Toast when presets fall back to defaults
+- TaskSearchDialog: Tab key focus trap
+- TeamsTab: Safer key derivation

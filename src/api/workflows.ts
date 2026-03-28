@@ -3,7 +3,6 @@ import type {
   WorkflowSummary,
   WorkflowTraceStep,
   ApprovalRequest,
-  WorkflowProgress,
   TaskSummary,
 } from './types';
 import type { ApiConfig } from './core';
@@ -101,15 +100,6 @@ export async function retryWorkflow(
   );
 }
 
-export async function pauseWorkflow(
-  config: ApiConfig,
-  workflowId: string
-): Promise<{ workflow_id: string; status: string }> {
-  return request<{ workflow_id: string; status: string }>(config, `/v1/workflows/${workflowId}/pause`, {
-    method: 'POST',
-  });
-}
-
 export async function approveWorkflowTask(
   config: ApiConfig,
   workflowId: string,
@@ -145,11 +135,4 @@ export async function getPendingApprovals(
     `/v1/workflows/${workflowId}/pending-approvals`
   );
   return { approvals: res.pending_approvals };
-}
-
-export async function getWorkflowProgress(
-  config: ApiConfig,
-  workflowId: string
-): Promise<WorkflowProgress> {
-  return request<WorkflowProgress>(config, `/v1/workflows/${workflowId}/progress`);
 }

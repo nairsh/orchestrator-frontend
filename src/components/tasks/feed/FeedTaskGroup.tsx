@@ -60,13 +60,13 @@ export function FeedTaskGroup({
 
             return (
               <div key={task.id} className="flex items-center gap-2 py-1 min-w-0">
-                <Icon size={15} className="flex-shrink-0 text-muted" />
+                <Icon size={15} className="flex-shrink-0 text-muted" aria-hidden="true" />
                 <span className={`font-sans text-sm truncate ${status === 'running' ? 'text-primary' : 'text-muted'}`}>
                   {task.description || activity}
                 </span>
-                {status === 'running' && <Loader2 size={13} className="flex-shrink-0 text-muted animate-spin ml-auto" />}
-                {(status === 'completed' || status === 'skipped') && <Check size={13} className="flex-shrink-0 text-muted ml-auto" />}
-                {status === 'failed' && <CircleAlert size={13} className="flex-shrink-0 text-danger ml-auto" />}
+                {status === 'running' && <Loader2 size={13} className="flex-shrink-0 text-muted animate-spin ml-auto" aria-label="Running" />}
+                {(status === 'completed' || status === 'skipped') && <Check size={13} className="flex-shrink-0 text-muted ml-auto" aria-label="Completed" />}
+                {status === 'failed' && <CircleAlert size={13} className="flex-shrink-0 text-danger ml-auto" aria-label="Failed" />}
               </div>
             );
           })}

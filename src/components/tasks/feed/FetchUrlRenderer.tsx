@@ -23,6 +23,7 @@ export function FetchUrlRenderer({
               <img
                 src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(fetchedSource.url)}`}
                 alt=""
+                aria-hidden="true"
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 loading="lazy"
               />

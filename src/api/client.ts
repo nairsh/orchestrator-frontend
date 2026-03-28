@@ -13,11 +13,9 @@ export {
   getWorkflowTrace,
   continueWorkflow,
   retryWorkflow,
-  pauseWorkflow,
   approveWorkflowTask,
   approveBashCommand,
   getPendingApprovals,
-  getWorkflowProgress,
 } from './workflows';
 
 export {

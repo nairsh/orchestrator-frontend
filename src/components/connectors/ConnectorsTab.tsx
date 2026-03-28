@@ -53,20 +53,20 @@ export function ConnectorsTab({
       ) : (
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {connectorCards.map(({ provider, connector }) => {
-          const copy = providerCopy[provider.provider];
+          const copy = providerCopy[provider.provider] ?? { title: provider.provider, description: '', icon: Unplug };
           const Icon = copy.icon;
           const busy = connectorBusyProvider === provider.provider || connectorBusyId === connector?.id;
           return (
             <div key={provider.provider} className="rounded-xl border border-border-light bg-surface p-5 hover:border-border hover:shadow-sm hover:-translate-y-px transition-all duration-200">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-border-light bg-surface-secondary flex-shrink-0">
-                  <Icon size={22} className="text-primary" />
+                  <Icon size={22} className="text-primary" aria-hidden="true" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-base font-semibold text-primary">{copy.title}</span>
                     {connector && (
-                      <svg className="w-5 h-5 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-accent flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" role="img" aria-label="Connected">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     )}

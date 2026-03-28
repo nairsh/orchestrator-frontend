@@ -43,12 +43,13 @@ export const CitationCard = memo(function CitationCard({ index, url, title }: Ci
         <img
           src={favicon}
           alt=""
+          aria-hidden="true"
           className="w-3.5 h-3.5 rounded-full flex-shrink-0"
           loading="lazy"
           onError={() => setImgError(true)}
         />
       ) : (
-        <Globe size={12} className="text-muted flex-shrink-0" />
+        <Globe size={12} className="text-muted flex-shrink-0" aria-hidden="true" />
       )}
       <span className="text-xs text-primary truncate group-hover:text-info transition-colors duration-200">
         {title || domain}

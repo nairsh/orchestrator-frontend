@@ -40,6 +40,7 @@ export function WebSearchRenderer({
               <img
                 src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(result.resolvedUrl)}`}
                 alt=""
+                aria-hidden="true"
                 className="w-4 h-4 rounded-full flex-shrink-0"
                 loading="lazy"
               />
