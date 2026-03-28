@@ -46,8 +46,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   const handleSend = () => {
     const text = input.trim();
     if (!text) return;
-    setInput('');
-    send(text);
+    if (send(text)) setInput('');
   };
 
   const chatContent = (

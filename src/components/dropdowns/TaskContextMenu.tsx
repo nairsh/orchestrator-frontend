@@ -23,7 +23,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }:
           e.stopPropagation();
           setOpen((v) => !v);
         }}
-        className="w-6 h-6 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-all duration-200 opacity-0 group-hover:opacity-100 cursor-pointer"
+        className="w-6 h-6 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-all duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 cursor-pointer"
         aria-expanded={open}
         aria-haspopup="menu"
         aria-label="Task actions"

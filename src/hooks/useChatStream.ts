@@ -57,11 +57,11 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   );
 
   const send = useCallback(
-    (text: string) => {
-      if (!text || streaming) return;
+    (text: string): boolean => {
+      if (!text || streaming) return false;
       if (!config.baseUrl.trim()) {
         toastApiError(new Error('Missing base URL'), 'Not connected');
-        return;
+        return false;
       }
 
       const userMsg: ChatMessage = { role: 'user', content: text, timestamp: Date.now() };
@@ -126,6 +126,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
           abortRef.current = null;
         },
       );
+
+      return true;
     },
     [config.baseUrl, config.getAuthToken, model, streaming],
   );
@@ -133,6 +135,14 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   const abort = useCallback(() => {
     abortRef.current?.close();
     abortRef.current = null;
+    setStreaming(false);
+    // Preserve any partial content already streamed
+    const partial = assistantBufferRef.current;
+    if (partial) {
+      setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now() }]);
+    }
+    assistantBufferRef.current = '';
+    setDraftAssistant('');
   }, []);
 
   const clearHistory = useCallback(() => {

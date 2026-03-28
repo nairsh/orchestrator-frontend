@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { PlusDropdown } from '../dropdowns/PlusDropdown';
 import { IconButton, Textarea } from '../ui';
-import { toastWarning } from '../../lib/toast';
 
 interface CommandInputProps {
   onSubmit: (text: string) => void;
@@ -69,18 +67,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
           />
 
         {/* Bottom row */}
-        <div className="flex items-center justify-between pt-2">
-          {/* Left: plus dropdown */}
-          <PlusDropdown
-            outlined
-            onUploadFiles={() => {
-              toastWarning('Files not supported here', 'Attach files from the home screen when starting a new task.');
-            }}
-            onOpenConnectors={() => {
-              toastWarning('Open Connectors from the sidebar', 'Use the sidebar nav to access Connectors.');
-            }}
-          />
-
+        <div className="flex items-center justify-end pt-2">
           {/* Right: model label + send */}
           <div className="flex items-center gap-3">
             {modelLabel && (

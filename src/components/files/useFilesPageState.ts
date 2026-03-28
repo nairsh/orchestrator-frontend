@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ApiConfig } from '../../api/client';
 import { deleteKnowledgeDocument, getKnowledgeDocument, getWorkspace, listKnowledgeDocuments, searchKnowledge, uploadKnowledgeDocument } from '../../api/client';
 import type { KnowledgeDocument, KnowledgeSearchMatch, WorkflowSummary } from '../../api/types';
@@ -20,7 +20,7 @@ export function useFilesPageState(
   const [filter, setFilter] = useState('');
 
   const [documents, setDocuments] = useState<KnowledgeDocument[]>([]);
-  const [, setDocumentsLoading] = useState(false);
+  const [documentsLoading, setDocumentsLoading] = useState(false);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [documentContent, setDocumentContent] = useState('');
   const [documentLoading, setDocumentLoading] = useState(false);
@@ -31,6 +31,7 @@ export function useFilesPageState(
   const [deleteDocConfirmId, setDeleteDocConfirmId] = useState<string | null>(null);
   const [deletingDoc, setDeletingDoc] = useState(false);
   const [fileTab, setFileTab] = useState<FileTab>('all');
+  const openFileRequestRef = useRef(0);
 
   const sessionId = typeof workspace?.active_session_id === 'string' ? (workspace.active_session_id as string) : null;
 
@@ -148,6 +149,7 @@ export function useFilesPageState(
       URL.revokeObjectURL(preview.url);
     }
 
+    const requestId = ++openFileRequestRef.current;
     setPreview({ kind: 'loading', path });
 
     const safePath = path
@@ -171,6 +173,9 @@ export function useFilesPageState(
         throw new Error(`HTTP ${res.status}`);
       }
 
+      // Ignore stale responses if user clicked another file
+      if (requestId !== openFileRequestRef.current) return;
+
       const contentType = res.headers.get('content-type') ?? 'application/octet-stream';
       if (contentType.startsWith('image/')) {
         const blob = await res.blob();
@@ -182,6 +187,7 @@ export function useFilesPageState(
       const text = await res.text();
       setPreview({ kind: 'text', path, text: text.slice(0, 200_000), contentType });
     } catch (err) {
+      if (requestId !== openFileRequestRef.current) return;
       setPreview({ kind: 'error', path, message: err instanceof Error ? err.message : String(err) });
       toastApiError(err, 'Couldn\'t open this file');
     }
@@ -244,7 +250,7 @@ export function useFilesPageState(
   return {
     fileTab, setFileTab,
     selectedWorkflowId, setSelectedWorkflowId,
-    loading, sessionId,
+    loading, documentsLoading, sessionId,
     files, filteredFiles, filter, setFilter,
     filteredWorkflows,
     preview, setPreview,

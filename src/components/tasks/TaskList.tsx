@@ -35,8 +35,6 @@ interface TaskListProps {
 export function TaskList({ workflows, selectedId, onSelect, config, selectedModel, onSelectModel, onRefresh, loading, error, statusFilter, onStatusFilterChange, onOpenChat, onOpenConnectors, modelIconOverrides }: TaskListProps) {
   const { togglePin, setDisplayName, getDisplayName, isPinned, sortKey } = useWorkflowMeta();
   const billing = useBillingBalance(config, true);
-  const billingCredits = typeof billing.data?.credits_balance === 'number' ? billing.data.credits_balance : 0;
-  const periodCreditsUsed = typeof billing.data?.usage_this_period?.credits_used === 'number' ? billing.data.usage_this_period.credits_used : 0;
   const [renameId, setRenameId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const [nowTs, setNowTs] = useState(() => Date.now());
@@ -153,8 +151,6 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
         onHideSearch={() => setShowSearch(false)}
         loading={loading}
         billing={billing}
-        billingCredits={billingCredits}
-        periodCreditsUsed={periodCreditsUsed}
         statusFilter={statusFilter}
         onStatusFilterChange={onStatusFilterChange}
         onOpenChat={onOpenChat}

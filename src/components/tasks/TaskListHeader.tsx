@@ -1,9 +1,7 @@
-import { createElement } from 'react';
 import { Coins, MessageSquare, Search } from 'lucide-react';
 import { StatusFilterDropdown, type WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { Button, IconButton, SearchInput } from '../ui';
-import { toastInfo } from '../../lib/toast';
-import { sileo } from 'sileo';
+import { toastInfo, toastCredits } from '../../lib/toast';
 
 interface BillingSnapshot {
   data: { tier: string; credits_balance: number; usage_this_period?: { credits_used: number; request_count: number } } | null | undefined;
@@ -18,8 +16,6 @@ interface TaskListHeaderProps {
   onHideSearch: () => void;
   loading: boolean;
   billing: BillingSnapshot;
-  billingCredits: number;
-  periodCreditsUsed: number;
   statusFilter: WorkflowStatusFilter;
   onStatusFilterChange: (value: WorkflowStatusFilter) => void;
   onOpenChat?: () => void;
@@ -33,8 +29,6 @@ export function TaskListHeader({
   onHideSearch,
   loading,
   billing,
-  billingCredits,
-  periodCreditsUsed,
   statusFilter,
   onStatusFilterChange,
   onOpenChat,
@@ -72,43 +66,12 @@ export function TaskListHeader({
                   }
                   return;
                 }
-                const total = billingCredits + periodCreditsUsed;
-                const rawPct = total > 0 ? (billingCredits / total) * 100 : 100;
-                // Prevent misleading "100%" when credits have been used
-                const pct = periodCreditsUsed > 0 ? Math.min(Math.round(rawPct), 99) : Math.round(rawPct);
-                const hasUsageData = periodCreditsUsed > 0;
-                const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-
-                sileo.info({
-                  title: `${billingCredits.toFixed(0)} credits remaining`,
-                  duration: 5000,
-                  roundness: 20,
-                  fill: isDark ? '#282624' : '#ffffff',
-                  styles: { title: 'relay-toast-title', description: 'relay-toast-description' },
-                  description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' } },
-                    hasUsageData
-                      ? createElement('div', { style: { width: '100%', height: '6px', borderRadius: '3px', background: isDark ? '#3a3836' : '#e8e5e0', overflow: 'hidden' } },
-                          createElement('div', { style: { width: `${pct}%`, height: '100%', borderRadius: '3px', background: pct > 20 ? '#6b8f71' : '#c4573a', transition: 'width 0.4s ease' } })
-                        )
-                      : null,
-                    hasUsageData
-                      ? createElement('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: isDark ? '#b0aca6' : '#706b64' } },
-                          createElement('span', null, `${pct}% remaining`),
-                          createElement('span', null, `${periodCreditsUsed.toFixed(0)} used`)
-                        )
-                      : createElement('div', { style: { fontSize: '12px', color: isDark ? '#b0aca6' : '#706b64' } },
-                          `${billingCredits.toFixed(0)} credits available`
-                        ),
-                    createElement('div', { style: { fontSize: '11px', color: isDark ? '#8a8580' : '#918b84', marginTop: '2px' } },
-                      `Plan: ${billing.data.tier}`
-                    )
-                  ),
-                });
+                toastCredits(billing.data);
               }}
             >
               <Coins size={14} className="text-muted" />
               <span className="font-sans text-sm font-medium text-primary">
-                {billing.data ? `${billingCredits.toFixed(0)} credits` : '—'}
+                {billing.data ? `${billing.data.credits_balance.toFixed(0)} credits` : '—'}
               </span>
             </Button>
 
