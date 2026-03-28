@@ -1,11 +1,13 @@
-import { SettingsModal } from './components/SettingsModal';
-import { CommandPalette } from './components/CommandPalette';
-import { TaskSearchDialog } from './components/TaskSearchDialog';
-import { KeyboardShortcutsOverlay } from './components/KeyboardShortcuts';
-import { OnboardingModal } from './components/OnboardingModal';
+import { lazy, Suspense } from 'react';
 import { useWorkflows } from './hooks/useWorkflows';
 import type { AppState } from './hooks/useAppState';
 import type { AppProps, TaskNav } from './appTypes';
+
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const CommandPalette = lazy(() => import('./components/CommandPalette').then(m => ({ default: m.CommandPalette })));
+const TaskSearchDialog = lazy(() => import('./components/TaskSearchDialog').then(m => ({ default: m.TaskSearchDialog })));
+const KeyboardShortcutsOverlay = lazy(() => import('./components/KeyboardShortcuts').then(m => ({ default: m.KeyboardShortcutsOverlay })));
+const OnboardingModal = lazy(() => import('./components/OnboardingModal').then(m => ({ default: m.OnboardingModal })));
 
 interface AppModalsProps {
   state: AppState;
@@ -29,7 +31,8 @@ export function AppModals({ state, appProps }: AppModalsProps) {
   return (
     <>
       {state.showSettings && (
-        <SettingsModal
+        <Suspense fallback={null}>
+          <SettingsModal
           initialBaseUrl={state.config.baseUrl}
           clerkEnabled={clerkEnabled}
           requiresAuth={!state.effectiveAuth}
@@ -43,10 +46,12 @@ export function AppModals({ state, appProps }: AppModalsProps) {
           onSave={(baseUrl) => void state.handleSaveSettings(baseUrl)}
           onClose={() => state.setShowSettings(false)}
         />
+        </Suspense>
       )}
 
       {state.showCommandPalette && (
-        <CommandPalette
+        <Suspense fallback={null}>
+          <CommandPalette
           open={state.showCommandPalette}
           onClose={() => state.setShowCommandPalette(false)}
           workflows={paletteWorkflows}
@@ -69,10 +74,12 @@ export function AppModals({ state, appProps }: AppModalsProps) {
             window.dispatchEvent(new CustomEvent('relay:focus-input'));
           }}
         />
+        </Suspense>
       )}
 
       {state.showTaskSearch && (
-        <TaskSearchDialog
+        <Suspense fallback={null}>
+          <TaskSearchDialog
           open={state.showTaskSearch}
           onClose={() => state.setShowTaskSearch(false)}
           config={state.runtimeConfig}
@@ -81,17 +88,22 @@ export function AppModals({ state, appProps }: AppModalsProps) {
             state.selectWorkflow(id, objective);
           }}
         />
+        </Suspense>
       )}
 
       {state.showShortcutsOverlay && (
-        <KeyboardShortcutsOverlay
+        <Suspense fallback={null}>
+          <KeyboardShortcutsOverlay
           open={state.showShortcutsOverlay}
           onClose={() => state.setShowShortcutsOverlay(false)}
         />
+        </Suspense>
       )}
 
       {state.showOnboarding && (
-        <OnboardingModal onClose={() => state.setShowOnboarding(false)} />
+        <Suspense fallback={null}>
+          <OnboardingModal onClose={() => state.setShowOnboarding(false)} />
+        </Suspense>
       )}
     </>
   );

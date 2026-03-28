@@ -289,14 +289,6 @@ export function useWorkflowStream(
 
   handleEventRef.current = handleEvent;
 
-  useEffect(() => {
-    return () => {
-      connectionRef.current?.close();
-      connectionRef.current = null;
-      if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
-    };
-  }, []);
-
   const sendMessage = useCallback(
     async (text: string, opts?: { silent?: boolean }) => {
       const msg = text.trim();
