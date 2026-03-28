@@ -61,6 +61,7 @@ export function CommandInput({ onSubmit, disabled, maxWidth = 600, modelLabel, a
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={resolvedPlaceholder}
+            aria-label="Follow-up message"
             disabled={disabled}
             maxHeight={160}
             className={disabled ? 'opacity-50' : ''}

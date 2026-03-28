@@ -210,6 +210,7 @@ export function LandingPage({
                   onChange={(e) => setValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="What should we work on next?"
+                  aria-label="Task description"
                   minHeight={48}
                   maxHeight={200}
                   autoFocus

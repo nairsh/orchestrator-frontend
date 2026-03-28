@@ -52,6 +52,7 @@ export function TaskStartInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Start a task"
+        aria-label="Task description"
         onKeyDown={onKeyDown}
         maxHeight={100}
         className="text-md"

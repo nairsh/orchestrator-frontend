@@ -17,9 +17,19 @@ export function feedToMarkdown(objective: string, feed: FeedEntry[]): string {
       case 'completion':
         if (entry.output) lines.push(`**Result:** ${entry.output}`, '');
         break;
-      case 'tool_call':
-        lines.push(`> 🔧 *${toolLabel(entry.toolName)}*${entry.status === 'failed' ? ' (failed)' : ''}`, '');
+      case 'tool_call': {
+        const status = entry.status === 'failed' ? ' ❌' : '';
+        lines.push(`> 🔧 *${toolLabel(entry.toolName)}*${status}`, '');
+        const inp = formatToolPayload(entry.input);
+        if (inp) lines.push(`> **Input:** ${inp}`, '');
+        if (entry.output !== undefined) {
+          const out = formatToolPayload(entry.output);
+          if (out) {
+            lines.push('<details><summary>Output</summary>', '', '```', out.slice(0, 2000), '```', '</details>', '');
+          }
+        }
         break;
+      }
       case 'system_status':
         lines.push(`> ℹ️ ${entry.text}`, '');
         break;
@@ -28,6 +38,12 @@ export function feedToMarkdown(objective: string, feed: FeedEntry[]): string {
   }
 
   return lines.join('\n').trim() + '\n';
+}
+
+function formatToolPayload(payload: unknown): string {
+  if (payload === undefined || payload === null) return '';
+  if (typeof payload === 'string') return payload.trim();
+  try { return JSON.stringify(payload, null, 2); } catch { return String(payload); }
 }
 
 function toolLabel(name: string): string {
