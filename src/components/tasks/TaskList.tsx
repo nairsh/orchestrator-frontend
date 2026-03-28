@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Empty } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
-import type { ApiConfig } from '../../api/client';
+import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { TaskItem } from './TaskItem';
 import { createWorkflow } from '../../api/client';
-import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
+import { toastApiError, toastError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
 import { useWorkflowMeta } from '../../hooks/useWorkflowMeta';
 import type { WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { useBillingBalance } from '../../hooks/useBillingBalance';
@@ -14,6 +14,7 @@ import { SkeletonTaskItem } from '../ui/Skeleton';
 import { TaskListHeader } from './TaskListHeader';
 import { TaskStartInput } from './TaskStartInput';
 import { RenameTaskModal } from './RenameTaskModal';
+import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
 
 interface TaskListProps {
   workflows: WorkflowSummary[];
@@ -42,6 +43,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   const [showSearch, setShowSearch] = useState(false);
   const [startValue, setStartValue] = useState('');
   const [starting, setStarting] = useState(false);
+  const [attachments, setAttachments] = useState<Array<ContextFileUpload & { id: string; size: number }>>([]);
   const renameInputRef = useRef<HTMLInputElement>(null);
   const startInputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -108,6 +110,29 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     closeRename();
   };
 
+  const contextFiles = useMemo(() => attachments.map(({ id: _id, size: _size, ...rest }) => rest), [attachments]);
+
+  const handleUploadFiles = async (files: File[]) => {
+    let runningTotal = attachments.reduce((sum, a) => sum + a.size, 0);
+    for (const file of files) {
+      if (file.size > MAX_CONTEXT_FILE_BYTES) {
+        toastError('File too large', `${file.name} exceeds ${Math.round(MAX_CONTEXT_FILE_BYTES / (1024 * 1024))}MB.`);
+        continue;
+      }
+      if (runningTotal + file.size > MAX_TOTAL_CONTEXT_BYTES) {
+        toastWarning('Total file size too large', 'Remove some files before adding more.');
+        break;
+      }
+      try {
+        const upload = await fileToContextUpload(file);
+        runningTotal += file.size;
+        setAttachments((prev) => [...prev, { ...upload, id: crypto.randomUUID() }]);
+      } catch (err) {
+        toastError('Upload failed', err instanceof Error ? err.message : 'Something went wrong.');
+      }
+    }
+  };
+
   const handleStart = async (objective: string): Promise<boolean> => {
     if (!selectedModel.trim()) {
       toastInfo('Models loading', 'Please wait a moment and try again.');
@@ -115,9 +140,14 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     }
     setStarting(true);
     try {
-      const result = await createWorkflow(config, { objective, orchestrator_model: selectedModel });
+      const result = await createWorkflow(config, {
+        objective,
+        orchestrator_model: selectedModel,
+        ...(contextFiles.length > 0 ? { context_files: contextFiles } : {}),
+      });
       onRefresh();
       onSelect(result.workflow_id, objective);
+      setAttachments([]);
       return true;
     } catch (err) {
       toastApiError(err, 'Couldn\'t start task');
@@ -169,6 +199,9 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           selectedModel={selectedModel}
           onSelectModel={onSelectModel}
           onOpenConnectors={onOpenConnectors}
+          onUploadFiles={handleUploadFiles}
+          attachments={attachments}
+          onRemoveAttachment={(id) => setAttachments((prev) => prev.filter((a) => a.id !== id))}
           modelIconOverrides={modelIconOverrides}
         />
 
