@@ -52,6 +52,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   const messagesRef = useRef(messages);
   const rafRef = useRef<number | null>(null);
   const draftDirtyRef = useRef(false);
+  const modelRef = useRef(model);
+  modelRef.current = model;
 
   // Keep ref in sync for use in callbacks
   useEffect(() => {
@@ -63,11 +65,16 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
     persistMessages(messages);
   }, [messages]);
 
-  // Clean up SSE stream on unmount
+  // Clean up SSE stream and pending RAF on unmount
   useEffect(() => {
     return () => {
       abortRef.current?.close();
       abortRef.current = null;
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      draftDirtyRef.current = false;
     };
   }, []);
 
@@ -172,7 +179,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
     setStreaming(false);
     const partial = assistantBufferRef.current;
     if (persistPartial && partial) {
-      setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now(), model }]);
+      setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now(), model: modelRef.current }]);
     }
     assistantBufferRef.current = '';
     setDraftAssistant('');

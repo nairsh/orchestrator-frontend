@@ -171,7 +171,9 @@ export function TaskDetail({
               size="sm"
               label="Copy objective"
               onClick={() => {
-                navigator.clipboard.writeText(objective).then(() => toastSuccess('Copied to clipboard'));
+                navigator.clipboard.writeText(objective)
+                  .then(() => toastSuccess('Copied to clipboard'))
+                  .catch(() => toastApiError(null, 'Couldn\'t copy to clipboard'));
               }}
             >
               <Copy size={14} />

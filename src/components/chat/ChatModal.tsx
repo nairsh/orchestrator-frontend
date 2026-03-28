@@ -35,9 +35,8 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
     };
   }, []);
 
-  // Focus trap for modal (non-fullscreen)
+  // Focus trap for both modal and fullscreen
   useEffect(() => {
-    if (fullscreen) return;
     const card = dialogRef.current;
     if (!card) return;
 
@@ -131,6 +130,9 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   if (fullscreen) {
     return (
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-label="AI Chat"
         className={`flex-1 flex flex-col h-full overflow-hidden chat-ui bg-surface-warm transition-all duration-200 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}

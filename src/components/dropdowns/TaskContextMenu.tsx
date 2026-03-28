@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { MoreHorizontal, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pin, Pencil, Trash2 } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface TaskContextMenuProps {

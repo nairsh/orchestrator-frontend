@@ -1,6 +1,6 @@
 import { KeyRound, Loader2, Pencil, Plus, Trash2, Zap } from 'lucide-react';
 import type { ApiProvider } from '../../api/types';
-import { Button } from '../ui';
+import { Button, Skeleton } from '../ui';
 import { getProviderIcon } from './providerConstants';
 
 interface ProviderListProps {
@@ -14,9 +14,16 @@ interface ProviderListProps {
 export function ProviderList({ providers, loading, onAdd, onEdit, onDelete }: ProviderListProps) {
   if (loading) {
     return (
-      <div className="flex items-center gap-2 py-6 text-[13px] text-muted">
-        <Loader2 size={14} className="animate-spin" />
-        Loading…
+      <div className="divide-y divide-border">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-3 py-3">
+            <Skeleton circle width={32} />
+            <div className="flex-1 flex flex-col gap-1.5">
+              <Skeleton width="40%" height={14} />
+              <Skeleton width="60%" height={10} />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -65,18 +72,20 @@ export function ProviderList({ providers, loading, onAdd, onEdit, onDelete }: Pr
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={() => onEdit(provider)}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-[12.5px] text-muted hover:text-primary hover:bg-surface-hover bg-transparent border-none cursor-pointer"
+              aria-label={`Edit ${provider.display_name}`}
+              className="flex items-center gap-1 rounded-md px-2 py-1 text-[12.5px] text-muted hover:text-primary hover:bg-surface-hover focus-visible:text-primary focus-visible:bg-surface-hover bg-transparent border-none cursor-pointer"
             >
               <Pencil size={13} /> Edit
             </button>
             <button
               type="button"
               onClick={() => onDelete(provider.id)}
-              className="flex items-center gap-1 rounded-md px-2 py-1 text-[12.5px] text-muted hover:text-danger hover:bg-danger/10 bg-transparent border-none cursor-pointer"
+              aria-label={`Delete ${provider.display_name}`}
+              className="flex items-center gap-1 rounded-md px-2 py-1 text-[12.5px] text-muted hover:text-danger hover:bg-danger/10 focus-visible:text-danger focus-visible:bg-danger/10 bg-transparent border-none cursor-pointer"
             >
               <Trash2 size={13} /> Delete
             </button>

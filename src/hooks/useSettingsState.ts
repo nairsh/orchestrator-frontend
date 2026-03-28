@@ -21,7 +21,7 @@ import type {
   ModelPreferences,
 } from '../api/types';
 import type { ModelIconOverrides } from '../lib/modelIcons';
-import { toastApiError, toastConnector, toastInfo, toastSettingsSaved, toastSuccess } from '../lib/toast';
+import { toastApiError, toastConnector, toastInfo, toastSettingsSaved } from '../lib/toast';
 
 const INFERRED_ICON_VALUE = '__inferred__';
 

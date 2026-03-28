@@ -37,12 +37,14 @@ export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSk
   return (
     <div className="grid grid-cols-2 gap-4">
       {skills.map((skill) => (
-        <button
+        <div
           key={skill.id}
-          type="button"
+          role="button"
+          tabIndex={0}
           onClick={() => onSelectSkill(skill.id)}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectSkill(skill.id); } }}
           className={[
-            'rounded-xl border px-5 py-4 text-left transition-all duration-200 flex items-start justify-between gap-3 cursor-pointer',
+            'group rounded-xl border px-5 py-4 text-left transition-all duration-200 flex items-start justify-between gap-3 cursor-pointer',
             selectedId === skill.id
               ? 'border-border-light bg-surface shadow-sm'
               : 'border-border-light bg-surface hover:border-border hover:shadow-sm hover:-translate-y-px active:translate-y-0',
@@ -56,6 +58,7 @@ export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSk
             trigger={({ toggle }) => (
               <button
                 type="button"
+                aria-label={`Actions for ${formatSkillName(skill.id)}`}
                 onClick={(e) => { e.stopPropagation(); toggle(); }}
                 className="flex items-center justify-center w-7 h-7 rounded-md text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 flex-shrink-0 cursor-pointer"
               >
@@ -69,7 +72,7 @@ export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSk
               Delete skill
             </DropdownMenuItem>
           </DropdownMenu>
-        </button>
+        </div>
       ))}
     </div>
   );

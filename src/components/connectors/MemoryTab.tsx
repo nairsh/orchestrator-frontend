@@ -4,7 +4,7 @@ import type { ApiConfig } from '../../api/client';
 import { deleteMemory, saveMemory } from '../../api/client';
 import type { Memory } from '../../api/types';
 import { toastApiError, toastSuccess, toastWarning } from '../../lib/toast';
-import { Button, Card, Input, Textarea, Modal, ModalHeader, ModalBody, ModalFooter } from '../ui';
+import { Button, Card, Input, Textarea, Modal, ModalHeader, ModalBody, ModalFooter, SkeletonCard } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
 
 interface MemoryTabProps {
@@ -37,7 +37,13 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
           </div>
         </div>
 
-        {memories.length === 0 ? (
+        {memoriesLoading && memories.length === 0 ? (
+          <div className="flex flex-col gap-3">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : memories.length === 0 ? (
           <RelayEmpty
             icon={<Brain size={26} className="text-muted" />}
             title="No memories"

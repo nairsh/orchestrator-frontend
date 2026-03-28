@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useLayoutEffect, type ReactNode } from 'react';
+import { useState, useRef, useLayoutEffect, type ReactNode } from 'react';
 import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Square, AlertCircle, RotateCcw } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
@@ -74,7 +74,7 @@ export function AssistantMessage({ content, timestamp, model }: { content: strin
         <div className="flex items-center gap-2 mt-1">
           {timestamp ? <span className="text-[10px] text-muted/60 font-sans">{formatTime(timestamp)}</span> : null}
           {model && <span className="text-[10px] text-muted/40 font-sans">{model}</span>}
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <div className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200">
             <CopyButton content={content} size="small" />
           </div>
         </div>

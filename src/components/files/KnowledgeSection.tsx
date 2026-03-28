@@ -149,7 +149,7 @@ export function KnowledgeSection({
                   <button
                     type="button"
                     onClick={(event) => { event.stopPropagation(); setDeleteConfirmId(document.id); }}
-                    className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 hover:bg-surface-hover hover:text-danger transition-all duration-200"
+                    className="absolute top-3 right-3 rounded-lg p-1.5 text-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-surface-hover hover:text-danger transition-all duration-200"
                     aria-label="Delete document"
                   >
                     <Trash2 size={14} />

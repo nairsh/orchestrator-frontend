@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Loader2, RefreshCcw, Unplug } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { disconnectConnector, startConnectorOAuth, validateConnector } from '../../api/client';
@@ -24,6 +24,15 @@ export function ConnectorsTab({
   setConnectorBusyId, setConnectorBusyProvider, onRefresh, config,
 }: ConnectorsTabProps) {
   const [disconnectConfirmId, setDisconnectConfirmId] = useState<string | null>(null);
+  const oauthTimersRef = useRef<{ pollId?: ReturnType<typeof setInterval>; timeoutId?: ReturnType<typeof setTimeout> }>({});
+
+  // Clean up OAuth popup polling timers on unmount
+  useEffect(() => {
+    return () => {
+      if (oauthTimersRef.current.pollId) clearInterval(oauthTimersRef.current.pollId);
+      if (oauthTimersRef.current.timeoutId) clearTimeout(oauthTimersRef.current.timeoutId);
+    };
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -79,10 +88,19 @@ export function ConnectorsTab({
                     toastInfo(`${copy.title} sign-in opened`, 'Sign in to complete the connection. We\'ll refresh automatically.');
                     // Poll for popup closure and auto-refresh
                     if (popup) {
+                      if (oauthTimersRef.current.pollId) clearInterval(oauthTimersRef.current.pollId);
+                      if (oauthTimersRef.current.timeoutId) clearTimeout(oauthTimersRef.current.timeoutId);
                       const pollId = setInterval(() => {
-                        try { if (popup.closed) { clearInterval(pollId); void onRefresh(); } } catch { /* cross-origin */ }
+                        try {
+                          if (popup.closed) {
+                            clearInterval(pollId);
+                            oauthTimersRef.current.pollId = undefined;
+                            void onRefresh();
+                          }
+                        } catch { /* cross-origin */ }
                       }, 1000);
-                      setTimeout(() => clearInterval(pollId), 120_000);
+                      oauthTimersRef.current.pollId = pollId;
+                      oauthTimersRef.current.timeoutId = setTimeout(() => { clearInterval(pollId); oauthTimersRef.current.pollId = undefined; }, 120_000);
                     }
                   } catch (err) { toastApiError(err, `Couldn't connect to ${copy.title}`); }
                   finally { setConnectorBusyProvider(null); }

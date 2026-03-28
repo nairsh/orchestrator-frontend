@@ -41,7 +41,7 @@ export function SettingsRoutingPanel({
             <div className="text-[11px] uppercase tracking-[0.2em] text-muted">AI Preferences</div>
             <h3 className="mt-3 text-2xl font-semibold tracking-tight text-primary">Choose which AI to use for each type of work.</h3>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-secondary">
-              Pick the best AI for each kind of task. Your preferences are saved automatically.
+              Pick the best AI for each kind of task. Review your changes, then save.
             </p>
           </div>
           <div className="flex gap-2">

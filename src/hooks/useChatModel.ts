@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ApiConfig } from '../api/client';
 import { getModels } from '../api/client';
+import { toastWarning } from '../lib/toast';
 
 const DEFAULT_MODEL = 'openai/gpt-4o';
 
@@ -25,7 +26,7 @@ export function useChatModel(config: ApiConfig): [string, (m: string) => void] {
         setModel((prev) => ids.has(prev) ? prev : preferred);
       })
       .catch(() => {
-        // Model list unavailable — keep current selection
+        if (!cancelled) toastWarning('Models unavailable', 'Using default model — check your API settings.');
       });
     return () => { cancelled = true; };
   }, [config.baseUrl]);
