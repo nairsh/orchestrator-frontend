@@ -8,6 +8,8 @@ import { useEscapeKey } from '../../hooks/useEscapeKey';
 import { ChatHeader, ChatMessageArea, ChatInput } from './ChatPrimitives';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
+const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 interface ChatModalProps {
   config: ApiConfig;
   onClose: () => void;
@@ -20,12 +22,43 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   const [model, setModel] = useChatModel(config);
   const [input, setInput] = useState('');
   const bottomRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<Element | null>(null);
   const { messages, streaming, draftAssistant, canSend, send, abort, clearHistory } = useChatStream({ config, model });
 
   useEffect(() => {
+    previousFocusRef.current = document.activeElement;
     const t = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(t);
+    return () => {
+      cancelAnimationFrame(t);
+      if (previousFocusRef.current instanceof HTMLElement) previousFocusRef.current.focus();
+    };
   }, []);
+
+  // Focus trap for modal (non-fullscreen)
+  useEffect(() => {
+    if (fullscreen) return;
+    const card = dialogRef.current;
+    if (!card) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const items = card.querySelectorAll<HTMLElement>(FOCUSABLE);
+      if (items.length === 0) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [fullscreen]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: streaming ? 'auto' : 'smooth' });
@@ -117,6 +150,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="AI Chat"
