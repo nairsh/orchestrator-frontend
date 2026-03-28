@@ -46,7 +46,7 @@ export const WebSearchRenderer = memo(function WebSearchRenderer({
                 <Globe size={14} className="text-muted flex-shrink-0" aria-hidden="true" />
               ) : (
                 <img
-                  src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(result.resolvedUrl)}`}
+                  src={`${new URL(result.resolvedUrl).origin}/favicon.ico`}
                   alt=""
                   aria-hidden="true"
                   className="w-4 h-4 rounded-full flex-shrink-0"

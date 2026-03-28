@@ -35,9 +35,10 @@ export async function getModels(config: ApiConfig): Promise<ModelsResponse> {
 }
 
 /** Invalidate the models cache (e.g. after saving preferences) */
-export function invalidateModelsCache(baseUrl?: string) {
-  if (baseUrl) {
-    modelsCache.delete(baseUrl);
+export function invalidateModelsCache(config?: ApiConfig) {
+  if (config) {
+    const key = `${config.baseUrl}|${config.hasAuth ? 'auth' : 'anon'}`;
+    modelsCache.delete(key);
   } else {
     modelsCache.clear();
   }

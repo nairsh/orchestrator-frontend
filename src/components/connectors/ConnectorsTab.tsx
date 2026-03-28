@@ -99,7 +99,11 @@ export function ConnectorsTab({
                           if (popup.closed) {
                             clearInterval(pollId);
                             const entry = oauthTimersRef.current[pKey];
-                            if (entry) entry.pollId = undefined;
+                            if (entry) {
+                              if (entry.timeoutId) clearTimeout(entry.timeoutId);
+                              entry.pollId = undefined;
+                              entry.timeoutId = undefined;
+                            }
                             void onRefresh();
                           }
                         } catch { /* cross-origin */ }

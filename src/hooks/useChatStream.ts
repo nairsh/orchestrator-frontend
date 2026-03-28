@@ -7,31 +7,39 @@ import type { StreamChunk } from '../api/types';
 
 export type ChatMessage = { role: 'user' | 'assistant'; content: string; timestamp?: number; error?: boolean; model?: string };
 
-const STORAGE_KEY = 'relay-chat-history';
+const STORAGE_KEY_PREFIX = 'relay-chat-history';
+const LEGACY_KEY = 'relay-chat-history';
 
-function loadPersistedMessages(): ChatMessage[] {
+function chatStorageKey(config: ApiConfig): string {
+  const identity = config.hasAuth ? 'auth' : 'anon';
+  return `${STORAGE_KEY_PREFIX}:${config.baseUrl}:${identity}`;
+}
+
+function loadPersistedMessages(config: ApiConfig): ChatMessage[] {
   try {
-    // Try localStorage first (persistent), fall back to sessionStorage (legacy)
-    const raw = localStorage.getItem(STORAGE_KEY) ?? sessionStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const msgs = JSON.parse(raw) as ChatMessage[];
-      // Migrate from sessionStorage to localStorage
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        localStorage.setItem(STORAGE_KEY, raw);
-        sessionStorage.removeItem(STORAGE_KEY);
+    const key = chatStorageKey(config);
+    let raw = localStorage.getItem(key);
+    // Migrate from legacy unscoped key
+    if (!raw) {
+      const legacy = localStorage.getItem(LEGACY_KEY) ?? sessionStorage.getItem(LEGACY_KEY);
+      if (legacy) {
+        localStorage.setItem(key, legacy);
+        localStorage.removeItem(LEGACY_KEY);
+        sessionStorage.removeItem(LEGACY_KEY);
+        raw = legacy;
       }
-      return msgs;
     }
+    if (raw) return JSON.parse(raw) as ChatMessage[];
     return [];
   } catch {
     return [];
   }
 }
 
-function persistMessages(messages: ChatMessage[]) {
+function persistMessages(config: ApiConfig, messages: ChatMessage[]) {
   try {
     const trimmed = messages.slice(-50);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+    localStorage.setItem(chatStorageKey(config), JSON.stringify(trimmed));
   } catch { /* quota exceeded — silently ignore */ }
 }
 
@@ -44,7 +52,7 @@ interface UseChatStreamOptions {
  * Shared hook that encapsulates the SSE chat streaming logic.
  */
 export function useChatStream({ config, model }: UseChatStreamOptions) {
-  const [messages, setMessages] = useState<ChatMessage[]>(loadPersistedMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => loadPersistedMessages(config));
   const [streaming, setStreaming] = useState(false);
   const [draftAssistant, setDraftAssistant] = useState('');
   const assistantBufferRef = useRef('');
@@ -62,8 +70,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
 
   // Persist messages whenever they change
   useEffect(() => {
-    persistMessages(messages);
-  }, [messages]);
+    persistMessages(config, messages);
+  }, [config, messages]);
 
   // Clean up SSE stream and pending RAF on unmount
   useEffect(() => {
@@ -194,9 +202,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
     assistantBufferRef.current = '';
     setDraftAssistant('');
     setMessages([]);
-    localStorage.removeItem(STORAGE_KEY);
-    sessionStorage.removeItem(STORAGE_KEY);
-  }, []);
+    localStorage.removeItem(chatStorageKey(config));
+  }, [config]);
 
   return { messages, streaming, draftAssistant, canSend, send, abort, clearHistory };
 }

@@ -28,7 +28,7 @@ export const FetchUrlRenderer = memo(function FetchUrlRenderer({
                 <Globe size={12} className="text-muted flex-shrink-0" aria-hidden="true" />
               ) : (
                 <img
-                  src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(fetchedSource.url)}`}
+                  src={`${new URL(fetchedSource.url).origin}/favicon.ico`}
                   alt=""
                   aria-hidden="true"
                   className="w-3 h-3 rounded-full flex-shrink-0"

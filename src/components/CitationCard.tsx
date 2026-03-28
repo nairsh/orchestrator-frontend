@@ -18,7 +18,8 @@ function extractDomain(url: string): string {
 
 function getFaviconUrl(url: string): string {
   try {
-    return `https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(url)}`;
+    const { origin } = new URL(url);
+    return `${origin}/favicon.ico`;
   } catch {
     return '';
   }

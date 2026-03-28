@@ -186,12 +186,14 @@ export function useFilesPageState(
       const contentType = res.headers.get('content-type') ?? 'application/octet-stream';
       if (contentType.startsWith('image/')) {
         const blob = await res.blob();
+        if (requestId !== openFileRequestRef.current) return;
         const objectUrl = URL.createObjectURL(blob);
         setPreview({ kind: 'image', path, url: objectUrl, contentType });
         return;
       }
 
       const text = await res.text();
+      if (requestId !== openFileRequestRef.current) return;
       setPreview({ kind: 'text', path, text: text.slice(0, 200_000), contentType });
     } catch (err) {
       if (requestId !== openFileRequestRef.current) return;

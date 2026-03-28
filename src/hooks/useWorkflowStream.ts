@@ -123,10 +123,9 @@ export function useWorkflowStream(
 
     (async () => {
       try {
-        const [details, traceRes] = await Promise.all([
-          getWorkflow(config, workflowId),
-          getWorkflowTrace(config, workflowId),
-        ]);
+        const detailsPromise = getWorkflow(config, workflowId);
+        const tracePromise = getWorkflowTrace(config, workflowId).catch(() => null);
+        const [details, traceRes] = await Promise.all([detailsPromise, tracePromise]);
         if (cancelled) return;
 
         const isTerminal = ['completed', 'failed', 'cancelled'].includes(details.workflow.status);
@@ -147,7 +146,7 @@ export function useWorkflowStream(
           });
         });
 
-        const trace = Array.isArray(traceRes.trace) ? (traceRes.trace as WorkflowTraceStep[]) : [];
+        const trace = traceRes && Array.isArray(traceRes.trace) ? (traceRes.trace as WorkflowTraceStep[]) : [];
         const traceModelsByTaskId = deriveTaskModelByIdFromTrace(trace);
 
         liveTasks = liveTasks.map((task) => ({

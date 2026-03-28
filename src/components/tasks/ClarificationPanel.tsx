@@ -69,18 +69,18 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
     }
   };
 
-  // Build display options: all provided options + always add custom option
+  const showCustom = clarification.allowCustom !== false;
+
   const displayOptions = useMemo(() => {
     const baseOptions = [...options];
-    // Always add a custom option at the end
-    baseOptions.push({
-      label: "No, and tell Relay what to do differently",
-    });
+    if (showCustom) {
+      baseOptions.push({ label: "No, and tell Relay what to do differently" });
+    }
     return baseOptions;
-  }, [options]);
+  }, [options, showCustom]);
 
   const customOptionIndex = displayOptions.length - 1;
-  const regularOptions = displayOptions.slice(0, -1);
+  const regularOptions = showCustom ? displayOptions.slice(0, -1) : displayOptions;
 
   return (
     <div 
@@ -145,7 +145,8 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
             );
           })}
 
-          {/* Custom option with input - always visible */}
+          {/* Custom option with input - only when allowCustom */}
+          {showCustom && (
           <div className="w-full rounded-lg border border-border-light bg-surface mb-2 overflow-hidden">
             <div className="flex items-center gap-3 px-3 py-2.5 border-b border-border-subtle/50">
               <span className="flex-shrink-0 font-sans text-[14px] text-muted tabular-nums">
@@ -172,6 +173,7 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
               />
             </div>
           </div>
+          )}
         </div>
 
         {/* Footer with actions */}
