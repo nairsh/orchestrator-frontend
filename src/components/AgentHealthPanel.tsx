@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Activity, CheckCircle2, AlertTriangle, XCircle, Loader2, RefreshCw } from 'lucide-react';
-import { Empty, Tooltip } from '@lobehub/ui';
+import { Tooltip } from '@lobehub/ui';
+import { RelayEmpty } from './shared/RelayEmpty';
 import type { AgentHealthStatus } from '../api/types';
 import type { ApiConfig } from '../api/client';
 import { getAgentHealth } from '../api/client';
@@ -103,9 +104,7 @@ export function AgentHealthPanel({ config }: AgentHealthPanelProps) {
       </div>
 
       {agents.length === 0 ? (
-        <div className="py-4">
-          <Empty description="No AI health data available from your server." />
-        </div>
+        <RelayEmpty icon={<Activity size={22} className="text-muted" />} description="No AI health data available from your server." className="py-4" />
       ) : (
         <div className="grid grid-cols-1 gap-2">
           {agents.map((agent) => (

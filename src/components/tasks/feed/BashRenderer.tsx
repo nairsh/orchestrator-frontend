@@ -24,6 +24,11 @@ export function BashRenderer({
         <div className="px-3 py-1.5 border-b border-border-light flex items-center gap-2">
           <span className={`inline-block w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-emerald-500'}`} />
           <span className="font-sans text-xs text-placeholder">command</span>
+          {exitCode !== undefined && !isRunning && (
+            <span className={`font-sans text-[10px] font-medium px-1.5 py-0.5 rounded-full ${exitCode === 0 ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
+              {exitCode === 0 ? '✓ 0' : `✗ ${exitCode}`}
+            </span>
+          )}
           <Tooltip title={showBashOutput ? 'Hide command output' : 'Show command output'}>
             <button
               type="button"

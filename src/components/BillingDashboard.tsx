@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, CreditCard, ArrowDownCircle, ArrowUpCircle, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
-import { Empty, Tooltip, Tabs } from '@lobehub/ui';
+import { Tooltip, Tabs } from '@lobehub/ui';
+import { RelayEmpty } from './shared/RelayEmpty';
 import type { ApiConfig } from '../api/client';
 import type { BillingUsageEntry, BillingTransaction } from '../api/types';
 import { getBillingUsage, getBillingTransactions, getBillingBalance } from '../api/client';
@@ -114,9 +115,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
       {tab === 'usage' && (
         <div className="space-y-2">
           {usage.length === 0 ? (
-            <div className="py-4">
-              <Empty description="No usage recorded yet. Start a task to see your usage breakdown." />
-            </div>
+            <RelayEmpty icon={<BarChart3 size={22} className="text-muted" />} description="No usage recorded yet. Start a task to see your usage breakdown." className="py-4" />
           ) : (
             usage.map((u) => (
               <div key={u.model} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors duration-200">
@@ -143,9 +142,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
       {tab === 'transactions' && (
         <div className="space-y-1">
           {transactions.length === 0 ? (
-            <div className="py-4">
-              <Empty description="No transactions yet. Credit activity will appear here." />
-            </div>
+            <RelayEmpty icon={<CreditCard size={22} className="text-muted" />} description="No transactions yet. Credit activity will appear here." className="py-4" />
           ) : (
             transactions.map((tx) => (
               <div key={tx.id} className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors duration-200">

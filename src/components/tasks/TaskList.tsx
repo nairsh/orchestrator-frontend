@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Empty } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
 import { TaskItem } from './TaskItem';
@@ -14,6 +13,7 @@ import { SkeletonTaskItem } from '../ui/Skeleton';
 import { TaskListHeader } from './TaskListHeader';
 import { TaskStartInput } from './TaskStartInput';
 import { RenameTaskModal } from './RenameTaskModal';
+import { RelayEmpty } from '../shared/RelayEmpty';
 import { useFileAttachments } from '../../hooks/useFileAttachments';
 
 interface TaskListProps {
@@ -216,9 +216,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             </>
           )}
           {sortedWorkflows.length === 0 && !loading && !error && (
-            <div className="pt-8">
-              <Empty description="Start a task using the input above" emoji="📋" />
-            </div>
+            <RelayEmpty icon={<span className="text-xl">📋</span>} title="No tasks yet" description="Start a task using the input above" />
           )}
           {error && !loading && (
             <div role="alert" className="flex flex-col items-center pt-8 text-center px-4">

@@ -1,7 +1,8 @@
 import { useRef, useState, useCallback, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, CheckCheck, Trash2 } from 'lucide-react';
-import { ActionIcon, Empty, Tooltip } from '@lobehub/ui';
+import { ActionIcon, Tooltip } from '@lobehub/ui';
+import { RelayEmpty } from './shared/RelayEmpty';
 import type { Notification } from '../hooks/useNotifications';
 import { useNotifications } from '../hooks/useNotifications';
 import { relativeTimeAgo } from '../lib/time';
@@ -123,9 +124,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
           {/* List */}
           <div className="max-h-[360px] overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="py-8">
-                <Empty description="No notifications yet" />
-              </div>
+              <RelayEmpty icon={<Bell size={24} className="text-muted" />} description="No notifications yet" className="py-8" />
             ) : (
               notifications.map((notif) => (
                 <button

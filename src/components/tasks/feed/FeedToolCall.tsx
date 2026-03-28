@@ -81,6 +81,7 @@ export function FeedToolCall({
   }, [fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;
+  const iconColor = isRunning ? 'text-primary' : isBash ? 'text-amber-500/70' : isBrowser ? 'text-blue-400/70' : isFile ? 'text-emerald-500/70' : isSearch ? 'text-violet-400/70' : isTodo ? 'text-cyan-400/70' : 'text-muted';
   const todos = useMemo(() => extractTodoDisplay(toolName, input, output, status), [toolName, input, output, status]);
   const searchResults = useMemo(() => (isWebSearch ? extractSearchResults(output) : []), [isWebSearch, output]);
   const fetchedSource = useMemo(() => (isFetchUrl ? extractFetchedSource(input, output) : null), [isFetchUrl, input, output]);
@@ -138,7 +139,7 @@ export function FeedToolCall({
         aria-expanded={expandable ? open : undefined}
         aria-label={expandable ? `${open ? 'Collapse' : 'Expand'} ${title}` : title}
       >
-        {showLeadingIcon && <Icon size={16} className={`flex-shrink-0 ${isRunning ? 'text-primary' : 'text-muted'}`} />}
+        {showLeadingIcon && <Icon size={16} className={`flex-shrink-0 ${iconColor}`} />}
         <span className={`font-sans text-base truncate ${isRunning ? 'font-medium text-primary' : 'font-normal text-muted'}`}>
           {title}
         </span>

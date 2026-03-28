@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Search, ArrowRight, FileText, Clock, Zap, Settings, LayoutGrid, Brain, Database, MessageSquare, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Empty, Hotkey } from '@lobehub/ui';
+import { Hotkey } from '@lobehub/ui';
+import { RelayEmpty } from './shared/RelayEmpty';
 import type { WorkflowSummary } from '../api/types';
 
 interface CommandPaletteProps {
@@ -165,9 +166,7 @@ export function CommandPalette({
         {/* Results */}
         <div ref={listRef} id="command-palette-list" role="listbox" className="max-h-[420px] overflow-y-auto py-2">
           {filtered.length === 0 && (
-            <div className="py-8">
-              <Empty description="No results found" />
-            </div>
+            <RelayEmpty icon={<Search size={22} className="text-muted" />} description="No results found" className="py-6" />
           )}
 
           {grouped.actions.length > 0 && (
