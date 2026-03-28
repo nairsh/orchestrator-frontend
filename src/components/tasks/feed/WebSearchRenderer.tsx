@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import type { SearchResultDisplay } from './feedHelpers';
 
-export function WebSearchRenderer({
+export const WebSearchRenderer = memo(function WebSearchRenderer({
   query,
   isRunning,
   searchResults,
@@ -55,4 +56,4 @@ export function WebSearchRenderer({
       </div>
     </div>
   );
-}
+});

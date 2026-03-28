@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { GitFork, ChevronDown, Check, CircleAlert, Loader2 } from 'lucide-react';
 import { normalizeStatus, taskActivityLabel, toolIconForName } from './feedHelpers';
 
@@ -13,7 +13,7 @@ interface Task {
   tool_calls?: number;
 }
 
-export function FeedTaskGroup({
+export const FeedTaskGroup = memo(function FeedTaskGroup({
   tasks,
 }: {
   tasks: Task[];
@@ -75,4 +75,4 @@ export function FeedTaskGroup({
       </div>
     </div>
   );
-}
+});

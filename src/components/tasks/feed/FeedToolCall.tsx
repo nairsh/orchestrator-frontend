@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import {
   ChevronDown, ScanSearch, Terminal,
   Globe, FileText, Zap, ListChecks,
@@ -13,7 +13,7 @@ import { getFileName } from '../../../lib/fileUtils';
 import { FetchUrlRenderer } from './FetchUrlRenderer';
 import { formatTimeOnly } from '../../../lib/time';
 
-export function FeedToolCall({
+export const FeedToolCall = memo(function FeedToolCall({
   toolName,
   input,
   output,
@@ -190,4 +190,4 @@ export function FeedToolCall({
       </div>
     </div>
   );
-}
+});

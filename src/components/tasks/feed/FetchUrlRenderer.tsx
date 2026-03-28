@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { FetchedSourceDisplay } from './feedHelpers';
 
-export function FetchUrlRenderer({
+export const FetchUrlRenderer = memo(function FetchUrlRenderer({
   isRunning,
   fetchedSource,
 }: {
@@ -37,4 +38,4 @@ export function FetchUrlRenderer({
       </div>
     </div>
   );
-}
+});

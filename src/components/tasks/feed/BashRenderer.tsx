@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Tooltip, Highlighter } from '@lobehub/ui';
 
-export function BashRenderer({
+export const BashRenderer = memo(function BashRenderer({
   command,
   isRunning,
   hasOutput,
@@ -71,4 +71,4 @@ export function BashRenderer({
       </div>
     </div>
   );
-}
+});

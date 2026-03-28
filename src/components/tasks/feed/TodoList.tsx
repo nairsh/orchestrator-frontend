@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { CircleAlert, Loader2, Square, SquareCheck } from 'lucide-react';
 import type { TodoDisplay } from './feedHelpers';
 
-export function TodoList({ items }: { items: TodoDisplay[] }) {
+export const TodoList = memo(function TodoList({ items }: { items: TodoDisplay[] }) {
   if (items.length === 0) return null;
   return (
     <div className="border border-border-light rounded-lg p-3 bg-surface">
@@ -32,4 +33,4 @@ export function TodoList({ items }: { items: TodoDisplay[] }) {
       </div>
     </div>
   );
-}
+});
