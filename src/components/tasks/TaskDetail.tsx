@@ -139,7 +139,7 @@ export function TaskDetail({
           <IconButton
             size="md"
             label={fullView ? 'Exit full view' : 'Collapse'}
-            onClick={onOpenFullChat ?? onCollapse}
+            onClick={fullView ? onOpenFullChat : onCollapse}
           >
             <ArrowLeftToLine size={20} strokeWidth={1.75} />
           </IconButton>

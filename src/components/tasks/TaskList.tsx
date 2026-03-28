@@ -108,18 +108,20 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     closeRename();
   };
 
-  const handleStart = async (objective: string) => {
+  const handleStart = async (objective: string): Promise<boolean> => {
     if (!selectedModel.trim()) {
       toastInfo('Models loading', 'Please wait a moment and try again.');
-      return;
+      return false;
     }
     setStarting(true);
     try {
       const result = await createWorkflow(config, { objective, orchestrator_model: selectedModel });
       onRefresh();
       onSelect(result.workflow_id, objective);
+      return true;
     } catch (err) {
       toastApiError(err, 'Couldn\'t start task');
+      return false;
     } finally {
       setStarting(false);
     }
@@ -130,15 +132,14 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       if (e.shiftKey) return;
       e.preventDefault();
       const val = startValue.trim();
-      if (val) { void handleStart(val); setStartValue(''); }
+      if (val) { void handleStart(val).then((ok) => { if (ok) setStartValue(''); }); }
     }
   };
 
   const handleStartClick = () => {
     const val = startValue.trim();
     if (!val) return;
-    void handleStart(val);
-    setStartValue('');
+    void handleStart(val).then((ok) => { if (ok) setStartValue(''); });
   };
 
   return (

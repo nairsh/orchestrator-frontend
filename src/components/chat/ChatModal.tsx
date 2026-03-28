@@ -116,6 +116,9 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="AI Chat"
         className={`bg-surface rounded-2xl shadow-modal w-full max-w-2xl overflow-hidden transition-all duration-200 chat-ui flex flex-col max-h-[min(80vh,720px)] ${
           visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-[0.98]'
         }`}

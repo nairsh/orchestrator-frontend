@@ -114,7 +114,7 @@ export function CommandPalette({
 
   // Scroll selected item into view
   useEffect(() => {
-    const el = listRef.current?.children[selectedIndex] as HTMLElement | undefined;
+    const el = listRef.current?.querySelector(`[data-item-index="${selectedIndex}"]`) as HTMLElement | null;
     el?.scrollIntoView({ block: 'nearest' });
   }, [selectedIndex]);
 
@@ -131,7 +131,12 @@ export function CommandPalette({
       className="fixed inset-0 z-[100] flex items-start justify-center pt-[20vh] bg-black/30 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="w-full max-w-lg bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden animate-scale-in">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Command palette"
+        className="w-full max-w-lg bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden animate-scale-in"
+      >
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b border-border-light">
           <Search size={18} className="text-muted flex-shrink-0" />
@@ -166,6 +171,7 @@ export function CommandPalette({
                   <button
                     key={item.id}
                     type="button"
+                    data-item-index={globalIdx}
                     onClick={item.action}
                     className={`w-full group flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
@@ -193,6 +199,7 @@ export function CommandPalette({
                   <button
                     key={item.id}
                     type="button"
+                    data-item-index={globalIdx}
                     onClick={item.action}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
@@ -216,6 +223,7 @@ export function CommandPalette({
                   <button
                     key={item.id}
                     type="button"
+                    data-item-index={globalIdx}
                     onClick={item.action}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
                       globalIdx === selectedIndex ? 'bg-surface-hover text-primary' : 'text-secondary hover:bg-surface-hover'
