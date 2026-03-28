@@ -71,7 +71,6 @@ export function TasksPage({
   const [taskFullView, setTaskFullView] = useState(Boolean(initialTaskFullView && initialWorkflowId));
   const [animateFromLanding, setAnimateFromLanding] = useState(Boolean(initialTaskFullView && initialWorkflowId));
   const [taskListWidth, setTaskListWidth] = useState(MIN_TASK_LIST_WIDTH);
-  const [activeModel, setActiveModel] = useState(selectedModel);
   const [splitWidthInitialized, setSplitWidthInitialized] = useState(false);
   const [isCompactTaskLayout, setIsCompactTaskLayout] = useState(false);
   const splitViewRef = useRef<HTMLDivElement>(null);
@@ -87,9 +86,9 @@ export function TasksPage({
     return ids;
   }, [meta]);
 
-  useEffect(() => {
-    setActiveModel(selectedModel);
-  }, [selectedModel]);
+  const handleModelChange = (model: string) => {
+    onSelectedModelChange?.(model);
+  };
 
   // Sync selection when external navigation changes (e.g., notification click)
   useEffect(() => {
@@ -107,11 +106,6 @@ export function TasksPage({
     setTaskListWidth(getDefaultTaskListWidth(containerWidth));
     setSplitWidthInitialized(true);
   }, [activeNav, splitWidthInitialized, taskFullView]);
-
-  const handleModelChange = (model: string) => {
-    setActiveModel(model);
-    onSelectedModelChange?.(model);
-  };
 
   const handleSelect = (id: string, objective: string) => {
     setSelectedId(id);
@@ -215,7 +209,7 @@ export function TasksPage({
             onOpenFullChat={() => setTaskFullView(false)}
             onRefreshList={refresh}
             fullView
-              activeModel={activeModel}
+              activeModel={selectedModel}
               animateInputEntry={animateFromLanding}
               modelIconOverrides={modelIconOverrides}
             />
@@ -236,7 +230,7 @@ export function TasksPage({
               onCollapse={() => setSelectedId(null)}
               onOpenFullChat={() => setTaskFullView(true)}
               onRefreshList={refresh}
-              activeModel={activeModel}
+              activeModel={selectedModel}
               modelIconOverrides={modelIconOverrides}
             />
           ) : (
@@ -247,7 +241,7 @@ export function TasksPage({
                   selectedId={selectedId}
                   onSelect={handleSelect}
                   config={config}
-                  selectedModel={activeModel}
+                  selectedModel={selectedModel}
                   onSelectModel={handleModelChange}
                   onRefresh={refresh}
                   loading={loading}
@@ -277,7 +271,7 @@ export function TasksPage({
                 selectedId={selectedId}
                 onSelect={handleSelect}
                 config={config}
-                selectedModel={activeModel}
+                selectedModel={selectedModel}
                 onSelectModel={handleModelChange}
                 onRefresh={refresh}
                 loading={loading}
@@ -317,7 +311,7 @@ export function TasksPage({
                 onCollapse={() => setSelectedId(null)}
                 onOpenFullChat={() => setTaskFullView(true)}
                 onRefreshList={refresh}
-                activeModel={activeModel}
+                activeModel={selectedModel}
                 modelIconOverrides={modelIconOverrides}
               />
             ) : (
