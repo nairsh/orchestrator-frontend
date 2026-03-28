@@ -24,6 +24,11 @@ export function asRecord(value: unknown): Record<string, unknown> {
   return typeof value === 'object' && value !== null ? (value as Record<string, unknown>) : {};
 }
 
+function extractDomain(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, ''); }
+  catch { return url; }
+}
+
 export function normalizeStatus(status: unknown): 'pending' | 'running' | 'completed' | 'failed' | 'skipped' {
   const s = String(status ?? '').toLowerCase();
   if (s === 'running') return 'running';
@@ -130,8 +135,7 @@ export function extractSearchResults(output: unknown): SearchResultDisplay[] {
       if (!url) continue;
       const resolvedUrl = normalizeSearchResultUrl(url);
       const title = String(row.title ?? url).trim() || url;
-      let domain = resolvedUrl;
-      try { domain = new URL(resolvedUrl).hostname.replace(/^www\./, ''); } catch { /* keep fallback */ }
+      const domain = extractDomain(resolvedUrl);
       items.push({ title, url, resolvedUrl, domain });
     }
     return items;
@@ -150,9 +154,7 @@ export function extractFetchedSource(input: unknown, output: unknown): FetchedSo
       if (!rawUrl) return null;
       const resolvedUrl = normalizeSearchResultUrl(rawUrl);
       const title = String(rec.title ?? resolvedUrl).trim() || resolvedUrl;
-      let domain = resolvedUrl;
-      try { domain = new URL(resolvedUrl).hostname.replace(/^www\./, ''); } catch { /* keep fallback */ }
-      return { title, url: resolvedUrl, domain };
+      return { title, url: resolvedUrl, domain: extractDomain(resolvedUrl) };
     };
     if (typeof output === 'string') {
       try { return parse(JSON.parse(output)); } catch { return null; }
@@ -165,9 +167,7 @@ export function extractFetchedSource(input: unknown, output: unknown): FetchedSo
   const rawUrl = String(inp.url ?? '').trim();
   if (!rawUrl) return null;
   const resolvedUrl = normalizeSearchResultUrl(rawUrl);
-  let domain = resolvedUrl;
-  try { domain = new URL(resolvedUrl).hostname.replace(/^www\./, ''); } catch { /* keep fallback */ }
-  return { title: resolvedUrl, url: resolvedUrl, domain };
+  return { title: resolvedUrl, url: resolvedUrl, domain: extractDomain(resolvedUrl) };
 }
 
 export function compactModelLabel(model?: string): string | null {
