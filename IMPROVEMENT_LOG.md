@@ -443,3 +443,53 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - Task input preserved on failed creation (only cleared on success)
 - CommandPalette keyboard scroll targets correct row (data-item-index)
 - ChatModal + CommandPalette: role=dialog, aria-modal, aria-label
+
+## Batch 94 — Desktop Notifications
+- Desktop notifications for task completion/failure using Notification API
+- Permission requested on first user interaction (non-intrusive)
+- Only notifies when tab is not focused
+- Click notification to focus tab and navigate to workflow
+
+## Batch 95 — Upload Progress + Feed UI Overhaul
+- Knowledge upload: per-file progress tracking {done, total}, shows "2/5" counter
+- FeedTaskGroup: simplified from heavy cards to clean flat rows (Perplexity style)
+- Shimmer animation: fixed dead zone (smooth linear 2.5s sweep)
+- Removed unused modelIconOverrides prop threading through FeedItem/TaskFeed
+
+## Batch 96 — File Upload on TaskStartInput
+- Wire file upload to TaskStartInput on tasks page (was landing page only)
+- Add attachments state + handleUploadFiles to TaskList
+- Display file badges with size and remove buttons
+- Pass context_files to createWorkflow, clear on success
+- Remove misleading "Open a task first" toast
+
+## Batch 97 — P2 Audit Fixes (12 issues)
+- useWorkflowStream: restore pre-optimistic state on sendMessage failure
+  (paused workflows no longer appear failed on transient errors)
+- useWorkflowStream: clear reconnect timer before new connections
+- useChatStream: unmount cleanup closes SSE stream
+- useChatStream: clearHistory aborts active stream + clears draft
+- useChatStream: humanize inline error messages
+- toastApiError: uses humanizeError() for all error surfaces
+- TaskSearchDialog: role=dialog, aria-modal, combobox/listbox pattern
+  with aria-activedescendant for screen reader support
+- TaskSearchDialog: show error state on fetch failure (not empty state)
+- TaskSearchDialog: guard ArrowDown on empty list
+- NotificationCenter: line-clamp-2 instead of truncate for titles
+- FeedToolCall: memoize extractTodoDisplay
+- Dead code removal: unused imports and props
+
+## Batch 98 — Chat UI Refinement
+- Remove avatar circles from all message types (modern LLM chat style)
+- User bubble: rounded-br-md speech-bubble shape, no avatar
+- Assistant: clean left-aligned text with inline copy + timestamp
+- Error: inline icon instead of separate avatar circle
+- Disable "New chat" button while streaming
+- Add "failed to fetch" to humanizeError patterns
+
+## Batch 99 — Error Humanization + Auto-Scroll Fix
+- useWorkflowStream: humanize stream error and hydration failure messages
+- useWorkflows: humanize task list fetch errors
+- useFilesPageState: humanize file preview error messages
+- TaskFeed: auto-scroll triggers on feed ref changes (not just row count)
+  so tool output updates scroll into view when user is at bottom
