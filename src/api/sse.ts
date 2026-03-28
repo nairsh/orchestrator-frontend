@@ -150,9 +150,9 @@ export function streamAgentResponse(
         parser.feed(decoder.decode(value, { stream: true }));
       }
 
-      // Ensure streaming state is finalized even if server closes without `done` event
+      // If server closed without sending a `done` event, treat as interrupted stream
       if (!receivedDone) {
-        onChunk({ type: 'done' } as StreamChunk);
+        onError(new Error('Stream ended unexpectedly'));
       }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;

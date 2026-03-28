@@ -27,7 +27,10 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
   }, [config, enabled, status]);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || !config.hasAuth) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     void fetch_();
 
@@ -40,7 +43,7 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [fetch_, enabled]);
+  }, [fetch_, enabled, config.hasAuth]);
 
   const refresh = useCallback(() => {
     void fetch_();

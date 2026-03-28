@@ -126,6 +126,11 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
         },
         (err: Error) => {
           setStreaming(false);
+          const partial = assistantBufferRef.current;
+          // Preserve any partial assistant text, then show the error
+          if (partial) {
+            setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now() }]);
+          }
           setMessages((prev) => [...prev, { role: 'assistant', content: humanizeError(err.message || 'Connection error'), timestamp: Date.now(), error: true }]);
           assistantBufferRef.current = '';
           setDraftAssistant('');

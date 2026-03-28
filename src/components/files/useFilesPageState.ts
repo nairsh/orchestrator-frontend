@@ -212,8 +212,12 @@ export function useFilesPageState(
         uploaded++;
         if (files.length > 1) setUploadProgress({ done: uploaded, total: files.length });
       }
-      toastUploadComplete(uploaded);
-      await refreshKnowledgeDocuments();
+      if (uploaded > 0) {
+        toastUploadComplete(uploaded);
+        await refreshKnowledgeDocuments();
+      } else {
+        toastWarning('No documents uploaded', 'All selected files were skipped.');
+      }
     } catch (err) {
       toastApiError(err, 'Couldn\'t upload document');
     } finally {

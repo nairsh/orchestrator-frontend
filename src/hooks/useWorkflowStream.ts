@@ -231,6 +231,11 @@ export function useWorkflowStream(
       // Close any active SSE connection so stale events don't corrupt the next workflow
       connectionRef.current?.close();
       connectionRef.current = null;
+      // Clear reconnect timer to prevent stale reconnects after workflow switch
+      if (reconnectTimerRef.current) {
+        clearTimeout(reconnectTimerRef.current);
+        reconnectTimerRef.current = null;
+      }
     };
   }, [config, workflowId, isActive, objective, connect]);
 

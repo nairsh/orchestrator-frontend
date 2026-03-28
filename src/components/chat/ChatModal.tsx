@@ -28,8 +28,8 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, draftAssistant.length]);
+    bottomRef.current?.scrollIntoView({ behavior: streaming ? 'auto' : 'smooth' });
+  }, [messages.length, draftAssistant.length, streaming]);
 
   const handleClose = () => {
     abort();

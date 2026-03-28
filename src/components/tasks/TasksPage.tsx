@@ -91,6 +91,15 @@ export function TasksPage({
     setActiveModel(selectedModel);
   }, [selectedModel]);
 
+  // Sync selection when external navigation changes (e.g., notification click)
+  useEffect(() => {
+    if (!initialWorkflowId) return;
+    setSelectedId(initialWorkflowId);
+    setSelectedObjective(initialObjective ?? '');
+    setTaskFullView(Boolean(initialTaskFullView));
+    setChatOpen(false);
+  }, [initialWorkflowId, initialObjective, initialTaskFullView]);
+
   useEffect(() => {
     if (activeNav !== 'tasks' || taskFullView || splitWidthInitialized) return;
     const containerWidth = splitViewRef.current?.clientWidth;
