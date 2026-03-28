@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { LandingPage } from './components/landing/LandingPage';
 import { TasksPage } from './components/tasks/TasksPage';
@@ -9,6 +10,7 @@ import { BrandMark, BrandWordmark } from './components/branding/Brand';
 import { useAppState } from './hooks/useAppState';
 import { AppModals } from './AppModals';
 import { NotificationProvider, useNotificationStore } from './hooks/useNotifications';
+import { requestNotificationPermission } from './lib/desktopNotify';
 import type { AppProps, TaskNav } from './appTypes';
 
 export default function App(props: AppProps) {
@@ -27,6 +29,13 @@ export default function App(props: AppProps) {
 
   const state = useAppState(props);
   const notificationStore = useNotificationStore();
+
+  // Request desktop notification permission on first user interaction
+  useEffect(() => {
+    const handler = () => { requestNotificationPermission(); window.removeEventListener('click', handler); };
+    window.addEventListener('click', handler, { once: true });
+    return () => window.removeEventListener('click', handler);
+  }, []);
 
   if (clerkEnabled && !authLoaded) {
     return (

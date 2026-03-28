@@ -59,7 +59,7 @@ export function SettingsModal({
   const handleSave = async () => {
     if (!baseUrl.trim()) return;
     setSaveError(''); setSaving(true);
-    try { await onSave(baseUrl.trim()); if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides); toastSuccess('Settings saved', 'Server settings and visual preferences are updated.'); }
+    try { await onSave(baseUrl.trim()); if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides); toastSuccess('Settings saved'); }
     catch (err) { setSaveError(err instanceof Error && err.message ? err.message : 'Couldn\'t save settings. Please try again.'); }
     finally { setSaving(false); }
   };

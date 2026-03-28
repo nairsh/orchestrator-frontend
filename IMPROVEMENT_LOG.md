@@ -398,3 +398,48 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - Chat: Bot avatar on streaming "Thinking…" indicator
 - Credits toast: prevent misleading 100% (capped at 99% when usage exists)
 - No progress bar shown when periodCreditsUsed is 0
+
+## Batch 88 — Chat UX Polish, Backdrop Blur, Accessibility Audit Fixes
+- Chat: Stop generating button (red square) replaces send during streaming
+- Chat: Inline error messages appear as red cards in chat (not just toasts)
+- Chat: Suggestion chips in empty state (4 clickable prompts)
+- Chat: Input autofocus on modal open, Enter/Shift+Enter hint below input
+- Chat: ARIA role=log and aria-live=polite, user avatar contrast fix
+- Modal: backdrop-blur-sm on all 7 modal overlays
+- OnboardingModal: animate-scale-in entry animation
+- P1: ClarificationPanel catches + toasts errors on submit
+- P1: KnowledgeSection keyboard a11y (role=button, tabIndex, Enter/Space)
+- P2: TaskDetail green "Completed" badge, TaskContextMenu Pin/Unpin toggle
+- P3: RenameTaskModal Enter to submit, FeedTaskGroup aria-expanded, SidebarNav aria-current
+
+## Batch 89 — Performance Fixes, Code Dedup, First-Run Empty State
+- FeedToolCall: memoize asRecord() to fix defeated useMemo dependency arrays
+- TasksPage: debounce resize handler (150ms), first-run empty state with CTA
+- NotificationCenter: removed dead useClickOutside hook call
+- FeedItem: extracted shared MarkdownWithCitations component
+
+## Batch 90 — Accessibility + OAuth Auto-Refresh
+- DropdownMenu: arrow key navigation (Up/Down/Home/End), Escape to close, auto-focus
+- Modal: ariaTitle prop with sr-only span + aria-labelledby for screen readers
+- ConnectorsTab: OAuth popup auto-close detection with auto-refresh
+
+## Batch 91 — Bug Fixes, Sileo Toast Overhaul, UX Improvements
+- Fix: Chat abort properly resets streaming state, preserves partial content
+- Fix: Chat input only cleared on successful send (prevents message loss)
+- Fix: Knowledge docs loading state tracked properly (no false empty flash)
+- Fix: File preview race condition — stale requests ignored via request ID
+- Fix: Knowledge file re-upload works (reset input value after selection)
+- Fix: TaskContextMenu visible on keyboard focus (group-focus-within)
+- Refactor: toastCredits() and toastRich() helpers, amber color for 20-50%
+- Removed non-functional PlusDropdown from CommandInput follow-up mode
+
+## Batch 92 — Shared Model Cache + API Deduplication
+- getModels() request deduplication — concurrent callers share one request
+- 30s TTL cache for model metadata (eliminates redundant API calls)
+- invalidateModelsCache() called on preferences save/reset
+
+## Batch 93 — Audit P2 Fixes
+- TaskDetail collapse button uses correct handler per view mode
+- Task input preserved on failed creation (only cleared on success)
+- CommandPalette keyboard scroll targets correct row (data-item-index)
+- ChatModal + CommandPalette: role=dialog, aria-modal, aria-label

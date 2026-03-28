@@ -9,10 +9,11 @@ import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
 import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
-import { toastApiError, toastSuccess } from '../../lib/toast';
+import { toastApiError, toastSuccess, toastRich } from '../../lib/toast';
 import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import { humanizeModelName } from '../../lib/modelNames';
 import { useNotifications } from '../../hooks/useNotifications';
+import { desktopNotify } from '../../lib/desktopNotify';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 function formatDuration(startedAt?: string | null, endedAt?: string | null): string | null {
@@ -91,6 +92,7 @@ export function TaskDetail({
         message: truncatedObjective,
         workflowId,
       });
+      desktopNotify('Task completed', objective);
     } else if (workflowStatus === 'failed') {
       addNotification({
         type: 'workflow_failed',
@@ -98,6 +100,7 @@ export function TaskDetail({
         message: truncatedObjective,
         workflowId,
       });
+      desktopNotify('Task failed', objective);
     }
   }, [isTerminal, workflowStatus]);
 
