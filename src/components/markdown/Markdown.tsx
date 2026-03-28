@@ -27,7 +27,7 @@ export function Markdown({ content, className }: MarkdownProps) {
           ),
           code: ({ children, className, ...props }) => {
             const text = String(children ?? '').replace(/\n$/, '');
-            const langMatch = className?.match(/language-(\w+)/);
+            const langMatch = className?.match(/language-([\w+#-]+)/);
             const language = langMatch?.[1];
             if (!language) {
               return (

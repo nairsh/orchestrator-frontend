@@ -37,7 +37,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             />
           </div>
           {state.fileTab === 'knowledge' && (
-            <Button variant="secondary" size="sm" onClick={() => void state.handleSearch()} disabled={state.searching}>
+            <Button variant="secondary" size="sm" onClick={() => void state.handleSearch()} disabled={state.searching || !state.searchQuery.trim()}>
               {state.searching ? <Loader2 size={14} className="animate-spin" /> : 'Search'}
             </Button>
           )}

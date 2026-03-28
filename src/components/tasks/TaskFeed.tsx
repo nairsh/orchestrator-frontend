@@ -139,14 +139,20 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
     setHasNewContent(false);
   }, []);
 
-  // Listen for scroll events to track position
+  // Listen for scroll events to track position (throttled)
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
+    let ticking = false;
     const onScroll = () => {
-      const near = checkIfNearBottom();
-      setIsNearBottom(near);
-      if (near) setHasNewContent(false);
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const near = checkIfNearBottom();
+        setIsNearBottom(near);
+        if (near) setHasNewContent(false);
+      });
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);

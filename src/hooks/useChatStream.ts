@@ -139,6 +139,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
           }
 
           if (chunk.type === 'error') {
+            if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+            draftDirtyRef.current = false;
             setStreaming(false);
             const rawMessage =
               chunk.data && typeof chunk.data === 'object' && 'message' in (chunk.data as Record<string, unknown>)
