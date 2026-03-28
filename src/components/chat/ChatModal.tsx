@@ -57,8 +57,9 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
             <button
               type="button"
               onClick={clearHistory}
+              disabled={streaming}
               title="New chat"
-              className="flex items-center justify-center h-7 w-7 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors"
+              className="flex items-center justify-center h-7 w-7 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <RotateCcw size={14} />
             </button>

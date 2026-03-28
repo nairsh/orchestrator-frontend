@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react';
-import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Bot, User, Square, AlertCircle, RotateCcw } from 'lucide-react';
+import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Square, AlertCircle, RotateCcw } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
@@ -38,31 +38,26 @@ export function UserBubble({ content, timestamp }: { content: string; timestamp?
     : content;
 
   return (
-    <div className="flex items-end gap-2 justify-end">
-      <div>
-        <div className="w-fit max-w-[85%] ml-auto rounded-2xl px-4.5 py-3.5 text-primary bg-userbubble">
-          <p className="font-sans text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
-          {shouldTruncate && (
-            <button
-              type="button"
-              onClick={() => setExpanded(!expanded)}
-              className="mt-2 flex items-center gap-1 text-sm text-muted hover:text-primary cursor-pointer bg-transparent border-none p-0 font-sans"
-              aria-expanded={expanded}
-            >
-              {expanded ? 'Show less' : 'Show more'}
-              <ChevronDown
-                size={14}
-                className="transition-transform duration-slow"
-                style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
-              />
-            </button>
-          )}
-        </div>
-        {timestamp ? <div className="text-[10px] text-muted font-sans mt-1 text-right">{formatTime(timestamp)}</div> : null}
+    <div className="flex flex-col items-end">
+      <div className="max-w-[80%] rounded-2xl rounded-br-md px-4 py-3 text-primary bg-userbubble">
+        <p className="font-sans text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
+        {shouldTruncate && (
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="mt-2 flex items-center gap-1 text-sm text-muted hover:text-primary cursor-pointer bg-transparent border-none p-0 font-sans"
+            aria-expanded={expanded}
+          >
+            {expanded ? 'Show less' : 'Show more'}
+            <ChevronDown
+              size={14}
+              className="transition-transform duration-slow"
+              style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
+            />
+          </button>
+        )}
       </div>
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-secondary border border-border-light flex items-center justify-center">
-        <User size={12} className="text-muted" />
-      </div>
+      {timestamp ? <div className="text-[10px] text-muted/60 font-sans mt-1 mr-1">{formatTime(timestamp)}</div> : null}
     </div>
   );
 }
@@ -71,17 +66,16 @@ export function UserBubble({ content, timestamp }: { content: string; timestamp?
 
 export function AssistantMessage({ content, timestamp }: { content: string; timestamp?: number }) {
   return (
-    <div className="flex items-start gap-2.5">
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-secondary border border-border-light flex items-center justify-center mt-0.5">
-        <Bot size={12} className="text-muted" />
-      </div>
-      <div className="relative group max-w-[85%]">
+    <div className="flex flex-col items-start">
+      <div className="relative group max-w-[90%]">
         <div className="font-sans text-sm leading-relaxed text-primary">
           <Markdown content={content} />
         </div>
-        {timestamp ? <div className="text-[10px] text-muted font-sans mt-1">{formatTime(timestamp)}</div> : null}
-        <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-y-1 translate-x-8">
-          <CopyButton content={content} size="small" />
+        <div className="flex items-center gap-2 mt-1">
+          {timestamp ? <span className="text-[10px] text-muted/60 font-sans">{formatTime(timestamp)}</span> : null}
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <CopyButton content={content} size="small" />
+          </div>
         </div>
       </div>
     </div>
@@ -92,25 +86,25 @@ export function AssistantMessage({ content, timestamp }: { content: string; time
 
 export function ErrorMessage({ content, timestamp, onRetry }: { content: string; timestamp?: number; onRetry?: () => void }) {
   return (
-    <div className="flex items-start gap-2.5">
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-danger/10 border border-danger/20 flex items-center justify-center mt-0.5">
-        <AlertCircle size={12} className="text-danger" />
-      </div>
-      <div className="max-w-[85%]">
+    <div className="flex flex-col items-start">
+      <div className="max-w-[90%]">
         <div className="rounded-xl px-4 py-3 bg-danger/5 border border-danger/10">
-          <p className="font-sans text-sm text-danger leading-relaxed">{content}</p>
+          <div className="flex items-start gap-2">
+            <AlertCircle size={14} className="text-danger flex-shrink-0 mt-0.5" />
+            <p className="font-sans text-sm text-danger leading-relaxed">{content}</p>
+          </div>
           {onRetry && (
             <button
               type="button"
               onClick={onRetry}
-              className="mt-2 flex items-center gap-1.5 text-xs text-danger/80 hover:text-danger cursor-pointer bg-transparent border-none p-0 font-sans transition-colors"
+              className="mt-2 flex items-center gap-1.5 text-xs text-danger/80 hover:text-danger cursor-pointer bg-transparent border-none p-0 font-sans transition-colors ml-5"
             >
               <RotateCcw size={11} />
               Retry
             </button>
           )}
         </div>
-        {timestamp ? <div className="text-[10px] text-muted font-sans mt-1">{formatTime(timestamp)}</div> : null}
+        {timestamp ? <div className="text-[10px] text-muted/60 font-sans mt-1">{formatTime(timestamp)}</div> : null}
       </div>
     </div>
   );
@@ -167,10 +161,7 @@ export function MessageList({ items }: { items: (TimelineItem & { timestamp?: nu
 
 export function StreamingIndicator() {
   return (
-    <div className="flex items-center gap-2.5 text-muted font-sans text-sm mt-6">
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-secondary border border-border-light flex items-center justify-center">
-        <Bot size={12} className="text-muted" />
-      </div>
+    <div className="flex items-center gap-2 text-muted font-sans text-sm mt-6">
       <Loader2 size={14} className="animate-spin" />
       <span>Thinking…</span>
     </div>

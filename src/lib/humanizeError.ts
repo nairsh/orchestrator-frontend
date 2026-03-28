@@ -4,6 +4,7 @@
  */
 
 const ERROR_PATTERNS: [RegExp, string][] = [
+  [/failed to fetch/i, 'Couldn\'t reach the server — please check your connection and try again'],
   [/all models failed/i, 'We couldn\'t reach any AI service right now'],
   [/connection error/i, 'There was a connection problem — please check your internet and try again'],
   [/connection refused/i, 'Couldn\'t connect to the server — it may be offline or restarting'],
