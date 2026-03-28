@@ -267,8 +267,10 @@ function _reduceWorkflowEvent(
     case 'workflow_completed': {
       const data = event.data as WorkflowCompletedData;
       ctx.pendingEnvironmentSetup = false;
-      // Remove any trailing planning entries
-      const feed = prev.feed.filter((e) => e.kind !== 'planning');
+      // Remove planning entries and finalize any still-running tool calls
+      const feed = prev.feed
+        .filter((e) => e.kind !== 'planning')
+        .map((e) => (e.kind === 'tool_call' && e.status === 'running' ? { ...e, status: 'done' as const } : e));
       const output = isInternalCapabilityDump(data.output) ? undefined : data.output;
       const completionEntry: FeedEntry = { kind: 'completion', output };
       const nextFeed: FeedEntry[] = shouldAppendCompletionEntry(feed, output)
@@ -287,7 +289,10 @@ function _reduceWorkflowEvent(
     case 'workflow_failed': {
       const data = event.data as WorkflowFailedData;
       ctx.pendingEnvironmentSetup = false;
-      const feed = prev.feed.filter((e) => e.kind !== 'planning');
+      // Remove planning entries and mark any still-running tool calls as failed
+      const feed = prev.feed
+        .filter((e) => e.kind !== 'planning')
+        .map((e) => (e.kind === 'tool_call' && e.status === 'running' ? { ...e, status: 'failed' as const } : e));
       const rawError =
         typeof data.error === 'string' && data.error.trim().length > 0
           ? data.error.trim()

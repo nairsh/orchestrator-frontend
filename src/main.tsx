@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { ClerkProvider, useAuth, useClerk, useUser } from '@clerk/clerk-react';
 import App from './App';
@@ -114,6 +114,11 @@ function ClerkAwareApp() {
     await user.reload();
   };
 
+  const getAuthToken = useCallback(async () => {
+    const token = await getToken();
+    return token ?? null;
+  }, [getToken]);
+
   return (
     <App
       clerkEnabled
@@ -129,10 +134,7 @@ function ClerkAwareApp() {
       onSignOut={async () => {
         await signOut();
       }}
-      getAuthToken={async () => {
-        const token = await getToken();
-        return token ?? null;
-      }}
+      getAuthToken={getAuthToken}
     />
   );
 }

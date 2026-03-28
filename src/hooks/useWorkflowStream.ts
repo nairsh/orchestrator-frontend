@@ -379,6 +379,15 @@ export function useWorkflowStream(
       try {
         const { approveBashCommand } = await import('../api/client');
         await approveBashCommand(config, workflowId, approvalId, approved ? 'approve' : 'deny');
+        // Optimistically mark the approval as resolved in the local feed
+        setState((prev) => ({
+          ...prev,
+          feed: prev.feed.map((e) =>
+            e.kind === 'bash_approval' && e.id === approvalId
+              ? { ...e, status: 'resolved' as const }
+              : e
+          ),
+        }));
       } catch (err) {
         toastApiError(err, approved ? "Couldn't approve this command" : "Couldn't reject this command");
       }
