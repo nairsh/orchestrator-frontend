@@ -74,16 +74,18 @@ export function ProviderDialog({
         {/* Name + URL */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-[12px] font-medium text-secondary mb-1.5">Display name</label>
+            <label htmlFor="provider-display-name" className="block text-[12px] font-medium text-secondary mb-1.5">Display name</label>
             <Input
+              id="provider-display-name"
               value={state.displayName}
               onChange={(e) => update({ displayName: e.target.value })}
               placeholder="My OpenAI"
             />
           </div>
           <div>
-            <label className="block text-[12px] font-medium text-secondary mb-1.5">Server address</label>
+            <label htmlFor="provider-server-address" className="block text-[12px] font-medium text-secondary mb-1.5">Server address</label>
             <Input
+              id="provider-server-address"
               value={state.apiUrl}
               onChange={(e) => update({ apiUrl: e.target.value })}
               placeholder="https://api.openai.com/v1"
@@ -97,10 +99,11 @@ export function ProviderDialog({
 
         {/* API key */}
         <div>
-          <label className="block text-[12px] font-medium text-secondary mb-1.5">
+          <label htmlFor="provider-secret-key" className="block text-[12px] font-medium text-secondary mb-1.5">
             Secret key{isEditing && <span className="ml-1 font-normal text-muted">— leave blank to keep existing</span>}
           </label>
           <Input
+            id="provider-secret-key"
             type="password"
             value={state.apiKey}
             onChange={(e) => update({ apiKey: e.target.value })}
@@ -116,15 +119,17 @@ export function ProviderDialog({
           </div>
           <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
             <div>
-              <label className="block text-[12px] font-medium text-secondary mb-1.5">Embedding model</label>
+              <label htmlFor="provider-embedding-model" className="block text-[12px] font-medium text-secondary mb-1.5">Embedding model</label>
               <Input
+                id="provider-embedding-model"
                 value={state.embeddingModel}
                 onChange={(e) => update({ embeddingModel: e.target.value })}
                 placeholder="text-embedding-3-small"
               />
             </div>
-            <label className="flex cursor-pointer items-center gap-2 pb-1">
+            <label htmlFor="provider-default-embedding" className="flex cursor-pointer items-center gap-2 pb-1">
               <input
+                id="provider-default-embedding"
                 type="checkbox"
                 checked={state.isDefaultEmbedding}
                 onChange={(e) => update({ isDefaultEmbedding: e.target.checked })}

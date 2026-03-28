@@ -24,13 +24,15 @@ export function ConnectorsTab({
   setConnectorBusyId, setConnectorBusyProvider, onRefresh, config,
 }: ConnectorsTabProps) {
   const [disconnectConfirmId, setDisconnectConfirmId] = useState<string | null>(null);
-  const oauthTimersRef = useRef<{ pollId?: ReturnType<typeof setInterval>; timeoutId?: ReturnType<typeof setTimeout> }>({});
+  const oauthTimersRef = useRef<Record<string, { pollId?: ReturnType<typeof setInterval>; timeoutId?: ReturnType<typeof setTimeout> }>>({});
 
   // Clean up OAuth popup polling timers on unmount
   useEffect(() => {
     return () => {
-      if (oauthTimersRef.current.pollId) clearInterval(oauthTimersRef.current.pollId);
-      if (oauthTimersRef.current.timeoutId) clearTimeout(oauthTimersRef.current.timeoutId);
+      for (const t of Object.values(oauthTimersRef.current)) {
+        if (t.pollId) clearInterval(t.pollId);
+        if (t.timeoutId) clearTimeout(t.timeoutId);
+      }
     };
   }, []);
 
@@ -88,19 +90,24 @@ export function ConnectorsTab({
                     toastInfo(`${copy.title} sign-in opened`, 'Sign in to complete the connection. We\'ll refresh automatically.');
                     // Poll for popup closure and auto-refresh
                     if (popup) {
-                      if (oauthTimersRef.current.pollId) clearInterval(oauthTimersRef.current.pollId);
-                      if (oauthTimersRef.current.timeoutId) clearTimeout(oauthTimersRef.current.timeoutId);
+                      const pKey = provider.provider;
+                      const prev = oauthTimersRef.current[pKey];
+                      if (prev?.pollId) clearInterval(prev.pollId);
+                      if (prev?.timeoutId) clearTimeout(prev.timeoutId);
                       const pollId = setInterval(() => {
                         try {
                           if (popup.closed) {
                             clearInterval(pollId);
-                            oauthTimersRef.current.pollId = undefined;
+                            const entry = oauthTimersRef.current[pKey];
+                            if (entry) entry.pollId = undefined;
                             void onRefresh();
                           }
                         } catch { /* cross-origin */ }
                       }, 1000);
-                      oauthTimersRef.current.pollId = pollId;
-                      oauthTimersRef.current.timeoutId = setTimeout(() => { clearInterval(pollId); oauthTimersRef.current.pollId = undefined; }, 120_000);
+                      oauthTimersRef.current[pKey] = {
+                        pollId,
+                        timeoutId: setTimeout(() => { clearInterval(pollId); const entry = oauthTimersRef.current[pKey]; if (entry) entry.pollId = undefined; }, 120_000),
+                      };
                     }
                   } catch (err) { toastApiError(err, `Couldn't connect to ${copy.title}`); }
                   finally { setConnectorBusyProvider(null); }
