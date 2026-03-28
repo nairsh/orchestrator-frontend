@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { checkHealth } from '../api/client';
-import { toastApiError, toastSuccess } from '../lib/toast';
+import { toastApiError, toastSettingsSaved } from '../lib/toast';
 import type { ModelIconOverrides } from '../lib/modelIcons';
 import { useSettingsState } from '../hooks/useSettingsState';
 import { ProvidersSettingsPanel } from './ProvidersSettingsPanel';
@@ -94,7 +94,7 @@ export function SettingsPage({
     try {
       await onSave(baseUrl.trim());
       if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides);
-      toastSuccess('Settings saved');
+      toastSettingsSaved('Server connection');
     } catch (err) { toastApiError(err, 'Couldn\'t save settings'); }
     finally { setSaving(false); }
   };

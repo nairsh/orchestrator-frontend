@@ -3,7 +3,7 @@ import type { ApiConfig } from '../../api/client';
 import { deleteKnowledgeDocument, getKnowledgeDocument, getWorkspace, listKnowledgeDocuments, searchKnowledge, uploadKnowledgeDocument } from '../../api/client';
 import type { KnowledgeDocument, KnowledgeSearchMatch, WorkflowSummary } from '../../api/types';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES } from '../../lib/files';
-import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
+import { toastApiError, toastInfo, toastSuccess, toastUploadComplete, toastWarning } from '../../lib/toast';
 import { humanizeError } from '../../lib/humanizeError';
 import type { FileTab, PreviewState } from './helpers';
 import { resolveAuthToken } from './helpers';
@@ -212,7 +212,7 @@ export function useFilesPageState(
         uploaded++;
         if (files.length > 1) setUploadProgress({ done: uploaded, total: files.length });
       }
-      toastSuccess(uploaded > 1 ? `${uploaded} documents uploaded` : 'Knowledge library updated');
+      toastUploadComplete(uploaded);
       await refreshKnowledgeDocuments();
     } catch (err) {
       toastApiError(err, 'Couldn\'t upload document');

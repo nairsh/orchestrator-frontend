@@ -21,7 +21,7 @@ import type {
   ModelPreferences,
 } from '../api/types';
 import type { ModelIconOverrides } from '../lib/modelIcons';
-import { toastApiError, toastConnector, toastInfo, toastSuccess } from '../lib/toast';
+import { toastApiError, toastConnector, toastInfo, toastSettingsSaved, toastSuccess } from '../lib/toast';
 
 const INFERRED_ICON_VALUE = '__inferred__';
 
@@ -136,7 +136,7 @@ export function useSettingsState({
       });
       setModelPreferences(saved); setRoutingDirty(false); setPreferencesStatus('idle');
       invalidateModelsCache(trimmedBase);
-      toastSuccess('AI preferences saved');
+      toastSettingsSaved('AI preferences');
     } catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Couldn\'t save your AI preferences'); }
   };
 

@@ -15,6 +15,17 @@ function toastFill(lightFill: string, darkFill: string): string {
   return isDarkMode() ? darkFill : lightFill;
 }
 
+function themeColors() {
+  const dark = isDarkMode();
+  return {
+    dark,
+    sub: dark ? '#b0aca6' : '#706b64',
+    dim: dark ? '#8a8580' : '#918b84',
+    trackBg: dark ? '#3a3836' : '#e8e5e0',
+    fill: toastFill('#ffffff', '#282624'),
+  };
+}
+
 const TOAST_BASE = {
   roundness: 20,
   styles: {
@@ -28,7 +39,7 @@ export function toastInfo(title: string, description?: string) {
     ...TOAST_BASE,
     title,
     duration: INFO_DURATION_MS,
-    fill: toastFill('#ffffff', '#282624'),
+    fill: themeColors().fill,
     ...(description ? { description } : {}),
   });
 }
@@ -38,7 +49,7 @@ export function toastSuccess(title: string, description?: string) {
     ...TOAST_BASE,
     title,
     duration: SUCCESS_DURATION_MS,
-    fill: toastFill('#ffffff', '#282624'),
+    fill: themeColors().fill,
     ...(description ? { description } : {}),
   });
 }
@@ -48,7 +59,7 @@ export function toastWarning(title: string, description?: string) {
     ...TOAST_BASE,
     title,
     duration: WARNING_DURATION_MS,
-    fill: toastFill('#ffffff', '#282624'),
+    fill: themeColors().fill,
     ...(description ? { description } : {}),
   });
 }
@@ -58,7 +69,7 @@ export function toastError(title: string, description?: string) {
     ...TOAST_BASE,
     title,
     duration: ERROR_DURATION_MS,
-    fill: toastFill('#ffffff', '#282624'),
+    fill: themeColors().fill,
     ...(description ? { description } : {}),
   });
 }
@@ -77,7 +88,7 @@ export function toastRich(opts: {
     title: opts.title,
     description: opts.body,
     duration: opts.duration ?? 5000,
-    fill: toastFill('#ffffff', '#282624'),
+    fill: themeColors().fill,
     ...(opts.button ? { button: opts.button } : {}),
   });
 }
@@ -92,35 +103,31 @@ export function toastCredits(billing: {
   const used = billing.usage_this_period?.credits_used ?? 0;
   const requests = billing.usage_this_period?.request_count ?? 0;
   const total = balance + used;
-  const rawPct = total > 0 ? (balance / total) * 100 : 100;
-  const pct = used > 0 ? Math.min(Math.round(rawPct), 99) : Math.round(rawPct);
+  const { sub, dim, trackBg, fill } = themeColors();
+
+  // When no usage data, show a full bar in neutral color rather than a misleading percentage
   const hasUsage = used > 0;
-  const dark = isDarkMode();
-  const sub = dark ? '#b0aca6' : '#706b64';
-  const dim = dark ? '#8a8580' : '#918b84';
-  const trackBg = dark ? '#3a3836' : '#e8e5e0';
-  const barColor = pct > 50 ? '#6b8f71' : pct > 20 ? '#c9a227' : '#c4573a';
+  const rawPct = total > 0 ? (balance / total) * 100 : 100;
+  const pct = hasUsage ? Math.min(Math.round(rawPct), 99) : 100;
+  const barColor = !hasUsage ? '#6b8f71' : pct > 50 ? '#6b8f71' : pct > 20 ? '#c9a227' : '#c4573a';
 
   sileo.info({
     ...TOAST_BASE,
     title: `${balance.toFixed(0)} credits remaining`,
     duration: 6000,
-    fill: toastFill('#ffffff', '#282624'),
+    fill,
     description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px' } },
-      // Progress bar
       createElement('div', { style: { width: '100%', height: '6px', borderRadius: '3px', background: trackBg, overflow: 'hidden' } },
         createElement('div', { style: { width: `${pct}%`, height: '100%', borderRadius: '3px', background: barColor, transition: 'width 0.4s ease' } })
       ),
-      // Stats row
       hasUsage
         ? createElement('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: sub } },
-            createElement('span', null, `${pct}% remaining`),
-            createElement('span', null, `${used.toFixed(0)} used · ${requests} requests`)
+            createElement('span', null, `${Math.round(rawPct)}% remaining`),
+            createElement('span', null, `${used.toFixed(1)} used · ${requests} req`)
           )
         : createElement('div', { style: { fontSize: '12px', color: sub } },
-            `${balance.toFixed(0)} credits available`
+            'No usage this period'
           ),
-      // Plan tier
       createElement('div', { style: { fontSize: '11px', color: dim } },
         `Plan: ${billing.tier}`
       )
@@ -131,18 +138,17 @@ export function toastCredits(billing: {
 /** Task created toast — shows model and truncated objective */
 export function toastTaskCreated(objective: string, model?: string) {
   const truncated = objective.length > 80 ? objective.slice(0, 80) + '…' : objective;
-  const dark = isDarkMode();
-  const sub = dark ? '#b0aca6' : '#706b64';
+  const { sub, dim, fill } = themeColors();
 
   sileo.success({
     ...TOAST_BASE,
     title: 'Task started',
     duration: 3000,
-    fill: toastFill('#ffffff', '#282624'),
+    fill,
     description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '2px' } },
       createElement('span', { style: { fontSize: '13px', color: sub, lineHeight: '1.4' } }, truncated),
       model
-        ? createElement('span', { style: { fontSize: '11px', color: dark ? '#8a8580' : '#918b84' } }, `Model: ${model}`)
+        ? createElement('span', { style: { fontSize: '11px', color: dim } }, `Model: ${model}`)
         : null,
     ),
   });
@@ -155,13 +161,46 @@ export function toastConnector(action: 'connected' | 'disconnected' | 'verified'
     disconnected: 'Disconnected',
     verified: 'Connection verified',
   };
+  const { fill } = themeColors();
   const method = action === 'disconnected' ? 'info' : 'success';
   sileo[method]({
     ...TOAST_BASE,
     title: titles[action],
     duration: 2500,
-    fill: toastFill('#ffffff', '#282624'),
+    fill,
     description: connectorName,
+  });
+}
+
+/** Settings saved toast — shows what section was saved */
+export function toastSettingsSaved(section?: string) {
+  const { sub, fill } = themeColors();
+  sileo.success({
+    ...TOAST_BASE,
+    title: 'Settings saved',
+    duration: 2000,
+    fill,
+    ...(section ? { description: createElement('span', { style: { fontSize: '12px', color: sub } }, section) } : {}),
+  });
+}
+
+/** File upload toast — shows count and total size */
+export function toastUploadComplete(count: number, totalBytes?: number) {
+  const { sub, fill } = themeColors();
+  const sizeStr = totalBytes
+    ? totalBytes < 1024 ? `${totalBytes} B`
+    : totalBytes < 1024 * 1024 ? `${(totalBytes / 1024).toFixed(1)} KB`
+    : `${(totalBytes / (1024 * 1024)).toFixed(1)} MB`
+    : null;
+
+  sileo.success({
+    ...TOAST_BASE,
+    title: count === 1 ? 'Document uploaded' : `${count} documents uploaded`,
+    duration: 2500,
+    fill,
+    ...(sizeStr ? {
+      description: createElement('span', { style: { fontSize: '12px', color: sub } }, `Total size: ${sizeStr}`),
+    } : {}),
   });
 }
 
@@ -177,7 +216,7 @@ declare global {
     __toast?: typeof devToastExports;
   }
 }
-const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, toastRich, toastCredits, toastTaskCreated, toastConnector, sileo };
+const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, toastRich, toastCredits, toastTaskCreated, toastConnector, toastSettingsSaved, toastUploadComplete, sileo };
 if (import.meta.env.DEV) {
   window.__toast = devToastExports;
 }

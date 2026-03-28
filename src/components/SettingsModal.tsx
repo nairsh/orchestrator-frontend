@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronRight, Loader2, Sparkles } from 'lucide-react';
 import { Alert, Tag } from '@lobehub/ui';
 import { checkHealth } from '../api/client';
-import { toastSuccess } from '../lib/toast';
+import { toastSettingsSaved } from '../lib/toast';
 import type { ModelIconOverrides } from '../lib/modelIcons';
 import { useSettingsState } from '../hooks/useSettingsState';
 import { Modal, ModalBody, ModalFooter, ModalHeader } from './ui/Modal';
@@ -59,7 +59,7 @@ export function SettingsModal({
   const handleSave = async () => {
     if (!baseUrl.trim()) return;
     setSaveError(''); setSaving(true);
-    try { await onSave(baseUrl.trim()); if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides); toastSuccess('Settings saved'); }
+    try { await onSave(baseUrl.trim()); if (onSaveModelIconOverrides) await onSaveModelIconOverrides(settings.iconOverrides); toastSettingsSaved('Server connection'); }
     catch (err) { setSaveError(err instanceof Error && err.message ? err.message : 'Couldn\'t save settings. Please try again.'); }
     finally { setSaving(false); }
   };
