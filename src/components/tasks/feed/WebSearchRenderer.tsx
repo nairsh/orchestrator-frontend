@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import type { SearchResultDisplay } from './feedHelpers';
 
 export function WebSearchRenderer({
@@ -20,7 +20,10 @@ export function WebSearchRenderer({
           </span>
         </div>
       )}
-      <div className="font-sans text-sm text-secondary">Reading sources · {searchResults.length}</div>
+      <div className="font-sans text-sm text-secondary">
+        {isRunning && <Loader2 size={12} className="inline animate-spin mr-1 align-[-2px]" />}
+        Reading sources · {searchResults.length}
+      </div>
       <div className="rounded-lg border border-border-light bg-surface overflow-hidden px-2 py-1.5 flex flex-col gap-0.5 fade-in-soft">
         {searchResults.length === 0 && (
           <div className="px-1.5 py-1.5 font-sans text-xs text-placeholder">

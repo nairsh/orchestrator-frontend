@@ -21,7 +21,7 @@ export function RelayEmpty({
   className = '',
 }: RelayEmptyProps) {
   return (
-    <div className={`flex flex-col items-center justify-center py-16 px-6 ${className}`}>
+    <div role="status" className={`flex flex-col items-center justify-center py-16 px-6 ${className}`}>
       <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-surface-secondary border border-border-light mb-5">
         {icon ?? <PackageOpen size={26} className="text-muted" />}
       </div>

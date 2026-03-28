@@ -33,7 +33,7 @@ export function ThinkingIndicator({ currentActivity, thinkingText, isStale, onRe
             </span>
           </button>
         ) : (
-          <span className="font-sans text-base font-medium text-muted shimmer-text">
+          <span className="font-sans text-base font-medium text-muted shimmer-text" aria-label={`Thinking: ${currentActivity}`}>
             {currentActivity}
           </span>
         )}

@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import type { FetchedSourceDisplay } from './feedHelpers';
 
 export function FetchUrlRenderer({
@@ -11,7 +12,8 @@ export function FetchUrlRenderer({
     <div className="flex flex-col gap-2">
       <div className="rounded-lg border border-border-light bg-surface overflow-hidden px-0 py-0 fade-in-soft">
         {!fetchedSource && (
-          <div className="px-1.5 py-1.5 font-sans text-xs text-placeholder">
+          <div className="px-1.5 py-1.5 font-sans text-xs text-placeholder flex items-center gap-1.5">
+            {isRunning && <Loader2 size={12} className="animate-spin flex-shrink-0" />}
             {isRunning ? 'Fetching URL…' : 'No fetched URL details'}
           </div>
         )}

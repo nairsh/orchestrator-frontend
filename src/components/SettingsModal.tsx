@@ -210,11 +210,7 @@ export function SettingsModal({
       </ModalBody>
 
       <ModalFooter className="border-t border-border-light bg-surface-secondary px-5 py-4">
-        <button type="button" onClick={() => void handleTest()} disabled={status === 'checking' || saving || !baseUrl.trim()}
-          className="flex items-center gap-1.5 text-sm text-muted transition-colors duration-200 hover:text-primary disabled:cursor-default disabled:opacity-40">
-          {status === 'checking' && <Loader2 size={13} className="animate-spin flex-shrink-0" />}
-          Test connection
-        </button>
+        <div />
         <div className="flex gap-2">
           <Button variant="ghost" onClick={onClose} className="rounded-2xl">Cancel</Button>
           <Button variant="primary" onClick={() => void handleSave()} disabled={saving || !baseUrl.trim()} className="rounded-2xl">
