@@ -58,7 +58,7 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
     }
   };
 
-  useEffect(() => { void fetchAll(); }, [config.baseUrl]);
+  useEffect(() => { void fetchAll(); }, [config]);
 
   if (loading) {
     return (

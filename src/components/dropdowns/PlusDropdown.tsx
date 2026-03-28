@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { Plus, Paperclip, Plug, ChevronRight } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
@@ -24,6 +24,46 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
   const useOutlinedStyle = outlined ?? openUpward;
 
   useClickOutside(ref, () => setOpen(false));
+
+  // Focus first item on open; restore trigger focus on close
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (open && menuRef.current) {
+      const items = menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (items.length > 0) items[0].focus();
+    }
+    if (!open && triggerRef.current && document.activeElement !== triggerRef.current) {
+      triggerRef.current.focus();
+    }
+  }, [open]);
+
+  const handleMenuKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!open || !menuRef.current) return;
+    const items = Array.from(menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    const idx = items.indexOf(document.activeElement as HTMLElement);
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        items[(idx + 1) % items.length]?.focus();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        items[(idx - 1 + items.length) % items.length]?.focus();
+        break;
+      case 'Home':
+        e.preventDefault();
+        items[0]?.focus();
+        break;
+      case 'End':
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setOpen(false);
+        break;
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -77,6 +117,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         }}
       />
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
@@ -108,6 +149,8 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
         }}
         role="menu"
         aria-label="Actions menu"
+        aria-hidden={!open}
+        onKeyDown={handleMenuKeyDown}
       >
         <button
           type="button"

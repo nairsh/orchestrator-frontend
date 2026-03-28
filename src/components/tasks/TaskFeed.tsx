@@ -214,7 +214,7 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
                 {row.kind === 'tool_parallel' ? (
                   <ParallelToolCalls entries={row.entries} />
                 ) : (
-                  <FeedItem entry={row.entry} onApproval={onApproval} onBashApproval={onBashApproval} fullView={fullView} />
+                  <FeedItem entry={row.entry} onBashApproval={onBashApproval} fullView={fullView} />
                 )}
               </div>
             </div>

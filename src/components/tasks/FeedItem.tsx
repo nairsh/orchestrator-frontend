@@ -109,14 +109,12 @@ function BashApprovalBlock({
 
 interface FeedItemProps {
   entry: FeedEntry;
-  onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
   fullView?: boolean;
 }
 
 export const FeedItem = memo(function FeedItem({
   entry,
-  onApproval,
   onBashApproval,
   fullView = false,
 }: FeedItemProps) {
