@@ -493,3 +493,53 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - useFilesPageState: humanize file preview error messages
 - TaskFeed: auto-scroll triggers on feed ref changes (not just row count)
   so tool output updates scroll into view when user is at bottom
+
+## Batch 100 — Deep Audit P1/P2 Fixes
+- P1: Close SSE connection on workflow switch to prevent stale events corrupting next workflow
+- P1: Add `hydrated` to notification effect deps so fast-completing tasks don't skip notifications
+- P2: Snapshot workflow state from ref for correct optimistic rollback (not inside setState updater)
+- P2: SSE done event deduplication — only emit synthetic done if server didn't send one
+- P2: Landing page preserves input on submit failure, shows spinner during submission
+- P2: Remove double URL.revokeObjectURL in file preview
+- P3: Add aria-label to sample prompt buttons
+
+## Batch 101 — Feed UI Refinements + Rich Sileo Toasts
+- Changed parallel group icon from Repeat2 to GitFork (rotated -90°) matching reference images
+- Added subtle left border to grouped child items in FeedTaskGroup and ParallelToolCalls
+- Created toastTaskCreated() — shows truncated objective + model name
+- Created toastConnector() — shows connector name with action (connected/disconnected/verified)
+- Wired new toasts into useAppState, TaskList, ConnectorsTab, useSettingsState
+
+## Batch 102 — Auth Centralization + Stability Fixes
+- Centralize resolveAuthToken: export from api/core.ts, remove duplicates from api/sse.ts and files/helpers.ts
+- ModelDropdown: stabilize effect deps to [config.baseUrl, config.hasAuth] preventing unnecessary refetches
+- ModelDropdown: add role=group + aria-label to provider sections for screen readers
+- ChatPrimitives MessageList: use stable timestamp-based keys instead of array index
+
+## Batch 103 — File Upload Dedup + Files Page Fix
+- Extract useFileAttachments() hook consolidating duplicate upload logic from LandingPage + TaskList
+- Files page: remove silent 20-workflow truncation, add search filtering for workflows
+- Chat autofocus: replace setTimeout(100) hack with useLayoutEffect for instant focus
+
+## Batch 104 — Toast System Upgrade
+- Fix credits toast: show 'No usage this period' instead of misleading 100% when no usage data
+- Extract themeColors() helper to DRY up color logic across all toast functions
+- Add toastSettingsSaved(section) — shows which section was saved
+- Add toastUploadComplete(count, totalBytes) — shows upload count and size
+- Wire new toasts into SettingsModal, SettingsPage, useSettingsState, useFilesPageState
+
+## Batch 105 — 3 P1 + 3 P2 Fixes from Deep Audit
+- P1: Clear reconnect timer on workflow switch cleanup to prevent cross-task SSE pollution
+- P1: Treat unexpected stream close as error instead of silently accepting truncated chat responses
+- P1: TasksPage syncs selectedId/objective when external navigation changes (notification click)
+- P2: useWorkflows returns early with loading=false when auth unavailable (prevents infinite spinner)
+- P2: Chat auto-scroll uses 'auto' during streaming to eliminate smooth-animation jank
+- P2: Upload toast skips success when 0 documents uploaded (all skipped due to size limits)
+
+## Batch 106 — State Sync Fixes
+- useFileAttachments: fix stale closure in handleUploadFiles by using attachmentsRef for budget calculation
+- useFilesPageState: sync selectedWorkflowId when initialWorkflowId prop changes externally
+
+## Batch 107 — Chat Abort/Close Split + Accessibility
+- Chat abort: add persistPartial param — stop button preserves partial text, closing modal discards it
+- Server address input: link label to input with htmlFor/id for screen reader accessibility
