@@ -75,6 +75,7 @@ export function Sidebar({
         <aside
           className="relative flex flex-col h-full bg-sidebar border-r border-border-subtle overflow-hidden animate-slide-in-left"
           style={{ width: WIDTH_EXPANDED, padding: '16px 12px 12px' }}
+          aria-label="Main navigation"
         >
           {/* Header */}
           <div className="flex items-center justify-between px-1 mb-5">
@@ -133,6 +134,7 @@ export function Sidebar({
       <aside
         className="flex flex-col h-full flex-shrink-0 app-ui items-center bg-sidebar border-r border-border-subtle transition-[width] duration-slow overflow-visible"
         style={{ width: WIDTH_COLLAPSED, padding: '12px 0' }}
+        aria-label="Main navigation"
       >
         <div className="group relative flex items-center justify-center">
           <Tooltip title="Menu" placement="right">
@@ -158,6 +160,7 @@ export function Sidebar({
     <aside
       className="flex flex-col h-full flex-shrink-0 app-ui bg-sidebar border-r border-border-subtle transition-[width] duration-slow overflow-hidden"
       style={{ width: WIDTH_EXPANDED, padding: '16px 12px 12px' }}
+      aria-label="Main navigation"
     >
       {/* Header: brand + toggle */}
       <div className="flex items-center justify-between px-1 mb-5">

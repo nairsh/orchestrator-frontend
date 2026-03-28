@@ -84,6 +84,7 @@ export function TaskFilesSection({
                 key={path}
                 type="button"
                 onClick={() => onOpenFile(path)}
+                aria-label={`Open file: ${fileName}`}
                 className={[
                   'group rounded-xl border bg-surface p-4 text-left transition-all duration-200 hover:shadow-sm',
                   isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
