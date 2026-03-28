@@ -9,7 +9,7 @@ import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
 import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
-import { toastApiError, toastSuccess } from '../../lib/toast';
+import { toastApiError, toastSuccess, toastWorkflowComplete, toastWorkflowFailed } from '../../lib/toast';
 import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import { humanizeModelName } from '../../lib/modelNames';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -93,6 +93,7 @@ export function TaskDetail({
         workflowId,
       });
       desktopNotify('Task completed', objective);
+      toastWorkflowComplete(objective, formatDuration(startedAt, endedAt), activeModel ? humanizeModelName(activeModel) : undefined);
     } else if (workflowStatus === 'failed') {
       addNotification({
         type: 'workflow_failed',
@@ -101,6 +102,7 @@ export function TaskDetail({
         workflowId,
       });
       desktopNotify('Task failed', objective);
+      toastWorkflowFailed(objective);
     }
   }, [isTerminal, workflowStatus, hydrated]);
 

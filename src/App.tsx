@@ -111,6 +111,7 @@ export default function App(props: AppProps) {
       />
       {state.screen === 'landing' ? (
         <ErrorBoundary inline label="Landing page">
+        <div className="fade-in-soft" key="landing">
         <LandingPage
           config={state.runtimeConfig}
           onSubmit={(objective, model, contextFiles) => state.handleLandingSubmit(objective, model, contextFiles)}
@@ -126,9 +127,11 @@ export default function App(props: AppProps) {
           isMobile={state.isMobile}
           modelIconOverrides={modelIconOverrides}
         />
+        </div>
         </ErrorBoundary>
       ) : state.screen === 'settings' ? (
         <ErrorBoundary inline label="Settings">
+        <div className="fade-in-soft" key="settings">
         <SettingsPage
           initialBaseUrl={state.config.baseUrl}
           clerkEnabled={clerkEnabled}
@@ -150,9 +153,11 @@ export default function App(props: AppProps) {
           onOpenTasks={(nav) => state.openTasks(nav as TaskNav)}
           onOpenSearch={() => state.setShowTaskSearch(true)}
         />
+        </div>
         </ErrorBoundary>
       ) : (
         <ErrorBoundary inline label="Tasks">
+        <div className="fade-in-soft" key="tasks">
         <TasksPage
           config={state.runtimeConfig}
           initialWorkflowId={state.activeWorkflow?.id}
@@ -173,6 +178,7 @@ export default function App(props: AppProps) {
           initialTaskFullView={state.openTaskInFullView}
           modelIconOverrides={modelIconOverrides}
         />
+        </div>
         </ErrorBoundary>
       )}
 

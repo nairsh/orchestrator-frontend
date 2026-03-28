@@ -210,13 +210,54 @@ export function toastApiError(err: unknown, title = 'Something went wrong') {
   toastError(title, normalized);
 }
 
+/** Workflow completed toast — shows duration and model */
+export function toastWorkflowComplete(objective: string, durationStr?: string | null, model?: string) {
+  const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+  const { sub, dim, fill } = themeColors();
+
+  const details: ReactNode[] = [];
+  if (durationStr) details.push(createElement('span', { key: 'd' }, `⏱ ${durationStr}`));
+  if (model) details.push(createElement('span', { key: 'm' }, model));
+
+  sileo.success({
+    ...TOAST_BASE,
+    title: 'Task completed',
+    duration: 4000,
+    fill,
+    description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px' } },
+      createElement('span', { style: { fontSize: '13px', color: sub, lineHeight: '1.4' } }, truncated),
+      details.length > 0
+        ? createElement('span', { style: { fontSize: '11px', color: dim, display: 'flex', gap: '8px' } }, ...details)
+        : null,
+    ),
+  });
+}
+
+/** Workflow failed toast — shows humanized error */
+export function toastWorkflowFailed(objective: string, error?: string) {
+  const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+  const { sub, fill } = themeColors();
+  const errorMsg = error ? humanizeError(error) : 'An unexpected error occurred';
+
+  sileo.error({
+    ...TOAST_BASE,
+    title: 'Task failed',
+    duration: 5000,
+    fill,
+    description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '3px', marginTop: '2px' } },
+      createElement('span', { style: { fontSize: '13px', color: sub, lineHeight: '1.4' } }, truncated),
+      createElement('span', { style: { fontSize: '12px', color: '#c4573a' } }, errorMsg),
+    ),
+  });
+}
+
 // Debug: expose toast functions for browser console testing
 declare global {
   interface Window {
     __toast?: typeof devToastExports;
   }
 }
-const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, toastRich, toastCredits, toastTaskCreated, toastConnector, toastSettingsSaved, toastUploadComplete, sileo };
+const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, toastRich, toastCredits, toastTaskCreated, toastConnector, toastSettingsSaved, toastUploadComplete, toastWorkflowComplete, toastWorkflowFailed, sileo };
 if (import.meta.env.DEV) {
   window.__toast = devToastExports;
 }

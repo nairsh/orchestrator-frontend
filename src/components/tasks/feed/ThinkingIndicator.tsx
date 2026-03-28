@@ -38,7 +38,7 @@ export function ThinkingIndicator({ currentActivity, thinkingText, isStale }: Th
         )}
 
         {expanded && thinkingText && (
-          <div className="ml-5 mt-1 rounded-lg border border-border bg-surface-warm/50 px-3 py-2 text-sm text-secondary max-h-64 overflow-y-auto">
+          <div className="ml-5 mt-1 rounded-lg border border-border bg-surface-warm/50 px-3 py-2 text-sm text-secondary max-h-64 overflow-y-auto fade-in-soft">
             <Markdown content={thinkingText} />
           </div>
         )}
