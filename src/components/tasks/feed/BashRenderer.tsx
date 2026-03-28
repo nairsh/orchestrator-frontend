@@ -7,13 +7,16 @@ export function BashRenderer({
   isRunning,
   hasOutput,
   renderedOutput,
+  exitCode,
 }: {
   command: string;
   isRunning: boolean;
   hasOutput: boolean;
   renderedOutput: string;
+  exitCode?: number;
 }) {
-  const [showBashOutput, setShowBashOutput] = useState(false);
+  // Auto-expand output on failure (non-zero exit code)
+  const [showBashOutput, setShowBashOutput] = useState(exitCode !== undefined && exitCode !== 0);
 
   return (
     <div className="flex flex-col gap-2">

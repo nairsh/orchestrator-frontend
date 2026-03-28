@@ -151,17 +151,17 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
     return () => el.removeEventListener('scroll', onScroll);
   }, [checkIfNearBottom]);
 
-  // Auto-scroll only when user is at bottom; otherwise mark new content
-  // Uses feed reference (not just row count) to catch content-only updates like tool output arriving
+  // Auto-scroll only when new rows appear and user is at bottom; otherwise mark new content
   useEffect(() => {
     const rowCountChanged = renderRows.length !== prevRowCount.current;
     prevRowCount.current = renderRows.length;
+    if (!rowCountChanged) return;
     if (isNearBottom) {
       scrollToBottom();
-    } else if (rowCountChanged) {
+    } else {
       setHasNewContent(true);
     }
-  }, [renderRows.length, feed, isNearBottom, scrollToBottom]);
+  }, [renderRows.length, isNearBottom, scrollToBottom]);
 
   return (
     <div ref={scrollContainerRef} role="log" aria-live="polite" className={`flex-1 overflow-y-auto flex flex-col items-center px-4 md:px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>

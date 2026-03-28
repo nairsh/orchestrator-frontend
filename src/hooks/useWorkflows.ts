@@ -11,18 +11,23 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const requestIdRef = useRef(0);
 
   const fetch_ = useCallback(async () => {
     const hasAuth = Boolean(config.hasAuth);
     if (!enabled || !hasAuth) return;
+    const id = ++requestIdRef.current;
     try {
       const result = await listWorkflows(config, { status });
+      // Only commit state if this is still the latest request
+      if (id !== requestIdRef.current) return;
       setWorkflows(result.workflows);
       setError(null);
     } catch (err) {
+      if (id !== requestIdRef.current) return;
       setError(err instanceof Error ? humanizeError(err.message) : String(err));
     } finally {
-      setLoading(false);
+      if (id === requestIdRef.current) setLoading(false);
     }
   }, [config, enabled, status]);
 
@@ -41,6 +46,8 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
     }, POLL_INTERVAL);
 
     return () => {
+      // Invalidate any in-flight requests on cleanup
+      requestIdRef.current++;
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [fetch_, enabled, config.hasAuth]);

@@ -90,6 +90,11 @@ export function FeedToolCall({
   const hasOutput = !isTodo && !isFile && !isClarification && output !== undefined;
   const expandable = hasOutput || todos.length > 0;
 
+  const bashExitCode = useMemo(() => {
+    if (!isBash) return undefined;
+    return typeof out.exit_code === 'number' ? out.exit_code : undefined;
+  }, [isBash, out.exit_code]);
+
   const renderedOutput = useMemo(() => {
     if (!hasOutput) return '';
     if (isBash) {
@@ -141,7 +146,7 @@ export function FeedToolCall({
           <TodoList items={todos} />
 
           {isBash ? (
-            <BashRenderer command={command} isRunning={isRunning} hasOutput={hasOutput} renderedOutput={renderedOutput} />
+            <BashRenderer command={command} isRunning={isRunning} hasOutput={hasOutput} renderedOutput={renderedOutput} exitCode={bashExitCode} />
           ) : isWebSearch ? (
             <WebSearchRenderer query={query} isRunning={isRunning} searchResults={searchResults} />
           ) : isFetchUrl ? (

@@ -66,7 +66,7 @@ export function FeedTaskGroup({
                 </span>
                 {status === 'running' && <Loader2 size={13} className="flex-shrink-0 text-muted animate-spin ml-auto" />}
                 {(status === 'completed' || status === 'skipped') && <Check size={13} className="flex-shrink-0 text-muted ml-auto" />}
-                {status === 'failed' && <CircleAlert size={13} className="flex-shrink-0 text-warning ml-auto" />}
+                {status === 'failed' && <CircleAlert size={13} className="flex-shrink-0 text-danger ml-auto" />}
               </div>
             );
           })}

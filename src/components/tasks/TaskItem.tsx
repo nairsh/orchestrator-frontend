@@ -33,7 +33,9 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
 };
 
 function getSubtitle(workflow: WorkflowSummary): string {
-  if (typeof workflow.output === 'string' && workflow.output.length > 0) return workflow.output.slice(0, 40);
+  if (typeof workflow.output === 'string' && workflow.output.length > 0) {
+    return workflow.output.length > 40 ? workflow.output.slice(0, 40) + '…' : workflow.output;
+  }
   if (workflow.status === 'completed') return 'Completed';
   if (workflow.status === 'executing') return 'Running…';
   if (workflow.status === 'failed') return 'Failed';

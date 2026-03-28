@@ -143,6 +143,11 @@ export function CommandPalette({
           <input
             ref={inputRef}
             type="text"
+            role="combobox"
+            aria-expanded={filtered.length > 0}
+            aria-controls="command-palette-list"
+            aria-activedescendant={filtered[selectedIndex] ? `cmd-item-${filtered[selectedIndex].id}` : undefined}
+            aria-autocomplete="list"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -155,7 +160,7 @@ export function CommandPalette({
         </div>
 
         {/* Results */}
-        <div ref={listRef} className="max-h-[420px] overflow-y-auto py-2">
+        <div ref={listRef} id="command-palette-list" role="listbox" className="max-h-[420px] overflow-y-auto py-2">
           {filtered.length === 0 && (
             <div className="py-8">
               <Empty description="No results found" />
@@ -171,6 +176,9 @@ export function CommandPalette({
                   <button
                     key={item.id}
                     type="button"
+                    id={`cmd-item-${item.id}`}
+                    role="option"
+                    aria-selected={globalIdx === selectedIndex}
                     data-item-index={globalIdx}
                     onClick={item.action}
                     className={`w-full group flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
@@ -199,6 +207,9 @@ export function CommandPalette({
                   <button
                     key={item.id}
                     type="button"
+                    id={`cmd-item-${item.id}`}
+                    role="option"
+                    aria-selected={globalIdx === selectedIndex}
                     data-item-index={globalIdx}
                     onClick={item.action}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${
@@ -223,6 +234,9 @@ export function CommandPalette({
                   <button
                     key={item.id}
                     type="button"
+                    id={`cmd-item-${item.id}`}
+                    role="option"
+                    aria-selected={globalIdx === selectedIndex}
                     data-item-index={globalIdx}
                     onClick={item.action}
                     className={`w-full flex items-center gap-3 px-4 py-2 text-sm text-left transition-colors duration-200 ${

@@ -9,7 +9,7 @@ import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
 import { Button, IconButton } from '../ui';
 import { WorkflowProgress } from '../WorkflowProgress';
-import { toastApiError, toastSuccess, toastWorkflowComplete, toastWorkflowFailed } from '../../lib/toast';
+import { toastApiError, toastSuccess, toastWorkflowComplete, toastWorkflowFailed, toastRich } from '../../lib/toast';
 import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import { humanizeModelName } from '../../lib/modelNames';
 import { useNotifications } from '../../hooks/useNotifications';
@@ -104,7 +104,7 @@ export function TaskDetail({
       desktopNotify('Task failed', objective);
       toastWorkflowFailed(objective);
     }
-  }, [isTerminal, workflowStatus, hydrated]);
+  }, [isTerminal, workflowStatus, hydrated, objective, workflowId, startedAt, endedAt, activeModel, addNotification]);
 
   const handleCommand = async (text: string) => {
     try {
@@ -118,7 +118,8 @@ export function TaskDetail({
     setActionBusy('retry');
     try {
       await retryWorkflow(config, workflowId);
-      toastSuccess('Retrying task');
+      const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+      toastRich({ title: 'Retrying task', body: truncated, type: 'info', duration: 3000 });
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Couldn\'t retry this task');
@@ -129,7 +130,8 @@ export function TaskDetail({
     setActionBusy('cancel');
     try {
       await cancelWorkflow(config, workflowId);
-      toastSuccess('Task cancelled');
+      const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+      toastRich({ title: 'Task cancelled', body: truncated, type: 'warning', duration: 3000 });
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Couldn\'t cancel this task');
@@ -269,10 +271,6 @@ export function TaskDetail({
           clarification={pendingClarification}
           maxWidth={contentMaxWidth}
           onSubmit={handleCommand}
-          onDismiss={() => {
-            // Dismiss just closes the panel without submitting
-            // The workflow remains paused and can be resumed manually
-          }}
         />
       )}
       
