@@ -731,3 +731,50 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - Markdown: language regex handles c++, c#, objective-c
 - useChatStream: cancel pending RAF on error chunk
 - FilesPage: disable knowledge search button when query is empty
+
+## Batch 138 — Utility Safety & A11y Fixes
+- useClickOutside: `instanceof Node` guard on e.target (prevents crash on non-Node targets)
+- useEscapeKey: `e.preventDefault()` to stop Escape propagation to parent handlers
+- time.ts: regex replace `/\s+/` for all whitespace; future date guard returns "just now"
+- WorkflowProgress: `role="progressbar"` + `aria-valuenow/min/max` for screen readers
+- PlusDropdown: `aria-label="Actions menu"` on menu container
+
+## Batch 139 — UX Polish: Duplicate Button, Loading States
+- SettingsModal: removed duplicate "Test connection" button from footer (kept panel one)
+- RelayEmpty: added `role="status"` for screen reader announcements
+- ThinkingIndicator: `aria-label` on shimmer text for activity context
+- WebSearchRenderer: Loader2 spinner while actively searching
+- FetchUrlRenderer: Loader2 spinner while fetching URL
+
+## Batch 140 — A11y Semantics: Lists, ARIA-hidden, Describedby
+- TaskFeed: `aria-hidden` on collapsed parallel tool content
+- NotificationCenter: `role="list"` + `role="listitem"` on notification items
+- TaskList: `role="list"` on container, `role="group"` + `aria-label` on time groups, `role="listitem"` on items
+- ChatPrimitives: `aria-describedby` linking textarea to keyboard hint text
+
+## Batch 141 — A11y Labels & Landmarks
+- TaskItem: `aria-label` on `role="button"` for screen reader context
+- FeedTaskGroup: `aria-hidden` on collapsed content div
+- Sidebar: `aria-label="Main navigation"` on all 3 aside variants (mobile, collapsed, expanded)
+- KnowledgeSection: `aria-label` on document card buttons
+- TaskFilesSection: `aria-label` on file card buttons
+
+## Batch 142 — Performance: Memo-wrap Feed Components
+- FeedToolCall: wrapped in `React.memo` for stable prop skipping
+- BashRenderer: `React.memo`
+- WebSearchRenderer: `React.memo`
+- FetchUrlRenderer: `React.memo`
+- TodoList: `React.memo`
+- FeedTaskGroup: `React.memo`
+- Reduces unnecessary re-renders during streaming feed updates
+
+## Batch 143 — Audit 140 Fixes: Modal, ChatModal, BashRenderer, Submit Guard
+- Modal: per-instance heading ID via `useId()` + context (fixes shared static ID collision)
+- ChatModal: added `aria-modal="true"` on fullscreen dialog
+- BashRenderer: auto-expand output when command finishes with non-zero exit code
+- LandingPage: synchronous ref guard prevents double-submit race
+- ProviderList: removed unused `Loader2` import
+
+## Batch 144 — Cache Key, Refresh State
+- models.ts: include auth presence in cache key (prevents stale user data on sign-in/out)
+- useWorkflows: added `refreshing` state so manual refreshes show UI feedback
