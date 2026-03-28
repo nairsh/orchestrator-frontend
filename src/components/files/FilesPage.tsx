@@ -15,7 +15,8 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
   return (
     <>
     <div className="flex h-full flex-1 overflow-hidden bg-surface-warm">
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6">
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 xl:px-16 py-6">
+        <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-semibold text-primary">Files</h1>
@@ -88,6 +89,7 @@ export function FilesPage({ config, workflows, initialWorkflowId, onSelectWorkfl
             onClearSearchMatches={() => state.setSearchMatches([])}
           />
         )}
+        </div>
       </div>
     </div>
 

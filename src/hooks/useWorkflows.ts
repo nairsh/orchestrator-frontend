@@ -33,6 +33,8 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
 
   useEffect(() => {
     if (!enabled || !config.hasAuth) {
+      // Invalidate any in-flight requests so they don't overwrite the cleared state
+      ++requestIdRef.current;
       setLoading(false);
       setWorkflows([]);
       setError(null);
