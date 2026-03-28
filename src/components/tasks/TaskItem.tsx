@@ -86,12 +86,8 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const result = await cancelWorkflow(config, workflow.id);
-      if (result.status === 'cancelled') {
-        toastSuccess('Task stopped', 'It will no longer appear once you refresh.');
-      } else {
-        toastSuccess('Task deleted');
-      }
+      await cancelWorkflow(config, workflow.id);
+      toastSuccess('Task deleted');
       setDeleteConfirm(false);
       onDeleted();
     } catch (err) {

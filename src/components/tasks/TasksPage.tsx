@@ -213,6 +213,7 @@ export function TasksPage({
             config={config}
             onCollapse={() => setTaskFullView(false)}
             onOpenFullChat={() => setTaskFullView(false)}
+            onRefreshList={refresh}
             fullView
               activeModel={activeModel}
               animateInputEntry={animateFromLanding}
@@ -234,6 +235,7 @@ export function TasksPage({
               config={config}
               onCollapse={() => setSelectedId(null)}
               onOpenFullChat={() => setTaskFullView(true)}
+              onRefreshList={refresh}
               activeModel={activeModel}
               modelIconOverrides={modelIconOverrides}
             />
@@ -314,6 +316,7 @@ export function TasksPage({
                 config={config}
                 onCollapse={() => setSelectedId(null)}
                 onOpenFullChat={() => setTaskFullView(true)}
+                onRefreshList={refresh}
                 activeModel={activeModel}
                 modelIconOverrides={modelIconOverrides}
               />

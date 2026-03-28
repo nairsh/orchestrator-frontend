@@ -164,7 +164,7 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
   }, [renderRows.length, feed, isNearBottom, scrollToBottom]);
 
   return (
-    <div ref={scrollContainerRef} className={`flex-1 overflow-y-auto flex flex-col items-center px-4 md:px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>
+    <div ref={scrollContainerRef} role="log" aria-live="polite" className={`flex-1 overflow-y-auto flex flex-col items-center px-4 md:px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>
       <div className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: 32 }}>
 
         {renderRows.map((row, idx) => {

@@ -81,6 +81,7 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
     <div 
       className="flex-shrink-0 px-16 pb-2 outline-none"
       onKeyDown={handleKeyDown}
+      tabIndex={-1}
     >
       <div
         className="mx-auto w-full rounded-xl border border-border-light bg-surface shadow-sm overflow-hidden"
@@ -154,6 +155,7 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
                   setCustomValue(e.target.value);
                   setSelectedOption(customOptionIndex);
                 }}
+                onKeyDown={handleKeyDown}
                 placeholder="Tell Relay what to do differently"
                 aria-label="Custom response"
                 disabled={isSubmitting}

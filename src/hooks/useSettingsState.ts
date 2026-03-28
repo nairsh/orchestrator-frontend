@@ -105,6 +105,7 @@ export function useSettingsState({
   useEffect(() => {
     if (!isSignedIn) { setModelPreferences(null); setProviders([]); setConnectors([]); return; }
     void refreshModelPreferences(); void refreshConnectors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trimmedBase, isSignedIn]);
 
   /* ─── Routing Handlers ─── */
