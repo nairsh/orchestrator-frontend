@@ -183,6 +183,7 @@ export function LandingPage({
                             src={`data:${a.media_type};base64,${a.content_base64}`}
                             alt={a.filename}
                             className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
                           />
                         ) : (
                           <FileText size={18} className="text-muted" />

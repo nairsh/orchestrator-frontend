@@ -1,5 +1,5 @@
-import { memo } from 'react';
-import { Loader2, Search } from 'lucide-react';
+import { memo, useState } from 'react';
+import { Globe, Loader2, Search } from 'lucide-react';
 import type { SearchResultDisplay } from './feedHelpers';
 
 export const WebSearchRenderer = memo(function WebSearchRenderer({
@@ -11,6 +11,7 @@ export const WebSearchRenderer = memo(function WebSearchRenderer({
   isRunning: boolean;
   searchResults: SearchResultDisplay[];
 }) {
+  const [faviconErrors, setFaviconErrors] = useState<Set<number>>(new Set());
   return (
     <div className="flex flex-col gap-2">
       {query && (
@@ -41,13 +42,18 @@ export const WebSearchRenderer = memo(function WebSearchRenderer({
             style={{ animationDelay: `${Math.min(idx * 28, 220)}ms` }}
           >
             <div className="flex items-center gap-2 min-w-0">
-              <img
-                src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(result.resolvedUrl)}`}
-                alt=""
-                aria-hidden="true"
-                className="w-4 h-4 rounded-full flex-shrink-0"
-                loading="lazy"
-              />
+              {faviconErrors.has(idx) ? (
+                <Globe size={14} className="text-muted flex-shrink-0" aria-hidden="true" />
+              ) : (
+                <img
+                  src={`https://www.google.com/s2/favicons?sz=32&domain_url=${encodeURIComponent(result.resolvedUrl)}`}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  loading="lazy"
+                  onError={() => setFaviconErrors((prev) => new Set(prev).add(idx))}
+                />
+              )}
               <span className="font-sans text-xs text-primary truncate">{result.title}</span>
               <span className="font-mono text-2xs text-placeholder truncate">{result.domain}</span>
             </div>
