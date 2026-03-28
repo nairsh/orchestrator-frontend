@@ -46,12 +46,22 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
   const { attachments, contextFiles, handleUploadFiles, removeAttachment, clearAttachments } = useFileAttachments();
   const renameInputRef = useRef<HTMLInputElement>(null);
   const startInputRef = useRef<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = () => startInputRef.current?.focus();
     window.addEventListener('relay:focus-input', handler);
     return () => window.removeEventListener('relay:focus-input', handler);
   }, []);
+
+  // Scroll selected task into view when navigating to it (e.g., notification click)
+  useEffect(() => {
+    if (!selectedId || !scrollRef.current) return;
+    requestAnimationFrame(() => {
+      const el = scrollRef.current?.querySelector(`[data-task-id="${selectedId}"]`);
+      el?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    });
+  }, [selectedId]);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNowTs(Date.now()), 60_000);
@@ -169,7 +179,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
         onOpenChat={onOpenChat}
       />
 
-      <div className="flex-1 overflow-y-auto flex flex-col hide-scrollbar bg-surface-warm p-3 sm:p-6 gap-4 sm:gap-6">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto flex flex-col hide-scrollbar bg-surface-warm p-3 sm:p-6 gap-4 sm:gap-6">
         <TaskStartInput
           value={startValue}
           onChange={setStartValue}
@@ -217,8 +227,8 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             <div key={group.label}>
               <p className="text-xs font-medium text-muted uppercase tracking-wide px-2 pt-3 pb-1">{group.label}</p>
               {group.items.map((wf) => (
+                <div key={wf.id} data-task-id={wf.id}>
                 <TaskItem
-                  key={wf.id}
                   workflow={wf}
                   nowTs={nowTs}
                   isSelected={selectedId === wf.id}
@@ -234,6 +244,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
                   }}
                   onRename={() => openRename(wf)}
                 />
+                </div>
               ))}
             </div>
           ))}
