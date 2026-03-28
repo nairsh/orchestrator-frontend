@@ -32,7 +32,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   }, [messages.length, draftAssistant.length, streaming]);
 
   const handleClose = () => {
-    abort();
+    abort(false);
     if (fullscreen) {
       onClose();
     } else {

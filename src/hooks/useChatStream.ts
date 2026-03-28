@@ -144,13 +144,12 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
     [config.baseUrl, config.getAuthToken, model, streaming],
   );
 
-  const abort = useCallback(() => {
+  const abort = useCallback((persistPartial = true) => {
     abortRef.current?.close();
     abortRef.current = null;
     setStreaming(false);
-    // Preserve any partial content already streamed
     const partial = assistantBufferRef.current;
-    if (partial) {
+    if (persistPartial && partial) {
       setMessages((prev) => [...prev, { role: 'assistant', content: partial, timestamp: Date.now() }]);
     }
     assistantBufferRef.current = '';

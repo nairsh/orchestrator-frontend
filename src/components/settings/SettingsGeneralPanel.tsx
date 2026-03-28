@@ -47,9 +47,10 @@ export function SettingsGeneralPanel({
         <p className="text-[13px] text-secondary mb-5">Where your AI is running.</p>
         <div className="space-y-4">
           <div>
-            <label className="block text-[12.5px] font-medium text-secondary mb-1.5">Server address</label>
+            <label htmlFor="settings-server-address" className="block text-[12.5px] font-medium text-secondary mb-1.5">Server address</label>
             <div className="flex gap-2">
               <Input
+                id="settings-server-address"
                 value={baseUrl}
                 onChange={(e) => { setBaseUrl(e.target.value); setStatus('idle'); }}
                 placeholder="http://localhost:8080"
