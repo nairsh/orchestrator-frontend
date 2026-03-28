@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 export interface WorkflowMeta {
   pinned?: boolean;
@@ -23,6 +23,8 @@ function loadMeta(): WorkflowMetaMap {
 
 export function useWorkflowMeta() {
   const [meta, setMeta] = useState<WorkflowMetaMap>(() => loadMeta());
+  const metaRef = useRef(meta);
+  metaRef.current = meta;
 
   const persist = useCallback((next: WorkflowMetaMap) => {
     setMeta(next);
@@ -35,24 +37,26 @@ export function useWorkflowMeta() {
 
   const togglePin = useCallback(
     (workflowId: string) => {
+      const m = metaRef.current;
       persist({
-        ...meta,
+        ...m,
         [workflowId]: {
-          ...(meta[workflowId] ?? {}),
-          pinned: !(meta[workflowId]?.pinned ?? false),
+          ...(m[workflowId] ?? {}),
+          pinned: !(m[workflowId]?.pinned ?? false),
         },
       });
     },
-    [meta, persist]
+    [persist]
   );
 
   const setDisplayName = useCallback(
     (workflowId: string, displayName: string | null) => {
+      const m = metaRef.current;
       const trimmed = (displayName ?? '').trim();
       const next: WorkflowMetaMap = {
-        ...meta,
+        ...m,
         [workflowId]: {
-          ...(meta[workflowId] ?? {}),
+          ...(m[workflowId] ?? {}),
           display_name: trimmed || undefined,
         },
       };
@@ -64,22 +68,23 @@ export function useWorkflowMeta() {
 
       persist(next);
     },
-    [meta, persist]
+    [persist]
   );
 
+  // Stable callbacks — read from metaRef so they don't recreate on every meta change
   const getDisplayName = useCallback(
-    (workflowId: string) => meta[workflowId]?.display_name,
-    [meta]
+    (workflowId: string) => metaRef.current[workflowId]?.display_name,
+    []
   );
 
   const isPinned = useCallback(
-    (workflowId: string) => meta[workflowId]?.pinned ?? false,
-    [meta]
+    (workflowId: string) => metaRef.current[workflowId]?.pinned ?? false,
+    []
   );
 
   const sortKey = useCallback(
-    (workflowId: string) => (isPinned(workflowId) ? 0 : 1),
-    [isPinned]
+    (workflowId: string) => (metaRef.current[workflowId]?.pinned ? 0 : 1),
+    []
   );
 
   const api = useMemo(

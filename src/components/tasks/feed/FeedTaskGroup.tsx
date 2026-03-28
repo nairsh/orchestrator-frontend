@@ -48,7 +48,7 @@ export function FeedTaskGroup({
 
       <div
         className="overflow-hidden transition-all duration-slow"
-        style={{ maxHeight: open ? 1200 : 0, opacity: open ? 1 : 0 }}
+        style={{ maxHeight: open ? 'none' : 0, opacity: open ? 1 : 0 }}
       >
         <div className="flex flex-col gap-1 ml-6 border-l border-border-subtle/60 pl-3">
           {tasks.map((task) => {

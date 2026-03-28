@@ -47,7 +47,7 @@ export function BashRenderer({
         className="transition-all duration-slow"
         aria-hidden={!showBashOutput || !hasOutput}
         style={{
-          maxHeight: showBashOutput && hasOutput ? 600 : 0,
+          maxHeight: showBashOutput && hasOutput ? 'none' : 0,
           opacity: showBashOutput && hasOutput ? 1 : 0,
           overflow: showBashOutput && hasOutput ? 'auto' : 'hidden',
         }}

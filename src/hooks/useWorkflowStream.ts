@@ -271,12 +271,14 @@ export function useWorkflowStream(
 
   const handleEvent = useCallback((event: WorkflowEvent) => {
     lastEventTimeRef.current = Date.now();
+    // Snapshot ref outside setState updater to avoid concurrent mutation
+    const pendingEnv = pendingEnvironmentSetupRef.current;
     setState((prev) => {
       if (prev.isStale) prev = { ...prev, isStale: false };
 
       const ctx: EventReducerContext = {
         seq: () => seqRef.current++,
-        pendingEnvironmentSetup: pendingEnvironmentSetupRef.current,
+        pendingEnvironmentSetup: pendingEnv,
       };
 
       const next = reduceWorkflowEvent(prev, event, ctx);
@@ -307,10 +309,11 @@ export function useWorkflowStream(
       // Track optimistic entry texts so rollback can identify and remove them
       const optimisticMarkers: Array<{ kind: string; text: string }> = [];
 
-      setState((prev) => {
-        const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
-        pendingEnvironmentSetupRef.current = !isClarificationReply;
+      // Determine if this is a clarification reply from snapshot (avoid ref write inside setState)
+      const isClarificationReply = snapshotState.workflowStatus === 'paused' || !!snapshotState.pendingClarification;
+      pendingEnvironmentSetupRef.current = !isClarificationReply;
 
+      setState((prev) => {
         const feedAdditions: typeof prev.feed = [];
         if (!silent) {
           feedAdditions.push({ kind: 'user_message', text: msg });

@@ -130,6 +130,7 @@ export function TaskDetail({
     setActionBusy('cancel');
     try {
       await cancelWorkflow(config, workflowId);
+      setCancelConfirm(false);
       const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
       toastRich({ title: 'Task cancelled', body: truncated, type: 'warning', duration: 3000 });
       onRefreshList?.();
@@ -218,7 +219,7 @@ export function TaskDetail({
                   onKeyDown={(e) => { if (e.key === 'Escape') setCancelConfirm(false); }}
                 >
                   <span className="text-xs text-danger font-medium">Cancel task?</span>
-                  <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => { setCancelConfirm(false); void handleCancel(); }} className="h-5 px-2 text-[11px]">
+                  <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => void handleCancel()} className="h-5 px-2 text-[11px]">
                     {actionBusy === 'cancel' ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
                   </Button>
                   <button type="button" onClick={() => setCancelConfirm(false)} className="text-xs text-muted hover:text-primary transition-colors duration-200" aria-label="Dismiss cancel confirmation">✕</button>
