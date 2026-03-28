@@ -284,12 +284,19 @@
 }
 
 .shimmer-text {
-  background: linear-gradient(90deg, #8A847D 0%, #B8B2AA 50%, #8A847D 100%);
+  --shimmer-a: #8A847D;
+  --shimmer-b: #B8B2AA;
+  background: linear-gradient(90deg, var(--shimmer-a) 0%, var(--shimmer-b) 50%, var(--shimmer-a) 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: shimmer 2.5s linear infinite;
+}
+
+:root[data-theme='light'] .shimmer-text {
+  --shimmer-a: #8a8a8a;
+  --shimmer-b: #b8b8b8;
 }
 
 @keyframes fadeInSoft {

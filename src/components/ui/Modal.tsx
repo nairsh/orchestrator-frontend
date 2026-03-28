@@ -133,6 +133,7 @@ export function ModalHeader({ title, onClose, children }: ModalHeaderProps) {
         onClick={onClose}
         className="w-8 h-8 rounded-xl flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
         aria-label="Close"
+        title="Close"
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <line x1="18" y1="6" x2="6" y2="18" />

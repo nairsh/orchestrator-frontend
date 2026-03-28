@@ -63,6 +63,7 @@ export function SearchInput({
           onClick={handleClear}
           className="flex items-center justify-center w-5 h-5 rounded text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 flex-shrink-0 cursor-pointer"
           aria-label="Clear search"
+          title="Clear search"
         >
           <X size={12} />
         </button>

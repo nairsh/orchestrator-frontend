@@ -151,6 +151,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
         visible ? 'bg-black/30 backdrop-blur-sm' : 'bg-black/0'
       }`}
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+      role="presentation"
     >
       <div
         ref={dialogRef}

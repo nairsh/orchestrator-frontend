@@ -13,6 +13,7 @@ export function TabPill({ active, label, onClick }: TabPillProps) {
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={[
         'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors duration-200',
         active ? 'border-border bg-surface text-primary shadow-sm' : 'border-border-light bg-surface-secondary text-secondary hover:bg-surface',

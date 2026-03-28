@@ -47,20 +47,20 @@ export function KnowledgeSection({
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-muted">Knowledge library</h2>
           {onUpload && (
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
+            <label className={`inline-flex items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary transition-colors duration-200 ${uploading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-surface-hover'}`}>
               {uploading ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />}
               {uploadProgress ? `${uploadProgress.done}/${uploadProgress.total}` : 'Upload'}
-              <input type="file" multiple className="hidden" aria-label="Upload files" onChange={(event) => { onUpload(event.target.files); event.currentTarget.value = ''; }} />
+              <input type="file" multiple className="hidden" aria-label="Upload files" disabled={uploading} onChange={(event) => { onUpload(event.target.files); event.currentTarget.value = ''; }} />
             </label>
           )}
         </div>
       )}
       {fileTab === 'knowledge' && onUpload && (
         <div className="mb-4 flex justify-end">
-          <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary hover:bg-surface-hover transition-colors duration-200">
+          <label className={`inline-flex items-center gap-1.5 rounded-lg border border-border-light bg-surface px-2.5 py-1 text-xs font-medium text-primary transition-colors duration-200 ${uploading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-surface-hover'}`}>
             {uploading ? <Loader2 size={12} className="animate-spin" /> : <UploadCloud size={12} />}
             {uploadProgress ? `${uploadProgress.done}/${uploadProgress.total}` : 'Upload'}
-            <input type="file" multiple className="hidden" aria-label="Upload files" onChange={(event) => { onUpload(event.target.files); event.currentTarget.value = ''; }} />
+            <input type="file" multiple className="hidden" aria-label="Upload files" disabled={uploading} onChange={(event) => { onUpload(event.target.files); event.currentTarget.value = ''; }} />
           </label>
         </div>
       )}
