@@ -45,7 +45,9 @@ export function StatusDot({ status, className = '' }: StatusDotProps) {
     const color = checkColor[status] ?? 'text-muted';
     return (
       <Tooltip title={label}>
-        <Check size={14} className={`flex-shrink-0 ${color} ${className}`} strokeWidth={2} />
+        <span role="img" aria-label={label} className="inline-flex items-center justify-center w-5 h-5 flex-shrink-0">
+          <Check size={14} className={`${color} ${className}`} strokeWidth={2} />
+        </span>
       </Tooltip>
     );
   }
@@ -53,7 +55,9 @@ export function StatusDot({ status, className = '' }: StatusDotProps) {
   const color = dotColor[status] ?? 'bg-placeholder';
   return (
     <Tooltip title={label}>
-      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${color} ${className}`} />
+      <span role="img" aria-label={label} className="inline-flex items-center justify-center w-5 h-5 flex-shrink-0">
+        <div className={`w-2 h-2 rounded-full ${color} ${className}`} />
+      </span>
     </Tooltip>
   );
 }
