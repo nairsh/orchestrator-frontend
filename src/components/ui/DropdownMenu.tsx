@@ -38,16 +38,27 @@ export function DropdownMenu({
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useClickOutside(ref, () => setOpen(false));
 
-  const toggle = () => setOpen((v) => !v);
+  const toggle = () => setOpen((v) => {
+    if (!v) {
+      // Capture the trigger element before opening so we can restore focus on close
+      triggerRef.current = document.activeElement as HTMLElement;
+    }
+    return !v;
+  });
 
-  // Focus first menu item on open, handle keyboard navigation
+  // Focus first menu item on open; restore trigger focus on close
   useEffect(() => {
-    if (!open || !menuRef.current) return;
-    const items = menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
-    if (items.length > 0) items[0].focus();
+    if (open && menuRef.current) {
+      const items = menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (items.length > 0) items[0].focus();
+    }
+    if (!open && triggerRef.current) {
+      triggerRef.current.focus();
+    }
   }, [open]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -110,6 +121,7 @@ export function DropdownMenu({
           pointerEvents: open ? 'auto' : 'none',
         }}
         role="menu"
+        aria-hidden={!open}
         onClick={() => { if (closeOnSelect) setOpen(false); }}
       >
         {children}

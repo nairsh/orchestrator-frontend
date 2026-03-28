@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 import { NotificationCenter } from '../NotificationCenter';
 import {
@@ -21,7 +21,48 @@ export function SidebarAccount({ isSignedIn, userLabel, userAvatarUrl, onOpenSet
     return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
   });
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
+  const triggerBtnRef = useRef<HTMLButtonElement>(null);
   useClickOutside(profileMenuRef, () => setProfileMenuOpen(false));
+
+  // Focus first menu item on open, restore trigger focus on close
+  useEffect(() => {
+    if (profileMenuOpen && menuPanelRef.current) {
+      const items = menuPanelRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (items.length > 0) items[0].focus();
+    }
+    if (!profileMenuOpen && triggerBtnRef.current) {
+      triggerBtnRef.current.focus();
+    }
+  }, [profileMenuOpen]);
+
+  const handleMenuKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!profileMenuOpen || !menuPanelRef.current) return;
+    const items = Array.from(menuPanelRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    const idx = items.indexOf(document.activeElement as HTMLElement);
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        items[(idx + 1) % items.length]?.focus();
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        items[(idx - 1 + items.length) % items.length]?.focus();
+        break;
+      case 'Home':
+        e.preventDefault();
+        items[0]?.focus();
+        break;
+      case 'End':
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setProfileMenuOpen(false);
+        break;
+    }
+  }, [profileMenuOpen]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', themeMode);
@@ -36,6 +77,7 @@ export function SidebarAccount({ isSignedIn, userLabel, userAvatarUrl, onOpenSet
     <div className="flex items-center gap-2 mt-2">
       <div ref={profileMenuRef} className="relative flex-1">
         <button
+          ref={triggerBtnRef}
           type="button"
           onClick={() => setProfileMenuOpen((v) => !v)}
           className="w-full flex items-center gap-2.5 px-1.5 py-1.5 rounded-xl border-none bg-transparent hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
@@ -62,6 +104,7 @@ export function SidebarAccount({ isSignedIn, userLabel, userAvatarUrl, onOpenSet
 
         {/* Profile pop-up menu */}
         <div
+          ref={menuPanelRef}
           className={[
             'absolute left-0 bottom-full mb-2 min-w-[200px] bg-surface border border-border-light rounded-xl shadow-dropdown py-1.5 z-50 transition-all duration-200 origin-bottom-left',
             profileMenuOpen
@@ -69,6 +112,8 @@ export function SidebarAccount({ isSignedIn, userLabel, userAvatarUrl, onOpenSet
               : 'opacity-0 scale-95 translate-y-1 pointer-events-none',
           ].join(' ')}
           role="menu"
+          aria-hidden={!profileMenuOpen}
+          onKeyDown={handleMenuKeyDown}
         >
           <button
             type="button"
