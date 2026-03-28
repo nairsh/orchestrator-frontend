@@ -131,7 +131,7 @@ export const FeedItem = memo(function FeedItem({
       if (onBashApproval && entry.id) {
         return (
           <ApprovalGate
-            taskId={entry.id}
+            approvalId={entry.id}
             toolName={entry.toolName}
             command={entry.command}
             reason={entry.reason}

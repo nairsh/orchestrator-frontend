@@ -778,3 +778,56 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 ## Batch 144 — Cache Key, Refresh State
 - models.ts: include auth presence in cache key (prevents stale user data on sign-in/out)
 - useWorkflows: added `refreshing` state so manual refreshes show UI feedback
+
+## Batch 145 — Keyboard Nav: DropdownMenu + SidebarAccount
+- DropdownMenu: triggerRef for focus restoration on close, aria-hidden when closed
+- SidebarAccount: full keyboard nav (ArrowDown/Up/Home/End/Escape), focus-first-on-open, aria-hidden
+
+## Batch 146 — PlusDropdown Keyboard Nav, BillingDashboard Dep, Dead Prop Cleanup
+- PlusDropdown: full keyboard nav (ArrowDown/Up/Home/End/Escape), triggerRef, focus-first-on-open
+- BillingDashboard: fixed stale useEffect dependency (config.baseUrl → config)
+- FeedItem: removed unused `onApproval` prop from interface + destructure
+- TaskFeed: stopped passing dead `onApproval` to FeedItem
+
+## Batch 147 — Per-Provider OAuth Timers, ProviderDialog Label A11y
+- ConnectorsTab: per-provider OAuth timers (Record instead of shared object)
+- ProviderDialog: added htmlFor + id on all 5 form labels
+
+## Batch 148 — Favicon/Image Error Fallbacks
+- WebSearchRenderer: Globe icon fallback on favicon load error
+- FetchUrlRenderer: Globe icon fallback on favicon load error
+- LandingPage: onError handler hides broken attachment images
+
+## Batch 149 — Lazy-Load Modals, Remove Redundant SSE Cleanup
+- AppModals: React.lazy() + Suspense for all 5 modals (SettingsModal, CommandPalette, TaskSearchDialog, KeyboardShortcutsOverlay, OnboardingModal) — reduces initial bundle
+- useWorkflowStream: removed redundant unmount cleanup (duplicated existing cleanup)
+
+## Batch 150 — TaskDetail Export/Cancel Fixes, Dead Prop Cleanup
+- TaskDetail: export/download wrapped in try-catch with toastApiError
+- TaskDetail: cancel confirmation gets role="alert", Escape handler with stopPropagation
+- TaskDetail: removed unused modelIconOverrides prop + import
+- TasksPage: removed 7 modelIconOverrides passes to TaskDetail
+
+## Batch 151 — Deep Audit 150: All 7 Findings Fixed (2 P1, 4 P2, 1 P3)
+- P1: chat history scoped by server+auth in localStorage (prevent cross-leak)
+- P1: ClarificationPanel honors allowCustom flag from server
+- P2: trace fetch failure no longer crashes workflow hydration (independent catch)
+- P2: invalidateModelsCache uses correct key format (ApiConfig instead of raw baseUrl)
+- P2: file preview race — re-check requestId after async blob/text read
+- P2: stop leaking URLs to Google favicon API — use origin/favicon.ico
+- P3: clear OAuth timeout timer on popup close (not just poll interval)
+
+## Batch 152 — A11y + UX Polish
+- Avatar: add role="img" + aria-label for screen readers
+- LandingPage: broken attachment images now show FileText icon via React state
+- LandingPage: focus-visible outlines on remove-attachment + sample prompt buttons
+
+## Batch 153 — SegmentedControl A11y, ThinkingIndicator Memo, Dedup
+- SegmentedControl: role=radiogroup + role=radio + aria-checked
+- ThinkingIndicator: wrapped in React.memo to prevent feed re-render thrashing
+- FetchUrlRenderer: reset faviconError state when source URL changes
+- TaskDetail: deduplicated 3x objective truncation into single truncatedObj
+
+## Batch 154 — Modal Focus Trap Improvements
+- Modal: consolidated focusable selector into single constant
+- Modal: exclude disabled buttons/inputs/selects/textareas from focus trap

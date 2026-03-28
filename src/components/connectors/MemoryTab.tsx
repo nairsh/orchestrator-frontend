@@ -82,7 +82,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
               try { await deleteMemory(config, id); setDeleteConfirmId(null); toastSuccess('Memory deleted'); void onRefresh(); }
               catch (err) { toastApiError(err, 'Couldn\'t delete this memory'); }
               finally { setDeleting(false); }
-            }}>{deleting ? 'Deleting…' : 'Delete'}</Button>
+            }}>{deleting ? <><Loader2 size={13} className="animate-spin" /> Deleting…</> : 'Delete'}</Button>
           </ModalFooter>
         </Modal>
       )}
@@ -116,7 +116,7 @@ export function MemoryTab({ memories, memoriesLoading, config, onRefresh }: Memo
                 toastSuccess('Saved'); setMemoryKey(''); setMemoryContent(''); setShowDialog(false); void onRefresh();
               } catch (err) { toastApiError(err, 'Couldn\'t save memory'); }
               finally { setSaving(false); }
-            }}>{saving ? 'Saving…' : 'Save memory'}</Button>
+            }}>{saving ? <><Loader2 size={13} className="animate-spin" /> Saving…</> : 'Save memory'}</Button>
           </ModalFooter>
         </Modal>
       )}

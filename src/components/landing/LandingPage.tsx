@@ -116,6 +116,8 @@ export function LandingPage({
       await onSubmit(text, selectedModel, contextFiles);
       setValue('');
       clearAttachments();
+    } catch {
+      // onSubmit handles its own error reporting; reset state silently
     } finally {
       submittingRef.current = false;
       setIsSubmitting(false);

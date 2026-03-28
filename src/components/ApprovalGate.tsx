@@ -6,16 +6,16 @@ import { toastApiError } from '../lib/toast';
 import { humanizeToolName } from '../lib/toolLabels';
 
 interface ApprovalGateProps {
-  taskId: string;
+  approvalId: string;
   toolName: string;
   command?: string;
   reason?: string;
   status: 'pending' | 'resolved';
-  onApprove?: (taskId: string) => void;
-  onReject?: (taskId: string) => void;
+  onApprove?: (approvalId: string) => void;
+  onReject?: (approvalId: string) => void;
 }
 
-export function ApprovalGate({ taskId, toolName, command, reason, status, onApprove, onReject }: ApprovalGateProps) {
+export function ApprovalGate({ approvalId, toolName, command, reason, status, onApprove, onReject }: ApprovalGateProps) {
   const isPending = status === 'pending';
   const [approving, setApproving] = useState<'approve' | 'reject' | null>(null);
 
@@ -65,7 +65,7 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
                 disabled={!!approving}
                 onClick={() => {
                   setApproving('approve');
-                  void Promise.resolve(onApprove(taskId)).catch((err) => toastApiError(err, 'Approval failed')).finally(() => setApproving(null));
+                  void Promise.resolve(onApprove(approvalId)).catch((err) => toastApiError(err, 'Approval failed')).finally(() => setApproving(null));
                 }}
                 className="gap-1.5 !bg-success-muted hover:!bg-success"
               >
@@ -78,7 +78,7 @@ export function ApprovalGate({ taskId, toolName, command, reason, status, onAppr
                 disabled={!!approving}
                 onClick={() => {
                   setApproving('reject');
-                  void Promise.resolve(onReject(taskId)).catch((err) => toastApiError(err, 'Rejection failed')).finally(() => setApproving(null));
+                  void Promise.resolve(onReject(approvalId)).catch((err) => toastApiError(err, 'Rejection failed')).finally(() => setApproving(null));
                 }}
                 className="gap-1.5"
               >
