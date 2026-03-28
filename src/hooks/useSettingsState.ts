@@ -21,7 +21,7 @@ import type {
   ModelPreferences,
 } from '../api/types';
 import type { ModelIconOverrides } from '../lib/modelIcons';
-import { toastApiError, toastInfo, toastSuccess } from '../lib/toast';
+import { toastApiError, toastConnector, toastInfo, toastSuccess } from '../lib/toast';
 
 const INFERRED_ICON_VALUE = '__inferred__';
 
@@ -160,14 +160,16 @@ export function useSettingsState({
 
   const handleValidateConnector = async (connectorId: string) => {
     setConnectorBusyId(connectorId);
-    try { await validateConnector(apiConfig, connectorId); toastSuccess('Connection refreshed'); await refreshConnectors(); }
+    const name = connectors.find((c) => c.id === connectorId)?.provider ?? 'Service';
+    try { await validateConnector(apiConfig, connectorId); toastConnector('verified', FORMAT_PROVIDER_NAME[name as ConnectorProvider] ?? name); await refreshConnectors(); }
     catch (err) { toastApiError(err, 'Couldn\'t refresh this connection'); }
     finally { setConnectorBusyId(null); }
   };
 
   const handleDisconnectConnector = async (connectorId: string) => {
     setConnectorBusyId(connectorId);
-    try { await disconnectConnector(apiConfig, connectorId); toastSuccess('Disconnected'); await refreshConnectors(); }
+    const name = connectors.find((c) => c.id === connectorId)?.provider ?? 'Service';
+    try { await disconnectConnector(apiConfig, connectorId); toastConnector('disconnected', FORMAT_PROVIDER_NAME[name as ConnectorProvider] ?? name); await refreshConnectors(); }
     catch (err) { toastApiError(err, 'Couldn\'t disconnect'); }
     finally { setConnectorBusyId(null); }
   };

@@ -3,7 +3,7 @@ import { useConfig } from './useConfig';
 import { useIsMobile } from './useIsMobile';
 import { createWorkflow, getModels } from '../api/client';
 import type { ContextFileUpload, ApiConfig } from '../api/client';
-import { toastApiError } from '../lib/toast';
+import { toastApiError, toastTaskCreated } from '../lib/toast';
 import { hasCompletedOnboarding } from '../components/OnboardingModal';
 import { useKeyboardShortcuts } from '../components/KeyboardShortcuts';
 import type { Screen, TaskNav, AppProps } from '../appTypes';
@@ -186,6 +186,7 @@ export function useAppState(props: AppProps) {
           orchestrator_model: model,
           ...(contextFiles.length > 0 ? { context_files: contextFiles } : {}),
         });
+      toastTaskCreated(objective, model);
       setActiveWorkflow({ id: result.workflow_id, objective });
       setRequestedTaskNav('tasks');
       setOpenTaskInFullView(true);

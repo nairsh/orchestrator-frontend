@@ -3,7 +3,7 @@ import { Loader2, RefreshCcw, Unplug } from 'lucide-react';
 import type { ApiConfig } from '../../api/client';
 import { disconnectConnector, startConnectorOAuth, validateConnector } from '../../api/client';
 import type { ConnectorProvider, ConnectorProviderInfo, ConnectorRecord } from '../../api/types';
-import { toastApiError, toastInfo, toastSuccess } from '../../lib/toast';
+import { toastApiError, toastConnector, toastInfo } from '../../lib/toast';
 import { Button } from '../ui';
 import { RelayEmpty } from '../shared/RelayEmpty';
 import { providerCopy, getConnectorSummary } from './connectorsHelpers';
@@ -94,7 +94,7 @@ export function ConnectorsTab({
                   <>
                     <Button variant="secondary" size="sm" disabled={busy} onClick={async () => {
                       setConnectorBusyId(connector.id);
-                      try { await validateConnector(config, connector.id); toastSuccess('Connection verified'); await onRefresh(); }
+                      try { await validateConnector(config, connector.id); toastConnector('verified', copy.title); await onRefresh(); }
                       catch (err) { toastApiError(err, 'Couldn\'t verify this connection'); }
                       finally { setConnectorBusyId(null); }
                     }}>{busy && connectorBusyId === connector.id ? 'Testing…' : 'Test connection'}</Button>
@@ -104,7 +104,7 @@ export function ConnectorsTab({
                         <Button variant="danger" size="sm" disabled={busy} onClick={async () => {
                           setDisconnectConfirmId(null);
                           setConnectorBusyId(connector.id);
-                          try { await disconnectConnector(config, connector.id); toastSuccess('Disconnected'); await onRefresh(); }
+                          try { await disconnectConnector(config, connector.id); toastConnector('disconnected', copy.title); await onRefresh(); }
                           catch (err) { toastApiError(err, 'Couldn\'t disconnect'); }
                           finally { setConnectorBusyId(null); }
                         }} className="h-5 px-2 text-[11px]">Yes</Button>

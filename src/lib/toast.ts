@@ -128,6 +128,43 @@ export function toastCredits(billing: {
   });
 }
 
+/** Task created toast — shows model and truncated objective */
+export function toastTaskCreated(objective: string, model?: string) {
+  const truncated = objective.length > 80 ? objective.slice(0, 80) + '…' : objective;
+  const dark = isDarkMode();
+  const sub = dark ? '#b0aca6' : '#706b64';
+
+  sileo.success({
+    ...TOAST_BASE,
+    title: 'Task started',
+    duration: 3000,
+    fill: toastFill('#ffffff', '#282624'),
+    description: createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '2px' } },
+      createElement('span', { style: { fontSize: '13px', color: sub, lineHeight: '1.4' } }, truncated),
+      model
+        ? createElement('span', { style: { fontSize: '11px', color: dark ? '#8a8580' : '#918b84' } }, `Model: ${model}`)
+        : null,
+    ),
+  });
+}
+
+/** Connector status toast — shows connector name with status detail */
+export function toastConnector(action: 'connected' | 'disconnected' | 'verified', connectorName: string) {
+  const titles: Record<string, string> = {
+    connected: 'Connected',
+    disconnected: 'Disconnected',
+    verified: 'Connection verified',
+  };
+  const method = action === 'disconnected' ? 'info' : 'success';
+  sileo[method]({
+    ...TOAST_BASE,
+    title: titles[action],
+    duration: 2500,
+    fill: toastFill('#ffffff', '#282624'),
+    description: connectorName,
+  });
+}
+
 export function toastApiError(err: unknown, title = 'Something went wrong') {
   const raw = err instanceof Error ? err.message : String(err);
   const normalized = humanizeError(raw);
@@ -140,7 +177,7 @@ declare global {
     __toast?: typeof devToastExports;
   }
 }
-const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, toastRich, toastCredits, sileo };
+const devToastExports = { toastInfo, toastSuccess, toastWarning, toastError, toastRich, toastCredits, toastTaskCreated, toastConnector, sileo };
 if (import.meta.env.DEV) {
   window.__toast = devToastExports;
 }

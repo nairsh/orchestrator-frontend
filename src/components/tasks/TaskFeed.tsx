@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDown, ChevronDown } from 'lucide-react';
+import { ArrowDown, ChevronDown, GitFork } from 'lucide-react';
 import type { FeedEntry } from '../../api/types';
 import { FeedItem } from './FeedItem';
 import { ThinkingIndicator } from './feed/ThinkingIndicator';
@@ -39,6 +39,7 @@ function ParallelToolCalls({
         aria-expanded={open}
         aria-label={`${open ? 'Collapse' : 'Expand'} ${entries.length} parallel actions`}
       >
+        <GitFork size={15} className="text-muted flex-shrink-0 -rotate-90" />
         <span className="font-sans text-sm text-muted">
           Running {entries.length} actions in parallel
         </span>
@@ -53,7 +54,7 @@ function ParallelToolCalls({
         className="overflow-hidden transition-all duration-slow"
         style={{ maxHeight: open ? 1400 : 0, opacity: open ? 1 : 0 }}
       >
-        <div className="flex flex-col gap-3 ml-[22px]">
+        <div className="flex flex-col gap-3 ml-6 border-l border-border-subtle/60 pl-3">
           {entries.map((entry, idx) => (
             <FeedItem
               key={`${entry.id}:${idx}`}

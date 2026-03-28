@@ -4,7 +4,7 @@ import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { TaskItem } from './TaskItem';
 import { createWorkflow } from '../../api/client';
-import { toastApiError, toastError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
+import { toastApiError, toastError, toastInfo, toastSuccess, toastTaskCreated, toastWarning } from '../../lib/toast';
 import { useWorkflowMeta } from '../../hooks/useWorkflowMeta';
 import type { WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { useBillingBalance } from '../../hooks/useBillingBalance';
@@ -145,6 +145,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
         orchestrator_model: selectedModel,
         ...(contextFiles.length > 0 ? { context_files: contextFiles } : {}),
       });
+      toastTaskCreated(objective, selectedModel);
       onRefresh();
       onSelect(result.workflow_id, objective);
       setAttachments([]);

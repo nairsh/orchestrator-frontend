@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Repeat2, ChevronDown, Check, CircleAlert, Loader2 } from 'lucide-react';
+import { GitFork, ChevronDown, Check, CircleAlert, Loader2 } from 'lucide-react';
 import { normalizeStatus, taskActivityLabel, toolIconForName } from './feedHelpers';
 
 interface Task {
@@ -37,7 +37,7 @@ export function FeedTaskGroup({
         aria-expanded={open}
         aria-label={`${headerLabel} — ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'}`}
       >
-        <Repeat2 size={16} className="text-muted flex-shrink-0" />
+        <GitFork size={16} className="text-muted flex-shrink-0 -rotate-90" />
         <span className="font-sans text-base text-muted">{headerLabel}</span>
         <ChevronDown
           size={15}
@@ -50,12 +50,12 @@ export function FeedTaskGroup({
         className="overflow-hidden transition-all duration-slow"
         style={{ maxHeight: open ? 1200 : 0, opacity: open ? 1 : 0 }}
       >
-        <div className="flex flex-col gap-1 ml-6">
+        <div className="flex flex-col gap-1 ml-6 border-l border-border-subtle/60 pl-3">
           {tasks.map((task) => {
             const status = normalizeStatus(task.status);
             const recentToolCalls = Array.isArray(task.recent_tool_calls) ? task.recent_tool_calls : [];
             const lastTool = recentToolCalls[recentToolCalls.length - 1];
-            const Icon = lastTool ? toolIconForName(lastTool) : Repeat2;
+            const Icon = lastTool ? toolIconForName(lastTool) : GitFork;
             const activity = taskActivityLabel(task);
 
             return (
