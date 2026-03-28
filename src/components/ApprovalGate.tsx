@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Check, X, ShieldAlert, Server, Loader2 } from 'lucide-react';
 import { Highlighter, Tag } from '@lobehub/ui';
 import { Button } from './ui/Button';
@@ -18,6 +18,18 @@ interface ApprovalGateProps {
 export function ApprovalGate({ approvalId, toolName, command, reason, status, onApprove, onReject }: ApprovalGateProps) {
   const isPending = status === 'pending';
   const [approving, setApproving] = useState<'approve' | 'reject' | null>(null);
+
+  const handleApprove = useCallback(() => {
+    if (!onApprove) return;
+    setApproving('approve');
+    void Promise.resolve(onApprove(approvalId)).catch((err) => toastApiError(err, 'Approval failed')).finally(() => setApproving(null));
+  }, [approvalId, onApprove]);
+
+  const handleReject = useCallback(() => {
+    if (!onReject) return;
+    setApproving('reject');
+    void Promise.resolve(onReject(approvalId)).catch((err) => toastApiError(err, 'Rejection failed')).finally(() => setApproving(null));
+  }, [approvalId, onReject]);
 
   return (
     <div className={`rounded-xl border px-4 py-3 ${
@@ -63,10 +75,7 @@ export function ApprovalGate({ approvalId, toolName, command, reason, status, on
                 variant="primary"
                 size="sm"
                 disabled={!!approving}
-                onClick={() => {
-                  setApproving('approve');
-                  void Promise.resolve(onApprove(approvalId)).catch((err) => toastApiError(err, 'Approval failed')).finally(() => setApproving(null));
-                }}
+                onClick={handleApprove}
                 className="gap-1.5 !bg-success-muted hover:!bg-success"
               >
                 {approving === 'approve' ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
@@ -76,10 +85,7 @@ export function ApprovalGate({ approvalId, toolName, command, reason, status, on
                 variant="danger"
                 size="sm"
                 disabled={!!approving}
-                onClick={() => {
-                  setApproving('reject');
-                  void Promise.resolve(onReject(approvalId)).catch((err) => toastApiError(err, 'Rejection failed')).finally(() => setApproving(null));
-                }}
+                onClick={handleReject}
                 className="gap-1.5"
               >
                 {approving === 'reject' ? <Loader2 size={14} className="animate-spin" /> : <X size={14} />}

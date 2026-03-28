@@ -11,6 +11,9 @@ import { Button, Select } from '../ui';
 
 const INFERRED_ICON_VALUE = '__inferred__';
 
+/** Static portion of icon Select options (all MODEL_ICON_DEFINITIONS entries) */
+const ICON_SELECT_OPTIONS = MODEL_ICON_DEFINITIONS.map((def) => ({ value: def.key, label: def.label }));
+
 export interface SettingsIconsInlinePanelProps {
   sortedModels: ModelInfo[];
   modelsStatus: 'idle' | 'loading' | 'error';
@@ -77,7 +80,7 @@ export function SettingsIconsInlinePanel({
                     aria-label={`Icon for ${model.display_name}`}
                     options={[
                       { value: INFERRED_ICON_VALUE, label: `Auto (${autoIcon})` },
-                      ...MODEL_ICON_DEFINITIONS.map((def) => ({ value: def.key, label: def.label })),
+                      ...ICON_SELECT_OPTIONS,
                     ]}
                     className="w-[200px] py-1.5 text-[12.5px] flex-shrink-0"
                   />

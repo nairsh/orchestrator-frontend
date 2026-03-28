@@ -831,3 +831,29 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 ## Batch 154 — Modal Focus Trap Improvements
 - Modal: consolidated focusable selector into single constant
 - Modal: exclude disabled buttons/inputs/selects/textareas from focus trap
+
+## Batch 155 — API Contract Clarity + UX Polish
+- ApprovalGate: renamed `taskId` prop → `approvalId` throughout (interface, destructure, 2 callback sites)
+- FeedItem: updated to pass `approvalId` instead of `taskId`
+- LandingPage: added catch block to handleSubmit (prevents unhandled rejection)
+- MemoryTab: Loader2 spinner on delete + save buttons
+- SchedulesTab: Loader2 spinner on run/delete/create buttons
+
+## Batch 156 — Accessibility: Icon Labels + Focus-Visible
+- NotificationCenter: title attrs on mark-all-read and clear-all ActionIcons
+- TaskItem: focus-visible outline for keyboard navigation
+
+## Batch 157 — Performance: Memoize + Hoist Constants
+- SchedulesTab: getScheduleObjective helper (avoids JSON.parse in render loop)
+- SchedulesTab: hoisted INTERVAL_OPTIONS/OVERLAP_OPTIONS to module-level constants
+- ChatPrimitives: useMemo for messages→timelineItems in ChatMessageArea
+
+## Batch 158 — Dedup: extractDomain Helper
+- feedHelpers.ts: extracted extractDomain(url) utility function
+- Replaced 3 inline copies of `new URL(url).hostname.replace(/^www\./, '')`
+- Consistent error handling: falls back to raw URL on parse failure
+
+## Batch 159 — Dedup: truncate() Utility
+- Created lib/strings.ts with `truncate(text, maxLen)` helper
+- Replaced 9 inline truncation patterns across 7 files:
+  toast.ts (3), WorkflowProgress, CommandPalette, TaskDetail, TaskItem, feedHelpers, ChatPrimitives
