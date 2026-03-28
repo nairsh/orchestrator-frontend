@@ -65,7 +65,7 @@ export function SettingsModal({
   };
 
   return (
-    <Modal onClose={onClose} maxWidth="max-w-6xl" className="border border-border-light bg-surface shadow-modal">
+    <Modal onClose={onClose} maxWidth="max-w-6xl" className="border border-border-light bg-surface shadow-modal" ariaTitle="Workspace Settings">
       <ModalHeader title="Workspace Settings" onClose={onClose}>
         <Tag size="small">Settings</Tag>
       </ModalHeader>

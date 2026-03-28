@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
 /* ─── Modal ───
@@ -13,12 +13,15 @@ interface ModalProps {
   maxWidth?: string;
   /** Additional className on the inner card. */
   className?: string;
+  /** Accessible title for screen readers (used via aria-labelledby). */
+  ariaTitle?: string;
 }
 
-export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '' }: ModalProps) {
+export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '', ariaTitle }: ModalProps) {
   const [visible, setVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<Element | null>(null);
+  const titleId = useId();
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement;
@@ -86,6 +89,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
         ref={cardRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={ariaTitle ? titleId : undefined}
         className={[
           'bg-surface rounded-2xl shadow-modal border border-border-subtle w-full overflow-hidden transition-all duration-200',
           maxWidth,
@@ -95,6 +99,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
           className,
         ].join(' ')}
       >
+        {ariaTitle && <span id={titleId} className="sr-only">{ariaTitle}</span>}
         {children}
       </div>
     </div>

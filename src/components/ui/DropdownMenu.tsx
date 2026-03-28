@@ -1,9 +1,9 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
 /* ─── DropdownMenu ───
  * Shared primitive for all dropdown/popover menus.
- * Handles open/close state, click-outside, animation, and positioning.
+ * Handles open/close state, click-outside, animation, keyboard nav, and positioning.
  */
 
 interface DropdownMenuProps {
@@ -37,16 +37,60 @@ export function DropdownMenu({
 }: DropdownMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useClickOutside(ref, () => setOpen(false));
 
   const toggle = () => setOpen((v) => !v);
 
+  // Focus first menu item on open, handle keyboard navigation
+  useEffect(() => {
+    if (!open || !menuRef.current) return;
+    const items = menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    if (items.length > 0) items[0].focus();
+  }, [open]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!open) return;
+    const menu = menuRef.current;
+    if (!menu) return;
+    const items = Array.from(menu.querySelectorAll<HTMLElement>('[role="menuitem"]'));
+    const idx = items.indexOf(document.activeElement as HTMLElement);
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault();
+        const next = idx < items.length - 1 ? idx + 1 : 0;
+        items[next]?.focus();
+        break;
+      }
+      case 'ArrowUp': {
+        e.preventDefault();
+        const prev = idx > 0 ? idx - 1 : items.length - 1;
+        items[prev]?.focus();
+        break;
+      }
+      case 'Home':
+        e.preventDefault();
+        items[0]?.focus();
+        break;
+      case 'End':
+        e.preventDefault();
+        items[items.length - 1]?.focus();
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setOpen(false);
+        break;
+    }
+  }, [open]);
+
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={ref} className={`relative ${className}`} onKeyDown={handleKeyDown}>
       {trigger({ open, toggle })}
 
       <div
+        ref={menuRef}
         className={[
           'absolute z-50 bg-surface border border-border-light rounded-xl shadow-dropdown py-1.5',
           direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',

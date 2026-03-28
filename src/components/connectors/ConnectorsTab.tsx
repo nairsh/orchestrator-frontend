@@ -75,8 +75,15 @@ export function ConnectorsTab({
                   setConnectorBusyProvider(provider.provider);
                   try {
                     const { authorize_url } = await startConnectorOAuth(config, provider.provider, { frontend_origin: window.location.origin });
-                    window.open(authorize_url, '_blank', 'noopener,noreferrer,width=620,height=760');
-                    toastInfo(`${copy.title} sign-in opened`, 'Sign in to complete the connection, then click Refresh.');
+                    const popup = window.open(authorize_url, '_blank', 'noopener,noreferrer,width=620,height=760');
+                    toastInfo(`${copy.title} sign-in opened`, 'Sign in to complete the connection. We\'ll refresh automatically.');
+                    // Poll for popup closure and auto-refresh
+                    if (popup) {
+                      const pollId = setInterval(() => {
+                        try { if (popup.closed) { clearInterval(pollId); void onRefresh(); } } catch { /* cross-origin */ }
+                      }, 1000);
+                      setTimeout(() => clearInterval(pollId), 120_000);
+                    }
                   } catch (err) { toastApiError(err, `Couldn't connect to ${copy.title}`); }
                   finally { setConnectorBusyProvider(null); }
                 }}>

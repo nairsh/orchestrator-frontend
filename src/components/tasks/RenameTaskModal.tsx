@@ -17,7 +17,7 @@ export function RenameTaskModal({
   inputRef,
 }: RenameTaskModalProps) {
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} ariaTitle="Rename task">
       <ModalHeader title="Rename task" onClose={onClose} />
       <ModalBody>
         <div className="space-y-3">
