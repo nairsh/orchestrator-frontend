@@ -11,8 +11,18 @@ const STORAGE_KEY = 'relay-chat-history';
 
 function loadPersistedMessages(): ChatMessage[] {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as ChatMessage[]) : [];
+    // Try localStorage first (persistent), fall back to sessionStorage (legacy)
+    const raw = localStorage.getItem(STORAGE_KEY) ?? sessionStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const msgs = JSON.parse(raw) as ChatMessage[];
+      // Migrate from sessionStorage to localStorage
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        localStorage.setItem(STORAGE_KEY, raw);
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+      return msgs;
+    }
+    return [];
   } catch {
     return [];
   }
@@ -20,9 +30,8 @@ function loadPersistedMessages(): ChatMessage[] {
 
 function persistMessages(messages: ChatMessage[]) {
   try {
-    // Keep only the last 50 messages to avoid storage limits
     const trimmed = messages.slice(-50);
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
   } catch { /* quota exceeded — silently ignore */ }
 }
 

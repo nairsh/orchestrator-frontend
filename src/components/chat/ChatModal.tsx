@@ -65,7 +65,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   }, [messages.length, draftAssistant.length, streaming]);
 
   const handleClose = () => {
-    abort(false);
+    abort(true); // Preserve partial AI response on close
     if (fullscreen) {
       onClose();
     } else {
@@ -86,17 +86,15 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
     <>
       <ChatHeader title="AI Chat" onClose={handleClose} tone={fullscreen ? 'warm' : 'surface'} variant={fullscreen ? 'fullscreen' : 'modal'}>
         <div className="flex items-center gap-1.5">
-          {messages.length > 0 && (
-            <button
-              type="button"
-              onClick={clearHistory}
-              disabled={streaming}
-              title="New chat"
-              className="flex items-center justify-center h-7 w-7 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <RotateCcw size={14} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={clearHistory}
+            disabled={streaming || messages.length === 0}
+            title="New chat"
+            className="flex items-center justify-center h-7 w-7 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            <RotateCcw size={14} />
+          </button>
           <ModelDropdown
             config={config}
             selected={model}
