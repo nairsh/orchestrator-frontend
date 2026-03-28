@@ -211,7 +211,6 @@ export function TasksPage({
             fullView
               activeModel={selectedModel}
               animateInputEntry={animateFromLanding}
-              modelIconOverrides={modelIconOverrides}
             />
         ) : isCompactTaskLayout ? (
           chatOpen ? (
@@ -219,7 +218,6 @@ export function TasksPage({
               config={config}
               onClose={() => setChatOpen(false)}
               fullscreen
-              modelIconOverrides={modelIconOverrides}
             />
           ) : selectedId ? (
             <TaskDetail
@@ -231,7 +229,6 @@ export function TasksPage({
               onOpenFullChat={() => setTaskFullView(true)}
               onRefreshList={refresh}
               activeModel={selectedModel}
-              modelIconOverrides={modelIconOverrides}
             />
           ) : (
             <div className="flex flex-1 min-w-0">
@@ -248,7 +245,6 @@ export function TasksPage({
                   error={workflowListError}
                   statusFilter={statusFilter}
                   onStatusFilterChange={setStatusFilter}
-                  modelIconOverrides={modelIconOverrides}
                   onOpenChat={() => {
                     setChatOpen(true);
                     setTaskFullView(false);
@@ -278,7 +274,6 @@ export function TasksPage({
                 error={workflowListError}
                 statusFilter={statusFilter}
                 onStatusFilterChange={setStatusFilter}
-                modelIconOverrides={modelIconOverrides}
               onOpenChat={() => {
                 setChatOpen(true);
                 setTaskFullView(false);
@@ -300,7 +295,6 @@ export function TasksPage({
                 config={config}
                 onClose={() => setChatOpen(false)}
                 fullscreen
-                modelIconOverrides={modelIconOverrides}
               />
             ) : selectedId ? (
               <TaskDetail
@@ -312,7 +306,6 @@ export function TasksPage({
                 onOpenFullChat={() => setTaskFullView(true)}
                 onRefreshList={refresh}
                 activeModel={selectedModel}
-                modelIconOverrides={modelIconOverrides}
               />
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center gap-3">

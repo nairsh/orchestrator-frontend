@@ -14,7 +14,6 @@ import { feedToMarkdown, downloadFile } from '../../lib/exportConversation';
 import { humanizeModelName } from '../../lib/modelNames';
 import { useNotifications } from '../../hooks/useNotifications';
 import { desktopNotify } from '../../lib/desktopNotify';
-import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 function formatDuration(startedAt?: string | null, endedAt?: string | null): string | null {
   if (!startedAt || !endedAt) return null;
@@ -40,7 +39,6 @@ interface TaskDetailProps {
   fullView?: boolean;
   activeModel?: string;
   animateInputEntry?: boolean;
-  modelIconOverrides?: ModelIconOverrides;
   onRefreshList?: () => void;
 }
 
@@ -53,7 +51,6 @@ export function TaskDetail({
   fullView = false,
   activeModel = '',
   animateInputEntry = false,
-  modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
   const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, retryConnection, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
@@ -187,10 +184,14 @@ export function TaskDetail({
                 size="sm"
                 label="Export conversation"
                 onClick={() => {
-                  const md = feedToMarkdown(objective, feed);
-                  const slug = objective.slice(0, 40).replace(/[^a-zA-Z0-9]+/g, '-').replace(/-$/, '');
-                  downloadFile(md, `${slug}.md`);
-                  toastSuccess('Conversation exported');
+                  try {
+                    const md = feedToMarkdown(objective, feed);
+                    const slug = objective.slice(0, 40).replace(/[^a-zA-Z0-9]+/g, '-').replace(/-$/, '');
+                    downloadFile(md, `${slug}.md`);
+                    toastSuccess('Conversation exported');
+                  } catch (err) {
+                    toastApiError(err, 'Couldn\'t export conversation');
+                  }
                 }}
               >
                 <Download size={14} />
@@ -216,7 +217,8 @@ export function TaskDetail({
               {cancelConfirm ? (
                 <div
                   className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20"
-                  onKeyDown={(e) => { if (e.key === 'Escape') setCancelConfirm(false); }}
+                  role="alert"
+                  onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setCancelConfirm(false); } }}
                 >
                   <span className="text-xs text-danger font-medium">Cancel task?</span>
                   <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => void handleCancel()} className="h-5 px-2 text-[11px]">
