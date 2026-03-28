@@ -1,10 +1,11 @@
-import { Coins, MessageSquare, Search } from 'lucide-react';
+import { Coins, Loader2, MessageSquare, Search } from 'lucide-react';
 import { StatusFilterDropdown, type WorkflowStatusFilter } from '../dropdowns/StatusFilterDropdown';
 import { Button, IconButton, SearchInput } from '../ui';
 import { toastInfo, toastCredits } from '../../lib/toast';
 
 interface BillingSnapshot {
   data: { tier: string; credits_balance: number; usage_this_period?: { credits_used: number; request_count: number } } | null | undefined;
+  loading: boolean;
   error: unknown;
 }
 
@@ -71,7 +72,11 @@ export function TaskListHeader({
             >
               <Coins size={14} className="text-muted" />
               <span className="font-sans text-sm font-medium text-primary">
-                {billing.data ? `${billing.data.credits_balance.toFixed(0)} credits` : '—'}
+                {billing.loading && !billing.data ? (
+                  <Loader2 size={12} className="animate-spin inline" />
+                ) : billing.data ? (
+                  `${billing.data.credits_balance.toFixed(0)} credits`
+                ) : '—'}
               </span>
             </Button>
 

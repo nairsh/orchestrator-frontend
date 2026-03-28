@@ -49,6 +49,14 @@ export function SettingsRoutingInlinePanel({
           </div>
         )}
 
+        {isSignedIn && preferencesStatus === 'loading' && !modelPreferences && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 animate-pulse h-12" />
+            <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 animate-pulse h-12" />
+            <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 animate-pulse h-12" />
+          </div>
+        )}
+
         {isSignedIn && modelPreferences && (
           <div className="space-y-6">
             <div>

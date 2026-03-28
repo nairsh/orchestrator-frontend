@@ -58,7 +58,13 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
           </div>
         </div>
 
-        {schedules.length === 0 ? (
+        {schedulesLoading && schedules.length === 0 ? (
+          <div className="grid gap-3 lg:grid-cols-2">
+            {[1, 2].map((i) => (
+              <div key={i} className="rounded-[24px] border border-border-light bg-surface p-6 animate-pulse h-24" />
+            ))}
+          </div>
+        ) : schedules.length === 0 ? (
           <RelayEmpty
             icon={<CalendarClock size={26} className="text-muted" />}
             title="No schedules"

@@ -40,7 +40,15 @@ export function SettingsIconsInlinePanel({
           </div>
         )}
 
-        {sortedModels.length === 0 && modelsStatus !== 'error' && (
+        {modelsStatus === 'loading' && sortedModels.length === 0 && (
+          <div className="space-y-2">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 rounded-lg border border-border-light bg-surface-secondary px-4 py-3 animate-pulse h-12" />
+            ))}
+          </div>
+        )}
+
+        {sortedModels.length === 0 && modelsStatus !== 'error' && modelsStatus !== 'loading' && (
           <div className="rounded-lg border border-border-light bg-surface-secondary px-4 py-3 text-[13px] text-muted">
             No AI options available yet.
           </div>

@@ -27,7 +27,13 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
             </Button>
           </div>
 
-          {teams.length === 0 ? (
+          {teamsStatus === 'loading' && teams.length === 0 ? (
+            <div className="grid gap-3 lg:grid-cols-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="rounded-[22px] border border-border-light bg-surface p-6 animate-pulse h-20" />
+              ))}
+            </div>
+          ) : teams.length === 0 ? (
             <RelayEmpty
               icon={<Users size={26} className="text-muted" />}
               title="No teams"

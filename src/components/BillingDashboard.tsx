@@ -5,6 +5,7 @@ import type { ApiConfig } from '../api/client';
 import type { BillingUsageEntry, BillingTransaction } from '../api/types';
 import { getBillingUsage, getBillingTransactions, getBillingBalance } from '../api/client';
 import { Button } from './ui/Button';
+import { toastWarning } from '../lib/toast';
 
 import { humanizeModelName } from '../lib/modelNames';
 import { formatDateTimeShort } from '../lib/time';
@@ -43,7 +44,12 @@ export function BillingDashboard({ config }: BillingDashboardProps) {
       if (usageRes.status === 'fulfilled') setUsage(usageRes.value.usage ?? []);
       if (txRes.status === 'fulfilled') setTransactions(txRes.value.transactions ?? []);
       const allFailed = balRes.status === 'rejected' && usageRes.status === 'rejected' && txRes.status === 'rejected';
-      if (allFailed) setError('Couldn\u2019t load billing data. Check your server connection and try again.');
+      if (allFailed) {
+        setError('Couldn\u2019t load billing data. Check your server connection and try again.');
+      } else {
+        const anyFailed = balRes.status === 'rejected' || usageRes.status === 'rejected' || txRes.status === 'rejected';
+        if (anyFailed) toastWarning('Partial data loaded', 'Some billing sections couldn\u2019t be loaded.');
+      }
     } catch {
       setError('Couldn\u2019t load billing data. Check your server connection and try again.');
     } finally {
