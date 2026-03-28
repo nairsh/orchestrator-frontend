@@ -9,6 +9,7 @@ const POLL_INTERVAL = 5000;
 export function useWorkflows(config: ApiConfig, enabled: boolean, status?: string) {
   const [workflows, setWorkflows] = useState<WorkflowSummary[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const requestIdRef = useRef(0);
@@ -57,8 +58,9 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
   }, [fetch_, enabled, config.hasAuth]);
 
   const refresh = useCallback(() => {
-    void fetch_();
+    setRefreshing(true);
+    void fetch_().finally(() => setRefreshing(false));
   }, [fetch_]);
 
-  return { workflows, loading, error, refresh };
+  return { workflows, loading, refreshing, error, refresh };
 }

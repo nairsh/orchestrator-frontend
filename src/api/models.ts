@@ -8,7 +8,8 @@ const pendingModelsRequests = new Map<string, Promise<ModelsResponse>>();
 const MODELS_CACHE_TTL_MS = 30_000;
 
 export async function getModels(config: ApiConfig): Promise<ModelsResponse> {
-  const key = config.baseUrl;
+  // Include auth in cache key so sign-in/out doesn't serve stale user-specific data
+  const key = `${config.baseUrl}|${config.hasAuth ? 'auth' : 'anon'}`;
 
   // Return cached data if fresh
   const cached = modelsCache.get(key);
