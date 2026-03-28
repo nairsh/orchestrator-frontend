@@ -44,8 +44,12 @@ export function useFilesPageState(
   }, [files, filter]);
 
   const filteredWorkflows = useMemo(() => {
-    return workflows.slice(0, 20);
-  }, [workflows]);
+    const q = filter.trim().toLowerCase();
+    if (!q) return workflows;
+    return workflows.filter((w) =>
+      w.objective?.toLowerCase().includes(q) || w.id.toLowerCase().includes(q)
+    );
+  }, [workflows, filter]);
 
   const selectedDocument = useMemo(
     () => (selectedDocumentId ? documents.find((document) => document.id === selectedDocumentId) ?? null : null),

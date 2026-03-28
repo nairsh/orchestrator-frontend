@@ -2,13 +2,12 @@ import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { FileText, X, ArrowUp, ArrowUpRight, Loader2 } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
+import { useFileAttachments } from '../../hooks/useFileAttachments';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
 import { PlusDropdown } from '../dropdowns/PlusDropdown';
 import { Sidebar } from '../layout/Sidebar';
 import { BrandMark } from '../branding/Brand';
 import { Textarea } from '../ui/Input';
-import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES, MAX_TOTAL_CONTEXT_BYTES } from '../../lib/files';
-import { toastError, toastWarning } from '../../lib/toast';
 import type { ModelIconOverrides } from '../../lib/modelIcons';
 
 interface LandingPageProps {
@@ -50,7 +49,7 @@ export function LandingPage({
 }: LandingPageProps) {
   const [value, setValue] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
-  const [attachments, setAttachments] = useState<Array<ContextFileUpload & { id: string; size: number }>>([]);
+  const { attachments, contextFiles, handleUploadFiles, removeAttachment, clearAttachments } = useFileAttachments();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const apiConfig: ApiConfig = config;
@@ -104,36 +103,6 @@ export function LandingPage({
     return () => window.removeEventListener('relay:focus-input', handler);
   }, []);
 
-  const contextFiles = useMemo(() => attachments.map(({ id: _id, size: _size, ...rest }) => rest), [attachments]);
-
-  const handleUploadFiles = async (files: File[]) => {
-    let runningTotal = attachments.reduce((sum, a) => sum + a.size, 0);
-    for (const file of files) {
-      if (file.size > MAX_CONTEXT_FILE_BYTES) {
-        toastError('File too large', `${file.name} exceeds ${Math.round(MAX_CONTEXT_FILE_BYTES / (1024 * 1024))}MB.`);
-        continue;
-      }
-      if (runningTotal + file.size > MAX_TOTAL_CONTEXT_BYTES) {
-        toastWarning('Total file size too large', 'Remove some files before adding more.');
-        break;
-      }
-
-      try {
-        const upload = await fileToContextUpload(file);
-        runningTotal += file.size;
-        setAttachments((prev) => [
-          ...prev,
-          {
-            ...upload,
-            id: crypto.randomUUID(),
-          },
-        ]);
-      } catch (err) {
-        toastError('Upload failed', err instanceof Error ? err.message : 'Something went wrong — try again.');
-      }
-    }
-  };
-
   const handleSubmit = async () => {
     const text = value.trim();
     if (!text) return;
@@ -143,7 +112,7 @@ export function LandingPage({
     try {
       await onSubmit(text, selectedModel, contextFiles);
       setValue('');
-      setAttachments([]);
+      clearAttachments();
     } finally {
       setIsSubmitting(false);
     }
@@ -222,7 +191,7 @@ export function LandingPage({
                       </div>
                       <button
                         type="button"
-                        onClick={() => setAttachments((prev) => prev.filter((x) => x.id !== a.id))}
+                        onClick={() => removeAttachment(a.id)}
                         className="h-6 w-6 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors duration-200 cursor-pointer"
                         aria-label={`Remove ${a.filename}`}
                       >

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { useState, useRef, useEffect, useLayoutEffect, type ReactNode } from 'react';
 import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Square, AlertCircle, RotateCcw } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
@@ -262,10 +262,9 @@ export function ChatInput({
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-focus on mount
-  useEffect(() => {
-    const t = setTimeout(() => textareaRef.current?.focus(), 100);
-    return () => clearTimeout(t);
+  // Auto-focus on mount — useLayoutEffect fires before paint so no flash of unfocused state
+  useLayoutEffect(() => {
+    textareaRef.current?.focus();
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
