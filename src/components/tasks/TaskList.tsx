@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Empty } from '@lobehub/ui';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
@@ -110,10 +110,20 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
     return () => cancelAnimationFrame(t);
   }, [renameId]);
 
-  const openRename = (wf: WorkflowSummary) => {
+  const openRename = useCallback((wf: WorkflowSummary) => {
     setRenameId(wf.id);
     setRenameValue(getDisplayName(wf.id) ?? wf.objective);
-  };
+  }, [getDisplayName]);
+
+  const handleItemClick = useCallback((id: string, objective: string) => {
+    onSelect(id, objective);
+  }, [onSelect]);
+
+  const handleItemPin = useCallback((id: string) => {
+    const wasPinned = isPinned(id);
+    togglePin(id);
+    toastSuccess(wasPinned ? 'Unpinned' : 'Pinned');
+  }, [isPinned, togglePin]);
 
   const closeRename = () => { setRenameId(null); };
 
@@ -232,17 +242,13 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
                   workflow={wf}
                   nowTs={nowTs}
                   isSelected={selectedId === wf.id}
-                  onClick={() => onSelect(wf.id, wf.objective)}
+                  onClickId={handleItemClick}
                   config={config}
                   onDeleted={onRefresh}
                   title={getDisplayName(wf.id) ?? wf.objective}
                   isPinned={isPinned(wf.id)}
-                  onPin={() => {
-                    const wasPinned = isPinned(wf.id);
-                    togglePin(wf.id);
-                    toastSuccess(wasPinned ? 'Unpinned' : 'Pinned');
-                  }}
-                  onRename={() => openRename(wf)}
+                  onPinId={handleItemPin}
+                  onRenameId={openRename}
                 />
                 </div>
               ))}

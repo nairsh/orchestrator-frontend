@@ -75,7 +75,10 @@ export function TaskSearchDialog({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'Tab') {
+        // Trap focus within dialog — only the search input is focusable
+        e.preventDefault();
+      } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         if (filtered.length > 0) setSelectedIndex((prev) => Math.min(prev + 1, filtered.length - 1));
       } else if (e.key === 'ArrowUp') {

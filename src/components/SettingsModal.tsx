@@ -145,7 +145,11 @@ export function SettingsModal({
                     )}
                     <div className="rounded-2xl border border-border-light bg-surface-secondary p-4">
                       <div className="text-xs uppercase tracking-[0.18em] text-muted">AI Options</div>
-                      <div className="mt-2 text-3xl font-semibold tracking-tight text-primary">{settings.models.length}</div>
+                      {settings.modelsStatus === 'loading' && settings.models.length === 0 ? (
+                        <div className="mt-2 h-9 w-12 rounded-lg bg-surface-tertiary animate-pulse" />
+                      ) : (
+                        <div className="mt-2 text-3xl font-semibold tracking-tight text-primary">{settings.models.length}</div>
+                      )}
                       <div className="mt-1 text-sm text-secondary">AI options available</div>
                     </div>
                   </div>

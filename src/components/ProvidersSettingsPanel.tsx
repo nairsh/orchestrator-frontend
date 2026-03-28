@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { createProvider, deleteProvider, getProviderPresets, listProviders, updateProvider } from '../api/client';
 import type { ApiConfig } from '../api/client';
 import type { ApiProvider, ProviderPreset } from '../api/types';
-import { toastApiError, toastSuccess } from '../lib/toast';
+import { toastApiError, toastSuccess, toastWarning } from '../lib/toast';
 import { Button } from './ui';
 import { ProviderDialog } from './providers/ProviderDialog';
 import { DeleteProviderModal } from './providers/DeleteProviderModal';
@@ -34,7 +34,10 @@ export function ProvidersSettingsPanel({ config, isSignedIn }: ProvidersSettings
     try {
       const [providerList, presetMap] = await Promise.all([
         listProviders(config),
-        getProviderPresets(config).catch(() => DEFAULT_PRESETS),
+        getProviderPresets(config).catch(() => {
+          toastWarning('Using default presets', 'Custom presets could not be loaded.');
+          return DEFAULT_PRESETS;
+        }),
       ]);
       setProviders(providerList);
       setPresets(presetMap);

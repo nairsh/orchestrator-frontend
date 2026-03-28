@@ -42,7 +42,7 @@ export function TeamsTab({ teams, teamsStatus, onRefresh }: TeamsTabProps) {
           ) : (
             <div className="grid gap-3 lg:grid-cols-2">
               {teams.map((team, idx) => (
-                <Card key={`team-${team.id || idx}`} padding="lg" className="rounded-[22px] border-border-light bg-surface">
+                <Card key={String(team.id ?? `team-${idx}`)} padding="lg" className="rounded-[22px] border-border-light bg-surface">
                   <span className="text-sm text-primary">{String(team.name ?? 'Unnamed team')}</span>
                 </Card>
               ))}

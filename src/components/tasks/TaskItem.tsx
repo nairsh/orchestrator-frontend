@@ -14,12 +14,15 @@ interface TaskItemProps {
   workflow: WorkflowSummary;
   nowTs: number;
   isSelected: boolean;
-  onClick: () => void;
+  onClick?: () => void;
+  onClickId?: (id: string, objective: string) => void;
   config: ApiConfig;
   onDeleted: () => void;
   title?: string;
   onPin?: () => void;
+  onPinId?: (id: string) => void;
   onRename?: () => void;
+  onRenameId?: (wf: WorkflowSummary) => void;
   isPinned?: boolean;
 }
 
@@ -81,9 +84,24 @@ function formatRelativeRunTime(timestamp: string | null | undefined, nowTs: numb
   return `${years} year${years === 1 ? '' : 's'} ago`;
 }
 
-export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename, isPinned }: TaskItemProps) {
+export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, onClick, onClickId, config, onDeleted, title, onPin, onPinId, onRename, onRenameId, isPinned }: TaskItemProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const handleClick = () => {
+    if (onClickId) onClickId(workflow.id, workflow.objective);
+    else if (onClick) onClick();
+  };
+
+  const handlePin = () => {
+    if (onPinId) onPinId(workflow.id);
+    else if (onPin) onPin();
+  };
+
+  const handleRename = () => {
+    if (onRenameId) onRenameId(workflow);
+    else if (onRename) onRename();
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -115,8 +133,8 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
         'group relative flex items-center cursor-pointer rounded-xl px-3 py-2.5 gap-2 transition-colors duration-200 justify-between active:bg-surface-tertiary',
         isSelected ? 'bg-surface-secondary' : 'hover:bg-surface-hover',
       ].join(' ')}
-      onClick={onClick}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
+      onClick={handleClick}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
       {/* Left side: status dot + title + chevron + subtitle */}
       <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
@@ -148,7 +166,7 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
             </span>
           </Tooltip>
         )}
-        <TaskContextMenu onDelete={() => setDeleteConfirm(true)} onPin={onPin} onRename={onRename} isPinned={isPinned} />
+        <TaskContextMenu onDelete={() => setDeleteConfirm(true)} onPin={handlePin} onRename={handleRename} isPinned={isPinned} />
       </div>
     </div>
 
