@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { FileText, X, ArrowUp, ArrowUpRight } from 'lucide-react';
+import { FileText, X, ArrowUp, ArrowUpRight, Loader2 } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import type { ApiConfig, ContextFileUpload } from '../../api/client';
 import { ModelDropdown } from '../dropdowns/ModelDropdown';
@@ -51,8 +51,8 @@ export function LandingPage({
   const [value, setValue] = useState('');
   const [selectedModel, setSelectedModel] = useState('');
   const [attachments, setAttachments] = useState<Array<ContextFileUpload & { id: string; size: number }>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const submittingRef = useRef(false);
   const apiConfig: ApiConfig = config;
 
   const SAMPLE_PROMPTS = useMemo(() => {
@@ -138,19 +138,19 @@ export function LandingPage({
     const text = value.trim();
     if (!text) return;
     if (!selectedModel.trim()) return;
-    if (submittingRef.current) return;
-    submittingRef.current = true;
-    setValue('');
-    setAttachments([]);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       await onSubmit(text, selectedModel, contextFiles);
+      setValue('');
+      setAttachments([]);
     } finally {
-      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
   const hasText = value.trim().length > 0;
-  const canSend = hasText && !!selectedModel.trim();
+  const canSend = hasText && !!selectedModel.trim() && !isSubmitting;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -280,7 +280,7 @@ export function LandingPage({
                   style={{ backgroundColor: 'var(--relay-primary, #1a1a1a)', color: 'var(--relay-surface, white)' }}
                   aria-label="Send"
                 >
-                  <ArrowUp size={16} />
+                  {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <ArrowUp size={16} />}
                 </button>
               </div>
             </div>
@@ -296,6 +296,7 @@ export function LandingPage({
                   key={prompt}
                   type="button"
                   onClick={() => handleSampleClick(prompt)}
+                  aria-label={`Use prompt: ${prompt}`}
                   className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs hover:-translate-y-px transition-all duration-200 cursor-pointer font-sans opacity-0"
                   style={{ animation: `fadeInUpSoft 250ms ease-out ${80 + i * 50}ms both` }}
                 >

@@ -128,12 +128,14 @@ export function streamAgentResponse(
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
+      let receivedDone = false;
 
       const parser = createParser({
         onEvent(evt) {
           if (!evt.data) return;
           try {
             const parsed = JSON.parse(evt.data) as StreamChunk;
+            if (parsed.type === 'done') receivedDone = true;
             onChunk(parsed);
           } catch {
             // ignore malformed JSON
@@ -148,7 +150,9 @@ export function streamAgentResponse(
       }
 
       // Ensure streaming state is finalized even if server closes without `done` event
-      onChunk({ type: 'done' } as StreamChunk);
+      if (!receivedDone) {
+        onChunk({ type: 'done' } as StreamChunk);
+      }
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') return;
       onError(err instanceof Error ? err : new Error(String(err)));

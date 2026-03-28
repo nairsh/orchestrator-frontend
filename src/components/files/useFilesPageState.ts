@@ -147,10 +147,6 @@ export function useFilesPageState(
       return;
     }
 
-    if (preview.kind === 'image') {
-      URL.revokeObjectURL(preview.url);
-    }
-
     const requestId = ++openFileRequestRef.current;
     setPreview({ kind: 'loading', path });
 

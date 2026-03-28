@@ -48,6 +48,8 @@ export function useWorkflowStream(
   const staleTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   // Staleness detector: if no SSE events arrive for 30s while not terminal,
   // mark the stream as stale so the UI can show a warning.
@@ -226,6 +228,9 @@ export function useWorkflowStream(
 
     return () => {
       cancelled = true;
+      // Close any active SSE connection so stale events don't corrupt the next workflow
+      connectionRef.current?.close();
+      connectionRef.current = null;
     };
   }, [config, workflowId, isActive, objective, connect]);
 
@@ -261,10 +266,9 @@ export function useWorkflowStream(
       if (!msg) return;
 
       // Snapshot state before optimistic update so we can restore on failure
-      let snapshotState: WorkflowStreamState | null = null;
+      const snapshotState = stateRef.current;
 
       setState((prev) => {
-        snapshotState = prev;
         const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
         pendingEnvironmentSetupRef.current = !isClarificationReply;
 

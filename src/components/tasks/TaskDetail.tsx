@@ -102,7 +102,7 @@ export function TaskDetail({
       });
       desktopNotify('Task failed', objective);
     }
-  }, [isTerminal, workflowStatus]);
+  }, [isTerminal, workflowStatus, hydrated]);
 
   const handleCommand = async (text: string) => {
     try {
