@@ -136,8 +136,12 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
 export function MessageList({ items }: { items: (TimelineItem & { timestamp?: number; error?: boolean })[] }) {
   return (
     <div className="flex flex-col gap-6">
-      {items.map((item, idx) => (
-        <div key={idx}>
+      {items.map((item, idx) => {
+        const key = item.timestamp
+          ? `${item.type}-${item.type === 'message' ? item.role : 'tool'}-${item.timestamp}`
+          : `${item.type}-${idx}`;
+        return (
+        <div key={key}>
           {item.type === 'message' ? (
             <div className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {item.error ? (
@@ -152,7 +156,8 @@ export function MessageList({ items }: { items: (TimelineItem & { timestamp?: nu
             <ToolCallItem tool={item.tool} />
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

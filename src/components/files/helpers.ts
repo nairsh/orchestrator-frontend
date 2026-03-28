@@ -1,5 +1,6 @@
 import type { ApiConfig } from '../../api/client';
 import type { WorkflowSummary } from '../../api/types';
+export { resolveAuthToken } from '../../api/core';
 
 export type PreviewState =
   | { kind: 'empty' }
@@ -22,12 +23,6 @@ export const FILE_TABS: { id: FileTab; label: string }[] = [
   { id: 'workflows', label: 'Task files' },
   { id: 'knowledge', label: 'Knowledge library' },
 ];
-
-export async function resolveAuthToken(config: ApiConfig): Promise<string | null> {
-  const sessionToken = config.getAuthToken ? await config.getAuthToken() : null;
-  if (sessionToken && sessionToken.trim().length > 0) return sessionToken.trim();
-  return null;
-}
 
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;

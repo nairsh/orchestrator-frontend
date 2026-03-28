@@ -34,7 +34,7 @@ function normalizeApiErrorMessage(message: string): string {
   return message;
 }
 
-async function resolveAuthToken(config: ApiConfig): Promise<string | null> {
+export async function resolveAuthToken(config: Pick<ApiConfig, 'getAuthToken'>): Promise<string | null> {
   const clerkToken = config.getAuthToken ? await config.getAuthToken() : null;
   if (clerkToken && clerkToken.trim().length > 0) {
     return clerkToken.trim();

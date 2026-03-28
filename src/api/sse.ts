@@ -1,5 +1,6 @@
 import { createParser } from 'eventsource-parser';
 import type { StreamChunk, WorkflowEvent } from './types';
+import { resolveAuthToken } from './core';
 
 export type SseEventHandler = (event: WorkflowEvent) => void;
 export type SseErrorHandler = (error: Error) => void;
@@ -165,12 +166,4 @@ export function streamAgentResponse(
       abortController.abort();
     },
   };
-}
-
-async function resolveAuthToken(config: SseConfig): Promise<string | null> {
-  const clerkToken = config.getAuthToken ? await config.getAuthToken() : null;
-  if (clerkToken && clerkToken.trim().length > 0) {
-    return clerkToken.trim();
-  }
-  return null;
 }

@@ -51,7 +51,7 @@ export function ModelDropdown({
       .then((res) => setData(res))
       .catch((err) => { setData(null); toastApiError(err, "Couldn't load AI models"); })
       .finally(() => setLoading(false));
-  }, [config]);
+  }, [config.baseUrl, config.hasAuth]);
 
   const modelById = useMemo(() => {
     const m = new Map<string, ModelInfo>();
@@ -136,8 +136,8 @@ export function ModelDropdown({
       )}
     >
       {Array.from(groupedOptions.entries()).map(([provider, providerOpts]) => (
-        <div key={provider}>
-          <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted font-semibold">
+        <div key={provider} role="group" aria-label={provider}>
+          <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted font-semibold" aria-hidden="true">
             {provider}
           </div>
           {providerOpts.map((opt) => {
