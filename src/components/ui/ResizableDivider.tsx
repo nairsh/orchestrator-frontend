@@ -89,15 +89,46 @@ export function ResizableDivider({
     };
   }, []);
 
+  const STEP = 20;
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      let nextWidth: number | null = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        nextWidth = clamp(width + STEP);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        nextWidth = clamp(width - STEP);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        nextWidth = minWidth;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        nextWidth = maxWidth;
+      }
+      if (nextWidth !== null) onWidthChange(nextWidth);
+    },
+    [width, clamp, minWidth, maxWidth, onWidthChange]
+  );
+
   const pillOpacity = isDragging ? 1 : isHovering ? 0.8 : 0.4;
+  const pct = Math.round(((width - minWidth) / (maxWidth - minWidth)) * 100);
 
   return (
     <div
-      className="relative flex items-center justify-center w-3 cursor-col-resize z-10"
+      role="separator"
+      tabIndex={0}
+      aria-orientation="vertical"
+      aria-valuenow={pct}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Resize sidebar"
+      className="relative flex items-center justify-center w-3 cursor-col-resize z-10 outline-none focus-visible:ring-2 focus-visible:ring-info/50 rounded"
       onMouseDown={handleMouseDown}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      aria-hidden="true"
+      onKeyDown={handleKeyDown}
     >
       <div className="w-px h-full bg-border-subtle" />
       <div

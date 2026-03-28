@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { MoreHorizontal, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
@@ -12,12 +12,46 @@ interface TaskContextMenuProps {
 export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }: TaskContextMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useClickOutside(ref, () => setOpen(false));
+
+  // Focus first menu item when opened
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => {
+        const firstItem = menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]');
+        firstItem?.focus();
+      });
+    }
+  }, [open]);
+
+  const handleMenuKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const items = menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]');
+    if (!items || items.length === 0) return;
+    const current = document.activeElement as HTMLElement;
+    const idx = Array.from(items).indexOf(current as HTMLButtonElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      items[(idx + 1) % items.length].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      items[(idx - 1 + items.length) % items.length].focus();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      triggerRef.current?.focus();
+    } else if (e.key === 'Tab') {
+      setOpen(false);
+    }
+  }, []);
 
   return (
     <div ref={ref} className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={(e) => {
           e.stopPropagation();
@@ -32,6 +66,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }:
       </button>
 
       <div
+        ref={menuRef}
         className={[
           'absolute right-0 top-full mt-1.5 w-44 bg-surface border border-border-light rounded-xl shadow-dropdown py-1 z-50 transition-all duration-200 origin-top-right',
           open
@@ -39,12 +74,14 @@ export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }:
             : 'opacity-0 scale-95 -translate-y-1 pointer-events-none',
         ].join(' ')}
         role="menu"
+        onKeyDown={handleMenuKeyDown}
       >
         <button
           type="button"
           role="menuitem"
+          tabIndex={open ? 0 : -1}
           onClick={(e) => { e.stopPropagation(); onPin?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover focus:bg-surface-hover outline-none transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Pin size={13} className="text-muted flex-shrink-0 mt-0.5" />
           <span className="break-words">{isPinned ? 'Unpin task' : 'Pin task'}</span>
@@ -52,8 +89,9 @@ export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }:
         <button
           type="button"
           role="menuitem"
+          tabIndex={open ? 0 : -1}
           onClick={(e) => { e.stopPropagation(); onRename?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover focus:bg-surface-hover outline-none transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Pencil size={13} className="text-muted flex-shrink-0 mt-0.5" />
           <span className="break-words">Rename task</span>
@@ -62,8 +100,9 @@ export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }:
         <button
           type="button"
           role="menuitem"
+          tabIndex={open ? 0 : -1}
           onClick={(e) => { e.stopPropagation(); onDelete?.(); setOpen(false); }}
-          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-danger hover:bg-danger/10 transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
+          className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-danger hover:bg-danger/10 focus:bg-danger/10 outline-none transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Trash2 size={13} className="flex-shrink-0 mt-0.5" />
           <span className="break-words">Delete task</span>

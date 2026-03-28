@@ -57,10 +57,13 @@ export function NotificationCenter(props: NotificationCenterProps) {
     const btn = buttonRef.current;
     if (!btn) return;
     const rect = btn.getBoundingClientRect();
-    // Open upward from the button, left-aligned so it extends into main content
+    const dropdownWidth = 320; // w-80 = 20rem = 320px
+    // Clamp left so dropdown stays within viewport
+    const maxLeft = window.innerWidth - dropdownWidth - 8;
+    const clampedLeft = Math.max(8, Math.min(rect.left, maxLeft));
     setDropdownStyle({
       position: 'fixed',
-      left: rect.left,
+      left: clampedLeft,
       bottom: window.innerHeight - rect.top + 4,
       zIndex: 9999,
     });
