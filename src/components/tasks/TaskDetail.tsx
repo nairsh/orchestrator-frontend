@@ -67,6 +67,11 @@ export function TaskDetail({
   const [cancelConfirm, setCancelConfirm] = useState(false);
   const { addNotification } = useNotifications();
   const notifiedRef = useRef(false);
+  const cancelYesRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (cancelConfirm) cancelYesRef.current?.focus();
+  }, [cancelConfirm]);
   // Captures the terminal state at the moment hydration completes
   const terminalAtHydrationRef = useRef<boolean | null>(null);
 
@@ -218,10 +223,17 @@ export function TaskDetail({
                 <div
                   className="flex items-center gap-1.5 rounded-lg bg-danger/10 px-2 py-1 border border-danger/20"
                   role="alert"
-                  onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setCancelConfirm(false); } }}
                 >
                   <span className="text-xs text-danger font-medium">Cancel task?</span>
-                  <Button variant="danger" size="sm" disabled={!!actionBusy} onClick={() => void handleCancel()} className="h-5 px-2 text-[11px]">
+                  <Button
+                    ref={cancelYesRef}
+                    variant="danger"
+                    size="sm"
+                    disabled={!!actionBusy}
+                    onClick={() => void handleCancel()}
+                    onKeyDown={(e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setCancelConfirm(false); } }}
+                    className="h-5 px-2 text-[11px]"
+                  >
                     {actionBusy === 'cancel' ? <Loader2 size={10} className="animate-spin" /> : 'Yes'}
                   </Button>
                   <button type="button" onClick={() => setCancelConfirm(false)} className="text-xs text-muted hover:text-primary transition-colors duration-200" aria-label="Dismiss cancel confirmation">✕</button>

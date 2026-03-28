@@ -112,8 +112,8 @@ export function CommandPalette({
     } else if (e.key === 'Escape') {
       onClose();
     } else if (e.key === 'Tab') {
-      // Trap focus within the palette — keep focus on input
       e.preventDefault();
+      inputRef.current?.focus();
     }
   }, [filtered, selectedIndex, onClose]);
 
@@ -140,6 +140,7 @@ export function CommandPalette({
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
+        onKeyDown={handleKeyDown}
         className="w-full max-w-lg bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden animate-scale-in"
       >
         {/* Search input */}
@@ -155,7 +156,6 @@ export function CommandPalette({
             aria-autocomplete="list"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
             placeholder="Search tasks, actions, pages…"
             className="flex-1 bg-transparent text-sm text-primary placeholder:text-placeholder outline-none font-sans"
           />
