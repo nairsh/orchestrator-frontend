@@ -55,6 +55,7 @@ export function TaskDetail({
 }: TaskDetailProps) {
   const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, retryConnection, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
+  const truncatedObj = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';
@@ -81,7 +82,7 @@ export function TaskDetail({
     if (terminalAtHydrationRef.current) return; // Was already terminal at hydration
     if (!isTerminal || notifiedRef.current) return;
     notifiedRef.current = true;
-    const truncatedObjective = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+    const truncatedObjective = truncatedObj;
     if (workflowStatus === 'completed') {
       addNotification({
         type: 'workflow_complete',
@@ -115,8 +116,7 @@ export function TaskDetail({
     setActionBusy('retry');
     try {
       await retryWorkflow(config, workflowId);
-      const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
-      toastRich({ title: 'Retrying task', body: truncated, type: 'info', duration: 3000 });
+      toastRich({ title: 'Retrying task', body: truncatedObj, type: 'info', duration: 3000 });
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Couldn\'t retry this task');
@@ -128,8 +128,7 @@ export function TaskDetail({
     try {
       await cancelWorkflow(config, workflowId);
       setCancelConfirm(false);
-      const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
-      toastRich({ title: 'Task cancelled', body: truncated, type: 'warning', duration: 3000 });
+      toastRich({ title: 'Task cancelled', body: truncatedObj, type: 'warning', duration: 3000 });
       onRefreshList?.();
     } catch (err) {
       toastApiError(err, 'Couldn\'t cancel this task');

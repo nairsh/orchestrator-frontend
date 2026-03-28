@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Globe, Loader2 } from 'lucide-react';
 import type { FetchedSourceDisplay } from './feedHelpers';
 
@@ -10,6 +10,7 @@ export const FetchUrlRenderer = memo(function FetchUrlRenderer({
   fetchedSource: FetchedSourceDisplay | null;
 }) {
   const [faviconError, setFaviconError] = useState(false);
+  useEffect(() => { setFaviconError(false); }, [fetchedSource?.url]);
   return (
     <div className="flex flex-col gap-2">
       <div className="rounded-lg border border-border-light bg-surface overflow-hidden px-0 py-0 fade-in-soft">

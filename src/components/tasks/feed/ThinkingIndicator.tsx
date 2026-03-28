@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { ChevronRight, CircleAlert, RefreshCw } from 'lucide-react';
 import { Markdown } from '../../markdown/Markdown';
 
@@ -9,7 +9,7 @@ interface ThinkingIndicatorProps {
   onRetryConnection?: () => void;
 }
 
-export function ThinkingIndicator({ currentActivity, thinkingText, isStale, onRetryConnection }: ThinkingIndicatorProps) {
+export const ThinkingIndicator = memo(function ThinkingIndicator({ currentActivity, thinkingText, isStale, onRetryConnection }: ThinkingIndicatorProps) {
   const [expanded, setExpanded] = useState(false);
   const hasContent = Boolean(thinkingText?.trim());
 
@@ -65,4 +65,4 @@ export function ThinkingIndicator({ currentActivity, thinkingText, isStale, onRe
       </div>
     </div>
   );
-}
+});

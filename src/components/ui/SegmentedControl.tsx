@@ -8,6 +8,7 @@ export function SegmentedControl<T extends string>({ value, options, onChange }:
   return (
     <div
       className="inline-flex items-center rounded-full p-1 gap-0.5 bg-surface-tertiary border border-border-subtle"
+      role="radiogroup"
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -15,6 +16,8 @@ export function SegmentedControl<T extends string>({ value, options, onChange }:
           <button
             key={opt.value}
             type="button"
+            role="radio"
+            aria-checked={active}
             onClick={() => onChange(opt.value)}
             className={[
               'relative px-4 h-8 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer select-none whitespace-nowrap font-sans',
