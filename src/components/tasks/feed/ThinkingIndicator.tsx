@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { ChevronRight, CircleAlert } from 'lucide-react';
+import { ChevronRight, CircleAlert, RefreshCw } from 'lucide-react';
 import { Markdown } from '../../markdown/Markdown';
 
 interface ThinkingIndicatorProps {
   currentActivity: string;
   thinkingText?: string;
   isStale?: boolean;
+  onRetryConnection?: () => void;
 }
 
-export function ThinkingIndicator({ currentActivity, thinkingText, isStale }: ThinkingIndicatorProps) {
+export function ThinkingIndicator({ currentActivity, thinkingText, isStale, onRetryConnection }: ThinkingIndicatorProps) {
   const [expanded, setExpanded] = useState(false);
   const hasContent = Boolean(thinkingText?.trim());
 
@@ -44,11 +45,21 @@ export function ThinkingIndicator({ currentActivity, thinkingText, isStale }: Th
         )}
 
         {isStale && (
-          <div className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 mt-1">
-            <CircleAlert size={14} className="text-warning mt-0.5 shrink-0" />
-            <span className="font-sans text-sm text-secondary">
-              No updates received for 30 seconds. The AI may be slow or unreachable. Check your connection or try a different AI.
+          <div className="flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/10 px-3 py-2 mt-1">
+            <CircleAlert size={14} className="text-warning shrink-0" />
+            <span className="font-sans text-sm text-secondary flex-1">
+              No updates for 30s — connection may be stale.
             </span>
+            {onRetryConnection && (
+              <button
+                type="button"
+                onClick={onRetryConnection}
+                className="flex items-center gap-1 font-sans text-xs font-medium text-warning hover:text-primary bg-warning/10 hover:bg-warning/20 px-2 py-1 rounded-md transition-colors cursor-pointer shrink-0"
+              >
+                <RefreshCw size={12} />
+                Reconnect
+              </button>
+            )}
           </div>
         )}
       </div>

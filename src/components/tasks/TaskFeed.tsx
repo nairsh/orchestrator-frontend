@@ -21,6 +21,7 @@ interface TaskFeedProps {
   fullView?: boolean;
   onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
+  onRetryConnection?: () => void;
 }
 
 function ParallelToolCalls({
@@ -67,7 +68,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, onApproval, onBashApproval }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, onApproval, onBashApproval, onRetryConnection }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const renderRows = useMemo<RenderRow[]>(() => {
@@ -199,7 +200,7 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
         })}
 
         {!isTerminal && currentActivity && (
-          <ThinkingIndicator currentActivity={currentActivity} thinkingText={thinkingText} isStale={isStale} />
+          <ThinkingIndicator currentActivity={currentActivity} thinkingText={thinkingText} isStale={isStale} onRetryConnection={onRetryConnection} />
         )}
       </div>
 

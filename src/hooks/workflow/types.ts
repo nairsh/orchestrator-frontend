@@ -23,6 +23,7 @@ export interface WorkflowStreamState {
   sendMessage: (text: string, opts?: { silent?: boolean }) => Promise<void>;
   handleApproval: (taskId: string, approved: boolean) => Promise<void>;
   handleBashApproval: (approvalId: string, approved: boolean) => Promise<void>;
+  retryConnection: () => void;
 }
 
 export const STALE_THRESHOLD_MS = 30_000;

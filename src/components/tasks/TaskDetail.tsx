@@ -56,7 +56,7 @@ export function TaskDetail({
   modelIconOverrides,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, retryConnection, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
@@ -263,6 +263,7 @@ export function TaskDetail({
         fullView={fullView}
         onApproval={handleApproval}
         onBashApproval={handleBashApproval}
+        onRetryConnection={retryConnection}
       />
 
       {/* Clarification panel appears above chat input */}

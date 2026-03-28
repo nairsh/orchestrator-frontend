@@ -38,6 +38,7 @@ export function useWorkflowStream(
     sendMessage: async () => undefined,
     handleApproval: async () => undefined,
     handleBashApproval: async () => undefined,
+    retryConnection: () => {},
   }));
 
   const connectionRef = useRef<{ close: () => void } | null>(null);
@@ -341,5 +342,11 @@ export function useWorkflowStream(
     [config, workflowId]
   );
 
-  return { ...state, sendMessage, handleApproval, handleBashApproval };
+  const retryConnection = useCallback(() => {
+    reconnectAttemptsRef.current = 0;
+    setState((prev) => ({ ...prev, isStale: false, currentActivity: 'Reconnecting…' }));
+    connect();
+  }, [connect]);
+
+  return { ...state, sendMessage, handleApproval, handleBashApproval, retryConnection };
 }
