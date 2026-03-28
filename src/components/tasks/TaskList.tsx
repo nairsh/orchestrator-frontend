@@ -207,7 +207,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
           modelIconOverrides={modelIconOverrides}
         />
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2" role="list">
           {loading && sortedWorkflows.length === 0 && (
             <>
               <SkeletonTaskItem />
@@ -232,10 +232,10 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             </div>
           )}
           {groupedWorkflows.map((group) => (
-            <div key={group.label}>
+            <div key={group.label} role="group" aria-label={group.label}>
               <p className="text-xs font-medium text-muted uppercase tracking-wide px-2 pt-3 pb-1">{group.label}</p>
               {group.items.map((wf) => (
-                <div key={wf.id} data-task-id={wf.id}>
+                <div key={wf.id} data-task-id={wf.id} role="listitem">
                 <TaskItem
                   workflow={wf}
                   nowTs={nowTs}

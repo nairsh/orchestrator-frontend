@@ -289,6 +289,7 @@ export function ChatInput({
           maxHeight={140}
           className="flex-1 text-sm leading-relaxed"
           aria-label="Chat message input"
+          aria-describedby="chat-input-help"
         />
         {streaming ? (
           <IconButton
@@ -312,7 +313,7 @@ export function ChatInput({
           </IconButton>
         )}
       </div>
-      <p className="text-[10px] text-muted/60 font-sans text-center mt-1.5">
+      <p id="chat-input-help" className="text-[10px] text-muted/60 font-sans text-center mt-1.5">
         <kbd className="font-mono">Enter</kbd> to send · <kbd className="font-mono">Shift+Enter</kbd> for new line
       </p>
     </div>

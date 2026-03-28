@@ -122,7 +122,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
           </div>
 
           {/* List */}
-          <div className="max-h-[360px] overflow-y-auto">
+          <div className="max-h-[360px] overflow-y-auto" role="list">
             {notifications.length === 0 ? (
               <RelayEmpty icon={<Bell size={24} className="text-muted" />} description="No notifications yet" className="py-8" />
             ) : (
@@ -130,6 +130,7 @@ export function NotificationCenter(props: NotificationCenterProps) {
                 <button
                   key={notif.id}
                   type="button"
+                  role="listitem"
                   onClick={() => {
                     onMarkAsRead(notif.id);
                     onClickNotification?.(notif);
