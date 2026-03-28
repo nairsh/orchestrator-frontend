@@ -27,10 +27,10 @@ export const BashRenderer = memo(function BashRenderer({
     <div className="flex flex-col gap-2">
       <div className="rounded-lg border border-border-light bg-surface overflow-hidden">
         <div className="px-3 py-1.5 border-b border-border-light flex items-center gap-2">
-          <span className={`inline-block w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-emerald-500'}`} />
+          <span className={`inline-block w-2.5 h-2.5 rounded-full ${isRunning ? 'bg-success animate-pulse' : 'bg-success'}`} />
           <span className="font-sans text-xs text-placeholder">command</span>
           {exitCode !== undefined && !isRunning && (
-            <span className={`font-sans text-[10px] font-medium px-1.5 py-0.5 rounded-full ${exitCode === 0 ? 'text-emerald-400 bg-emerald-500/10' : 'text-red-400 bg-red-500/10'}`}>
+            <span className={`font-sans text-[10px] font-medium px-1.5 py-0.5 rounded-full ${exitCode === 0 ? 'text-success bg-success/10' : 'text-danger bg-danger/10'}`}>
               {exitCode === 0 ? '✓ 0' : `✗ ${exitCode}`}
             </span>
           )}
@@ -65,7 +65,7 @@ export const BashRenderer = memo(function BashRenderer({
         {hasOutput && renderedOutput && renderedOutput !== 'Command finished' && (
           <div className="rounded-lg border border-border-light bg-surface overflow-hidden">
             <div className="px-3 py-1.5 border-b border-border-light flex items-center gap-2">
-              <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500" />
+              <span className="inline-block w-2.5 h-2.5 rounded-full bg-success" />
               <span className="font-sans text-xs text-placeholder">output</span>
             </div>
             <div className="px-3">

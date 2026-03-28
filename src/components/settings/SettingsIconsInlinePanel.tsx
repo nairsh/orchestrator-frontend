@@ -38,7 +38,7 @@ export function SettingsIconsInlinePanel({
         <p className="text-[13px] text-secondary mb-5">Choose a custom icon for each AI option.</p>
 
         {modelsStatus === 'error' && (
-          <div className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3 text-[13px] text-red-500">
+          <div className="rounded-lg border border-danger/30 bg-danger/5 px-4 py-3 text-[13px] text-danger">
             Could not load models. Check your server URL and try again.
           </div>
         )}

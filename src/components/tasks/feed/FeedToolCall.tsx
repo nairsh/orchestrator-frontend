@@ -81,7 +81,7 @@ export const FeedToolCall = memo(function FeedToolCall({
   }, [fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;
-  const iconColor = isRunning ? 'text-primary' : isBash ? 'text-amber-500/70' : isBrowser ? 'text-blue-400/70' : isFile ? 'text-emerald-500/70' : isSearch ? 'text-violet-400/70' : isTodo ? 'text-cyan-400/70' : 'text-muted';
+  const iconColor = isRunning ? 'text-primary' : isBash ? 'text-warning' : isBrowser ? 'text-info' : isFile ? 'text-success' : isSearch ? 'text-accent' : isTodo ? 'text-info' : 'text-muted';
   const todos = useMemo(() => extractTodoDisplay(toolName, input, output, status), [toolName, input, output, status]);
   const searchResults = useMemo(() => (isWebSearch ? extractSearchResults(output) : []), [isWebSearch, output]);
   const fetchedSource = useMemo(() => (isFetchUrl ? extractFetchedSource(input, output) : null), [isFetchUrl, input, output]);

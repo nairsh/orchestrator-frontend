@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ClipboardList } from 'lucide-react';
 import type { WorkflowSummary } from '../../api/types';
 import type { ApiConfig } from '../../api/client';
 import { TaskItem } from './TaskItem';
@@ -216,7 +217,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             </>
           )}
           {sortedWorkflows.length === 0 && !loading && !error && (
-            <RelayEmpty icon={<span className="text-xl">📋</span>} title="No tasks yet" description="Start a task using the input above" />
+            <RelayEmpty icon={<ClipboardList size={20} className="text-muted" />} title="No tasks yet" description="Start a task using the input above" />
           )}
           {error && !loading && (
             <div role="alert" className="flex flex-col items-center pt-8 text-center px-4">

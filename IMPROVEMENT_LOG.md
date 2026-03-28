@@ -882,3 +882,13 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 
 ## Batch 164 — SSE Event Handler Safety
 - useWorkflowStream: moved pendingEnvironmentSetupRef write outside setState updater
+
+## Batch 165 — A11y Polish + Light Mode + Upload Guard + Chat Fixes
+- globals.css: shimmer animation uses CSS vars for theme adaptivity (light mode override)
+- Modal.tsx: added title="Close" tooltip on close button
+- TabPill.tsx: added aria-pressed={active} for toggle state
+- SearchInput.tsx: added title="Clear search" tooltip on clear button
+- KnowledgeSection.tsx: disabled file upload input during upload (prevents double-submit)
+- ChatPrimitives.tsx: Enter key checks canSend guard before firing send
+- ChatModal.tsx: backdrop div gets role="presentation"
+- user_additions.md: marked thinking expandable as done

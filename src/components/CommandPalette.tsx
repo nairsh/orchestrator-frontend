@@ -69,9 +69,9 @@ export function CommandPalette({
     const recent = workflows.slice(0, 8);
     for (const wf of recent) {
       const statusIcon = wf.status === 'completed'
-        ? <CheckCircle2 size={16} className="text-green-500" />
+        ? <CheckCircle2 size={16} className="text-success" />
         : wf.status === 'failed'
-          ? <AlertCircle size={16} className="text-red-400" />
+          ? <AlertCircle size={16} className="text-danger" />
           : <Clock size={16} />;
       result.push({
         id: `wf-${wf.id}`,

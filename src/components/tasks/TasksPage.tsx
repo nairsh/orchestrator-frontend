@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Rocket, Zap } from 'lucide-react';
 import type { AppConfig } from '../../hooks/useConfig';
 import { Sidebar } from '../layout/Sidebar';
 import { TaskList } from './TaskList';
@@ -323,7 +324,7 @@ export function TasksPage({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-surface-tertiary border border-border-subtle flex items-center justify-center">
-                  <span className="text-xl">{workflows.length === 0 ? '🚀' : '⚡'}</span>
+                  {workflows.length === 0 ? <Rocket size={20} className="text-muted" /> : <Zap size={20} className="text-muted" />}
                 </div>
                 <div className="font-sans text-sm font-medium text-muted text-center">
                   {workflows.length === 0 ? 'No tasks yet' : 'Select a task to view details'}
