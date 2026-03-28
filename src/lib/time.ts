@@ -7,7 +7,7 @@ export function parseApiTimestampMs(value: string | null | undefined): number | 
   const hasTimezone = /(?:Z|[+\-]\d{2}:?\d{2})$/i.test(trimmed);
   const normalized = hasTimezone
     ? trimmed
-    : `${trimmed.replace(' ', 'T')}Z`;
+    : `${trimmed.replace(/\s+/, 'T')}Z`;
 
   const ms = new Date(normalized).getTime();
   return Number.isNaN(ms) ? null : ms;
@@ -48,6 +48,7 @@ export function formatTimeOnly(value: string | null | undefined): string | null 
 /** Compact relative time: "just now", "5m ago", "3h ago", "2d ago". Falls back to short date for >30d. */
 export function relativeTimeAgo(ms: number): string {
   const diff = Date.now() - ms;
+  if (diff < 0) return 'just now';
   const mins = Math.floor(diff / 60_000);
   if (mins < 1) return 'just now';
   if (mins < 60) return `${mins}m ago`;

@@ -44,7 +44,14 @@ export function WorkflowProgress({ tasks, isTerminal, className = '' }: Workflow
     <div className={`space-y-3 ${className}`}>
       {/* Progress bar */}
       <div className="flex items-center gap-3">
-        <div className="flex-1 h-1.5 rounded-full bg-surface-tertiary overflow-hidden">
+        <div
+          className="flex-1 h-1.5 rounded-full bg-surface-tertiary overflow-hidden"
+          role="progressbar"
+          aria-valuenow={isTerminal ? 100 : stats.percentage}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Task progress: ${isTerminal ? 100 : stats.percentage}%`}
+        >
           <div
             className="h-full rounded-full bg-info transition-all duration-500 ease-out"
             style={{ width: `${isTerminal ? 100 : stats.percentage}%` }}

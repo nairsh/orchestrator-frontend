@@ -9,7 +9,10 @@ export function useEscapeKey(handler: () => void, enabled = true) {
   useEffect(() => {
     if (!enabled) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') handler();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        handler();
+      }
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);

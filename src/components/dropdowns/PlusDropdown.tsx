@@ -107,6 +107,7 @@ export function PlusDropdown({ openUpward = false, outlined, ghost = false, size
           pointerEvents: open ? 'auto' : 'none',
         }}
         role="menu"
+        aria-label="Actions menu"
       >
         <button
           type="button"

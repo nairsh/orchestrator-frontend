@@ -680,3 +680,54 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - ProvidersSettingsPanel: Toast when presets fall back to defaults
 - TaskSearchDialog: Tab key focus trap
 - TeamsTab: Safer key derivation
+
+## Batch 131 — Dead Code Removal + A11y
+- Removed dead `pauseWorkflow` API function (no /pause backend endpoint)
+- Removed dead `getWorkflowProgress` API function (never imported)
+- Removed dead `upsertClarificationToolCall` (53 lines) + unused type import
+- ConnectorsTab: safety fallback for unknown providers, aria-label on checkmark, aria-hidden on decorative icons
+- FeedTaskGroup: aria-hidden on tool icons, aria-label on status indicators
+- WebSearchRenderer/FetchUrlRenderer: aria-hidden on decorative favicons
+- CitationCard: aria-hidden on favicon and fallback globe icon
+
+## Batch 132 — Deep Audit 130 Fixes (P0 + P1 + P2/P3)
+- **P0**: useWorkflowStream optimistic rollback — match by kind+text from end instead of slice-by-count
+- **P1**: useNotifications — wrap localStorage.setItem in try/catch for QuotaExceededError
+- **P1**: Modal — wire aria-labelledby to ModalHeader h2 via MODAL_HEADING_ID constant
+- **P1**: useAppState — fix stale auth in model-loading effect (depend on runtimeConfig)
+- **P1**: useAppState — fix local-mode settings save using effectiveAuth
+- **P2**: ClarificationPanel — focus on mount, role=region, aria-label, aria-pressed on options
+- **P2**: useWorkflowStream — reset lastEventTimeRef on manual retry
+- **P2**: SkillGrid — aria-pressed on selected skill card
+- **P2**: ChatPrimitives — add index to message keys to prevent timestamp collisions
+- **P3**: FeedToolCall — remove dead 'command' dependency from title useMemo
+
+## Batch 133 — Remaining Audit Fixes
+- **P2**: Move pendingEnvironmentSetupRef reads/writes outside setState updaters (concurrency safety)
+- **P2**: Replace hard-clipped maxHeight (600/900/1200px) with 'none' when expanded
+- **P2**: Use metaRef in useWorkflowMeta so getDisplayName/isPinned/sortKey are stable callbacks
+- **P3**: Cancel confirmation stays visible until API call completes (TaskDetail)
+
+## Batch 134 — Unified Empty States + Visual Polish
+- Migrated all 5 @lobehub/ui Empty usages to RelayEmpty with contextual icons
+- Per-type color coding for feed tool icons (amber=bash, blue=browser, green=file, violet=search, cyan=todo)
+- Inline exit code badge in BashRenderer header (green ✓ 0 / red ✗ N)
+- vendor-ui chunk reduced ~0.8 kB from dropping Empty import
+
+## Batch 135 — A11y + Timer Cleanup
+- OnboardingModal: role=presentation + onKeyDown on overlay backdrop
+- SkillDetailPanel: role=presentation + Escape handler on overlay
+- Modal: close setTimeout tracked via ref, cleaned up on unmount
+- ChatModal: same close timer cleanup pattern
+
+## Batch 136 — Status A11y + Touch Targets
+- TaskDetail: role=status + aria-label on Failed/Paused/Completed badges
+- TaskDetail: title tooltip on truncated objective
+- StatusDot: 20px touch target wrapper with role=img + aria-label
+
+## Batch 137 — Performance + Feed + Chat
+- TaskFeed: RAF-throttled scroll listener to prevent jank on long feeds
+- TodoList: Loader2 spinner for running tasks, role=list/listitem, stable keys
+- Markdown: language regex handles c++, c#, objective-c
+- useChatStream: cancel pending RAF on error chunk
+- FilesPage: disable knowledge search button when query is empty
