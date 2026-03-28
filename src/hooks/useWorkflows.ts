@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { listWorkflows } from '../api/client';
 import type { ApiConfig } from '../api/client';
 import type { WorkflowSummary } from '../api/types';
+import { humanizeError } from '../lib/humanizeError';
 
 const POLL_INTERVAL = 5000;
 
@@ -19,7 +20,7 @@ export function useWorkflows(config: ApiConfig, enabled: boolean, status?: strin
       setWorkflows(result.workflows);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(err instanceof Error ? humanizeError(err.message) : String(err));
     } finally {
       setLoading(false);
     }

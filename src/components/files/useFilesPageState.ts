@@ -4,6 +4,7 @@ import { deleteKnowledgeDocument, getKnowledgeDocument, getWorkspace, listKnowle
 import type { KnowledgeDocument, KnowledgeSearchMatch, WorkflowSummary } from '../../api/types';
 import { fileToContextUpload, MAX_CONTEXT_FILE_BYTES } from '../../lib/files';
 import { toastApiError, toastInfo, toastSuccess, toastWarning } from '../../lib/toast';
+import { humanizeError } from '../../lib/humanizeError';
 import type { FileTab, PreviewState } from './helpers';
 import { resolveAuthToken } from './helpers';
 
@@ -189,7 +190,7 @@ export function useFilesPageState(
       setPreview({ kind: 'text', path, text: text.slice(0, 200_000), contentType });
     } catch (err) {
       if (requestId !== openFileRequestRef.current) return;
-      setPreview({ kind: 'error', path, message: err instanceof Error ? err.message : String(err) });
+      setPreview({ kind: 'error', path, message: err instanceof Error ? humanizeError(err.message) : String(err) });
       toastApiError(err, 'Couldn\'t open this file');
     }
   };

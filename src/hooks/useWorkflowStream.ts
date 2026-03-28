@@ -3,6 +3,7 @@ import { connectWorkflowStream } from '../api/sse';
 import { continueWorkflow, getWorkflow, getWorkflowTrace } from '../api/client';
 import type { ApiConfig } from '../api/client';
 import { toastApiError } from '../lib/toast';
+import { humanizeError } from '../lib/humanizeError';
 import type { WorkflowEvent, FeedEntry, LiveTask, WorkflowTraceStep } from '../api/types';
 
 import type { WorkflowStreamState, EventReducerContext } from './workflow';
@@ -104,7 +105,7 @@ export function useWorkflowStream(
             connect();
           }, backoffMs);
         } else {
-          setState((prev) => ({ ...prev, currentActivity: `Stream error: ${err.message}` }));
+          setState((prev) => ({ ...prev, currentActivity: humanizeError(err.message) }));
         }
       }
     );
@@ -208,7 +209,7 @@ export function useWorkflowStream(
         }
       } catch (err) {
         if (!cancelled) {
-          const msg = err instanceof Error ? err.message : 'Unknown error';
+          const msg = err instanceof Error ? humanizeError(err.message) : 'Unknown error';
           setState((prev) => ({
             ...prev,
             isTerminal: true,
@@ -216,7 +217,7 @@ export function useWorkflowStream(
             workflowStatus: 'failed',
             feed: [
               ...prev.feed,
-              { kind: 'ai_message', text: `Failed to load workflow: ${msg}` } as FeedEntry,
+              { kind: 'ai_message', text: msg } as FeedEntry,
             ],
           }));
         }
