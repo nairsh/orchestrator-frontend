@@ -4,6 +4,7 @@ import { Tooltip } from '@lobehub/ui';
 import { useWorkflowStream } from '../../hooks/useWorkflowStream';
 import type { ApiConfig } from '../../api/client';
 import { retryWorkflow, cancelWorkflow } from '../../api/client';
+import { truncate } from '../../lib/strings';
 import { TaskFeed } from './TaskFeed';
 import { ClarificationPanel } from './ClarificationPanel';
 import { CommandInput } from '../input/CommandInput';
@@ -55,7 +56,7 @@ export function TaskDetail({
 }: TaskDetailProps) {
   const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, retryConnection, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
-  const truncatedObj = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+  const truncatedObj = truncate(objective, 60);
   const contentMaxWidth = fullView ? 760 : 600;
   const isFailed = workflowStatus === 'failed';
   const isExecuting = workflowStatus === 'executing';

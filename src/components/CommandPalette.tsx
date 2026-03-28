@@ -3,6 +3,7 @@ import { Search, ArrowRight, FileText, Clock, Zap, Settings, LayoutGrid, Brain, 
 import { Hotkey } from '@lobehub/ui';
 import { RelayEmpty } from './shared/RelayEmpty';
 import type { WorkflowSummary } from '../api/types';
+import { truncate } from '../lib/strings';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -74,7 +75,7 @@ export function CommandPalette({
           : <Clock size={16} />;
       result.push({
         id: `wf-${wf.id}`,
-        label: wf.objective.length > 60 ? wf.objective.slice(0, 60) + '…' : wf.objective,
+        label: truncate(wf.objective, 60),
         category: 'recent',
         icon: statusIcon,
         action: () => { onSelectWorkflow(wf.id, wf.objective); onClose(); },

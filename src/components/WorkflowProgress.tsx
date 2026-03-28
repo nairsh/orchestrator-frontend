@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { CheckCircle2, Loader2, Circle, XCircle, Clock } from 'lucide-react';
 import { Tooltip } from '@lobehub/ui';
 import type { LiveTask } from '../api/types';
+import { truncate } from '../lib/strings';
 
 interface WorkflowProgressProps {
   tasks: LiveTask[];
@@ -72,7 +73,7 @@ export function WorkflowProgress({ tasks, isTerminal, className = '' }: Workflow
               <StatusIcon status={task.status} />
               <div className={`w-1.5 h-1.5 rounded-full ${AGENT_COLORS[task.agent_type] ?? 'bg-muted'}`} />
               <span className="text-2xs text-secondary truncate max-w-[120px]">
-                {task.description.length > 30 ? task.description.slice(0, 30) + '…' : task.description}
+                {truncate(task.description, 30)}
               </span>
             </div>
           </Tooltip>

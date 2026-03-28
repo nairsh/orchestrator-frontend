@@ -1,6 +1,7 @@
 import { Terminal, Search, Globe, FileText, ListChecks, ScanSearch, Wrench, Zap } from 'lucide-react';
 import type { ElementType } from 'react';
 import type { FeedEntry } from '../../../api/types';
+import { truncate } from '../../../lib/strings';
 
 /* ── Feed types ──────────────────────────────────────────────── */
 
@@ -179,7 +180,7 @@ export function compactModelLabel(model?: string): string | null {
   if (/gpt/i.test(normalized)) return 'GPT';
   if (/claude/i.test(normalized)) return 'Claude';
   if (/gemini/i.test(normalized)) return 'Gemini';
-  return normalized.length > 18 ? `${normalized.slice(0, 18)}…` : normalized;
+  return truncate(normalized, 18);
 }
 
 export function taskActivityLabel(task: { status: string; current_activity?: string }): string {

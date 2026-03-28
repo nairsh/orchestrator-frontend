@@ -1,6 +1,7 @@
 import { createElement, type ReactNode } from 'react';
 import { sileo } from 'sileo';
 import { humanizeError } from './humanizeError';
+import { truncate } from './strings';
 
 const INFO_DURATION_MS = 2200;
 const SUCCESS_DURATION_MS = 2200;
@@ -137,7 +138,7 @@ export function toastCredits(billing: {
 
 /** Task created toast — shows model and truncated objective */
 export function toastTaskCreated(objective: string, model?: string) {
-  const truncated = objective.length > 80 ? objective.slice(0, 80) + '…' : objective;
+  const truncated = truncate(objective, 80);
   const { sub, dim, fill } = themeColors();
 
   sileo.success({
@@ -212,7 +213,7 @@ export function toastApiError(err: unknown, title = 'Something went wrong') {
 
 /** Workflow completed toast — shows duration and model */
 export function toastWorkflowComplete(objective: string, durationStr?: string | null, model?: string) {
-  const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+  const truncated = truncate(objective, 60);
   const { sub, dim, fill } = themeColors();
 
   const details: ReactNode[] = [];
@@ -235,7 +236,7 @@ export function toastWorkflowComplete(objective: string, durationStr?: string | 
 
 /** Workflow failed toast — shows humanized error */
 export function toastWorkflowFailed(objective: string, error?: string) {
-  const truncated = objective.length > 60 ? objective.slice(0, 60) + '…' : objective;
+  const truncated = truncate(objective, 60);
   const { sub, fill } = themeColors();
   const errorMsg = error ? humanizeError(error) : 'An unexpected error occurred';
 

@@ -5,6 +5,7 @@ import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
 import { IconButton, Textarea } from '../ui';
 import { humanizeToolName } from '../../lib/toolLabels';
+import { truncate } from '../../lib/strings';
 
 /* ─── Types ─── */
 
@@ -34,7 +35,7 @@ export function UserBubble({ content, timestamp }: { content: string; timestamp?
   const [expanded, setExpanded] = useState(false);
   const shouldTruncate = content.length > MESSAGE_TRUNCATE_LENGTH;
   const displayContent = shouldTruncate && !expanded
-    ? content.slice(0, MESSAGE_TRUNCATE_LENGTH) + '…'
+    ? truncate(content, MESSAGE_TRUNCATE_LENGTH)
     : content;
 
   return (

@@ -8,6 +8,7 @@ import { TaskContextMenu } from '../dropdowns/TaskContextMenu';
 import { toastApiError, toastSuccess } from '../../lib/toast';
 import { parseApiTimestampMs, formatDateTime } from '../../lib/time';
 import { StatusDot } from '../shared/StatusDot';
+import { truncate } from '../../lib/strings';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from '../ui';
 
 interface TaskItemProps {
@@ -37,7 +38,7 @@ const STATUS_TEXT_COLOR: Record<string, string> = {
 
 function getSubtitle(workflow: WorkflowSummary): string {
   if (typeof workflow.output === 'string' && workflow.output.length > 0) {
-    return workflow.output.length > 40 ? workflow.output.slice(0, 40) + '…' : workflow.output;
+    return truncate(workflow.output, 40);
   }
   if (workflow.status === 'completed') return 'Completed';
   if (workflow.status === 'executing') return 'Running…';
