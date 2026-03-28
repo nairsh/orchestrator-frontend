@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Bot, User } from 'lucide-react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
+import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Bot, User, Square, AlertCircle, RotateCcw } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
@@ -60,8 +60,8 @@ export function UserBubble({ content, timestamp }: { content: string; timestamp?
         </div>
         {timestamp ? <div className="text-[10px] text-muted font-sans mt-1 text-right">{formatTime(timestamp)}</div> : null}
       </div>
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-userbubble flex items-center justify-center">
-        <User size={12} className="text-primary" />
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-secondary border border-border-light flex items-center justify-center">
+        <User size={12} className="text-muted" />
       </div>
     </div>
   );
@@ -83,6 +83,34 @@ export function AssistantMessage({ content, timestamp }: { content: string; time
         <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-y-1 translate-x-8">
           <CopyButton content={content} size="small" />
         </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── ErrorMessage ─── */
+
+export function ErrorMessage({ content, timestamp, onRetry }: { content: string; timestamp?: number; onRetry?: () => void }) {
+  return (
+    <div className="flex items-start gap-2.5">
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-danger/10 border border-danger/20 flex items-center justify-center mt-0.5">
+        <AlertCircle size={12} className="text-danger" />
+      </div>
+      <div className="max-w-[85%]">
+        <div className="rounded-xl px-4 py-3 bg-danger/5 border border-danger/10">
+          <p className="font-sans text-sm text-danger leading-relaxed">{content}</p>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              className="mt-2 flex items-center gap-1.5 text-xs text-danger/80 hover:text-danger cursor-pointer bg-transparent border-none p-0 font-sans transition-colors"
+            >
+              <RotateCcw size={11} />
+              Retry
+            </button>
+          )}
+        </div>
+        {timestamp ? <div className="text-[10px] text-muted font-sans mt-1">{formatTime(timestamp)}</div> : null}
       </div>
     </div>
   );
@@ -111,14 +139,16 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
 
 /* ─── MessageList (flat, no timeline rail) ─── */
 
-export function MessageList({ items }: { items: (TimelineItem & { timestamp?: number })[] }) {
+export function MessageList({ items }: { items: (TimelineItem & { timestamp?: number; error?: boolean })[] }) {
   return (
     <div className="flex flex-col gap-6">
       {items.map((item, idx) => (
         <div key={idx}>
           {item.type === 'message' ? (
             <div className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              {item.role === 'user' ? (
+              {item.error ? (
+                <ErrorMessage content={item.content} timestamp={item.timestamp} />
+              ) : item.role === 'user' ? (
                 <UserBubble content={item.content} timestamp={item.timestamp} />
               ) : (
                 <AssistantMessage content={item.content} timestamp={item.timestamp} />
@@ -147,6 +177,15 @@ export function StreamingIndicator() {
   );
 }
 
+/* ─── Suggestion chips for empty state ─── */
+
+const CHAT_SUGGESTIONS = [
+  'Summarize a topic for me',
+  'Help me brainstorm ideas',
+  'Explain a concept simply',
+  'Write a short draft',
+];
+
 /* ─── ChatMessageArea ─── */
 
 interface ChatMessageAreaProps {
@@ -155,13 +194,14 @@ interface ChatMessageAreaProps {
   streaming: boolean;
   maxWidth?: string;
   bottomRef: React.RefObject<HTMLDivElement>;
+  onSuggestion?: (text: string) => void;
 }
 
-export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth = 'max-w-3xl', bottomRef }: ChatMessageAreaProps) {
+export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth = 'max-w-3xl', bottomRef, onSuggestion }: ChatMessageAreaProps) {
   const isEmpty = messages.length === 0 && !draftAssistant && !streaming;
 
   return (
-    <div className="flex-1 overflow-y-auto p-5 bg-surface-warm">
+    <div className="flex-1 overflow-y-auto p-5 bg-surface-warm" role="log" aria-label="Chat messages" aria-live="polite">
       <div className={`flex flex-col w-full ${maxWidth} mx-auto`}>
         {isEmpty && (
           <div className="flex-1 flex flex-col items-center justify-center py-24 text-center">
@@ -169,11 +209,25 @@ export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth 
               <span className="text-xl">💬</span>
             </div>
             <h3 className="text-base font-semibold text-primary font-sans mb-1">Start a conversation</h3>
-            <p className="text-sm text-muted font-sans max-w-xs">Ask anything — get answers, brainstorm ideas, or work through problems together.</p>
+            <p className="text-sm text-muted font-sans max-w-xs mb-6">Ask anything — get answers, brainstorm ideas, or work through problems together.</p>
+            {onSuggestion && (
+              <div className="flex flex-wrap justify-center gap-2 max-w-sm">
+                {CHAT_SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => onSuggestion(s)}
+                    className="px-3 py-1.5 rounded-full text-xs font-sans text-muted hover:text-primary bg-surface border border-border-light hover:border-border hover:bg-surface-hover transition-all duration-200 cursor-pointer"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
         {messages.length > 0 && (
-          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp }))} />
+          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp, error: m.error }))} />
         )}
         {draftAssistant && (
           <div className="fade-in-soft mt-6">
@@ -196,6 +250,8 @@ interface ChatInputProps {
   canSend: boolean;
   placeholder?: string;
   tone?: 'surface' | 'warm';
+  streaming?: boolean;
+  onAbort?: () => void;
 }
 
 export function ChatInput({
@@ -205,7 +261,16 @@ export function ChatInput({
   canSend,
   placeholder = 'Send a message…',
   tone = 'surface',
+  streaming = false,
+  onAbort,
 }: ChatInputProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-focus on mount
+  useEffect(() => {
+    const t = setTimeout(() => textareaRef.current?.focus(), 100);
+    return () => clearTimeout(t);
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -220,24 +285,40 @@ export function ChatInput({
         className="flex items-end gap-2 rounded-xl border border-border-light shadow-xs px-3 py-2 max-w-chat mx-auto bg-surface focus-within:border-border focus-within:shadow-sm transition-all duration-200"
       >
         <Textarea
+          ref={textareaRef}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           maxHeight={140}
           className="flex-1 text-sm leading-relaxed"
+          aria-label="Chat message input"
         />
-        <IconButton
-          onClick={onSend}
-          disabled={!canSend}
-          filled
-          size="md"
-          label="Send"
-          className="w-7 h-7 bg-primary text-surface"
-        >
-          <ArrowUp size={14} className="text-surface" />
-        </IconButton>
+        {streaming ? (
+          <IconButton
+            onClick={onAbort}
+            size="md"
+            label="Stop generating"
+            className="w-7 h-7 bg-danger/10 text-danger hover:bg-danger/20"
+          >
+            <Square size={12} fill="currentColor" />
+          </IconButton>
+        ) : (
+          <IconButton
+            onClick={onSend}
+            disabled={!canSend}
+            filled
+            size="md"
+            label="Send"
+            className="w-7 h-7 bg-primary text-surface"
+          >
+            <ArrowUp size={14} className="text-surface" />
+          </IconButton>
+        )}
       </div>
+      <p className="text-[10px] text-muted/60 font-sans text-center mt-1.5">
+        <kbd className="font-mono">Enter</kbd> to send · <kbd className="font-mono">Shift+Enter</kbd> for new line
+      </p>
     </div>
   );
 }

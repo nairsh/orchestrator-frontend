@@ -39,6 +39,8 @@ export function FeedTaskGroup({
         type="button"
         className="flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={`${headerLabel} — ${taskCount} ${taskCount === 1 ? 'task' : 'tasks'}`}
       >
         <Repeat2 size={15} className="text-muted" />
         <span className="font-sans text-sm text-muted">{headerLabel}</span>

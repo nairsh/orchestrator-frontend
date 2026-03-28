@@ -148,6 +148,7 @@ export function TaskDetail({
           </span>
           {isFailed && <span className="flex-shrink-0 rounded-full bg-danger/10 px-2 py-0.5 text-[11px] font-medium text-danger">Failed</span>}
           {isPaused && <span className="flex-shrink-0 rounded-full bg-warning/10 px-2 py-0.5 text-[11px] font-medium text-warning">Paused</span>}
+          {workflowStatus === 'completed' && <span className="flex-shrink-0 rounded-full bg-success/10 px-2 py-0.5 text-[11px] font-medium text-success">Completed</span>}
           {duration && (
             <span className="flex-shrink-0 flex items-center gap-1 rounded-full bg-surface-secondary px-2 py-0.5 text-[11px] font-medium text-muted">
               <Clock size={10} strokeWidth={2} />

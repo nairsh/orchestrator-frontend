@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react';
-import { MoreHorizontal, Pin, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pin, PinOff, Pencil, Trash2 } from 'lucide-react';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
 interface TaskContextMenuProps {
   onPin?: () => void;
   onRename?: () => void;
   onDelete?: () => void;
+  isPinned?: boolean;
 }
 
-export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuProps) {
+export function TaskContextMenu({ onPin, onRename, onDelete, isPinned = false }: TaskContextMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -46,7 +47,7 @@ export function TaskContextMenu({ onPin, onRename, onDelete }: TaskContextMenuPr
           className="w-full flex items-start gap-2.5 px-3.5 py-2 text-sm text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer text-left active:bg-surface-tertiary"
         >
           <Pin size={13} className="text-muted flex-shrink-0 mt-0.5" />
-          <span className="break-words">Pin task</span>
+          <span className="break-words">{isPinned ? 'Unpin task' : 'Pin task'}</span>
         </button>
         <button
           type="button"

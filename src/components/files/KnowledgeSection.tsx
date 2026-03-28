@@ -109,11 +109,14 @@ export function KnowledgeSection({
             return (
               <div
                 key={document.id}
+                role="button"
+                tabIndex={0}
                 className={[
                   'group relative rounded-xl border bg-surface p-4 transition-all duration-200 cursor-pointer hover:shadow-sm hover:-translate-y-px active:translate-y-0',
                   isActive ? 'border-primary shadow-sm' : 'border-border-light hover:border-border',
                 ].join(' ')}
                 onClick={() => onSelectDocument(document.id)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectDocument(document.id); } }}
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-surface-secondary">
                   {document.extraction_mode === 'ocr' ? <ScanSearch size={18} className="text-muted" /> : <FileSearch size={18} className="text-muted" />}

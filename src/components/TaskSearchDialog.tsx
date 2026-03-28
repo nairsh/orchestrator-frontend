@@ -101,7 +101,7 @@ export function TaskSearchDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center pt-[18vh] bg-black/30"
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[18vh] bg-black/30 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

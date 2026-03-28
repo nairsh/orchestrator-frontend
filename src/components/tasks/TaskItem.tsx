@@ -20,6 +20,7 @@ interface TaskItemProps {
   title?: string;
   onPin?: () => void;
   onRename?: () => void;
+  isPinned?: boolean;
 }
 
 const STATUS_TEXT_COLOR: Record<string, string> = {
@@ -78,7 +79,7 @@ function formatRelativeRunTime(timestamp: string | null | undefined, nowTs: numb
   return `${years} year${years === 1 ? '' : 's'} ago`;
 }
 
-export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename }: TaskItemProps) {
+export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, onClick, config, onDeleted, title, onPin, onRename, isPinned }: TaskItemProps) {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -149,7 +150,7 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
             </span>
           </Tooltip>
         )}
-        <TaskContextMenu onDelete={() => setDeleteConfirm(true)} onPin={onPin} onRename={onRename} />
+        <TaskContextMenu onDelete={() => setDeleteConfirm(true)} onPin={onPin} onRename={onRename} isPinned={isPinned} />
       </div>
     </div>
 

@@ -83,7 +83,7 @@ export function KeyboardShortcutsOverlay({ open, onClose }: { open: boolean; onC
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="w-full max-w-md bg-surface rounded-2xl shadow-modal border border-border-light overflow-hidden">

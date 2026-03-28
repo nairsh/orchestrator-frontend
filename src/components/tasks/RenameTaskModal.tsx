@@ -26,6 +26,7 @@ export function RenameTaskModal({
             label="Name"
             value={renameValue}
             onChange={(e) => onRenameValueChange(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && renameValue.trim()) onSave(); }}
           />
           <div className="text-xs text-muted">
             Stored locally in this browser.

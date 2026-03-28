@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 import type { PendingClarification } from '../../hooks/workflow/types';
 import { Button } from '../ui';
+import { toastApiError } from '../../lib/toast';
 
 interface ClarificationPanelProps {
   clarification: PendingClarification;
@@ -40,6 +41,8 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
       if (text) {
         await onSubmit(text);
       }
+    } catch (err) {
+      toastApiError(err instanceof Error ? err : new Error('Submission failed'), 'Clarification failed');
     } finally {
       setIsSubmitting(false);
     }

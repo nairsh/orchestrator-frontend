@@ -30,6 +30,7 @@ export function SidebarCollapsedNav({ navItems, activeNav, onNavChange }: Collap
                 type="button"
                 onClick={() => onNavChange?.(item.id)}
                 aria-label={item.label}
+                aria-current={activeNav === item.id ? 'page' : undefined}
                 className={[
                   'flex items-center justify-center h-8 w-8 rounded-lg border-none cursor-pointer transition-colors duration-200 active:bg-surface-tertiary',
                   activeNav === item.id ? 'bg-surface-hover' : 'bg-transparent hover:bg-surface-hover',
@@ -64,6 +65,7 @@ export function SidebarExpandedNavGroup({ items, activeNav, onNavChange }: Expan
             key={item.id}
             type="button"
             onClick={() => onNavChange?.(item.id)}
+            aria-current={isActive ? 'page' : undefined}
             className={[
               'group/nav w-full flex items-center gap-2.5 px-2.5 py-[7px] rounded-lg border-none cursor-pointer text-[13.5px] transition-colors duration-200 whitespace-nowrap active:bg-surface-tertiary',
               isActive

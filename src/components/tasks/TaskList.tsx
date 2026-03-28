@@ -214,6 +214,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
                   config={config}
                   onDeleted={onRefresh}
                   title={getDisplayName(wf.id) ?? wf.objective}
+                  isPinned={isPinned(wf.id)}
                   onPin={() => {
                     const wasPinned = isPinned(wf.id);
                     togglePin(wf.id);

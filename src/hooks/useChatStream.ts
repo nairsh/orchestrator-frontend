@@ -4,7 +4,7 @@ import { toastApiError } from '../lib/toast';
 import type { ApiConfig } from '../api/client';
 import type { StreamChunk } from '../api/types';
 
-export type ChatMessage = { role: 'user' | 'assistant'; content: string; timestamp?: number };
+export type ChatMessage = { role: 'user' | 'assistant'; content: string; timestamp?: number; error?: boolean };
 
 const STORAGE_KEY = 'relay-chat-history';
 
@@ -108,7 +108,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
               chunk.data && typeof chunk.data === 'object' && 'message' in (chunk.data as Record<string, unknown>)
                 ? String((chunk.data as { message?: unknown }).message ?? 'Unknown error')
                 : 'Unknown error';
-            toastApiError(new Error(message), 'Agent error');
+            // Show error inline in chat instead of just a toast
+            setMessages((prev) => [...prev, { role: 'assistant', content: message, timestamp: Date.now(), error: true }]);
             assistantBufferRef.current = '';
             setDraftAssistant('');
             abortRef.current?.close();
@@ -117,7 +118,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
         },
         (err: Error) => {
           setStreaming(false);
-          toastApiError(err, 'Stream error');
+          // Show connection error inline in chat
+          setMessages((prev) => [...prev, { role: 'assistant', content: err.message || 'Connection error', timestamp: Date.now(), error: true }]);
           assistantBufferRef.current = '';
           setDraftAssistant('');
           abortRef.current?.close();

@@ -78,7 +78,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
   return (
     <div
       className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-all duration-200 ${
-        visible ? 'bg-black/30' : 'bg-black/0'
+        visible ? 'bg-black/30 backdrop-blur-sm' : 'bg-black/0'
       }`}
       onClick={handleBackdropClick}
     >
