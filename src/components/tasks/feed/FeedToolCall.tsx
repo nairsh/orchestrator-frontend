@@ -160,7 +160,7 @@ export const FeedToolCall = memo(function FeedToolCall({
 
       <div
         className="overflow-hidden transition-all duration-slow"
-        style={{ maxHeight: open ? 'none' : 0, opacity: open ? 1 : 0 }}
+        style={{ maxHeight: open ? 9999 : 0, opacity: open ? 1 : 0 }}
       >
         <div className="flex flex-col gap-2.5 ml-6">
           <TodoList items={todos} />

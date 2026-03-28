@@ -101,10 +101,23 @@ export function TasksPage({
 
   useEffect(() => {
     if (activeNav !== 'tasks' || taskFullView || splitWidthInitialized) return;
-    const containerWidth = splitViewRef.current?.clientWidth;
-    if (!containerWidth || containerWidth <= 0) return;
-    setTaskListWidth(getDefaultTaskListWidth(containerWidth));
-    setSplitWidthInitialized(true);
+    const el = splitViewRef.current;
+    if (!el) return;
+
+    const apply = (width: number) => {
+      if (width <= 0) return false;
+      setTaskListWidth(getDefaultTaskListWidth(width));
+      setSplitWidthInitialized(true);
+      return true;
+    };
+
+    if (apply(el.clientWidth)) return;
+
+    const ro = new ResizeObserver(([entry]) => {
+      if (apply(entry.contentRect.width)) ro.disconnect();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
   }, [activeNav, splitWidthInitialized, taskFullView]);
 
   const handleSelect = (id: string, objective: string) => {
