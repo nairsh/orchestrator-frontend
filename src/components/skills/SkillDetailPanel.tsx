@@ -14,7 +14,7 @@ interface SkillDetailPanelProps {
 
 export function SkillDetailPanel({ skill, onClose, onEdit }: SkillDetailPanelProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} role="presentation">
       <div role="dialog" aria-modal="true" aria-label={formatSkillName(skill.id)} className="bg-surface rounded-2xl border border-border-light shadow-modal w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="px-6 py-5 border-b border-border-light">
           <div className="flex items-start justify-between gap-4">

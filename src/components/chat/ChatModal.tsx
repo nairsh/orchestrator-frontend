@@ -24,6 +24,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
   const bottomRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<Element | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { messages, streaming, draftAssistant, canSend, send, abort, clearHistory } = useChatStream({ config, model });
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
     const t = requestAnimationFrame(() => setVisible(true));
     return () => {
       cancelAnimationFrame(t);
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
       if (previousFocusRef.current instanceof HTMLElement) previousFocusRef.current.focus();
     };
   }, []);
@@ -69,7 +71,7 @@ export function ChatModal({ config, onClose, fullscreen = false, modelIconOverri
       onClose();
     } else {
       setVisible(false);
-      setTimeout(onClose, 150);
+      closeTimerRef.current = setTimeout(onClose, 150);
     }
   };
 

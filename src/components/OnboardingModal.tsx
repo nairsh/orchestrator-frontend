@@ -65,7 +65,7 @@ export function OnboardingModal({ onClose, onStartWorkflow: _onStartWorkflow, on
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) handleSkip(); }}>
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/30 backdrop-blur-sm" onClick={(e) => { if (e.target === e.currentTarget) handleSkip(); }} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSkip(); }} role="presentation">
       <div
         role="dialog"
         aria-modal="true"

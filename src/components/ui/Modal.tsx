@@ -23,12 +23,16 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
   const [visible, setVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<Element | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const titleId = useId();
 
   useEffect(() => {
     previousFocusRef.current = document.activeElement;
     const t = requestAnimationFrame(() => setVisible(true));
-    return () => cancelAnimationFrame(t);
+    return () => {
+      cancelAnimationFrame(t);
+      if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    };
   }, []);
 
   // Focus trap: keep Tab within modal and restore focus on close
@@ -73,7 +77,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
 
   function handleClose() {
     setVisible(false);
-    setTimeout(onClose, 150);
+    closeTimerRef.current = setTimeout(onClose, 150);
   }
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
