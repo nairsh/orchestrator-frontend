@@ -73,7 +73,9 @@ export function TaskListHeader({
                   return;
                 }
                 const total = billingCredits + periodCreditsUsed;
-                const pct = total > 0 ? Math.round((billingCredits / total) * 100) : 100;
+                const rawPct = total > 0 ? (billingCredits / total) * 100 : 100;
+                // Prevent misleading "100%" when credits have been used
+                const pct = periodCreditsUsed > 0 ? Math.min(Math.round(rawPct), 99) : Math.round(rawPct);
                 const hasUsageData = periodCreditsUsed > 0;
                 const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 

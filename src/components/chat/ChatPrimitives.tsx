@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X } from 'lucide-react';
+import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Bot, User } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
 import type { ChatMessage } from '../../hooks/useChatStream';
@@ -23,9 +23,14 @@ export type TimelineItem =
 
 const MESSAGE_TRUNCATE_LENGTH = 200;
 
+function formatTime(ts?: number): string {
+  if (!ts) return '';
+  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 /* ─── UserBubble ─── */
 
-export function UserBubble({ content }: { content: string }) {
+export function UserBubble({ content, timestamp }: { content: string; timestamp?: number }) {
   const [expanded, setExpanded] = useState(false);
   const shouldTruncate = content.length > MESSAGE_TRUNCATE_LENGTH;
   const displayContent = shouldTruncate && !expanded
@@ -33,37 +38,51 @@ export function UserBubble({ content }: { content: string }) {
     : content;
 
   return (
-    <div className="w-fit max-w-[85%] rounded-2xl px-4.5 py-3.5 text-primary bg-userbubble">
-      <p className="font-sans text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
-      {shouldTruncate && (
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="mt-2 flex items-center gap-1 text-sm text-muted hover:text-primary cursor-pointer bg-transparent border-none p-0 font-sans"
-          aria-expanded={expanded}
-        >
-          {expanded ? 'Show less' : 'Show more'}
-          <ChevronDown
-            size={14}
-            className="transition-transform duration-slow"
-            style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
-          />
-        </button>
-      )}
+    <div className="flex items-end gap-2 justify-end">
+      <div>
+        <div className="w-fit max-w-[85%] ml-auto rounded-2xl px-4.5 py-3.5 text-primary bg-userbubble">
+          <p className="font-sans text-sm leading-relaxed whitespace-pre-wrap">{displayContent}</p>
+          {shouldTruncate && (
+            <button
+              type="button"
+              onClick={() => setExpanded(!expanded)}
+              className="mt-2 flex items-center gap-1 text-sm text-muted hover:text-primary cursor-pointer bg-transparent border-none p-0 font-sans"
+              aria-expanded={expanded}
+            >
+              {expanded ? 'Show less' : 'Show more'}
+              <ChevronDown
+                size={14}
+                className="transition-transform duration-slow"
+                style={{ transform: expanded ? 'rotate(180deg)' : 'none' }}
+              />
+            </button>
+          )}
+        </div>
+        {timestamp ? <div className="text-[10px] text-muted font-sans mt-1 text-right">{formatTime(timestamp)}</div> : null}
+      </div>
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-userbubble flex items-center justify-center">
+        <User size={12} className="text-primary" />
+      </div>
     </div>
   );
 }
 
 /* ─── AssistantMessage ─── */
 
-export function AssistantMessage({ content }: { content: string }) {
+export function AssistantMessage({ content, timestamp }: { content: string; timestamp?: number }) {
   return (
-    <div className="relative group max-w-[85%]">
-      <div className="font-sans text-sm leading-relaxed text-primary">
-        <Markdown content={content} />
+    <div className="flex items-start gap-2.5">
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-secondary border border-border-light flex items-center justify-center mt-0.5">
+        <Bot size={12} className="text-muted" />
       </div>
-      <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-y-1 translate-x-8">
-        <CopyButton content={content} size="small" />
+      <div className="relative group max-w-[85%]">
+        <div className="font-sans text-sm leading-relaxed text-primary">
+          <Markdown content={content} />
+        </div>
+        {timestamp ? <div className="text-[10px] text-muted font-sans mt-1">{formatTime(timestamp)}</div> : null}
+        <div className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 -translate-y-1 translate-x-8">
+          <CopyButton content={content} size="small" />
+        </div>
       </div>
     </div>
   );
@@ -92,7 +111,7 @@ export function ToolCallItem({ tool }: { tool: ToolCall }) {
 
 /* ─── MessageList (flat, no timeline rail) ─── */
 
-export function MessageList({ items }: { items: TimelineItem[] }) {
+export function MessageList({ items }: { items: (TimelineItem & { timestamp?: number })[] }) {
   return (
     <div className="flex flex-col gap-6">
       {items.map((item, idx) => (
@@ -100,9 +119,9 @@ export function MessageList({ items }: { items: TimelineItem[] }) {
           {item.type === 'message' ? (
             <div className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {item.role === 'user' ? (
-                <UserBubble content={item.content} />
+                <UserBubble content={item.content} timestamp={item.timestamp} />
               ) : (
-                <AssistantMessage content={item.content} />
+                <AssistantMessage content={item.content} timestamp={item.timestamp} />
               )}
             </div>
           ) : (
@@ -118,9 +137,12 @@ export function MessageList({ items }: { items: TimelineItem[] }) {
 
 export function StreamingIndicator() {
   return (
-    <div className="flex items-center gap-2 text-muted font-sans text-sm mt-6">
+    <div className="flex items-center gap-2.5 text-muted font-sans text-sm mt-6">
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-surface-secondary border border-border-light flex items-center justify-center">
+        <Bot size={12} className="text-muted" />
+      </div>
       <Loader2 size={14} className="animate-spin" />
-      Thinking…
+      <span>Thinking…</span>
     </div>
   );
 }
@@ -151,7 +173,7 @@ export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth 
           </div>
         )}
         {messages.length > 0 && (
-          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content }))} />
+          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp }))} />
         )}
         {draftAssistant && (
           <div className="fade-in-soft mt-6">

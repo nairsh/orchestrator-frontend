@@ -4,7 +4,7 @@ import { toastApiError } from '../lib/toast';
 import type { ApiConfig } from '../api/client';
 import type { StreamChunk } from '../api/types';
 
-export type ChatMessage = { role: 'user' | 'assistant'; content: string };
+export type ChatMessage = { role: 'user' | 'assistant'; content: string; timestamp?: number };
 
 const STORAGE_KEY = 'relay-chat-history';
 
@@ -64,7 +64,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
         return;
       }
 
-      const userMsg: ChatMessage = { role: 'user', content: text };
+      const userMsg: ChatMessage = { role: 'user', content: text, timestamp: Date.now() };
       const updatedMessages = [...messagesRef.current, userMsg];
 
       setStreaming(true);
@@ -93,7 +93,7 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
             setStreaming(false);
             const finalText = assistantBufferRef.current;
             if (finalText) {
-              setMessages((prev) => [...prev, { role: 'assistant', content: finalText }]);
+              setMessages((prev) => [...prev, { role: 'assistant', content: finalText, timestamp: Date.now() }]);
             }
             assistantBufferRef.current = '';
             setDraftAssistant('');
