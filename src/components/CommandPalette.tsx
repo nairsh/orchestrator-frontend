@@ -109,6 +109,9 @@ export function CommandPalette({
       filtered[selectedIndex].action();
     } else if (e.key === 'Escape') {
       onClose();
+    } else if (e.key === 'Tab') {
+      // Trap focus within the palette — keep focus on input
+      e.preventDefault();
     }
   }, [filtered, selectedIndex, onClose]);
 

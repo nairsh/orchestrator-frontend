@@ -277,6 +277,10 @@ export function useWorkflowStream(
       const snapshotState = stateRef.current;
       const silent = opts?.silent ?? false;
 
+      // Pre-compute how many optimistic entries we'll add
+      const isClarReply = snapshotState?.workflowStatus === 'paused' || !!snapshotState?.pendingClarification;
+      const optimisticCount = (silent ? 0 : 1) + (isClarReply ? 0 : 1);
+
       setState((prev) => {
         const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
         pendingEnvironmentSetupRef.current = !isClarificationReply;
@@ -300,12 +304,10 @@ export function useWorkflowStream(
         await continueWorkflow(config, workflowId, msg);
       } catch (error) {
         pendingEnvironmentSetupRef.current = false;
-        // Restore to pre-optimistic state so paused/clarification workflows don't appear failed
+        // Only remove the optimistic entries we added — preserve any SSE events that arrived
         setState((prev) => ({
           ...prev,
-          feed: snapshotState?.feed ?? prev.feed.filter(
-            (e) => !(e.kind === 'system_status' && e.text === 'Starting environment…')
-          ),
+          feed: optimisticCount > 0 ? prev.feed.slice(0, -optimisticCount) : prev.feed,
           isTerminal: snapshotState?.isTerminal ?? prev.isTerminal,
           currentActivity: snapshotState?.currentActivity ?? '',
           workflowStatus: snapshotState?.workflowStatus ?? prev.workflowStatus,
