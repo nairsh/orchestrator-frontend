@@ -132,17 +132,38 @@ function _reduceWorkflowEvent(
         return { ...prev, isTerminal: false, workflowStatus: 'executing' };
       }
       const taskId = 'orchestrator';
+      const toolName = data.tool_name ?? 'tool';
       let marked = false;
       const feed = [...prev.feed]
         .reverse()
         .map((e) => {
-          if (!marked && e.kind === 'tool_call' && e.taskId === taskId && e.status === 'running') {
+          if (!marked && e.kind === 'tool_call' && e.taskId === taskId && e.status === 'running' && e.toolName === toolName) {
             marked = true;
             return { ...e, status: 'done' as const, output: data.tool_output };
           }
           return e;
         })
         .reverse();
+      // Fallback: if no matching tool name found, mark any running tool call for this task
+      if (!marked) {
+        let fallbackMarked = false;
+        const feedFallback = [...prev.feed]
+          .reverse()
+          .map((e) => {
+            if (!fallbackMarked && e.kind === 'tool_call' && e.taskId === taskId && e.status === 'running') {
+              fallbackMarked = true;
+              return { ...e, status: 'done' as const, output: data.tool_output };
+            }
+            return e;
+          })
+          .reverse();
+        if (fallbackMarked) {
+          const withEnvironmentReady = isEnvironmentSetupTool(data.tool_name)
+            ? appendEnvironmentReadyIfPending(feedFallback, ctx)
+            : feedFallback;
+          return { ...prev, feed: withEnvironmentReady, isTerminal: false, workflowStatus: 'executing' };
+        }
+      }
       const withEnvironmentReady = isEnvironmentSetupTool(data.tool_name)
         ? appendEnvironmentReadyIfPending(feed, ctx)
         : feed;
