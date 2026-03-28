@@ -41,6 +41,7 @@ export function SkillGrid({ skills, selectedId, loading, onSelectSkill, onEditSk
           key={skill.id}
           role="button"
           tabIndex={0}
+          aria-pressed={selectedId === skill.id}
           onClick={() => onSelectSkill(skill.id)}
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelectSkill(skill.id); } }}
           className={[

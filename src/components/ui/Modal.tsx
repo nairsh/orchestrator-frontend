@@ -17,6 +17,8 @@ interface ModalProps {
   ariaTitle?: string;
 }
 
+export const MODAL_HEADING_ID = 'modal-heading';
+
 export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '', ariaTitle }: ModalProps) {
   const [visible, setVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -89,7 +91,7 @@ export function Modal({ children, onClose, maxWidth = 'max-w-2xl', className = '
         ref={cardRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={ariaTitle ? titleId : undefined}
+        aria-labelledby={ariaTitle ? titleId : MODAL_HEADING_ID}
         className={[
           'bg-surface rounded-2xl shadow-modal border border-border-subtle w-full overflow-hidden transition-all duration-200',
           maxWidth,
@@ -118,7 +120,7 @@ export function ModalHeader({ title, onClose, children }: ModalHeaderProps) {
   return (
     <div className="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
       <div className="flex items-center gap-3">
-        <h2 className="text-base font-semibold text-primary">{title}</h2>
+        <h2 id={MODAL_HEADING_ID} className="text-base font-semibold text-primary">{title}</h2>
         {children}
       </div>
       <button

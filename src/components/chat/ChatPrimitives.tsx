@@ -139,7 +139,7 @@ export function MessageList({ items }: { items: (TimelineItem & { timestamp?: nu
     <div className="flex flex-col gap-6">
       {items.map((item, idx) => {
         const key = item.timestamp
-          ? `${item.type}-${item.type === 'message' ? item.role : 'tool'}-${item.timestamp}`
+          ? `${item.type}-${item.type === 'message' ? item.role : 'tool'}-${item.timestamp}-${idx}`
           : `${item.type}-${idx}`;
         return (
         <div key={key}>

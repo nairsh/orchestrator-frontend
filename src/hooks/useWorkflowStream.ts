@@ -304,17 +304,22 @@ export function useWorkflowStream(
       const snapshotState = stateRef.current;
       const silent = opts?.silent ?? false;
 
-      // Pre-compute how many optimistic entries we'll add
-      const isClarReply = snapshotState?.workflowStatus === 'paused' || !!snapshotState?.pendingClarification;
-      const optimisticCount = (silent ? 0 : 1) + (isClarReply ? 0 : 1);
+      // Track optimistic entry texts so rollback can identify and remove them
+      const optimisticMarkers: Array<{ kind: string; text: string }> = [];
 
       setState((prev) => {
         const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
         pendingEnvironmentSetupRef.current = !isClarificationReply;
 
         const feedAdditions: typeof prev.feed = [];
-        if (!silent) feedAdditions.push({ kind: 'user_message', text: msg });
-        if (!isClarificationReply) feedAdditions.push({ kind: 'system_status', text: 'Starting environment…' });
+        if (!silent) {
+          feedAdditions.push({ kind: 'user_message', text: msg });
+          optimisticMarkers.push({ kind: 'user_message', text: msg });
+        }
+        if (!isClarificationReply) {
+          feedAdditions.push({ kind: 'system_status', text: 'Starting environment…' });
+          optimisticMarkers.push({ kind: 'system_status', text: 'Starting environment…' });
+        }
 
         return {
           ...prev,
@@ -331,15 +336,29 @@ export function useWorkflowStream(
         await continueWorkflow(config, workflowId, msg);
       } catch (error) {
         pendingEnvironmentSetupRef.current = false;
-        // Only remove the optimistic entries we added — preserve any SSE events that arrived
-        setState((prev) => ({
-          ...prev,
-          feed: optimisticCount > 0 ? prev.feed.slice(0, -optimisticCount) : prev.feed,
-          isTerminal: snapshotState?.isTerminal ?? prev.isTerminal,
-          currentActivity: snapshotState?.currentActivity ?? '',
-          workflowStatus: snapshotState?.workflowStatus ?? prev.workflowStatus,
-          pendingClarification: snapshotState?.pendingClarification,
-        }));
+        // Remove exactly the optimistic entries by matching from the end — preserves any SSE events
+        setState((prev) => {
+          let feed = [...prev.feed];
+          // Walk markers in reverse to remove from end of feed
+          for (let m = optimisticMarkers.length - 1; m >= 0; m--) {
+            const marker = optimisticMarkers[m];
+            for (let i = feed.length - 1; i >= 0; i--) {
+              const entry = feed[i];
+              if (entry.kind === marker.kind && 'text' in entry && entry.text === marker.text) {
+                feed.splice(i, 1);
+                break;
+              }
+            }
+          }
+          return {
+            ...prev,
+            feed,
+            isTerminal: snapshotState?.isTerminal ?? prev.isTerminal,
+            currentActivity: snapshotState?.currentActivity ?? '',
+            workflowStatus: snapshotState?.workflowStatus ?? prev.workflowStatus,
+            pendingClarification: snapshotState?.pendingClarification,
+          };
+        });
         throw error;
       }
 
@@ -375,6 +394,7 @@ export function useWorkflowStream(
 
   const retryConnection = useCallback(() => {
     reconnectAttemptsRef.current = 0;
+    lastEventTimeRef.current = Date.now();
     setState((prev) => ({ ...prev, isStale: false, currentActivity: 'Reconnecting…' }));
     connect();
   }, [connect]);

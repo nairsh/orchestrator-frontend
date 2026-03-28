@@ -32,7 +32,11 @@ function loadNotifications(): Notification[] {
 }
 
 function saveNotifications(notifications: Notification[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications.slice(0, MAX_NOTIFICATIONS)));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications.slice(0, MAX_NOTIFICATIONS)));
+  } catch {
+    // QuotaExceededError — fall back to in-memory only
+  }
 }
 
 const NotificationContext = createContext<NotificationState | null>(null);

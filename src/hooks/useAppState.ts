@@ -168,7 +168,7 @@ export function useAppState(props: AppProps) {
     return () => {
       cancelled = true;
     };
-  }, [config.baseUrl, hasSessionAuth]);
+  }, [runtimeConfig, isConfigured]);
 
   const handleLandingSubmit = async (objective: string, model: string, contextFiles: ContextFileUpload[] = []) => {
     setSelectedModel(model);
@@ -201,7 +201,7 @@ export function useAppState(props: AppProps) {
     const runtimeNewConfig: ApiConfig = {
       ...newConfig,
       getAuthToken,
-      hasAuth: hasSessionAuth,
+      hasAuth: effectiveAuth,
     };
     saveConfig(newConfig);
     setShowSettings(false);

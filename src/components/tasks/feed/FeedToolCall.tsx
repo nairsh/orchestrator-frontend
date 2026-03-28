@@ -78,7 +78,7 @@ export function FeedToolCall({
     if (isBash) return 'Running command';
     if (toolName === 'request_clarification') return 'Needs more info from you';
     return humanizeToolName(toolName);
-  }, [command, fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
+  }, [fileName, include, inp, isBash, isBrowser, isTodo, pattern, query, toolName, url]);
 
   const Icon = isTodo ? ListChecks : isBrowser ? Globe : isFile ? FileText : isSearch ? ScanSearch : isBash ? Terminal : Zap;
   const todos = useMemo(() => extractTodoDisplay(toolName, input, output, status), [toolName, input, output, status]);

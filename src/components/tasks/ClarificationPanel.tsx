@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 import type { PendingClarification } from '../../hooks/workflow/types';
 import { Button } from '../ui';
@@ -16,13 +16,17 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [customValue, setCustomValue] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEntered(false);
     setSelectedOption(null);
     setCustomValue('');
     setIsSubmitting(false);
-    const id = requestAnimationFrame(() => setEntered(true));
+    const id = requestAnimationFrame(() => {
+      setEntered(true);
+      panelRef.current?.focus();
+    });
     return () => cancelAnimationFrame(id);
   }, [clarification.question]);
 
@@ -80,9 +84,12 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
 
   return (
     <div 
+      ref={panelRef}
       className="flex-shrink-0 px-16 pb-2 outline-none"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
+      role="region"
+      aria-label="Clarification needed"
     >
       <div
         className="mx-auto w-full rounded-xl border border-border-light bg-surface shadow-sm overflow-hidden"
@@ -112,6 +119,7 @@ export function ClarificationPanel({ clarification, maxWidth = 600, onSubmit, on
                 type="button"
                 onClick={() => handleOptionClick(index)}
                 disabled={isSubmitting}
+                aria-pressed={isSelected}
                 className={[
                   'w-full flex items-center gap-3 px-3 py-3 rounded-lg text-left transition-all duration-150 mb-2',
                   'border',
