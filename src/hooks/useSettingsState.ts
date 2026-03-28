@@ -4,6 +4,7 @@ import {
   disconnectConnector,
   getModelPreferences,
   getModels,
+  invalidateModelsCache,
   listConnectorProviders,
   listConnectors,
   resetModelPreferences,
@@ -134,13 +135,14 @@ export function useSettingsState({
         subagent_models: modelPreferences.subagent_models,
       });
       setModelPreferences(saved); setRoutingDirty(false); setPreferencesStatus('idle');
+      invalidateModelsCache(trimmedBase);
       toastSuccess('AI preferences saved');
     } catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Couldn\'t save your AI preferences'); }
   };
 
   const handleResetRouting = async () => {
     setPreferencesStatus('saving');
-    try { const reset = await resetModelPreferences(apiConfig); setModelPreferences(reset); setRoutingDirty(false); setPreferencesStatus('idle'); toastInfo('AI preferences reset to defaults'); }
+    try { const reset = await resetModelPreferences(apiConfig); setModelPreferences(reset); setRoutingDirty(false); setPreferencesStatus('idle'); invalidateModelsCache(trimmedBase); toastInfo('AI preferences reset to defaults'); }
     catch (err) { setPreferencesStatus('error'); toastApiError(err, 'Couldn\'t reset your AI preferences'); }
   };
 

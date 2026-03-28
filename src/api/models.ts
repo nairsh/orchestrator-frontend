@@ -2,8 +2,44 @@ import type { ModelsResponse, ModelPreferences } from './types';
 import type { ApiConfig } from './core';
 import { request } from './core';
 
+// Deduplicate concurrent getModels requests and cache briefly (30s)
+const modelsCache = new Map<string, { data: ModelsResponse; timestamp: number }>();
+const pendingModelsRequests = new Map<string, Promise<ModelsResponse>>();
+const MODELS_CACHE_TTL_MS = 30_000;
+
 export async function getModels(config: ApiConfig): Promise<ModelsResponse> {
-  return request<ModelsResponse>(config, '/v1/models');
+  const key = config.baseUrl;
+
+  // Return cached data if fresh
+  const cached = modelsCache.get(key);
+  if (cached && Date.now() - cached.timestamp < MODELS_CACHE_TTL_MS) {
+    return cached.data;
+  }
+
+  // Deduplicate in-flight requests
+  const pending = pendingModelsRequests.get(key);
+  if (pending) return pending;
+
+  const promise = request<ModelsResponse>(config, '/v1/models')
+    .then((data) => {
+      modelsCache.set(key, { data, timestamp: Date.now() });
+      return data;
+    })
+    .finally(() => {
+      pendingModelsRequests.delete(key);
+    });
+
+  pendingModelsRequests.set(key, promise);
+  return promise;
+}
+
+/** Invalidate the models cache (e.g. after saving preferences) */
+export function invalidateModelsCache(baseUrl?: string) {
+  if (baseUrl) {
+    modelsCache.delete(baseUrl);
+  } else {
+    modelsCache.clear();
+  }
 }
 
 export async function getModelPreferences(config: ApiConfig): Promise<ModelPreferences> {

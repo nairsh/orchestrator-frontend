@@ -26,6 +26,7 @@ export {
   saveModelPreferences,
   resetModelPreferences,
   getPresets,
+  invalidateModelsCache,
 } from './models';
 
 export {
