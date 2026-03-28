@@ -11,8 +11,8 @@ interface ApprovalGateProps {
   command?: string;
   reason?: string;
   status: 'pending' | 'resolved';
-  onApprove?: (approvalId: string) => void;
-  onReject?: (approvalId: string) => void;
+  onApprove?: (approvalId: string) => Promise<void> | void;
+  onReject?: (approvalId: string) => Promise<void> | void;
 }
 
 export function ApprovalGate({ approvalId, toolName, command, reason, status, onApprove, onReject }: ApprovalGateProps) {

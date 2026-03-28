@@ -122,39 +122,39 @@ export function NotificationCenter(props: NotificationCenterProps) {
           </div>
 
           {/* List */}
-          <div className="max-h-[360px] overflow-y-auto" role="list">
+          <ul className="max-h-[360px] overflow-y-auto list-none m-0 p-0">
             {notifications.length === 0 ? (
-              <RelayEmpty icon={<Bell size={24} className="text-muted" />} description="No notifications yet" className="py-8" />
+              <li><RelayEmpty icon={<Bell size={24} className="text-muted" />} description="No notifications yet" className="py-8" /></li>
             ) : (
               notifications.map((notif) => (
-                <button
-                  key={notif.id}
-                  type="button"
-                  role="listitem"
-                  onClick={() => {
-                    onMarkAsRead(notif.id);
-                    onClickNotification?.(notif);
-                    setOpen(false);
-                  }}
-                  className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-surface-hover border-b border-border-light/50 cursor-pointer ${
-                    !notif.read ? 'bg-surface-tertiary/50' : ''
-                  }`}
-                >
-                  <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(notif.type)}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium line-clamp-2 ${notif.read ? 'text-secondary' : 'text-primary'}`}>
-                        {notif.title}
-                      </span>
-                      {!notif.read && <div className="w-1.5 h-1.5 rounded-full bg-info flex-shrink-0" />}
+                <li key={notif.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onMarkAsRead(notif.id);
+                      onClickNotification?.(notif);
+                      setOpen(false);
+                    }}
+                    className={`w-full flex items-start gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-surface-hover border-b border-border-light/50 cursor-pointer ${
+                      !notif.read ? 'bg-surface-tertiary/50' : ''
+                    }`}
+                  >
+                    <span className="text-base flex-shrink-0 mt-0.5">{notifIcon(notif.type)}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium line-clamp-2 ${notif.read ? 'text-secondary' : 'text-primary'}`}>
+                          {notif.title}
+                        </span>
+                        {!notif.read && <div className="w-1.5 h-1.5 rounded-full bg-info flex-shrink-0" />}
+                      </div>
+                      <p className="text-xs text-muted mt-0.5 line-clamp-2">{notif.message}</p>
+                      <span className="text-2xs text-placeholder mt-1 block">{relativeTimeAgo(notif.timestamp)}</span>
                     </div>
-                    <p className="text-xs text-muted mt-0.5 line-clamp-2">{notif.message}</p>
-                    <span className="text-2xs text-placeholder mt-1 block">{relativeTimeAgo(notif.timestamp)}</span>
-                  </div>
-                </button>
+                  </button>
+                </li>
               ))
             )}
-          </div>
+          </ul>
         </div>,
         document.body
       )}

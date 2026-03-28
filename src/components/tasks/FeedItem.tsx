@@ -136,8 +136,8 @@ export const FeedItem = memo(function FeedItem({
             command={entry.command}
             reason={entry.reason}
             status={entry.status}
-            onApprove={(id) => void onBashApproval(id, true)}
-            onReject={(id) => void onBashApproval(id, false)}
+            onApprove={(id) => onBashApproval(id, true)}
+            onReject={(id) => onBashApproval(id, false)}
           />
         );
       }

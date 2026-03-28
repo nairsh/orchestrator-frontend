@@ -99,7 +99,7 @@ export function useWorkflowStream(
         const attempts = reconnectAttemptsRef.current;
         if (attempts < MAX_RECONNECT_ATTEMPTS) {
           reconnectAttemptsRef.current = attempts + 1;
-          const backoffMs = Math.min(1000 * Math.pow(2, attempts), 10_000);
+          const backoffMs = Math.min(1000 * Math.pow(2, attempts), 10_000) * (0.8 + Math.random() * 0.4);
           setState((prev) => {
             if (prev.isTerminal) return prev;
             return { ...prev, currentActivity: `Reconnecting (attempt ${attempts + 1}/${MAX_RECONNECT_ATTEMPTS})…` };

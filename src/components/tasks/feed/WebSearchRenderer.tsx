@@ -1,6 +1,11 @@
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Globe, Loader2, Search } from 'lucide-react';
 import type { SearchResultDisplay } from './feedHelpers';
+
+function safeFaviconUrl(url: string): string | null {
+  try { return `${new URL(url).origin}/favicon.ico`; }
+  catch { return null; }
+}
 
 export const WebSearchRenderer = memo(function WebSearchRenderer({
   query,
@@ -11,7 +16,8 @@ export const WebSearchRenderer = memo(function WebSearchRenderer({
   isRunning: boolean;
   searchResults: SearchResultDisplay[];
 }) {
-  const [faviconErrors, setFaviconErrors] = useState<Set<number>>(new Set());
+  const [faviconErrors, setFaviconErrors] = useState<Set<string>>(new Set());
+  useEffect(() => { setFaviconErrors(new Set()); }, [searchResults]);
   return (
     <div className="flex flex-col gap-2">
       {query && (
@@ -32,33 +38,36 @@ export const WebSearchRenderer = memo(function WebSearchRenderer({
             {isRunning ? 'Searching sources…' : 'No sources returned'}
           </div>
         )}
-        {searchResults.map((result, idx) => (
-          <a
-            key={`${result.resolvedUrl}:${idx}`}
-            href={result.resolvedUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-sm px-2 py-1 hover:bg-surface-warm transition-colors duration-200 no-underline fade-in-up-soft"
-            style={{ animationDelay: `${Math.min(idx * 28, 220)}ms` }}
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              {faviconErrors.has(idx) ? (
-                <Globe size={14} className="text-muted flex-shrink-0" aria-hidden="true" />
-              ) : (
-                <img
-                  src={`${new URL(result.resolvedUrl).origin}/favicon.ico`}
-                  alt=""
-                  aria-hidden="true"
-                  className="w-4 h-4 rounded-full flex-shrink-0"
-                  loading="lazy"
-                  onError={() => setFaviconErrors((prev) => new Set(prev).add(idx))}
-                />
-              )}
-              <span className="font-sans text-xs text-primary truncate">{result.title}</span>
-              <span className="font-mono text-2xs text-placeholder truncate">{result.domain}</span>
-            </div>
-          </a>
-        ))}
+        {searchResults.map((result, idx) => {
+          const favicon = safeFaviconUrl(result.resolvedUrl);
+          return (
+            <a
+              key={`${result.resolvedUrl}:${idx}`}
+              href={result.resolvedUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-sm px-2 py-1 hover:bg-surface-warm transition-colors duration-200 no-underline fade-in-up-soft"
+              style={{ animationDelay: `${Math.min(idx * 28, 220)}ms` }}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {!favicon || faviconErrors.has(result.resolvedUrl) ? (
+                  <Globe size={14} className="text-muted flex-shrink-0" aria-hidden="true" />
+                ) : (
+                  <img
+                    src={favicon}
+                    alt=""
+                    aria-hidden="true"
+                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    loading="lazy"
+                    onError={() => setFaviconErrors((prev) => new Set(prev).add(result.resolvedUrl))}
+                  />
+                )}
+                <span className="font-sans text-xs text-primary truncate">{result.title}</span>
+                <span className="font-mono text-2xs text-placeholder truncate">{result.domain}</span>
+              </div>
+            </a>
+          );
+        })}
       </div>
     </div>
   );

@@ -2,6 +2,11 @@ import { memo, useEffect, useState } from 'react';
 import { Globe, Loader2 } from 'lucide-react';
 import type { FetchedSourceDisplay } from './feedHelpers';
 
+function safeFaviconUrl(url: string): string | null {
+  try { return `${new URL(url).origin}/favicon.ico`; }
+  catch { return null; }
+}
+
 export const FetchUrlRenderer = memo(function FetchUrlRenderer({
   isRunning,
   fetchedSource,
@@ -11,6 +16,7 @@ export const FetchUrlRenderer = memo(function FetchUrlRenderer({
 }) {
   const [faviconError, setFaviconError] = useState(false);
   useEffect(() => { setFaviconError(false); }, [fetchedSource?.url]);
+  const favicon = fetchedSource ? safeFaviconUrl(fetchedSource.url) : null;
   return (
     <div className="flex flex-col gap-2">
       <div className="rounded-lg border border-border-light bg-surface overflow-hidden px-0 py-0 fade-in-soft">
@@ -25,11 +31,11 @@ export const FetchUrlRenderer = memo(function FetchUrlRenderer({
             className="block px-4 py-1 hover:bg-surface-warm transition-colors duration-200 no-underline"
           >
             <div className="flex items-center gap-1.5 min-w-0 h-5">
-              {faviconError ? (
+              {!favicon || faviconError ? (
                 <Globe size={12} className="text-muted flex-shrink-0" aria-hidden="true" />
               ) : (
                 <img
-                  src={`${new URL(fetchedSource.url).origin}/favicon.ico`}
+                  src={favicon}
                   alt=""
                   aria-hidden="true"
                   className="w-3 h-3 rounded-full flex-shrink-0"

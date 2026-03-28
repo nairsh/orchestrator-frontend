@@ -54,7 +54,7 @@ export function TaskDetail({
   animateInputEntry = false,
   onRefreshList,
 }: TaskDetailProps) {
-  const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleApproval, handleBashApproval, retryConnection, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
+  const { feed, isTerminal, hydrated, currentActivity, thinkingText, isStale, workflowStatus, liveTasks, sendMessage, handleBashApproval, retryConnection, pendingClarification, startedAt, endedAt } = useWorkflowStream(config, workflowId, true, objective);
   const modelLabel = activeModel ? humanizeModelName(activeModel) : 'AI';
   const truncatedObj = truncate(objective, 60);
   const contentMaxWidth = fullView ? 760 : 600;
@@ -281,7 +281,6 @@ export function TaskDetail({
         isStale={isStale}
         maxWidth={contentMaxWidth}
         fullView={fullView}
-        onApproval={handleApproval}
         onBashApproval={handleBashApproval}
         onRetryConnection={retryConnection}
       />

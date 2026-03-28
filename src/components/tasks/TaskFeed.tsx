@@ -19,7 +19,6 @@ interface TaskFeedProps {
   isStale?: boolean;
   maxWidth?: number;
   fullView?: boolean;
-  onApproval?: (taskId: string, approved: boolean) => Promise<void>;
   onBashApproval?: (approvalId: string, approved: boolean) => Promise<void>;
   onRetryConnection?: () => void;
 }
@@ -69,7 +68,7 @@ function ParallelToolCalls({
   );
 }
 
-export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, onApproval, onBashApproval, onRetryConnection }: TaskFeedProps) {
+export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isStale, maxWidth = 600, fullView = false, onBashApproval, onRetryConnection }: TaskFeedProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const renderRows = useMemo<RenderRow[]>(() => {
