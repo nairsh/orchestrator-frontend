@@ -266,22 +266,25 @@ export function useWorkflowStream(
   }, []);
 
   const sendMessage = useCallback(
-    async (text: string) => {
+    async (text: string, opts?: { silent?: boolean }) => {
       const msg = text.trim();
       if (!msg) return;
 
       // Snapshot state before optimistic update so we can restore on failure
       const snapshotState = stateRef.current;
+      const silent = opts?.silent ?? false;
 
       setState((prev) => {
         const isClarificationReply = prev.workflowStatus === 'paused' || !!prev.pendingClarification;
         pendingEnvironmentSetupRef.current = !isClarificationReply;
 
+        const feedAdditions: typeof prev.feed = [];
+        if (!silent) feedAdditions.push({ kind: 'user_message', text: msg });
+        if (!isClarificationReply) feedAdditions.push({ kind: 'system_status', text: 'Starting environment…' });
+
         return {
           ...prev,
-          feed: isClarificationReply
-            ? [...prev.feed, { kind: 'user_message', text: msg }]
-            : [...prev.feed, { kind: 'user_message', text: msg }, { kind: 'system_status', text: 'Starting environment…' }],
+          feed: [...prev.feed, ...feedAdditions],
           liveTasks: isClarificationReply ? prev.liveTasks : [],
           isTerminal: false,
           currentActivity: isClarificationReply ? 'Resuming…' : 'Starting environment…',

@@ -44,9 +44,13 @@ export function BashRenderer({
       </div>
 
       <div
-        className="overflow-hidden transition-all duration-slow"
+        className="transition-all duration-slow"
         aria-hidden={!showBashOutput || !hasOutput}
-        style={{ maxHeight: showBashOutput && hasOutput ? 420 : 0, opacity: showBashOutput && hasOutput ? 1 : 0 }}
+        style={{
+          maxHeight: showBashOutput && hasOutput ? 600 : 0,
+          opacity: showBashOutput && hasOutput ? 1 : 0,
+          overflow: showBashOutput && hasOutput ? 'auto' : 'hidden',
+        }}
       >
         {hasOutput && renderedOutput && renderedOutput !== 'Command finished' && (
           <div className="rounded-lg border border-border-light bg-surface overflow-hidden">

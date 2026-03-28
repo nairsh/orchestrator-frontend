@@ -106,9 +106,9 @@ export function TaskDetail({
     }
   }, [isTerminal, workflowStatus, hydrated, objective, workflowId, startedAt, endedAt, activeModel, addNotification]);
 
-  const handleCommand = async (text: string) => {
+  const handleCommand = async (text: string, opts?: { silent?: boolean }) => {
     try {
-      await sendMessage(text);
+      await sendMessage(text, opts);
     } catch (err) {
       toastApiError(err, 'Couldn\'t send your message');
     }
@@ -227,7 +227,7 @@ export function TaskDetail({
                 variant="secondary"
                 size="sm"
                 disabled={!!actionBusy}
-                onClick={async () => { setActionBusy('resume'); try { await handleCommand('continue'); } finally { setActionBusy(null); } }}
+                onClick={async () => { setActionBusy('resume'); try { await handleCommand('continue', { silent: true }); } finally { setActionBusy(null); } }}
                 className="gap-1.5 text-accent border-accent/20 hover:bg-accent/10"
               >
                 {actionBusy === 'resume' ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} />}

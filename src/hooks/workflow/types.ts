@@ -20,7 +20,7 @@ export interface WorkflowStreamState {
   pendingClarification?: PendingClarification;
   startedAt?: string | null;
   endedAt?: string | null;
-  sendMessage: (text: string) => Promise<void>;
+  sendMessage: (text: string, opts?: { silent?: boolean }) => Promise<void>;
   handleApproval: (taskId: string, approved: boolean) => Promise<void>;
   handleBashApproval: (approvalId: string, approved: boolean) => Promise<void>;
 }

@@ -58,8 +58,8 @@ export function BashBlock({ toolName, input, status }: BashBlockProps) {
         </div>
       </button>
       <div
-        className={`overflow-hidden transition-all duration-200 ease-in-out ${
-          expanded ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
+        className={`transition-all duration-200 ease-in-out ${
+          expanded ? 'max-h-[500px] overflow-y-auto opacity-100' : 'max-h-0 overflow-hidden opacity-0'
         }`}
       >
         <div className="border-t border-border-light">
