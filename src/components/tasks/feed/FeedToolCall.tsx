@@ -87,7 +87,26 @@ export function FeedToolCall({
 
   const timeLabel = formatTimeOnly(at);
 
-  const hasOutput = !isTodo && !isFile && !isClarification && output !== undefined;
+  // File content preview for file operations
+  const filePreview = useMemo(() => {
+    if (!isFile || output === undefined) return '';
+    const content = typeof output === 'string'
+      ? output
+      : typeof out.content === 'string'
+        ? out.content
+        : typeof out.result === 'string'
+          ? out.result
+          : typeof out.diff === 'string'
+            ? out.diff
+            : '';
+    if (!content) return '';
+    // Show first 80 lines or 3000 chars, whichever is smaller
+    const lines = content.split('\n');
+    const truncated = lines.length > 80 ? lines.slice(0, 80).join('\n') + `\n… (${lines.length - 80} more lines)` : content;
+    return truncated.slice(0, 3000);
+  }, [isFile, output, out]);
+
+  const hasOutput = !isTodo && !isClarification && output !== undefined && (!isFile || !!filePreview);
   const expandable = hasOutput || todos.length > 0;
 
   const bashExitCode = useMemo(() => {
@@ -151,8 +170,15 @@ export function FeedToolCall({
             <WebSearchRenderer query={query} isRunning={isRunning} searchResults={searchResults} />
           ) : isFetchUrl ? (
             <FetchUrlRenderer isRunning={isRunning} fetchedSource={fetchedSource} />
+          ) : isFile && filePreview ? (
+            <div>
+              <div className="font-sans text-xs text-placeholder mb-1.5">
+                {toolName === 'file_read' ? 'Content' : toolName === 'file_edit' ? 'Changes' : 'Written'}
+              </div>
+              <Highlighter language={filePath.split('.').pop() || 'text'} variant="borderless" copyable showLanguage wrap>{filePreview}</Highlighter>
+            </div>
           ) : (
-            hasOutput && (
+            hasOutput && !isFile && (
               <div>
                 <div className="font-sans text-xs text-placeholder mb-1.5">Result</div>
                 <Highlighter language="text" variant="borderless" copyable showLanguage={false} wrap>{renderedOutput}</Highlighter>
