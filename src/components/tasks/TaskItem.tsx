@@ -131,7 +131,7 @@ export const TaskItem = memo(function TaskItem({ workflow, nowTs, isSelected, on
       tabIndex={0}
       aria-label={`Open task: ${displayTitle}`}
       className={[
-        'group relative flex items-center cursor-pointer rounded-xl px-3 py-2.5 gap-2 transition-colors duration-200 justify-between active:bg-surface-tertiary',
+        'group relative flex items-center cursor-pointer rounded-xl px-3 py-2.5 gap-2 transition-colors duration-200 justify-between active:bg-surface-tertiary focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary',
         isSelected ? 'bg-surface-secondary' : 'hover:bg-surface-hover',
       ].join(' ')}
       onClick={handleClick}

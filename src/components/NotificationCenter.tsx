@@ -110,12 +110,12 @@ export function NotificationCenter(props: NotificationCenterProps) {
             <div className="flex items-center gap-1">
               {unreadCount > 0 && (
                 <Tooltip title="Mark all as read">
-                  <ActionIcon onClick={onMarkAllAsRead} size="small" icon={CheckCheck} />
+                  <ActionIcon onClick={onMarkAllAsRead} size="small" icon={CheckCheck} title="Mark all as read" />
                 </Tooltip>
               )}
               {notifications.length > 0 && (
                 <Tooltip title="Clear all">
-                  <ActionIcon onClick={onClearAll} size="small" icon={Trash2} />
+                  <ActionIcon onClick={onClearAll} size="small" icon={Trash2} title="Clear all notifications" />
                 </Tooltip>
               )}
             </div>
