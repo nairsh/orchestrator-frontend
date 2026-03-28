@@ -6,4 +6,14 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+          'vendor-ui': ['@lobehub/ui'],
+        },
+      },
+    },
+  },
 });
