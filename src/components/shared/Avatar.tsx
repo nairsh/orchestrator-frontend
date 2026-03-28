@@ -8,6 +8,8 @@ export function Avatar({ initial = 'U', size = 28 }: AvatarProps) {
     <div
       className="rounded-full bg-ink flex items-center justify-center text-primary font-semibold flex-shrink-0"
       style={{ width: size, height: size, fontSize: size * 0.42 }}
+      role="img"
+      aria-label={`Avatar: ${initial.toUpperCase()}`}
     >
       {initial.toUpperCase()}
     </div>

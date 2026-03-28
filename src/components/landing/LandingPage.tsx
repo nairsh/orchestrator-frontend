@@ -51,6 +51,7 @@ export function LandingPage({
   const [selectedModel, setSelectedModel] = useState('');
   const { attachments, contextFiles, handleUploadFiles, removeAttachment, clearAttachments } = useFileAttachments();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
   const submittingRef = useRef(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const apiConfig: ApiConfig = config;
@@ -178,12 +179,12 @@ export function LandingPage({
                       className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 bg-surface-tertiary border border-border-light font-sans max-w-[320px]"
                     >
                       <div className="flex items-center justify-center overflow-hidden flex-shrink-0 w-9 h-9 rounded-lg bg-surface border border-border-light">
-                        {a.media_type.startsWith('image/') ? (
+                        {a.media_type.startsWith('image/') && !imgErrors.has(a.id) ? (
                           <img
                             src={`data:${a.media_type};base64,${a.content_base64}`}
                             alt={a.filename}
                             className="w-full h-full object-cover"
-                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                            onError={() => setImgErrors((prev) => new Set(prev).add(a.id))}
                           />
                         ) : (
                           <FileText size={18} className="text-muted" />
@@ -196,7 +197,7 @@ export function LandingPage({
                       <button
                         type="button"
                         onClick={() => removeAttachment(a.id)}
-                        className="h-6 w-6 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors duration-200 cursor-pointer"
+                        className="h-6 w-6 rounded-full flex items-center justify-center text-muted hover:text-primary transition-colors duration-200 cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                         aria-label={`Remove ${a.filename}`}
                       >
                         <X size={14} />
@@ -271,7 +272,7 @@ export function LandingPage({
                   type="button"
                   onClick={() => handleSampleClick(prompt)}
                   aria-label={`Use prompt: ${prompt}`}
-                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs hover:-translate-y-px transition-all duration-200 cursor-pointer font-sans opacity-0"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-border-light bg-surface px-3.5 py-2 text-sm text-muted hover:text-primary hover:border-border hover:shadow-xs hover:-translate-y-px transition-all duration-200 cursor-pointer font-sans opacity-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
                   style={{ animation: `fadeInUpSoft 250ms ease-out ${80 + i * 50}ms both` }}
                 >
                   <span>{prompt}</span>
