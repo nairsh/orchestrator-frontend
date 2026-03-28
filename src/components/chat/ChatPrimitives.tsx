@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, type ReactNode } from 'react';
+import { useState, useMemo, useRef, useLayoutEffect, type ReactNode } from 'react';
 import { ChevronDown, Loader2, ArrowUp, ArrowLeft, X, Square, AlertCircle, RotateCcw } from 'lucide-react';
 import { CopyButton } from '@lobehub/ui';
 import { Markdown } from '../markdown/Markdown';
@@ -197,6 +197,11 @@ interface ChatMessageAreaProps {
 export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth = 'max-w-3xl', bottomRef, onSuggestion }: ChatMessageAreaProps) {
   const isEmpty = messages.length === 0 && !draftAssistant && !streaming;
 
+  const timelineItems = useMemo(
+    () => messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp, error: m.error, model: m.model })),
+    [messages],
+  );
+
   return (
     <div className="flex-1 overflow-y-auto p-5 bg-surface-warm" role="log" aria-label="Chat messages" aria-live="polite">
       <div className={`flex flex-col w-full ${maxWidth} mx-auto`}>
@@ -223,8 +228,8 @@ export function ChatMessageArea({ messages, draftAssistant, streaming, maxWidth 
             )}
           </div>
         )}
-        {messages.length > 0 && (
-          <MessageList items={messages.map((m) => ({ type: 'message' as const, role: m.role, content: m.content, timestamp: m.timestamp, error: m.error, model: m.model }))} />
+        {timelineItems.length > 0 && (
+          <MessageList items={timelineItems} />
         )}
         {draftAssistant && (
           <div className="fade-in-soft mt-6">

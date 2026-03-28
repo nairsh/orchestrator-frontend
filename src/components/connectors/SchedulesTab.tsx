@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CalendarClock, Clock3, Loader2 } from 'lucide-react';
 import { Alert } from '@lobehub/ui';
 import type { ApiConfig, CreateScheduleInput } from '../../api/client';
@@ -15,6 +15,18 @@ interface SchedulesTabProps {
   config: ApiConfig;
   onRefresh: () => Promise<void>;
 }
+
+function getScheduleObjective(config: string | undefined): string {
+  if (!config) return 'Scheduled task';
+  try { return (JSON.parse(config) as { objective?: string }).objective ?? 'Scheduled task'; }
+  catch { return 'Scheduled task'; }
+}
+
+const INTERVAL_OPTIONS = intervalUnits.map((unit) => ({ value: unit, label: unit }));
+const OVERLAP_OPTIONS = [
+  { value: 'skip', label: 'Skip if already running' },
+  { value: 'queue', label: 'Queue overlapping run' },
+];
 
 export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }: SchedulesTabProps) {
   const [showDialog, setShowDialog] = useState(false);
@@ -80,7 +92,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                       {schedule.schedule_type === 'interval' ? <Clock3 size={15} /> : <CalendarClock size={15} />}
                       {getScheduleLabel(schedule)}
                     </div>
-                    <div className="mt-2 text-sm text-secondary">{(() => { try { return schedule.workflow_config ? (JSON.parse(schedule.workflow_config) as { objective?: string }).objective ?? 'Scheduled task' : 'Scheduled task'; } catch { return 'Scheduled task'; } })()}</div>
+                    <div className="mt-2 text-sm text-secondary">{getScheduleObjective(schedule.workflow_config)}</div>
                     <div className="mt-3 text-xs leading-5 text-muted">
                       Next: {formatWhen(schedule.next_run_at)}<br />
                       Timezone: {schedule.timezone} • {schedule.overlap_policy === 'skip' ? 'Skip if already running' : 'Queue overlapping run'}<br />
@@ -143,7 +155,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                     label="Unit"
                     value={scheduleIntervalUnit}
                     onChange={(e) => setScheduleIntervalUnit(e.target.value as IntervalUnit)}
-                    options={intervalUnits.map((unit) => ({ value: unit, label: unit }))}
+                    options={INTERVAL_OPTIONS}
                   />
                 </div>
               </div>
@@ -154,10 +166,7 @@ export function SchedulesTab({ schedules, schedulesLoading, config, onRefresh }:
                 label="If a task is still running"
                 value={scheduleOverlapPolicy}
                 onChange={(e) => setScheduleOverlapPolicy(e.target.value as 'skip' | 'queue')}
-                options={[
-                  { value: 'skip', label: 'Skip if already running' },
-                  { value: 'queue', label: 'Queue overlapping run' },
-                ]}
+                options={OVERLAP_OPTIONS}
               />
             </div>
           </ModalBody>
