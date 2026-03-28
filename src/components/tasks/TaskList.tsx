@@ -60,6 +60,10 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
 
   const sortedWorkflows = useMemo(() => {
     let arr = [...workflows];
+    // Apply status filter
+    if (statusFilter) {
+      arr = arr.filter((wf) => wf.status === statusFilter);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       arr = arr.filter((wf) => {
@@ -75,7 +79,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
       return bTs - aTs;
     });
     return arr;
-  }, [workflows, sortKey, searchQuery, getDisplayName]);
+  }, [workflows, sortKey, searchQuery, getDisplayName, statusFilter]);
 
   const groupedWorkflows = useMemo(
     () => groupByDate(
@@ -197,7 +201,7 @@ export function TaskList({ workflows, selectedId, onSelect, config, selectedMode
             </div>
           )}
           {error && !loading && (
-            <div className="flex flex-col items-center pt-8 text-center px-4">
+            <div role="alert" className="flex flex-col items-center pt-8 text-center px-4">
               <p className="text-sm text-danger font-medium">Failed to load tasks</p>
               <p className="text-xs text-secondary mt-1">{error}</p>
               <button

@@ -86,11 +86,13 @@ export function NotificationCenter(props: NotificationCenterProps) {
           onClick={() => setOpen(!open)}
           className="relative w-8 h-8 rounded-lg flex items-center justify-center text-muted hover:text-primary hover:bg-surface-hover transition-colors duration-200 cursor-pointer"
           aria-label="Notifications"
+          aria-expanded={open}
+          aria-haspopup="true"
         >
           <Bell size={18} />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center">
-              {unreadCount > 9 ? '9+' : unreadCount}
+            <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 rounded-full bg-danger text-white text-[10px] font-bold flex items-center justify-center px-0.5">
+              {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </button>
