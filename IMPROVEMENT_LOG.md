@@ -348,3 +348,53 @@ Clerk integration is fully functional. Shows real username when Clerk account ha
 - Added handleBashApproval callback through full component chain
 - Deep audit at batch 80: all pages verified in dark/light/mobile — no regressions
 - Notification system confirmed working (was user-reported as broken)
+
+## Batch 81 — Notification Navigation + Command Palette
+- NotificationCenter: clicking a notification dispatches relay:select-workflow event
+- TasksPage: listens for relay:select-workflow to navigate to specific workflow
+- NotificationCenter: marks notification as read on click
+- Command Palette: clicking recent task navigates to it
+
+## Batch 82 — Mobile Task Readability + Visual Polish
+- TaskItem: 2-line layout on mobile (title above snippet)
+- Truncation: objective max 50 chars, snippet max 80 chars
+- Time column: relative time (e.g., "3h ago") for compact display
+- Sidebar recents: improved truncation with ellipsis
+
+## Batch 83 — Command Palette Enhancements
+- Added "Toggle Chat" action dispatching relay:toggle-chat event
+- Keyboard shortcut hints (⌘⇧C, ⌘⇧O, etc.) displayed on items
+- Real workflows lazy-loaded via useWorkflows when palette is open
+- Status-aware icons: CheckCircle2 (green), AlertCircle (red), Clock
+
+## Batch 84 — Error Boundaries + Landing Page Suggestions
+- Enhanced ErrorBoundary with inline variant, label prop, retry button
+- Wrapped LandingPage, SettingsPage, TasksPage with inline error boundaries
+- Expanded suggestion pool: 15 prompts across 5 emoji-prefixed categories
+- Random category selection per session for variety
+
+## Batch 85 — Chat Persistence, P1 Bug Fixes, Keyboard A11y
+- Chat: sessionStorage persistence (last 50 messages), full conversation history sent
+- Chat: "New chat" button (RotateCcw) in header when messages exist
+- P1: SSE stream wedge — synthetic 'done' event on EOF
+- P1: Failed follow-up rollback — revert optimistic state on sendMessage failure
+- P1: Duplicate workflow creation — await onSubmit promise instead of 1s timeout
+- P2: TaskItem keyboard accessibility (role=button, tabIndex, Enter/Space)
+- P2: Memoized runtimeConfig to prevent refetch churn
+- P2: Workflow list errors displayed with retry button
+- Responsive padding for TaskDetail and CommandInput on mobile
+
+## Batch 86 — Notification Context, Hydration Error Handling
+- P1: Hydration errors no longer silently swallowed in useWorkflowStream
+- P2: Notifications shared via React Context (NotificationProvider)
+- P2: False notifications on historical tasks eliminated (hydrated flag)
+- P3: Settings model-load errors now visible in both panels
+- P3: Removed dead FullPageChat component (79 lines)
+- P3: Added font-display: swap to external Styrene font faces
+
+## Batch 87 — Chat Avatars & Timestamps, Credits Toast Fix
+- Chat: Bot avatar icon for assistant messages, User avatar for user messages
+- Chat: Timestamps (HH:MM) on all messages
+- Chat: Bot avatar on streaming "Thinking…" indicator
+- Credits toast: prevent misleading 100% (capped at 99% when usage exists)
+- No progress bar shown when periodCreditsUsed is 0
