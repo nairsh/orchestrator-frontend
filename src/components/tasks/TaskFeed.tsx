@@ -164,6 +164,21 @@ export function TaskFeed({ feed, currentActivity, thinkingText, isTerminal, isSt
     }
   }, [renderRows.length, isNearBottom, scrollToBottom]);
 
+  // Also auto-scroll when content height grows within existing rows (e.g., streaming)
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      if (checkIfNearBottom()) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+    // Observe the inner content wrapper — its height changes as content streams in
+    const inner = el.firstElementChild;
+    if (inner) ro.observe(inner);
+    return () => ro.disconnect();
+  }, [checkIfNearBottom]);
+
   return (
     <div ref={scrollContainerRef} role="log" aria-live="polite" className={`flex-1 overflow-y-auto flex flex-col items-center px-4 md:px-16 pb-20 ${fullView ? 'pt-6' : 'pt-4'}`}>
       <div className="flex flex-col w-full relative" style={{ maxWidth, paddingTop: 32 }}>

@@ -50,6 +50,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   const assistantBufferRef = useRef('');
   const abortRef = useRef<{ close: () => void } | null>(null);
   const messagesRef = useRef(messages);
+  const rafRef = useRef<number | null>(null);
+  const draftDirtyRef = useRef(false);
 
   // Keep ref in sync for use in callbacks
   useEffect(() => {
@@ -103,11 +105,20 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
         (chunk: StreamChunk) => {
           if (chunk.type === 'text_delta' && chunk.text) {
             assistantBufferRef.current += chunk.text;
-            setDraftAssistant(assistantBufferRef.current);
+            // Batch draft updates via RAF to avoid per-token re-renders
+            if (!draftDirtyRef.current) {
+              draftDirtyRef.current = true;
+              rafRef.current = requestAnimationFrame(() => {
+                draftDirtyRef.current = false;
+                setDraftAssistant(assistantBufferRef.current);
+              });
+            }
             return;
           }
 
           if (chunk.type === 'done') {
+            if (rafRef.current) cancelAnimationFrame(rafRef.current);
+            draftDirtyRef.current = false;
             setStreaming(false);
             const finalText = assistantBufferRef.current;
             if (finalText) {
@@ -156,6 +167,8 @@ export function useChatStream({ config, model }: UseChatStreamOptions) {
   const abort = useCallback((persistPartial = true) => {
     abortRef.current?.close();
     abortRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    draftDirtyRef.current = false;
     setStreaming(false);
     const partial = assistantBufferRef.current;
     if (persistPartial && partial) {
