@@ -17,3 +17,11 @@ pnpm-debug.log*
 .vite/
 coverage/
 *.tsbuildinfo
+
+# Agent scaffolding
+.claude/
+.swarm/
+.codex/
+.design/
+AGENTS.md
+CLAUDE.md
